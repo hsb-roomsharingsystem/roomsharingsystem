@@ -1,0 +1,38 @@
+// 
+// English Language File for RoomSharingObject Plugin
+//
+
+<!-- language file start -->
+obj_xrsp#:#RoomSharing
+objs_xrsp#:#RoomSharings
+obj_xrsp_duplicate#:#Copy
+objs_xrsp_duplicate#:#Copy RoomSharing
+obj_xrsp_select#:#Select RoomSharing
+xrsp_add#:#Add RoomSharing
+xrsp_new#:#Add New RoomSharing
+xrsp_read#:#Read access to RoomSharing
+xrsp_write#:#Edit RoomSharing
+xrsp_delete#:#Delete RoomSharing
+xrsp_visible#:#RoomSharing is visible
+xrsp_edit_permission#:#Change permission settings
+crs_create_xrsp#:#Create RoomSharing
+grp_create_xrsp#:#Create RoomSharing
+fold_create_xrsp#:#Create RoomSharing
+root_create_xrsp#:#Create RoomSharing
+cat_create_xrsp#:#Create RoomSharing
+content#:#Content
+properties#:#Properties
+edit_properties#:#Edit Properties
+title#:#Title
+description#:#Description
+option_one#:#Option One
+option_two#:#Option Two
+save#:#Save
+cancel#:#Cancel
+edit#:#Edit
+status#:#Status
+offline#:#Offline
+roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
+setting_1#:#Setting 1
+setting_2#:#Setting 2
+saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
