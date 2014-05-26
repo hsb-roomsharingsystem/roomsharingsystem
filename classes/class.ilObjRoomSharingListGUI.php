@@ -21,6 +21,7 @@ class ilObjRoomSharingListGUI extends ilObjectPluginListGUI
 	function initType()
 	{
 		$this->setType("xrsp");
+		
 	}
 	
 	/**
@@ -36,18 +37,22 @@ class ilObjRoomSharingListGUI extends ilObjectPluginListGUI
 	*/
 	function initCommands()
 	{
-		return array
-		(
-			array(
-				"permission" => "read",
-				"cmd" => "showContent",
-				"default" => true),
-			array(
-				"permission" => "write",
-				"cmd" => "editProperties",
-				"txt" => $this->txt("edit"),
-				"default" => false),
-		);
+		$this->static_link_enabled = true;
+		$this->delete_enabled = true;
+		$this->cut_enabled = true;
+		$this->copy_enabled = true;
+		$this->subscribe_enabled = true;
+		$this->link_enabled = true;
+		$this->payment_enabled = false;
+		$this->info_screen_enabled = true;
+		
+		$this->gui_class_name = "ilobjroomsharinggui";
+		
+		// general commands array
+		include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharingAccess.php');
+		$this->commands = ilObjRoomSharingAccess::_getCommands();
+		return $this->commands;
+		
 	}
 }
 ?>
