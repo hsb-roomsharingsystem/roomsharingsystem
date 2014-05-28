@@ -24,7 +24,7 @@ class ilRoomSharingBookings
         if(!empty($id) && is_numeric($id)) 
         {
             $set = $ilDB->query('SELECT seq, user_id'.
-                    ' FROM roomsharing_bookings'.
+                    ' FROM rep_robj_xrs_bookings'.
                     ' AND id = '.$ilDB->quote($booking_id, 'integer'));
             $row = $ilDB->fetchAssoc($set);
             
@@ -34,24 +34,24 @@ class ilRoomSharingBookings
                 //Check whether only the specific booking should be deleted
                 if(!$seq || $row['seq'] == NULL || !is_numeric($row['seq'])) 
                 {
-                    $ilDB->query('DELETE FROM roomsharing_bookings'.
+                    $ilDB->query('DELETE FROM rep_robj_xrs_bookings'.
                             ' WHERE id = '.$ilDB->quote($booking_id, 'integer'));
-                    $ilDB->query('DELETE FROM roomsharing_book_user'.
+                    $ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
                             ' WHERE booking_id = '.$ilDB->quote($booking_id, 'integer'));
                 } 
                 //else delete every booking in the sequence
                 else 
                 {
                     //Get every booking which is in the specific sequence
-                    $seq_set = $ilDB->query('SELECT id FROM roomsharing_bookings'.
+                    $seq_set = $ilDB->query('SELECT id FROM rep_robj_xrs_bookings'.
                             ' WHERE seq = '.$ilDB->quote($row['seq'], 'integer').
                             ' AND pool_id = '.$ilDB->quote(1, 'integer'));
                     while($seq_row = $ilDB->fetchAssoc($seq_set)) 
                     {
                         //Delete the booking, which is part of the sequence
-                        $ilDB->query('DELETE FROM roomsharing_bookings'.
+                        $ilDB->query('DELETE FROM rep_robj_xrs_bookings'.
                             ' WHERE id = '.$ilDB->quote($seq_row['id'], 'integer'));
-                        $ilDB->query('DELETE FROM roomsharing_book_user'.
+                        $ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
                             ' WHERE booking_id = '.$ilDB->quote($seq_row['id'], 'integer'));
                     }
                 }
@@ -69,7 +69,7 @@ class ilRoomSharingBookings
         global $ilDB, $ilUser, $lng;
         
         $set = $ilDB->query('SELECT *'.
-                        ' FROM roomsharing_bookings'.
+                        ' FROM rep_robj_xrs_bookings'.
                         ' WHERE pool_id = '.$ilDB->quote(1, 'integer').
                         ' AND user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
                         ' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
@@ -109,7 +109,7 @@ class ilRoomSharingBookings
             $one_booking['date'] = $date;
             
             //Get the name of the booked room
-            $roomSet = $ilDB->query('SELECT name FROM roomsharing_rooms'.
+            $roomSet = $ilDB->query('SELECT name FROM rep_robj_xrs_rooms'.
                         ' WHERE id = '.$ilDB->quote($row['room_id'], 'integer'));
             $roomRow = $ilDB->fetchAssoc($roomSet);
             $one_booking['room'] = $roomRow['name'];
@@ -119,8 +119,8 @@ class ilRoomSharingBookings
             //Get the participants
             $participantSet = $ilDB->query('SELECT users.firstname AS firstname,'.
                         ' users.lastname AS lastname, users.login AS login'.
-                        ' FROM roomsharing_book_user'.
-			' LEFT JOIN usr_data AS users ON users.usr_id = roomsharing_book_user.user_id'.
+                        ' FROM rep_robj_xrs_book_user'.
+			' LEFT JOIN usr_data AS users ON users.usr_id = rep_robj_xrs_book_user.user_id'.
 			' WHERE booking_id = '.$ilDB->quote($row['id'], 'integer').' ORDER BY users.lastname, users.firstname ASC');
             while($participantRow = $ilDB->fetchAssoc($participantSet))
             {

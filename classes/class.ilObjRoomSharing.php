@@ -4,7 +4,7 @@
 include_once("./Services/Repository/classes/class.ilObjectPlugin.php");
 
 /**
- * Mainclass for roomsharing system module. Pool id is the object id and will be stored in the db table "roomsharing_pools".
+ * Mainclass for roomsharing system module. Pool id is the object id and will be stored in the db table "rep_robj_xrs_pools".
  *
  * @author tmatern
  * @author mdazjuk
@@ -34,7 +34,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	*/
 	final function initType()
 	{
-		$this->setType("xrsp");
+		$this->setType("xrs");
 	}
 	
 	/**
@@ -59,7 +59,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 		$this->pool_id = $new_id;
 		$fields = $this->getDBFields();
 		$fields["id"] = array("integer", $new_id);
-		$ilDB->insert("roomsharing_pools", $fields);
+		$ilDB->insert("rep_robj_xrs_pools", $fields);
 		return $new_id;
 	*/
 	}
@@ -76,7 +76,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 		if ($objId)
 		{
 			$this->pool_id = $objId;
-			$set = $ilDB->query('SELECT * FROM roomsharing_pools' .
+			$set = $ilDB->query('SELECT * FROM rep_robj_xrs_pools' .
 					' WHERE id = ' . $ilDB->quote($this->getId(), 'integer'));
 			$row = $ilDB->fetchAssoc($set);
 			$this->setOnline($row['pool_online']);
@@ -94,7 +94,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 		// Put here object specific stuff.
 		if ($this->getId())
 		{
-			$ilDB->update("roomsharing_pools", $this->getDBFields(), array("id" => array("integer", $this->getId())));
+			$ilDB->update("rep_robj_xrs_pools", $this->getDBFields(), array("id" => array("integer", $this->getId())));
 		}
 		return true;
 	}
@@ -135,7 +135,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 		global $ilDB;
 	
 		$set = $ilDB->query("SELECT pool_online" .
-				" FROM roomsharing_pools" .
+				" FROM rep_robj_xrs_pools" .
 				" WHERE id = " . $ilDB->quote($a_obj_id, "integer"));
 		$row = $ilDB->fetchAssoc($set);
 		return (bool) $row["pool_online"];

@@ -3,23 +3,23 @@
 //
 
 <!-- language file start -->
-obj_xrsp#:#RoomSharing
-objs_xrsp#:#RoomSharings
-obj_xrsp_duplicate#:#Copy
-objs_xrsp_duplicate#:#Copy RoomSharing
-obj_xrsp_select#:#Select RoomSharing
-xrsp_add#:#Add RoomSharing
-xrsp_new#:#Add New RoomSharing
-xrsp_read#:#Read access to RoomSharing
-xrsp_write#:#Edit RoomSharing
-xrsp_delete#:#Delete RoomSharing
-xrsp_visible#:#RoomSharing is visible
-xrsp_edit_permission#:#Change permission settings
-crs_create_xrsp#:#Create RoomSharing
-grp_create_xrsp#:#Create RoomSharing
-fold_create_xrsp#:#Create RoomSharing
-root_create_xrsp#:#Create RoomSharing
-cat_create_xrsp#:#Create RoomSharing
+obj_xrs#:#RoomSharing
+objs_xrs#:#RoomSharings
+obj_xrs_duplicate#:#Copy
+objs_xrs_duplicate#:#Copy RoomSharing
+obj_xrs_select#:#Select RoomSharing
+xrs_add#:#Add RoomSharing
+xrs_new#:#Add New RoomSharing
+xrs_read#:#Read access to RoomSharing
+xrs_write#:#Edit RoomSharing
+xrs_delete#:#Delete RoomSharing
+xrs_visible#:#RoomSharing is visible
+xrs_edit_permission#:#Change permission settings
+crs_create_xrs#:#Create RoomSharing
+grp_create_xrs#:#Create RoomSharing
+fold_create_xrs#:#Create RoomSharing
+root_create_xrs#:#Create RoomSharing
+cat_create_xrs#:#Create RoomSharing
 content#:#Content
 properties#:#Properties
 edit_properties#:#Edit Properties

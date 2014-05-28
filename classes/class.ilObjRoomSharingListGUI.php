@@ -20,7 +20,7 @@ class ilObjRoomSharingListGUI extends ilObjectPluginListGUI
 	*/
 	function initType()
 	{
-		$this->setType("xrsp");
+		$this->setType("xrs");
 		
 	}
 	

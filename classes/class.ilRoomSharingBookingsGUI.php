@@ -28,6 +28,12 @@ class ilRoomSharingBookingsGUI
 		$this->lng = $lng;
 		$this->tpl = $tpl;	
 	}
+	
+	
+	function performCommand($cmd)
+	{
+		echo "Perform CMD: ".$cmd;
+	}
 
 	/**
 	 * Main switch for command execution.

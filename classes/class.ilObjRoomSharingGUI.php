@@ -38,7 +38,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	final function getType()
 	{
-		return "xrsp";
+		return "xrs";
 	}
 
 	/**
@@ -56,6 +56,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		
 		if($cmd == 'render')
 		{
+			$ilTabs->setTabActive('overview');
+			$tpl->setContent("Dies ist das neue RoomSharing-Plugin!");
 			return true;
 		}
 		// On call of the module or children cmdClasses.
@@ -188,22 +190,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	*/
 	function setTabs()
 	{
-		global  $ilTabs, $ilCtrl, $ilAccess, $ilHelp;
-
-		$ilHelp->setScreenIdComponent("room");
-		 
-		// tab for the "show content" command
-		if ($ilAccess->checkAccess("read", "", $this->object->getRefId()))
-		{
-			$ilTabs->addTab("content", $this->txt("content"), $ilCtrl->getLinkTarget($this, "showContent"));
-		}
-		// standard info screen tab
-// 		$this->addInfoTab();
-		
-		$ilTabs->addTarget("info_short",
-				$this->ctrl->getLinkTargetByClass(
-						"ilinfoscreengui", "showSummary"),
-				"showSummary");
+		global  $ilTabs, $ilCtrl, $ilAccess;
 		
 		// Overview
 		$ilTabs->addTab("overview", $this->txt("overview"), $ilCtrl->getLinkTargetByClass('ilroomsharingoverviewgui', "showBookings"));
@@ -214,6 +201,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Floorplans.
 		$this->tabs_gui->addTab("floor_plans", $this->lng->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
 
+		// standard info screen tab
+		$this->addInfoTab();
+		
 		// Show permissions and settings tabs if the user has write permissions.
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
 		{
@@ -236,8 +226,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	function showContent()
 	{
 		global $tpl, $ilTabs;
-
-		$ilTabs->activateTab("content");
+		
 		$tpl->setContent("Hello World.");
 	}
 

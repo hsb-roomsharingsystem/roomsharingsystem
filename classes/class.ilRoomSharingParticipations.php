@@ -21,7 +21,7 @@ class ilRoomSharingParticipations
         
         if(!empty($booking_id) && is_numeric($booking_id)) 
         {
-            $ilDB->query('DELETE FROM roomsharing_book_user'.
+            $ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
                     ' WHERE user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
                     ' AND booking_id = '.$ilDB->quote($booking_id, 'integer'));
         }
@@ -37,14 +37,14 @@ class ilRoomSharingParticipations
         global $ilDB, $ilUser, $lng;
 
 	$set = $ilDB->query('SELECT booking_id'.
-                        ' FROM roomsharing_book_user'.
+                        ' FROM rep_robj_xrs_book_user'.
                         ' WHERE user_id = '.$ilDB->quote($ilUser->getId(), 'integer'));
         $res = array();
         while($row = $ilDB->fetchAssoc($set))
         {
             $one_booking = array();
             $bookingSet = $ilDB->query('SELECT *'.
-                        ' FROM roomsharing_bookings'.
+                        ' FROM rep_robj_xrs_bookings'.
                         ' WHERE id = '.$ilDB->quote($row['booking_id'], 'integer').
                         //Eigentlich gibt es bei MySQL hierfür "NOW()",
                         //aber das würde halt nicht für etwa ORACLE gelten.
@@ -82,7 +82,7 @@ class ilRoomSharingParticipations
                 $one_booking['date'] = $date;
 
                 //Get the name of the booked room
-                $roomSet = $ilDB->query('SELECT name FROM roomsharing_rooms'.
+                $roomSet = $ilDB->query('SELECT name FROM rep_robj_xrs_rooms'.
                             ' WHERE id = '.$ilDB->quote($bookingRow['room_id'], 'integer'));
                 $roomRow = $ilDB->fetchAssoc($roomSet);
                 $one_booking['room'] = $roomRow['name'];

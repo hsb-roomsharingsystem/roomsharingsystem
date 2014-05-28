@@ -39,7 +39,7 @@ class ilRoomSharingBookableRooms {
 		 * Add filters to query strings
 		 */
 		
-		$select_query = 'SELECT room.id, name, max_alloc FROM roomsharing_rooms room ';
+		$select_query = 'SELECT room.id, name, max_alloc FROM rep_robj_xrs_rooms room ';
 		$order_by_name = ' ORDER BY name ';
 		$join_part = ' ';
 		$where_part = ' WHERE room.pool_id = ' . $ilDB->quote ( 1, 'integer' ) . ' '; // 1 until yet
@@ -96,7 +96,7 @@ class ilRoomSharingBookableRooms {
 	public function getAllAttributes() {
 		global $ilDB;
 		
-		$set = $ilDB->query ( 'SELECT name FROM roomsharing_attributes ORDER BY name' );
+		$set = $ilDB->query ( 'SELECT name FROM rep_robj_xrs_rattr ORDER BY name' );
 		
 		$attributes = array ();
 		while ( $row = $ilDB->fetchAssoc ( $set ) ) {
@@ -116,7 +116,7 @@ class ilRoomSharingBookableRooms {
 	protected function getAttributes(array $room_ids) {
 		global $ilDB;
 		
-		$st = $ilDB->prepare ( 'SELECT room_id, att.name, count FROM roomsharing_room_attr ' . ' LEFT JOIN roomsharing_attributes as att ON att.id = roomsharing_room_attr.att_id' . ' WHERE ' . $ilDB->in ( "room_id", $room_ids ) . ' ORDER BY room_id, att.name', $ilDB->addTypesToArray ( $types, "integer", count ( $room_ids ) ) );
+		$st = $ilDB->prepare ( 'SELECT room_id, att.name, count FROM rep_robj_xrs_room_attr ' . ' LEFT JOIN rep_robj_xrs_rattr as att ON att.id = rep_robj_xrs_room_attr.att_id' . ' WHERE ' . $ilDB->in ( "room_id", $room_ids ) . ' ORDER BY room_id, att.name', $ilDB->addTypesToArray ( $types, "integer", count ( $room_ids ) ) );
 		$set = $ilDB->execute ( $st, $room_ids );
 		
 		$res_attribute = array ();
