@@ -6,7 +6,7 @@
 * @author Alexander Keller <a.k3ll3r@gmail.com>
 * @version $Id$
 * 
-* @ilCtrl_Calls ilRoomSharingOverviewGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI
+* @ilCtrl_Calls ilRoomSharingOverviewGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI
 * @ilCtrl_isCalledBy ilRoomSharingOverviewGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
 * 
 */
@@ -26,22 +26,34 @@ class ilRoomSharingOverviewGUI
         */
         $this->ctrl = $ilCtrl;
 		$this->lng = $lng;
-		$this->tpl = $tpl;	
 	}
 
+	
+	function performCommand($cmd){
+		echo $cmd;
+	}
+	
 	/**
 	 * Main switch for command execution.
 	 */
 	function executeCommand()
 	{
 		global $ilCtrl, $tpl;
+		
+		$cmd = $ilCtrl->getCmd("showBookings");
+		
+		echo "<br>CMD: RoomSharingOverview.".$cmd;
 		$next_class = $ilCtrl->getNextClass($this);
-        $cmd = $ilCtrl->getCmd("showBookings");
+		echo "<br>next_Class: ".$next_class;
+		$ilCtrl->setReturn($this, "showBookings");
+
+		
+        
 		switch($next_class)
 		{
 			// Bookings 
             case 'ilroomsharingbookingsgui':
-				$this->showBookingsObject();
+				$this->showBookings();
 				break;
             
 			// Participations 
@@ -50,10 +62,10 @@ class ilRoomSharingOverviewGUI
 				break;
             
             default:
-				$cmd .= 'Object';
 				$this->$cmd();
 				break;
 		}
+		
 		return true;
 	}
 
@@ -82,7 +94,7 @@ class ilRoomSharingOverviewGUI
 	/**
 	 * Shows all bookings.
 	 */
-	function showBookingsObject()
+	function showBookings()
 	{
         $this->setSubTabs('bookings');
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookingsGUI.php");

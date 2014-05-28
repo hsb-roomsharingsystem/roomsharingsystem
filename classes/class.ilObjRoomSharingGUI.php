@@ -19,6 +19,7 @@ include_once("./Services/Repository/classes/class.ilObjectPluginGUI.php");
  *   screens) and ilInfoScreenGUI (handles the info screen).
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingOverviewGUI, ilRoomsharingRoomplansGUI, ilRoomsharingFloorplansGUI, ilPublicUserProfileGUI
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
  *
 */
@@ -45,38 +46,48 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	function performCommand($cmd)
 	{
-		echo "Command:".$cmd;
+		global $ilTabs, $ilCtrl;
+		$next_class = $ilCtrl->getNextClass($this);
+		echo "Command: ".$cmd;
+		echo "<br>CLASS: ".$next_class;
+		global $tpl, $ilTabs, $ilNavigationHistory, $cmd;
 		
-		switch ($cmd)
+		$cmd = $ilCtrl->getCmd();
+		
+		if($cmd == 'render')
 		{
-			case "editProperties":		// list all commands that need write permission here
-			case "updateProperties":
-				//case "...":
-				$this->checkPermission("write");
-				$this->$cmd();
-				break;
-					
-			case "showContent":			// list all commands that need read permission here
-				$this->checkPermission("read");
-				$this->$cmd();
-				break;
-
-/*
- * Kann so nicht übernommen werden, da hier $cmd anstelle von $next_class verwendet wird
- * 
-			 // Overview
+			return true;
+		}
+		// On call of the module or children cmdClasses.
+		if (!$next_class && ($cmd == 'overview'))
+		{
+			$ilTabs->setTabActive('overview');
+			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingOverviewGUI.php");
+			$object_gui = & new ilRoomSharingOverviewGUI($this);
+			$ilCtrl->forwardCommand($object_gui);
+			break;
+		}
+		
+		// Extend list of last visited objects by this pool.
+		$ilNavigationHistory->addItem($this->ref_id, "./goto.php?target=room_" . $this->ref_id, "room");
+		
+		
+		// Main switch for cmdClass.
+		switch ($next_class)
+		{
+			// Overview
 			case 'ilroomsharingoverviewgui':
 				$this->tabs_gui->setTabActive('overview');
 				include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingOverviewGUI.php");
 				$object_gui = & new ilRoomSharingOverviewGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
-
+		
 				// Info.
 			case 'ilinfoscreengui':
 				$this->infoScreen();
 				break;
-
+		
 				// Roomplans.
 			case 'ilroomsharingroomplansgui':
 				$this->tabs_gui->setTabActive('room_plans');
@@ -84,7 +95,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$object_gui = & new ilRoomSharingRoomPlansGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
-
+		
 				// Floorplan.
 			case 'ilroomsharingfloorplansgui':
 				$this->tabs_gui->setTabActive('floor_plans');
@@ -92,7 +103,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
 				break;
-
+		
 				// Permissions.
 			case 'ilpermissiongui':
 				$this->tabs_gui->setTabActive('perm_settings');
@@ -100,7 +111,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$perm_gui = & new ilPermissionGUI($this);
 				$ret = & $this->ctrl->forwardCommand($perm_gui);
 				break;
-
+		
 				//Userprofile GUI.
 			case 'ilpublicuserprofilegui':
 				$ilTabs->clearTargets();
@@ -110,14 +121,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$ret = $this->ctrl->forwardCommand($profile);
 				$tpl->setContent($ret);
 				break;
-
+		
 				// Standard dispatcher GUI.
 			case "ilcommonactiondispatchergui":
 				include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
 				$gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
 				$this->ctrl->forwardCommand($gui);
 				break;
-
+		
 				// Copy GUI. Not supported yet.
 			case "ilobjectcopygui":
 				include_once "./Services/Object/classes/class.ilObjectCopyGUI.php";
@@ -125,9 +136,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$cp->setType("roomsharing");
 				$this->ctrl->forwardCommand($cp);
 				break;
-	*/
-
+		
+				// Standard cmd handling if cmd is not recognized.
+			default:
+				
+				$cmd = $ilCtrl->getCmd();
+				echo "defaultcmd:".$cmd;
+				$this->$cmd();
+				break;
 		}
+		
+		// Action menue (top right corner of the module).
+// 		$this->addHeaderAction();
+		return true;
+		
 	}
 
 	/**
@@ -166,7 +188,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	*/
 	function setTabs()
 	{
-		global  $ilTabs, $ilCtrl,$ilAccess, $ilHelp;
+		global  $ilTabs, $ilCtrl, $ilAccess, $ilHelp;
 
 		$ilHelp->setScreenIdComponent("room");
 		 
@@ -176,15 +198,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$ilTabs->addTab("content", $this->txt("content"), $ilCtrl->getLinkTarget($this, "showContent"));
 		}
 		// standard info screen tab
-		$this->addInfoTab();
-
-		// Overview.
-		$this->tabs_gui->addTab("overview", // Sub GUI ID.
-				$this->txt("overview"), // Translation key.
-				$this->ctrl->getLinkTargetByClass('ilroomsharingoverviewgui', "showBookings")); // Linked class with execution command.
-		// Info.
-		$this->tabs_gui->addTab("info", $this->lng->txt("info_short"), $this->ctrl->getLinkTargetByClass(array('ilobjroomsharingpoolgui', 'ilinfoscreengui'), "showSummary"));
-
+// 		$this->addInfoTab();
+		
+		$ilTabs->addTarget("info_short",
+				$this->ctrl->getLinkTargetByClass(
+						"ilinfoscreengui", "showSummary"),
+				"showSummary");
+		
+		// Overview
+		$ilTabs->addTab("overview", $this->txt("overview"), $ilCtrl->getLinkTargetByClass('ilroomsharingoverviewgui', "showBookings"));
+		
 		// Roomplans.
 		$this->tabs_gui->addTab("room_plans", $this->lng->txt("room_plans"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomplansgui', "showBookableRooms"));
 
