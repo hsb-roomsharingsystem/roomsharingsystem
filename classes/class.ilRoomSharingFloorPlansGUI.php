@@ -17,7 +17,7 @@ class ilRoomSharingFloorPlansGUI {
      * Constructur for ilRoomSharingFloorPlansGUI
      * @param	object	$a_parent_obj
      */
-    function __construct(ilObjRoomSharingPoolGUI $a_parent_obj) {
+    function __construct(ilObjRoomSharingGUI $a_parent_obj) {
         global $ilCtrl, $lng, $tpl;
 
         $this->ref_id = $a_parent_obj->ref_id;

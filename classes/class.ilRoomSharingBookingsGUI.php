@@ -45,7 +45,11 @@ class ilRoomSharingBookingsGUI
           // Auskommentiert lassen, sonst kracht das Programm. Warum, wird noch erforscht.
 //		$next_class = $ilCtrl->getNextClass($this);
         $cmd = $ilCtrl->getCmd("showBookings");
-		
+
+        if ($cmd == 'render') {
+        	$cmd = 'showBookings';
+        }
+        
 		switch($next_class)
 		{
 			default:
@@ -55,7 +59,7 @@ class ilRoomSharingBookingsGUI
 		}
 		return true;
 	}
- 
+	
 	/**
 	 * Shows all made bookings.
 	 */

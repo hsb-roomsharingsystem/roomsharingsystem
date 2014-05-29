@@ -49,25 +49,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		global $ilTabs, $ilCtrl;
 		$next_class = $ilCtrl->getNextClass($this);
 		echo "Command: ".$cmd;
-		echo "<br>CLASS: ".$next_class;
+		echo "<br>Next_Class: ".$next_class;
 		global $tpl, $ilTabs, $ilNavigationHistory, $cmd;
 		
 		$cmd = $ilCtrl->getCmd();
 		
-		if($cmd == 'render')
-		{
-			$ilTabs->setTabActive('overview');
-			$tpl->setContent("Dies ist das neue RoomSharing-Plugin!");
-			return true;
-		}
-		// On call of the module or children cmdClasses.
-		if (!$next_class && ($cmd == 'overview'))
+	
+		// On initial call of the plugin.
+		if (!$next_class && ($cmd == 'render'))
 		{
 			$ilTabs->setTabActive('overview');
 			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingOverviewGUI.php");
 			$object_gui = & new ilRoomSharingOverviewGUI($this);
 			$ilCtrl->forwardCommand($object_gui);
-			break;
+			return true;
 		}
 		
 		// Extend list of last visited objects by this pool.
@@ -101,9 +96,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				// Floorplan.
 			case 'ilroomsharingfloorplansgui':
 				$this->tabs_gui->setTabActive('floor_plans');
-				include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlansGUI.php");
-				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
-				$ret = & $this->ctrl->forwardCommand($schedule_gui);
+// 				include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlansGUI.php");
+// 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
+// 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
+				$this->tpl->setContent("Die Ansicht der Pläne ist noch nicht an die neue Plugin-Ordnerstruktur angepasst.");
 				break;
 		
 				// Permissions.
@@ -194,15 +190,17 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		
 		// Overview
 		$ilTabs->addTab("overview", $this->txt("overview"), $ilCtrl->getLinkTargetByClass('ilroomsharingoverviewgui', "showBookings"));
-		
-		// Roomplans.
-		$this->tabs_gui->addTab("room_plans", $this->lng->txt("room_plans"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomplansgui', "showBookableRooms"));
-
-		// Floorplans.
-		$this->tabs_gui->addTab("floor_plans", $this->lng->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
 
 		// standard info screen tab
 		$this->addInfoTab();
+		
+		// Roomplans.
+		$this->tabs_gui->addTab("room_plans", $this->txt("room_plans"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomplansgui', "showBookableRooms"));
+
+		// Floorplans.
+		$this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
+
+
 		
 		// Show permissions and settings tabs if the user has write permissions.
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))

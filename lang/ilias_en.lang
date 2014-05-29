@@ -58,10 +58,10 @@ room#:#room_administration#:#Room Administration
 overview#:#Dates
 room#:#room_date_recurrence#:#Date Recurrence
 room#:#room_cancel#:#Cancel
-room#:#room_plans#:#Room List
+room_plans#:#Room List
 room#:#room_view#:#View
 room#:#room_manage#:#Manage
-room#:#room_floor_plans#:#Floor Plans
+room_floor_plans#:#Floor Plans
 room#:#room_date#:#Date
 room#:#room_module#:#Module
 room#:#room_subject#:#Subject
