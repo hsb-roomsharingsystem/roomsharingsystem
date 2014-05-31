@@ -1,12 +1,10 @@
 <?php
 
 include_once("./Services/Repository/classes/class.ilObjectPluginAccess.php");
+include_once('./Services/Repository/classes/class.ilObjectPlugin.php');
 
 /**
-* Access/Condition checking for Example object
-*
-* Please do not create instances of large application classes (like ilObjExample)
-* Write small methods within this class to determin the status.
+* Access/Condition checking for RoomSharingPool object.
 *
 * @author tmatern
 * 
@@ -16,9 +14,9 @@ class ilObjRoomSharingAccess extends ilObjectPluginAccess
 {
 	
 	/**
-	 * get commands
+	 * Get commands.
 	 *
-	 * this method returns an array of all possible commands/permission combinations
+	 * this method returns an array of all possible commands/permission combinations.
 	 *
 	 * example:
 	 * $commands = array
@@ -38,15 +36,15 @@ class ilObjRoomSharingAccess extends ilObjectPluginAccess
 	}
 	
 	/**
-	 * check whether goto script will succeed
+	 * Check whether goto script will succeed.
 	 */
 	function _checkGoto($a_target)
 	{
 		global $ilAccess;
-	
+		
 		$t_arr = explode("_", $a_target);
-	
-		if ($t_arr[0] != "room" || ((int) $t_arr[1]) <= 0)
+		
+		if ($t_arr[0] != "xrs" || ((int) $t_arr[1]) <= 0)
 		{
 			return false;
 		}
@@ -75,27 +73,30 @@ class ilObjRoomSharingAccess extends ilObjectPluginAccess
 	*/
 	function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = "")
 	{
-		global $ilUser, $rbacsystem;
-
-        if ($a_user_id == "")
-        {
-            $a_user_id = $ilUser->getId();
-        }
-
-        // add no access info item and return false if access is not granted
-        // $ilAccess->addInfoItem(IL_NO_OBJECT_ACCESS, $a_text, $a_data = "");
-        // for all RBAC checks use checkAccessOfUser instead the normal checkAccess-method:
-        // $rbacsystem->checkAccessOfUser($a_user_id, $a_permission, $a_ref_id)
-
-        if ($a_permission == "visible" && !$rbacsystem->checkAccessOfUser($a_user_id, 'write', $a_ref_id))
-        {
-            include_once "Modules/RoomSharing/classes/class.ilObjRoomSharingPool.php";
-            $pool = new ilObjRoomSharingPool($a_ref_id);
-            if (!$pool->isOnline())
-            {
-                return false;
-            }
-        }
+		global $ilUser, $ilAccess;
+			
+			// Check whether the user has write permissions (owner has always write permissions).
+		if ($a_user_id == "")
+		{
+			$a_user_id = $ilUser->getId ();
+		}
+		if (! $ilAccess->checkAccessOfUser ( $a_user_id, 'write', '', $a_ref_id ))
+		{
+			return true;
+		}
+			
+			// Check whether user should see the pool.
+		if ($a_permission == "read")
+		{
+			$plugin = ilPlugin::getPluginObject ( 'Services', 'Repository', 'robj', 'RoomSharing' );
+			$plugin->includeClass ( 'class.ilObjRoomSharing.php' );
+			$pool = new ilObjRoomSharing ( $a_ref_id );
+			$pool->doRead ();
+			if (! $pool->isOnline ())
+			{
+				return false;
+			}
+		}
 
         return true;
 	}
