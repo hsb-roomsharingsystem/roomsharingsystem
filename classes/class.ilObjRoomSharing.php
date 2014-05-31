@@ -26,6 +26,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	{
 		parent::__construct($a_ref_id); 
 		$this->pool_id = $this->getId();
+		$this->doRead();
 	}
 	
 
@@ -52,16 +53,13 @@ class ilObjRoomSharing extends ilObjectPlugin
 	*/
 	function doCreate()
 	{
-	/*	print "CREATION";
 		global $ilDB;
-		FIXME parent::create() ruft diese Funktion in Endlosschleife auf
-		$new_id = parent::create();
-		$this->pool_id = $new_id;
+		parent::doCreate();
+		$this->pool_id = $this->getId();
 		$fields = $this->getDBFields();
-		$fields["id"] = array("integer", $new_id);
+		$fields["id"] = array("integer", $this->pool_id);
 		$ilDB->insert("rep_robj_xrs_pools", $fields);
-		return $new_id;
-	*/
+		return $this->getId();
 	}
 	
 	/**
