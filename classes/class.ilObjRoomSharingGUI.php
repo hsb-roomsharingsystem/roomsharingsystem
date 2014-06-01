@@ -1,6 +1,7 @@
 <?php
 
 include_once("./Services/Repository/classes/class.ilObjectPluginGUI.php");
+include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
 
 /**
  * User Interface class for RoomSharing repository object.
@@ -25,6 +26,9 @@ include_once("./Services/Repository/classes/class.ilObjectPluginGUI.php");
 */
 class ilObjRoomSharingGUI extends ilObjectPluginGUI
 {
+	//Settings form gui
+	protected $settingsForm;
+	
 	/**
 	 * Initialisation
 	 */
@@ -65,8 +69,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			return true;
 		}
 		
+		if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')
+		{
+			$ilTabs->setTabActive('settings');
+			// In case the edit button was clicked in the repository.
+			if ($cmd == 'edit')
+			{
+				$cmd = 'editSettings';
+			}
+			$this->$cmd();
+			return true;
+		}
+		
 		// Extend list of last visited objects by this pool.
-		$ilNavigationHistory->addItem($this->ref_id, "./goto.php?target=room_" . $this->ref_id, "room");
+		$ilNavigationHistory->addItem($this->ref_id, "./goto.php?target=xrs_" . $this->ref_id, "xrs");
 		
 		
 		// Main switch for cmdClass.
@@ -134,7 +150,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$cp->setType("roomsharing");
 				$this->ctrl->forwardCommand($cp);
 				break;
-		
 				// Standard cmd handling if cmd is not recognized.
 			default:
 				
@@ -166,21 +181,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		return "showContent";
 	}
 
-
-	//
-	// Edit properties form
-	//
-
-	/**
-	 * Edit Properties. This commands uses the form class to display an input form.
-	 */
-	function editProperties()
-	{
-
-	}
-	//
-	// DISPLAY TABS
-	//
 	/**
 	* Set tabs for other GUIs in the main GUI.
 	*/
@@ -188,10 +188,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global  $ilTabs, $ilCtrl, $ilAccess;
 		
-		// Overview
+		// Overview.
 		$ilTabs->addTab("overview", $this->txt("overview"), $ilCtrl->getLinkTargetByClass('ilroomsharingoverviewgui', "showBookings"));
 
-		// standard info screen tab
+		// Standard info screen tab.
 		$this->addInfoTab();
 		
 		// Roomplans.
@@ -206,17 +206,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
 		{
 			// Settings.
-			$this->tabs_gui->addTab("settings", $this->lng->txt("settings"), $this->ctrl->getLinkTarget($this, "edit"));
-
+			$this->tabs_gui->addTab('settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings'));
+			
 			// Permission.
 			$this->addPermissionTab();
 		}
 	}
 
-
-	//
-	// Show content
-	//
 
 	/**
 	 * Show content
@@ -227,8 +223,94 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		
 		$tpl->setContent("Hello World.");
 	}
-
-
+	
+	/**
+	 * Edit settings.
+	 * This command uses the form class to display an input form.
+	 */
+	protected function editSettings()
+	{
+		$this->tabs_gui->activateTab ( 'settings' );
+		$this->initSettingsForm ();
+		$this->getSettingsValues ();
+		$html = $this->formGui->getHTML ();
+		$this->tpl->setContent ( $html );
+	}
+	
+	/**
+	 * Update settings.
+	 * This command uses the form class to display an input form.
+	 */
+	protected function updateSettings()
+	{
+		$this->tabs_gui->activateTab ( 'settings' );
+		$this->initSettingsForm ();
+		
+		if ($this->formGui->checkInput ())
+		{
+			$this->object->setTitle ( $this->formGui->getInput ( 'title' ) );
+			$this->object->setDescription ( $this->formGui->getInput ( 'desc' ) );
+			$this->object->setOnline ( $this->formGui->getInput ( 'online' ) );
+			$this->object->update ();
+			ilUtil::sendSuccess ( $this->lng->txt ( 'msg_obj_modified' ), true );
+			$this->ctrl->redirect ( $this, 'editSettings' );
+		}
+		
+		$this->formGui->setValuesByPost ();
+		$this->tpl->setContent ( $this->formGui->getHtml () );
+	}
+	
+	/**
+	 * Init settings form.
+	 * This command uses the form class to display an input form.
+	 */
+	protected function initSettingsForm()
+	{
+		$this->formGui = new ilPropertyFormGUI ();
+		
+		// title
+		$field = new ilTextInputGUI ( $this->lng->txt ( 'title' ), 'title' );
+		$field->setRequired ( true );
+		$this->formGui->addItem ( $field );
+		
+		// description
+		$field = new ilTextAreaInputGUI ( $this->lng->txt ( 'description' ), 'desc' );
+		$this->formGui->addItem ( $field );
+		
+		// online
+		$field = new ilCheckboxInputGUI ( $this->lng->txt ( 'online' ), 'online' );
+		$this->formGui->addItem ( $field );
+		
+		$this->formGui->addCommandButton ( 'updateSettings', $this->lng->txt ( 'save' ) );
+		
+		$this->formGui->setTitle ( $this->lng->txt ( 'edit_settings' ) );
+		$this->formGui->setFormAction ( $this->ctrl->getFormAction ( $this ) );
+	}
+	
+	/**
+	 * Get values to edit settings form.
+	 */
+	protected function getSettingsValues()
+	{
+		$values ['title'] = $this->object->getTitle ();
+		$values ['desc'] = $this->object->getDescription ();
+		$values ['online'] = $this->object->isOnline ();
+		
+		$this->formGui->setValuesByArray ( $values );
+	}
+	
+	/**
+	 * Forbids to import and to close an roomsharing pool.
+	 * @see ilObjectPluginGUI::initCreateForm()
+	 */
+	public function initCreationForms($a_new_type) {
+		$forms = parent::initCreationForms($a_new_type);
+		unset($forms[self::CFORM_CLONE]);
+		unset($forms[self::CFORM_IMPORT]);
+		return $forms;
+	
+	}
+	
 	/**
 	 * Returns roomsharing pool id.
 	 */
@@ -242,8 +324,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		$this->pool_id = $a_pool_id;
 	}
-
-
 
 }
 ?>
