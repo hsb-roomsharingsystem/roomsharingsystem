@@ -63,7 +63,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if (!$next_class && ($cmd == 'render'))
 		{
 			$ilTabs->setTabActive('overview');
-			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingOverviewGUI.php");
+			$pl_obj = new ilRoomSharingPlugin();
+			$pl_obj->includeClass("class.ilRoomSharingOverviewGUI.php");
 			$object_gui = & new ilRoomSharingOverviewGUI($this);
 			$ilCtrl->forwardCommand($object_gui);
 			return true;
@@ -91,7 +92,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Overview
 			case 'ilroomsharingoverviewgui':
 				$this->tabs_gui->setTabActive('overview');
-				include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingOverviewGUI.php");
+				$pl_obj->includeClass("class.ilRoomSharingOverviewGUI.php");
 				$object_gui = & new ilRoomSharingOverviewGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
@@ -104,7 +105,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				// Roomplans.
 			case 'ilroomsharingroomplansgui':
 				$this->tabs_gui->setTabActive('room_plans');
-				include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomPlansGUI.php");
+				$pl_obj->includeClass("class.ilRoomSharingRoomPlansGUI.php");
 				$object_gui = & new ilRoomSharingRoomPlansGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
@@ -112,7 +113,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				// Floorplan.
 			case 'ilroomsharingfloorplansgui':
 				$this->tabs_gui->setTabActive('floor_plans');
-// 				include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlansGUI.php");
+// 				$pl_obj->includeClass("class.ilRoomSharingFloorPlansGUI.php");
 // 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
 // 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
 				$this->tpl->setContent("Die Ansicht der Pläne ist noch nicht an die neue Plugin-Ordnerstruktur angepasst.");
