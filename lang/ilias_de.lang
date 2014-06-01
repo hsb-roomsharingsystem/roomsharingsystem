@@ -1,0 +1,91 @@
+// 
+// German Language File for RoomSharingObject Plugin
+//
+
+<!-- language file start -->
+amount#:#Anzahl
+back_to_list#:#Zurück zu den Gebäudeplänen
+bookablerooms#:#Buchbare Räume
+bookings#:#Buchungen
+cancel#:#Abbrechen
+cat_create_xrs#:#RoomSharing erstellen
+content#:#Inhalt
+course#:#Studiengang
+crs_create_xrs#:#RoomSharing erstellen
+date#:#Termin
+date_range#:#Datumsbereich
+description#:#Beschreibung
+edit#:#Bearbeiten
+edit_properties#:#Einstellungen bearbeiten
+floor_plans_add#:#Gebäudeplan hinzufügen
+floor_plans_added#:#Gebäudeplan hinzugefügt
+floor_plans_delete#:#Gebäudeplan löschen
+floor_plans_show#:#Gebäudepläne anzeigen
+fold_create_xrs#:#RoomSharing erstellen
+grp_create_xrs#:#RoomSharing erstellen
+leave#:#Austreten
+manage#:#Verwalten
+module#:#Modul
+not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
+obj_xrs#:#RoomSharing
+obj_xrs_duplicate#:#Kopieren
+obj_xrs_select#:#RoomSharing auswählen
+objs_xrs#:#RoomSharings
+objs_xrs_duplicate#:#RoomSharing kopieren
+offline#:#Offline
+option_one#:#Auswahl 1
+option_two#:#Auswahl 2
+overview#:#Termine
+participants#:#Teilnehmer
+participations#:#Teilnahmen
+person_responsible#:#Verantwortlicher
+pool#:#Roomsharingpool
+pooladd#:#Roomsharingpool hinzufügen
+pooladded#:#Roomsharingpool wurde hinzugefügt.
+poolcopy#:#Roomsharingpool kopieren
+poolcreate#:#Roomsharingpool erstellen
+pooledit#:#Roomsharingpool bearbeiten
+poolnew#:#Neuer Roomsharingpool
+pools#:#Roomsharingpools
+properties#:#Einstellungen
+room#:#Raum
+room_add#:#Raum hinzufügen
+room_attributes#:#Raumattribute
+room_book#:#Buchen
+room_date_recurrence#:#Serientermin
+room_delete#:#Benutzer darf Roomsharingpool verschieben oder löschen
+room_edit#:#Editieren
+room_edit_permission#:#Benutzer darf Berechtigungen für Roomsharingpool ändern
+room_floor_plans#:#Gebäudeplan
+room_name#:#Raumbezeichnung
+room_plans#:#Raumliste
+room_read#:#Benutzer darf Ressourcen / Objekte im Roomsharingpool verwenden
+room_visible#:#Roomsharingpool ist sichtbar
+room_write#:#Benuzter darf Einstellungen und Inhalt vom Roomsharingpool ändern
+room_cancel#:#Stornieren
+room_administration#:#Raumverwaltung
+room_search#:#Raumsuche
+roomsharing_plugin_configuration#:#RoomSharing Plugin Konfiguration
+root_create_xrs#:#RoomSharing erstellen
+save#:#Speichern
+saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
+seats#:#Sitzplätze
+semester#:#Semester
+setting_1#:#Einstellung 1
+setting_2#:#Einstellung 2
+status#:#Status
+subject#:#Betreff
+time_duration#:#Zeitdauer
+time_duration_activate#:#Aktivieren
+time_duration_continuous#:#Durchgängig
+time_range#:#Zeitbereich
+title#:#Titel
+view#:#Ansicht
+warning_missing_rooms#:#Es sind momentan keine Räume vorhanden. Um den Roomsharingpool nutzen zu können, müssen zuerst Räume angelegt werden.
+xrs_add#:#RoomSharing hinzufügen
+xrs_delete#:#RoomSharing löschen
+xrs_edit_permission#:#Rechte bearbeiten
+xrs_new#:#Neues RoomSharing
+xrs_read#:#Lesezugriff auf RoomSharing
+xrs_visible#:#RoomSharing ist sichtbar
+xrs_write#:#RoomSharing bearbeiten

@@ -62,8 +62,8 @@ room_plans#:#Room List
 room_read#:#User can use resources / objects in RoomSharing Pool
 room_visible#:#RoomSharing Pool is visible
 room_write#:#User can edit settings and content of RoomSharing Pool
-roomadministration#:#Room Administration
-roomsearch#:#Room Search
+room_administration#:#Room Administration
+room_search#:#Room Search
 roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
 root_create_xrs#:#Create RoomSharing
 save#:#Save
