@@ -42,9 +42,11 @@ class ilRoomSharingOverviewGUI {
 		$cmd = $ilCtrl->getCmd ( "showBookings" );
 		echo "<br>CMD: RoomSharingOverview." . $cmd;
 		
-		if ($cmd == 'render') {
+		if ($cmd == 'render' || $cmd == 'schowContent') 
+		{
 			$cmd = 'showBookings';
-		} else {
+		} else if ($cmd != 'showBookings')
+		{
 			$next_class = $ilCtrl->getNextClass ( $this );
 			echo "<br>next_Class: " . $next_class;
 		}

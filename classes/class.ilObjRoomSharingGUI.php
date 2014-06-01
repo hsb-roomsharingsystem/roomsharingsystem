@@ -58,20 +58,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		echo "Command: ".$cmd;
 		echo "<br>Next_Class: ".$next_class;
 
-			$pl_obj = new ilRoomSharingPlugin();
+		$pl_obj = new ilRoomSharingPlugin();
 		
 		$cmd = $ilCtrl->getCmd();
-		
-	
-		// On initial call of the plugin.
-		if (!$next_class && ($cmd == 'render'))
-		{
-			$ilTabs->setTabActive('overview');
-			$pl_obj->includeClass("class.ilRoomSharingOverviewGUI.php");
-			$object_gui = & new ilRoomSharingOverviewGUI($this);
-			$ilCtrl->forwardCommand($object_gui);
-			return true;
-		}
 		
 		if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')
 		{
@@ -82,6 +71,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$cmd = 'editSettings';
 			}
 			$this->$cmd();
+			return true;
+		}
+		
+		// On initial call of the plugin.
+		if (!$next_class)
+		{
+			$ilTabs->setTabActive('overview');
+			$pl_obj->includeClass("class.ilRoomSharingOverviewGUI.php");
+			$object_gui = & new ilRoomSharingOverviewGUI($this);
+			$ilCtrl->forwardCommand($object_gui);
 			return true;
 		}
 		
@@ -157,7 +156,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				// Standard cmd handling if cmd is not recognized.
 			default:
 				
-				$cmd = $ilCtrl->getCmd();
+// 				$cmd = $ilCtrl->getCmd();
 				echo "defaultcmd:".$cmd;
 				$this->$cmd();
 				break;
@@ -174,7 +173,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	function getAfterCreationCmd()
 	{
-		return "editProperties";
+		return "edit";
 	}
 
 	/**
@@ -182,7 +181,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	function getStandardCmd()
 	{
-		return "showContent";
+		return "render";
 	}
 
 	/**
@@ -210,7 +209,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
 		{
 			// Settings.
-			$this->tabs_gui->addTab('settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings'));
+			$this->tabs_gui->addTab('settings', $this->txt('properties'), $this->ctrl->getLinkTarget($this, 'editSettings'));
 			
 			// Permission.
 			$this->addPermissionTab();
@@ -221,11 +220,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	/**
 	 * Show content
 	 */
-	function editProperties()
+	function showContent()
 	{
 		global $tpl, $ilTabs;
-		
-		$tpl->setContent("Hello World.");
+		$this->tabs_gui->activateTab('overview');
+// 		$tpl->setContent("Hello World.");
 	}
 	
 	/**
@@ -234,7 +233,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function editSettings()
 	{
-		$this->tabs_gui->activateTab ( 'settings' );
+		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm ();
 		$this->getSettingsValues ();
 		$html = $this->settingsForm->getHTML ();
@@ -287,7 +286,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		
 		$this->settingsForm->addCommandButton ( 'updateSettings', $this->lng->txt ( 'save' ) );
 		
-		$this->settingsForm->setTitle ( $this->lng->txt ( 'edit_settings' ) );
+		$this->settingsForm->setTitle ( $this->lng->txt ( 'edit_properties' ) );
 		$this->settingsForm->setFormAction ( $this->ctrl->getFormAction ( $this ) );
 	}
 	
