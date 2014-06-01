@@ -10,6 +10,8 @@
 * @ilCtrl_isCalledBy ilRoomSharingOverviewGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
 * 
 */
+
+
 class ilRoomSharingOverviewGUI {
 	/**
 	 * Constructor of ilRoomSharingOverviewGUI
@@ -29,6 +31,7 @@ class ilRoomSharingOverviewGUI {
 	function performCommand($cmd) {
 		echo $cmd;
 	}
+
 	
 	/**
 	 * Main switch for command execution.
@@ -74,14 +77,13 @@ class ilRoomSharingOverviewGUI {
 	 *        	SubTab which should be activated after method call.
 	 */
 	protected function setSubTabs($a_active) {
-		global $ilTabs;
-		
+		global $ilTabs, $lng;
 		$ilTabs->setTabActive ( 'overview' );
 		// Buchungen
-		$ilTabs->addSubTab ( 'bookings', $this->lng->txt ( 'room_bookings' ), $this->ctrl->getLinkTargetByClass ( 'ilroomsharingbookingsgui', 'showBookings' ) );
+		$ilTabs->addSubTab ( 'bookings',  $lng->txt ( 'rep_robj_xrs_bookings' ), $this->ctrl->getLinkTargetByClass ( 'ilroomsharingbookingsgui', 'showBookings' ) );
 		
 		// Teilnahmen
-		$ilTabs->addSubTab ( 'participations', $this->lng->txt ( 'room_participations' ), $this->ctrl->getLinkTargetByClass ( 'ilroomsharingparticipationsgui', 'showParticipations' ) );
+		$ilTabs->addSubTab ( 'participations', $this->lng->txt ( 'rep_robj_xrs_participations' ), $this->ctrl->getLinkTargetByClass ( 'ilroomsharingparticipationsgui', 'showParticipations' ) );
 		
 		$ilTabs->activateSubTab ( $a_active );
 	}

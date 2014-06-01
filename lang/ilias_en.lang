@@ -3,89 +3,88 @@
 //
 
 <!-- language file start -->
-obj_xrs#:#RoomSharing
-objs_xrs#:#RoomSharings
-obj_xrs_duplicate#:#Copy
-objs_xrs_duplicate#:#Copy RoomSharing
-obj_xrs_select#:#Select RoomSharing
-xrs_add#:#Add RoomSharing
-xrs_new#:#Add New RoomSharing
-xrs_read#:#Read access to RoomSharing
-xrs_write#:#Edit RoomSharing
-xrs_delete#:#Delete RoomSharing
-xrs_visible#:#RoomSharing is visible
-xrs_edit_permission#:#Change permission settings
-crs_create_xrs#:#Create RoomSharing
-grp_create_xrs#:#Create RoomSharing
-fold_create_xrs#:#Create RoomSharing
-root_create_xrs#:#Create RoomSharing
+amount#:#Amount
+back_to_list#:#Back to floorplans
+bookablerooms#:#Bookable Rooms
+bookings#:#Bookings
+cancel#:#Cancel
 cat_create_xrs#:#Create RoomSharing
 content#:#Content
-properties#:#Properties
-edit_properties#:#Edit Properties
-title#:#Title
+course#:#Course
+crs_create_xrs#:#Create RoomSharing
+date#:#Date
+date_range#:#Date Range
 description#:#Description
+edit#:#Edit
+edit_properties#:#Edit Properties
+floor_plans_add#:#Add Floor Plan
+floor_plans_added#:#Floor Plan added
+floor_plans_delete#:#delete floorplan
+floor_plans_show#:#Show Floor Plans
+fold_create_xrs#:#Create RoomSharing
+grp_create_xrs#:#Create RoomSharing
+leave#:#Leave
+manage#:#Manage
+module#:#Module
+not_yet_implemented#:#This function has not yet been implemented.
+obj_xrs#:#RoomSharing
+obj_xrs_duplicate#:#Copy
+obj_xrs_select#:#Select RoomSharing
+objs_xrs#:#RoomSharings
+objs_xrs_duplicate#:#Copy RoomSharing
+offline#:#Offline
 option_one#:#Option One
 option_two#:#Option Two
-save#:#Save
-cancel#:#Cancel
-edit#:#Edit
-status#:#Status
-offline#:#Offline
+overview#:#Dates
+participants#:#Participants
+participations#:#Participations
+person_responsible#:#Person Responsible
+pool#:#RoomSharing Pool
+pooladd#:#Add RoomSharing Pool
+pooladded#:#A RoomSharing pool has been added.
+poolcopy#:#Copy RoomSharing Pool
+poolcreate#:#Create RoomSharing Pool
+pooledit#:#Edit RoomSharing Pool
+poolnew#:#New RoomSharing Pool
+pools#:#RoomSharing Pools
+properties#:#Properties
+room#:#Room
+room_add#:#Add Room
+room_attributes#:#Room Attributes
+room_book#:#Book Room
+room_date_recurrence#:#Date Recurrence
+room_delete#:#User can move or delete Roomsharing Pool
+room_edit#:#Edit Room
+room_edit_permission#:#User can change permission settings for RoomSharing Pool
+room_floor_plans#:#Floor Plans
+room_name#:#Room Name
+room_plans#:#Room List
+room_read#:#User can use resources / objects in RoomSharing Pool
+room_visible#:#RoomSharing Pool is visible
+room_write#:#User can edit settings and content of RoomSharing Pool
+roomadministration#:#Room Administration
+roomsearch#:#Room Search
 roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
+root_create_xrs#:#Create RoomSharing
+save#:#Save
+saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
+seats#:#Seats
+semester#:#Semester
 setting_1#:#Setting 1
 setting_2#:#Setting 2
-saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
-common#:#obj_room#:#RoomSharing Pool
-common#:#objs_room#:#RoomSharing Pools
-common#:#room_new#:#New RoomSharing Pool
-common#:#room_copy#:#Copy RoomSharing Pool
-common#:#room_add#:#Add RoomSharing Pool
-common#:#room_edit#:#Edit RoomSharing Pool
-rbac#:#room_edit_permission#:#User can change permission settings for RoomSharing Pool
-rbac#:#room_visible#:#RoomSharing Pool is visible
-rbac#:#room_read#:#User can use resources / objects in RoomSharing Pool
-rbac#:#room_delete#:#User can move or delete Roomsharing Pool
-rbac#:#room_write#:#User can edit settings and content of RoomSharing Pool
-rbac#:#rbac_create_room#:#Create RoomSharing Pool
-room#:#room_pool_added#:#A RoomSharing pool has been added.
-room#:#room_missing_rooms_warning#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
-room#:#room_bookings#:#Bookings
-room#:#room_participations#:#Participations
-room#:#room_bookable_rooms#:#Bookable Rooms
-room#:#room_search#:#Room Search
-room#:#room_administration#:#Room Administration
-overview#:#Dates
-room#:#room_date_recurrence#:#Date Recurrence
-room#:#room_cancel#:#Cancel
-room_plans#:#Room List
-room#:#room_view#:#View
-room#:#room_manage#:#Manage
-room_floor_plans#:#Floor Plans
-room#:#room_date#:#Date
-room#:#room_module#:#Module
-room#:#room_subject#:#Subject
-room#:#room_course#:#Course
-room#:#room_semester#:#Semester
-room#:#room_room#:#Room
-room#:#room_participants#:#Participants
-room#:#room_person_responsible#:#Person Responsible
-room#:#room_leave#:#Leave
-room#:#room_date_range#:#Date Range
-room#:#room_time_range#:#Time Range
-room#:#room_time_duration#:#Time Duration
-room#:#room_time_duration_activate#:#Activate
-room#:#room_amount#:#Amount
-room#:#room_room_name#:#Room Name
-room#:#room_seats#:#Seats
-room#:#room_time_duration_continuous#:#Continuous
-room#:#room_attributes#:#Room Attributes
-room#:#room_book#:#Book
-room#:#room_room_add#:#Add Room
-room#:#room_room_edit#:#Edit
-room#:#room_not_yet_implemented#:#This function has not yet been implemented.
-room#:#room_floor_plans_add#:#Add Floor Plan
-room#:#room_floor_plans_show#:#Show Floor Plans
-room#:#room_floor_plans_added#:#Floor Plan added
-room#:#room_back_to_list#:#back to floorplans
-room#:#room_floor_plans_delete#:#delete floorplan
+status#:#Status
+subject#:#Subject
+time_duration#:#Time Duration
+time_duration_activate#:#Activate
+time_duration_continuous#:#Continuous
+time_range#:#Time Range
+title#:#Title
+view#:#View
+warning_missing_rooms#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
+xrs_add#:#Add RoomSharing
+xrs_delete#:#Delete RoomSharing
+xrs_edit_permission#:#Change permission settings
+xrs_new#:#Add New RoomSharing
+xrs_read#:#Read access to RoomSharing
+xrs_visible#:#RoomSharing is visible
+xrs_write#:#Edit RoomSharing
