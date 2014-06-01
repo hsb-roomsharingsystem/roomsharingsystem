@@ -233,7 +233,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->tabs_gui->activateTab ( 'settings' );
 		$this->initSettingsForm ();
 		$this->getSettingsValues ();
-		$html = $this->formGui->getHTML ();
+		$html = $this->settingsForm->getHTML ();
 		$this->tpl->setContent ( $html );
 	}
 	
@@ -246,18 +246,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->tabs_gui->activateTab ( 'settings' );
 		$this->initSettingsForm ();
 		
-		if ($this->formGui->checkInput ())
+		if ($this->settingsForm->checkInput ())
 		{
-			$this->object->setTitle ( $this->formGui->getInput ( 'title' ) );
-			$this->object->setDescription ( $this->formGui->getInput ( 'desc' ) );
-			$this->object->setOnline ( $this->formGui->getInput ( 'online' ) );
+			$this->object->setTitle ( $this->settingsForm->getInput ( 'title' ) );
+			$this->object->setDescription ( $this->settingsForm->getInput ( 'desc' ) );
+			$this->object->setOnline ( $this->settingsForm->getInput ( 'online' ) );
 			$this->object->update ();
 			ilUtil::sendSuccess ( $this->lng->txt ( 'msg_obj_modified' ), true );
 			$this->ctrl->redirect ( $this, 'editSettings' );
 		}
 		
-		$this->formGui->setValuesByPost ();
-		$this->tpl->setContent ( $this->formGui->getHtml () );
+		$this->settingsForm->setValuesByPost ();
+		$this->tpl->setContent ( $this->settingsForm->getHtml () );
 	}
 	
 	/**
@@ -266,25 +266,25 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function initSettingsForm()
 	{
-		$this->formGui = new ilPropertyFormGUI ();
+		$this->settingsForm = new ilPropertyFormGUI ();
 		
 		// title
 		$field = new ilTextInputGUI ( $this->lng->txt ( 'title' ), 'title' );
 		$field->setRequired ( true );
-		$this->formGui->addItem ( $field );
+		$this->settingsForm->addItem ( $field );
 		
 		// description
 		$field = new ilTextAreaInputGUI ( $this->lng->txt ( 'description' ), 'desc' );
-		$this->formGui->addItem ( $field );
+		$this->settingsForm->addItem ( $field );
 		
 		// online
 		$field = new ilCheckboxInputGUI ( $this->lng->txt ( 'online' ), 'online' );
-		$this->formGui->addItem ( $field );
+		$this->settingsForm->addItem ( $field );
 		
-		$this->formGui->addCommandButton ( 'updateSettings', $this->lng->txt ( 'save' ) );
+		$this->settingsForm->addCommandButton ( 'updateSettings', $this->lng->txt ( 'save' ) );
 		
-		$this->formGui->setTitle ( $this->lng->txt ( 'edit_settings' ) );
-		$this->formGui->setFormAction ( $this->ctrl->getFormAction ( $this ) );
+		$this->settingsForm->setTitle ( $this->lng->txt ( 'edit_settings' ) );
+		$this->settingsForm->setFormAction ( $this->ctrl->getFormAction ( $this ) );
 	}
 	
 	/**
@@ -296,7 +296,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$values ['desc'] = $this->object->getDescription ();
 		$values ['online'] = $this->object->isOnline ();
 		
-		$this->formGui->setValuesByArray ( $values );
+		$this->settingsForm->setValuesByArray ( $values );
 	}
 	
 	/**
