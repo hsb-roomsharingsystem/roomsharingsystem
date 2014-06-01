@@ -33,7 +33,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->bookings = new ilRoomSharingBookings();
 		parent::__construct($a_parent_obj, $a_parent_cmd);
         
-		$this->setTitle($lng->txt("room_bookings"));
+		$this->setTitle($lng->txt("rep_robj_xrs_bookings"));
 		$this->setLimit(20);      // data sets per page
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
 		
@@ -42,7 +42,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
                                                    // get affected by the "Select All"-Checkbox
 		$this->setRowTemplate("tpl.room_bookings_row.html", "Modules/RoomSharing");
 		// command for cancelling bookings
-        $this->addMultiCommand('showBookings', $this->lng->txt('room_cancel'));
+        $this->addMultiCommand('showBookings', $this->lng->txt('rep_robj_xrs_cancel'));
         
 		$this->getItems();
         $this->getSelectAllCheckbox();
@@ -67,10 +67,10 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
     {
         $this->addColumn('','f','1');   // checkboxes
         $this->addColumn('','f','1');   // icons 
-		$this->addColumn($this->lng->txt("room_date"), "date");
-        $this->addColumn($this->lng->txt("room_room"), "room");
-		$this->addColumn($this->lng->txt("room_subject"), "subject");
-		$this->addColumn($this->lng->txt("room_participants"), "participants");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_date"), "date");
+        $this->addColumn($this->lng->txt("rep_robj_xrs_room"), "room");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_subject"), "subject");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_participants"), "participants");
         
         // Add the selected optional columns to the table
         foreach ($this->getSelectedColumns() as $c)
@@ -95,7 +95,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
             // icon for the recurrence date
             $this->tpl->setVariable('IMG_RECURRENCE_PATH', ilUtil::getImagePath("cmd_move_s.png"));
         } 
-        $this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("room_date_recurrence"));
+        $this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("rep_robj_xrs_room_date_recurrence"));
         
         $this->tpl->setVariable('TXT_DATE', $a_set['date']);
         $this->tpl->setVariable('TXT_ROOM', $a_set['room']);
@@ -127,9 +127,9 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         
         // actions
         $this->tpl->setVariable('LINK_EDIT',$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-        $this->tpl->setVariable('LINK_EDIT_TXT',$this->lng->txt('edit'));
+        $this->tpl->setVariable('LINK_EDIT_TXT',$this->lng->txt('rep_robj_xrs_edit'));
         $this->tpl->setVariable('LINK_CANCEL',$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-        $this->tpl->setVariable('LINK_CANCEL_TXT',$this->lng->txt('room_cancel'));
+        $this->tpl->setVariable('LINK_CANCEL_TXT',$this->lng->txt('rep_robj_xrs_cancel'));
     }
        
     /**

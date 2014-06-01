@@ -28,13 +28,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 {
 	//Settings form gui
 	protected $settingsForm;
+	//Pool id
+	protected $pool_id;
 	
 	/**
-	 * Initialisation
+	 * Initialisation.
 	 */
 	protected function afterConstructor()
 	{
-		// anything needed after object has been constructed
+		// Set pool id.
+		$this->pool_id = $this->object->getId();
 	}
 
 	/**

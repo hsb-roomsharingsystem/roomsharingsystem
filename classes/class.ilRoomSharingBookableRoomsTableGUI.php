@@ -62,9 +62,9 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
      */
     private function addColumns()
     {
-		$this->addColumn($this->lng->txt("room_room"), "room");
-		$this->addColumn($this->lng->txt("room_seats"), "seats");
-		$this->addColumn($this->lng->txt("room_attributes"));   // not sortable
+		$this->addColumn($this->lng->txt("rep_robj_xrs_room"), "room");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_seats"), "seats");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_room_attributes"));   // not sortable
         $this->addColumn("", "action");
     }
    
@@ -106,7 +106,7 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
         
         // Aktionen
         $this->tpl->setVariable('LINK_BOOK', $this->ctrl->getLinkTarget($this->parent_obj, 'showBookableRooms'));
-        $this->tpl->setVariable('LINK_BOOK_TXT',$this->lng->txt('room_book'));
+        $this->tpl->setVariable('LINK_BOOK_TXT',$this->lng->txt('rep_robj_xrs_room_book'));
     }
     
     /**
@@ -172,29 +172,29 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
         // "Room"
         include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
-        $room_comb = new ilCombinationInputGUI($this->lng->txt("room_room"), "room");
+        $room_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_room"), "room");
 		$room_name_input = new ilTextInputGUI("", "room_name");
         $room_name_input->setMaxLength(14);
         $room_name_input->setSize(14);
-        $room_comb->addCombinationItem("room_name", $room_name_input, $this->lng->txt("room_room_name"));
+        $room_comb->addCombinationItem("room_name", $room_name_input, $this->lng->txt("rep_robj_xrs_room_name"));
         // TODO: Implement own ilNumberInputGUI for your very own needs
         $room_seats_input = new ilNumberInputGUI("", "room_seats");     
         $room_seats_input->setMaxLength(8);
         $room_seats_input->setSize(8);
-        $room_comb->addCombinationItem("room_seats", $room_seats_input, $this->lng->txt("room_seats"));
+        $room_comb->addCombinationItem("room_seats", $room_seats_input, $this->lng->txt("rep_robj_xrs_seats"));
         $this->addFilterItem($room_comb);
 	    $room_comb->readFromSession();     // get the value that was submitted
         $this->filter["room"] = $room_comb->getValue();
         
         // "Date Range"
-        $date_range = $this->addFilterItemByMetaType("date_range", ilTable2GUI::FILTER_DATE_RANGE, false, $this->lng->txt("room_date_range"));
+        $date_range = $this->addFilterItemByMetaType("date_range", ilTable2GUI::FILTER_DATE_RANGE, false, $this->lng->txt("rep_robj_xrs_date_range"));
         $this->filter["date_range"] = $date_range->getDate();
         
         // "Time Range"
         // the time range is of the type ilCombinationInputGUI and holds a
         // "from" and "to" text input with special date abilities   
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingDateTimeInputGUI.php");
-		$time_range = new ilCombinationInputGUI($this->lng->txt("room_time_range"), "time_range");
+		$time_range = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_time_range"), "time_range");
 		$time_range_from = new ilRoomSharingDateTimeInputGUI("", "time_range_from");
         $time_range_from->setShowTime(true);
         $time_range_from->setShowDate(false);
@@ -209,10 +209,10 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
         $this->filter["time_range"] = $time_range->getDate();
         
         // "Time Duration"   
-        $time_duration_comb = new ilCombinationInputGUI($this->lng->txt("room_time_duration"), "time_duration");
+        $time_duration_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_time_duration"), "time_duration");
         $time_duration_input = new ilRoomSharingDateTimeInputGUI("", "time_duration");
         $time_duration_input->setMode(ilDateTimeInputGUI::MODE_INPUT);
-        $time_duration_comb->addCombinationItem("time_duration_continuous", $time_duration_input, $this->lng->txt("room_time_duration_continuous"));
+        $time_duration_comb->addCombinationItem("time_duration_continuous", $time_duration_input, $this->lng->txt("rep_robj_xrs_time_duration_continuous"));
         $time_duration_input->setShowTime(true);
         $time_duration_input->setShowDate(false);
         $this->addFilterItem($time_duration_comb);
@@ -233,7 +233,7 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
             // TODO: Should be determined by the room with the lowest amount of seats
             $room_attribute_input->setMaxLength(8);
             $room_attribute_input->setSize(8);
-			$room_attribute_comb->addCombinationItem("amount", $room_attribute_input, $this->lng->txt("room_amount"));
+			$room_attribute_comb->addCombinationItem("amount", $room_attribute_input, $this->lng->txt("rep_robj_xrs_amount"));
             
             $this->addFilterItem($room_attribute_comb, true);   // true, since this is an optional filter
             $room_attribute_comb->readFromSession();

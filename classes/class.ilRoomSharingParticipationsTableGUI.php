@@ -29,7 +29,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 
 		parent::__construct($a_parent_obj, $a_parent_cmd);
         
-		$this->setTitle($lng->txt("room_participations"));
+		$this->setTitle($lng->txt("rep_robj_xrs_participations"));
 		$this->setLimit(20);      // Anzahl der Datensätze pro Seite
 		
         $this->addColumns();    // Spalten(-überschriften) hinzufügen
@@ -38,7 +38,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 		$this->setEnableHeader(true);
 		$this->setRowTemplate("tpl.room_participations_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
 		// zum Stornieren der ausgewählten Checkboxes
-        $this->addMultiCommand('showParticipations', $this->lng->txt('room_leave'));
+        $this->addMultiCommand('showParticipations', $this->lng->txt('rep_robj_xrs_leave'));
         
 		$this->getItems();
     }
@@ -63,10 +63,10 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
     {
         $this->addColumn('','f','1');   // checkboxes
         $this->addColumn('','f','1');   // icons 
-		$this->addColumn($this->lng->txt("room_date"), "date");
-		$this->addColumn($this->lng->txt("room_room"), "room");
-		$this->addColumn($this->lng->txt("room_subject"), "subject");
-		$this->addColumn($this->lng->txt("room_person_responsible"), "person_responsible");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_date"), "date");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_room"), "room");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_subject"), "subject");
+		$this->addColumn($this->lng->txt("rep_robj_xrs_person_responsible"), "person_responsible");
         $this->addColumn($this->lng->txt(''),'optional');
     }
     
@@ -83,7 +83,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
             // Picture for recursive appointment.
             $this->tpl->setVariable('IMG_RECURRENCE_PATH', ilUtil::getImagePath("cmd_move_s.png"));
         } 
-        $this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("room_date_recurrence"));
+        $this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("rep_robj_xrs_room_date_recurrence"));
         
         $this->tpl->setVariable('TXT_DATE',$a_set['date']);
         $this->tpl->setVariable('TXT_SUBJECT', ($a_set['subject'] == null ? '' : $a_set['subject']));
@@ -92,7 +92,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
        
         // Set actions.
         $this->tpl->setVariable('LINK_LEAVE',$this->ctrl->getLinkTarget($this->parent_obj, 'showParticipations'));
-        $this->tpl->setVariable('LINK_LEAVE_TXT',$this->lng->txt('room_leave'));
+        $this->tpl->setVariable('LINK_LEAVE_TXT',$this->lng->txt('rep_robj_xrs_leave'));
     }
 }
 ?>
