@@ -50,11 +50,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	function performCommand($cmd)
 	{
-		global $ilTabs, $ilCtrl;
+		global $ilTabs, $ilCtrl, $tpl, $ilTabs, $ilNavigationHistory, $cmd;
 		$next_class = $ilCtrl->getNextClass($this);
 		echo "Command: ".$cmd;
 		echo "<br>Next_Class: ".$next_class;
-		global $tpl, $ilTabs, $ilNavigationHistory, $cmd;
+
+			$pl_obj = new ilRoomSharingPlugin();
 		
 		$cmd = $ilCtrl->getCmd();
 		
@@ -63,7 +64,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if (!$next_class && ($cmd == 'render'))
 		{
 			$ilTabs->setTabActive('overview');
-			$pl_obj = new ilRoomSharingPlugin();
 			$pl_obj->includeClass("class.ilRoomSharingOverviewGUI.php");
 			$object_gui = & new ilRoomSharingOverviewGUI($this);
 			$ilCtrl->forwardCommand($object_gui);
@@ -218,7 +218,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	/**
 	 * Show content
 	 */
-	function showContent()
+	function editProperties()
 	{
 		global $tpl, $ilTabs;
 		
