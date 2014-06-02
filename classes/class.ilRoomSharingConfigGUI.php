@@ -58,11 +58,11 @@ class ilRoomSharingConfigGUI extends ilPluginConfigGUI
 		$form = new ilPropertyFormGUI();
 	
 		// setting 1 (a checkbox)
-		$cb = new ilCheckboxInputGUI($pl->txt("rep_robj_xrs_setting_1"), "setting_1");
+		$cb = new ilCheckboxInputGUI($pl->txt("setting_1"), "setting_1");
 		$form->addItem($cb);
 		
 		// setting 2 (text)
-		$ti = new ilTextInputGUI($pl->txt("rep_robj_xrs_setting_2"), "setting_2");
+		$ti = new ilTextInputGUI($pl->txt("setting_2"), "setting_2");
 		$ti->setRequired(true);
 		$ti->setMaxLength(10);
 		$ti->setSize(10);
