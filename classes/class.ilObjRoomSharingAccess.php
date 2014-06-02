@@ -74,13 +74,13 @@ class ilObjRoomSharingAccess extends ilObjectPluginAccess
 	function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = "")
 	{
 		global $ilUser, $ilAccess;
-			
+		
 			// Check whether the user has write permissions (owner has always write permissions).
 		if ($a_user_id == "")
 		{
 			$a_user_id = $ilUser->getId ();
 		}
-		if (! $ilAccess->checkAccessOfUser ( $a_user_id, 'write', '', $a_ref_id ))
+		if ( $ilAccess->checkAccessOfUser ( $a_user_id, 'write', '', $a_ref_id ))
 		{
 			return true;
 		}
