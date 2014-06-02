@@ -37,7 +37,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	protected function afterConstructor()
 	{
 		// Set pool id.
-		$this->pool_id = $this->object->getId();
+		$this->pool_id = $this->object->object_id;
 	}
 
 	/**
