@@ -3,18 +3,18 @@
 include_once('./Services/Table/classes/class.ilTable2GUI.php');
 
 /**
- * Class ilRoomSharingFloorPlansTableGUI
- * Represents all floor plans.
+ * Table-GUI for the uploaded Roomsharing floorplans
  *
- * @author T. Wolscht
+ * This class is used to show a table with all uploaded floorplans.
+ * ...
  * 
- * @ilCtrl_IsCalledBy ilRoomSharingFloorPlansTableGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
- * 
+ * @author T. Wolscht <t.wolscht@googlemail.com>
  */
 class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
 
+      protected $pool_id;
     /**
-     * Constructor of ilRoomSharingFloorPlansTableGUI
+     * Constructor
      * @param	object	$a_parent_obj
      */
     public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id) {
@@ -29,84 +29,100 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->setTitle($lng->txt("room_floor_plans_show"));
-        $this->setLimit(20);      // Paging limit
+        $this->setLimit(20);      // Anzahl der Datensätze pro Seite
 
-        $this->addColumns();    // Add columns including translations
-        $this->setSelectAllCheckbox('participations');   // set column with checkboxes which
-        												 // should be selected on "select all" event
+        $this->addColumns();    // Spalten(-überschriften) hinzufügen
         $this->setEnableHeader(true);
-        $this->setRowTemplate("tpl.room_participations_row.html", "Modules/RoomSharing");
-        // deletion command for items with selected checkboxes
-        $this->addMultiCommand('showParticipations', $this->lng->txt('room_floor_plans_delete'));
-
+        $this->setRowTemplate("tpl.room_floorplans.html", "Modules/RoomSharing");
         $this->getItems();
     }
 
     /**
-     * Gets all existing floor plans and loads the data for representation.
+     * returns all informations to the uploaded floorplans from Roomsharing DB
      */
     function getItems() {
-        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php';
+        include_once 'Modules/RoomSharing/classes/class.ilRoomSharingFloorPlans.php';
         $floorplans = new ilRoomSharingFloorPlans();
-        $data = $floorplans->getAllFloorPlans() ;
-
+        $floorplans->setPoolID($this->getPoolId());
+       // $data = $floorplans->getAllFloorPlans() ;
+        $data = $floorplans->getAllFloorPlans();
         $this->setMaxCount(sizeof($data));
         $this->setData($data);
-        echo $data;
+        
     }
 
     /**
-     * Adds columns with translations.
+     * add columns to the floorplan-table
      */
     private function addColumns() {
-        $this->addColumn($this->lng->txt("room_floor_plans"), "date");
-        $this->addColumn("GebÃ¤udeplan");
-        $this->addColumn("Titel");
-        $this->addColumn("Beschreibung");
-        //$this->addColumn($this->lng->txt("room_module"), "module");
+        global $lng;
+        $this->addColumn($lng->txt("room_plan"));
+        $this->addColumn($lng->txt("title"));
+        $this->addColumn($lng->txt("desc"));
+     //   $this->addColumn("POOL-ID");
+        $this->addColumn($lng->txt("actions"));
     }
 
     /**
-     * Fills each row with given data.
+     * fills the rows of the table
      *
      */
     public function fillRow($a_set) {
-        // Checkbox-Name muss mit dem aus setSelectAllCheckbox Ã¼bereinstimmen
-        $this->tpl->setVariable('CHECKBOX_NAME', 'bookings');
+        global $ilCtrl, $lng;
+//        include_once("./Modules/File/classes/class.ilObjFile.php");
+//        $current_file = new ilObjFile($a_set['file_id'], false);
+        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+        $mobj = new ilObjMediaObject($a_set['file_id']);
+					$med = $mobj->getMediaItem("Standard");
+					$target = $med->getThumbnailTarget();
+					if ($target != "")
+					{
+						$this->tpl->setVariable("IMG", ilUtil::img($target));
+					}
+					else
+					{
+						$this->tpl->setVariable("IMG",
+							ilUtil::img(ilUtil::getImagePath("icon_".$a_set["type"].".png")));
+					}
+        $this->tpl->setVariable('TXT_TITLE', $mobj->getTitle());
+        $this->tpl->setVariable('TXT_DESCRIPTION', $mobj->getDescription());
+       // $this->tpl->setVariable('TXT_POOL_ID', $a_set['pool_id']);
+        $this->tpl->setVariable("LINK_VIEW",// $current_file->getFile());
+                                       // $current_file->sendFile();
+                                       $mobj->getDataDirectory()."/".$med->getLocation());
+					//$ilCtrl->getLinkTarget($this->parent_obj, "showMedia"));
+      //  $this->tpl->setVariable('LINK_DELETE',$this->ctrl->getLinkTarget($this->parent_obj, 'showParticipations'));
+       // $this->tpl->setVariable('TXT_PLAN_DELETE', $this->lng->txt('room_floor_plans_delete'));
+        include_once("./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php");
+		$alist = new ilAdvancedSelectionListGUI();
+		$alist->setId($a_set['file_id']);
+		$alist->setListTitle($lng->txt("actions"));
+	
+		//if ($ilAccess->checkAccess('write', '', $this->ref_id))
+		//{
+			$alist->addItem($lng->txt('edit'), 'edit', $ilCtrl->getLinkTarget($this->parent_obj, 'edit')); // #12306
+			
+			if(!$a_set["is_used"])
+			{
+				$alist->addItem($lng->txt('delete'), 'delete', $ilCtrl->getLinkTarget($this->parent_obj, 'confirmDelete'));
+			}		
+		//}
 
-//        if ($a_set['recurrence']) {
-//            // Bild fÃ¼r Serientermin
-//            $this->tpl->setVariable('IMG_RECURRENCE_PATH', ilUtil::getImagePath("cmd_move_s.png"));
-//        }
-        //$a_set
-     //   $this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("room_date_recurrence"));
+		$this->tpl->setVariable("LAYER", $alist->getHTML());
+    }
+    
+      /**
+     * Returns roomsharing pool id.
+     */
+    function getPoolId() {
+        return $this->pool_id;
+    }
 
-        $this->tpl->setVariable('TXT_DATE', $a_set['pic']);
-        $this->tpl->setVariable('TXT_SUBJECT', $a_set['title']);
-        $this->tpl->setVariable('TXT_COURSE', $a_set['description']);
-//        $this->tpl->setVariable('TXT_MODULE', ($a_set['module'] == null ? '' : $a_set['module']));
-//        $this->tpl->setVariable('TXT_SUBJECT', ($a_set['subject'] == null ? '' : $a_set['subject']));
-//        $this->tpl->setVariable('TXT_COURSE', ($a_set['course'] == null ? '' : $a_set['course']));
-//      $this->tpl->setVariable('TXT_SEMESTER', ($a_set['semester'] == null ? '' : $a_set['semester']));
-//        $this->tpl->setVariable('TXT_ROOM', $a_set['room']);
-
-        // Teilnehmer
-//        $participant_count = count($a_set['participants']);
-//        for ($i = 0; $i < $participant_count; ++$i) {
-//            $this->tpl->setCurrentBlock("participants");
-//            $participant = $a_set['participants'][$i];
-//
-//            if ($i < $participant_count - 1) {
-//                $this->tpl->setVariable('TXT_COMMA', ',');
-//            }
-//            $this->tpl->setVariable('TXT_PARTICIPANT', $participant);
-//            $this->tpl->parseCurrentBlock();
-//        }
-        // Aktionen
-//        $this->tpl->setVariable('LINK_EDIT', $this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-//        $this->tpl->setVariable('LINK_EDIT_TXT', $this->lng->txt('edit'));
-//        $this->tpl->setVariable('LINK_CANCEL', $this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-//        $this->tpl->setVariable('LINK_CANCEL_TXT', $this->lng->txt('room_cancel'));
+    /**
+     * Sets roomsharing pool id.
+     */
+    function setPoolId($a_pool_id) {
+        $this->pool_id = $a_pool_id;
     }
 
 }

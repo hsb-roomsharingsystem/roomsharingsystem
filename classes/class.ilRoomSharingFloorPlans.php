@@ -41,12 +41,9 @@ class ilRoomSharingFloorPlans {
     function setFile($a_value) {
         $this->floorplan_file = $a_value;
     }
-
-    /**
-     * Save floorplan informations
-     */
-    function save() {
-        
+    
+    function setPoolID($pool_id){
+        $this->pool_id = $pool_id;
     }
 
     /**
@@ -60,7 +57,7 @@ class ilRoomSharingFloorPlans {
 //            echo "hihihihi";
 //            return false;
 //        }
-        
+
         $this->deleteFile();
 
         $path = $this->initStorage($this->id, "file");
@@ -97,20 +94,22 @@ class ilRoomSharingFloorPlans {
             return $path . $this->floorplan_file;
         }
     }
-    
+
     /**
      * Get Array of all floorplans
      */
-    function getAllFloorPlans(){
-        $allplans = array();
-        $path2 = $this->initStorage($this->id, "file");
-        //echo $path2;
-        $allplans[] =  array( 
-                      'pic'   => "Plan (in klein)", 
-                      'title'  => "Plan1",
-                      'description' => "Dies ist die Beschreibung fuer Plan 1");
-        return $allplans;
-        
+    function getAllFloorPlans() {
+        global $ilDB;
+
+        $set = $ilDB->query('SELECT * FROM roomsharing_floorplans WHERE pool_id = '.$this->pool_id.' order by file_id DESC');
+
+        $floorplans = array();
+        while ($row = $ilDB->fetchAssoc($set)) {
+            $floorplans [] = $row;
+        }
+        //$res = $this->formatDataForGui ( $rooms );
+        //return $res;
+        return $floorplans;
     }
 
     /**
@@ -141,6 +140,40 @@ class ilRoomSharingFloorPlans {
         }
 
         return $path;
+    }
+
+    /**
+     * Returns all available rooms
+     *
+     * @return string
+     */
+    public function getAllRooms() {
+        global $ilDB;
+
+        $set = $ilDB->query('SELECT name, file_id FROM roomsharing_rooms ORDER BY name');
+
+        $rooms = array();
+        while ($row = $ilDB->fetchAssoc($set)) {
+            $rooms [] = $row;
+        }
+        //$res = $this->formatDataForGui ( $rooms );
+        //return $res;
+        return $rooms;
+    }
+
+    /**
+     * Inserts the just uploaded file to Roomsharing database
+     */
+    public function fileToDatabase($file_id) {
+        global $ilDB;
+        if ($file_id) {
+          //  $next_id = $ilDB->nextId('roomsharing_floorplans');
+            return $ilDB->manipulate('INSERT INTO roomsharing_floorplans'.
+			' (file_id, pool_id)'.
+			' VALUES ('.$ilDB->quote($file_id, 'integer').
+			','.$ilDB->quote($this->pool_id, 'integer').')');
+            
+        } 
     }
 
 }
