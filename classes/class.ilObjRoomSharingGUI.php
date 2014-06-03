@@ -19,9 +19,9 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  * - GUI classes used by this class are ilPermissionGUI (provides the rbac
  *   screens) and ilInfoScreenGUI (handles the info screen).
  *
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingOverviewGUI, ilRoomsharingRoomplansGUI, ilRoomsharingFloorplansGUI, ilPublicUserProfileGUI
- * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
+ * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
  *
 */
 class ilObjRoomSharingGUI extends ilObjectPluginGUI

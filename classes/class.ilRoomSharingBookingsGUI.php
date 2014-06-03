@@ -68,7 +68,7 @@ class ilRoomSharingBookingsGUI
 		global $tpl;
         
         include_once('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
-		$plink = new ilPermanentLinkGUI('room', $this->ref_id);
+		$plink = new ilPermanentLinkGUI('xrs', $this->ref_id);
         
         include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookingsTableGUI.php");
         $bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this_ref_id);
