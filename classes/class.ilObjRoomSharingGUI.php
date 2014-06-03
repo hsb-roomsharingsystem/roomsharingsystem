@@ -209,7 +209,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
 		{
 			// Settings.
-			$this->tabs_gui->addTab('settings', $this->txt('properties'), $this->ctrl->getLinkTarget($this, 'editSettings'));
+			$this->tabs_gui->addTab('settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings'));
 			
 			// Permission.
 			$this->addPermissionTab();

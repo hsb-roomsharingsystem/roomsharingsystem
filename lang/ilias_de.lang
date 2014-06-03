@@ -47,7 +47,6 @@ poolcreate#:#Roomsharingpool erstellen
 pooledit#:#Roomsharingpool bearbeiten
 poolnew#:#Neuer Roomsharingpool
 pools#:#Roomsharingpools
-properties#:#Einstellungen
 room#:#Raum
 room_add#:#Raum hinzufügen
 room_attributes#:#Raumattribute
@@ -71,6 +70,7 @@ save#:#Speichern
 saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
 seats#:#Sitzplätze
 semester#:#Semester
+settings#:#Einstellungen
 setting_1#:#Einstellung 1
 setting_2#:#Einstellung 2
 status#:#Status

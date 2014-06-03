@@ -47,7 +47,6 @@ poolcreate#:#Create RoomSharing Pool
 pooledit#:#Edit RoomSharing Pool
 poolnew#:#New RoomSharing Pool
 pools#:#RoomSharing Pools
-properties#:#Properties
 room#:#Room
 room_add#:#Add Room
 room_attributes#:#Room Attributes
@@ -70,6 +69,7 @@ save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
 seats#:#Seats
 semester#:#Semester
+settings#:#Settings
 setting_1#:#Setting 1
 setting_2#:#Setting 2
 status#:#Status
