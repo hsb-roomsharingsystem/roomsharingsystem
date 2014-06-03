@@ -360,7 +360,7 @@ $ilDB->addPrimaryKey($table_name, array("room_id", "att_id"));
 <#3>
 <?php
 	// Add tables for floor plans
-	// Author: T. Matern, T. Röhrig
+	// Author: T. Matern, T. Röhrig, T. Wolscht
 	
 	// ##########################
 	// 'rep_robj_xrs_fplans'
@@ -385,7 +385,7 @@ $ilDB->addPrimaryKey($table_name, array("room_id", "att_id"));
 	// add primary key
 	$ilDB->addPrimaryKey($table_name, array("file_id"));
 	// add sequence
-	$ilDB->createSequence($table_name);
+	//$ilDB->createSequence($table_name);
 	// add index
 	$ilDB->addIndex($table_name, array('file_id'), 'i1');	
 ?>
