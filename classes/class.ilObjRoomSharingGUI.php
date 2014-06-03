@@ -115,10 +115,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				// Floorplan.
 			case 'ilroomsharingfloorplansgui':
 				$this->tabs_gui->setTabActive('floor_plans');
-// 				$pl_obj->includeClass("class.ilRoomSharingFloorPlansGUI.php");
-// 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
-// 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
-				$this->tpl->setContent("Die Ansicht der Pläne ist noch nicht an die neue Plugin-Ordnerstruktur angepasst.");
+ 				$pl_obj->includeClass("class.ilRoomSharingFloorPlansGUI.php");
+ 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
+ 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
+				//$this->tpl->setContent("Die Ansicht der Pläne ist noch nicht an die neue Plugin-Ordnerstruktur angepasst.");
 				break;
 		
 				// Permissions.
