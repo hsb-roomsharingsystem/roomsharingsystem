@@ -113,29 +113,36 @@ class ilRoomSharingBookings
                         ' WHERE id = '.$ilDB->quote($row['room_id'], 'integer'));
             $roomRow = $ilDB->fetchAssoc($roomSet);
             $one_booking['room'] = $roomRow['name'];
+            $one_booking['room_id'] = $row['room_id'];
             
             $participants = array();
+            $participants_ids = array();
             
             //Get the participants
             $participantSet = $ilDB->query('SELECT users.firstname AS firstname,'.
-                        ' users.lastname AS lastname, users.login AS login'.
-                        ' FROM rep_robj_xrs_book_user'.
-			' LEFT JOIN usr_data AS users ON users.usr_id = rep_robj_xrs_book_user.user_id'.
-			' WHERE booking_id = '.$ilDB->quote($row['id'], 'integer').' ORDER BY users.lastname, users.firstname ASC');
+            		' users.lastname AS lastname, users.login AS login,'.
+            		' users.usr_id AS id FROM rep_robj_xrs_book_user'.
+            		' LEFT JOIN usr_data AS users ON users.usr_id = rep_robj_xrs_book_user.user_id'.
+            		' WHERE booking_id = '.$ilDB->quote($row['id'], 'integer').' ORDER BY users.lastname, users.firstname ASC');
             while($participantRow = $ilDB->fetchAssoc($participantSet))
             {
-                //Check if the user has a firstname and lastname
-                if(empty($userRow['firstname']) || empty($userRow['lastname'])) {
-                    $participants[] = $participantRow['firstname'].' '
-                            .$participantRow['lastname'];
-                }
-                //...if not, use the username
-                else {
-                    $participants[] = $participantRow['login'];
-                }
+            	//Check if the user has a firstname and lastname
+            	if(empty($userRow['firstname']) || empty($userRow['lastname'])) {
+            		$participants[] = $participantRow['firstname'].' '
+            				.$participantRow['lastname'];
+            	}
+            	//...if not, use the username
+            	else {
+            		$participants[] = $participantRow['login'];
+            	}
+            	$participants_ids[] = $participantRow['id'];
             }
             $one_booking['participants'] = $participants;
+            $one_booking['participants_id'] = $participants_id;
             $one_booking['subject'] = $row['subject'];
+            
+            //The booking id
+            $one_booking['id'] = $row['id'];
             
             $res[] = $one_booking;
         }

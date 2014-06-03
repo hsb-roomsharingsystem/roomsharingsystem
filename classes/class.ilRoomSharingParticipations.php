@@ -36,7 +36,7 @@ class ilRoomSharingParticipations
     {
         global $ilDB, $ilUser, $lng;
 
-	$set = $ilDB->query('SELECT booking_id'.
+		$set = $ilDB->query('SELECT booking_id'.
                         ' FROM rep_robj_xrs_book_user'.
                         ' WHERE user_id = '.$ilDB->quote($ilUser->getId(), 'integer'));
         $res = array();
@@ -86,6 +86,7 @@ class ilRoomSharingParticipations
                             ' WHERE id = '.$ilDB->quote($bookingRow['room_id'], 'integer'));
                 $roomRow = $ilDB->fetchAssoc($roomSet);
                 $one_booking['room'] = $roomRow['name'];
+                $one_booking['room_id'] = $bookingRow['room_id'];
 
                 $one_booking['subject'] = $bookingRow['subject'];
 
@@ -104,6 +105,11 @@ class ilRoomSharingParticipations
                 {
                     $one_booking['person_responsible'] = $userRow['login'];
                 }
+                $one_booking['person_responsible_id'] = $bookingRow['user_id'];
+                
+                //The booking id
+                $one_booking['id'] = $row['id'];
+                
                 $res[] = $one_booking;
             }
         }
