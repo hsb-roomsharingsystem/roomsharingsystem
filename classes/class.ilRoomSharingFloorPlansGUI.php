@@ -15,7 +15,7 @@ class ilRoomSharingFloorPlansGUI {
      * Konstruktor der Klasse ilRoomSharingFloorPlansGUI
      * @param	object	$a_parent_obj
      */
-    function __construct(ilObjRoomSharingPoolGUI $a_parent_obj) {
+    function __construct(ilObjRoomSharingGUI $a_parent_obj) {
         global $ilCtrl, $lng, $tpl;
 
         $this->ref_id = $a_parent_obj->ref_id;
@@ -50,13 +50,13 @@ class ilRoomSharingFloorPlansGUI {
      * uses ilBookingObjectsTableGUI
      */
     function renderObject() {
-        global $tpl, $ilCtrl, $lng, $ilAccess;
+        global $tpl, $ilCtrl, $ilAccess;
         
-       // echo "hi ".$this->getPoolId();
+        echo "hi ".$this->getPoolId();
         if ($ilAccess->checkAccess('write', '', $this->ref_id)) {
             include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
             $bar = new ilToolbarGUI;
-            $bar->addButton($lng->txt('room_floor_plans_add'), $ilCtrl->getLinkTarget($this, 'create'));
+            $bar->addButton($this->lng->txt('rep_robj_xrs_floor_plans_add'), $ilCtrl->getLinkTarget($this, 'create'));
             $bar = $bar->getHTML();
         }
 
@@ -64,7 +64,7 @@ class ilRoomSharingFloorPlansGUI {
 //        $plink = new ilPermanentLinkGUI('book', $this->ref_id);
 //include_once 'Modules/BookingManager/classes/class.ilBookingObjectsTableGUI.php';
 //$table = new ilBookingObjectsTableGUI($this, 'render', $this->ref_id, $this->pool_id, $this->pool_has_schedule);
-        include_once 'Modules/RoomSharing/classes/class.ilRoomSharingFloorPlansTableGUI.php';
+        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlansTableGUI.php';
         $table = new ilRoomSharingFloorPlansTableGUI($this, 'showFloorplans', 1);
         $table->setPoolId($this->pool_id);
 //$tpl->setContent("hh");
@@ -112,7 +112,7 @@ class ilRoomSharingFloorPlansGUI {
         $desc->setRows(8);
         $form_gui->addItem($desc);
 
-        $file = new ilFileInputGUI($lng->txt("room_floor_plans"), "upload_file");
+        $file = new ilFileInputGUI($lng->txt("rep_robj_xrs_room_floor_plans"), "upload_file");
         $file->setRequired(true);
         $file->setALlowDeletion(true);
         $form_gui->addItem($file);
@@ -143,7 +143,7 @@ class ilRoomSharingFloorPlansGUI {
 //		}
 //		else
 //		{
-        $form_gui->setTitle($lng->txt("room_floor_plans_add"));
+        $form_gui->setTitle($lng->txt("rep_robj_xrs_floor_plans_add"));
         $form_gui->addCommandButton("save", $lng->txt("save"));
         $form_gui->addCommandButton("render", $lng->txt("cancel"));
 //		}
@@ -159,7 +159,7 @@ class ilRoomSharingFloorPlansGUI {
         global $ilCtrl, $tpl, $lng, $ilTabs;
 
         $ilTabs->clearTargets();
-        $ilTabs->setBackTarget($lng->txt('room_back_to_list'), $ilCtrl->getLinkTarget($this, 'render'));
+        $ilTabs->setBackTarget($lng->txt('rep_robj_xrs_back_to_list'), $ilCtrl->getLinkTarget($this, 'render'));
 
         $form = $this->initForm();
         $tpl->setContent($form->getHTML());
@@ -244,7 +244,7 @@ class ilRoomSharingFloorPlansGUI {
             $media_item->setLocation($file_name);
             $media_item->setLocationType("LocalFile");
             $mediaObj->update();
-            include_once("./Modules/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
+            include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
             $roomplan = new ilRoomSharingFloorPlans();
             $roomplan->setPoolID($this->getPoolId());
             $result = $roomplan->fileToDatabase($mediaObj->getId());

@@ -28,12 +28,12 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
-        $this->setTitle($lng->txt("room_floor_plans_show"));
+        $this->setTitle($lng->txt("rep_robj_xrs_floor_plans_show"));
         $this->setLimit(20);      // Anzahl der Datensätze pro Seite
 
         $this->addColumns();    // Spalten(-überschriften) hinzufügen
         $this->setEnableHeader(true);
-        $this->setRowTemplate("tpl.room_floorplans.html", "Modules/RoomSharing");
+        $this->setRowTemplate("tpl.room_floorplans.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
         $this->getItems();
     }
 
@@ -41,7 +41,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
      * returns all informations to the uploaded floorplans from Roomsharing DB
      */
     function getItems() {
-        include_once 'Modules/RoomSharing/classes/class.ilRoomSharingFloorPlans.php';
+        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php';
         $floorplans = new ilRoomSharingFloorPlans();
         $floorplans->setPoolID($this->getPoolId());
        // $data = $floorplans->getAllFloorPlans() ;
@@ -56,7 +56,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
      */
     private function addColumns() {
         global $lng;
-        $this->addColumn($lng->txt("room_plan"));
+        $this->addColumn($this->lng->txt("rep_robj_xrs_plan"));
         $this->addColumn($lng->txt("title"));
         $this->addColumn($lng->txt("desc"));
      //   $this->addColumn("POOL-ID");

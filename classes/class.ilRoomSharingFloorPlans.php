@@ -101,7 +101,7 @@ class ilRoomSharingFloorPlans {
     function getAllFloorPlans() {
         global $ilDB;
 
-        $set = $ilDB->query('SELECT * FROM roomsharing_floorplans WHERE pool_id = '.$this->pool_id.' order by file_id DESC');
+        $set = $ilDB->query('SELECT * FROM rep_robj_xrs_fplans order by file_id DESC');
 
         $floorplans = array();
         while ($row = $ilDB->fetchAssoc($set)) {
@@ -168,10 +168,10 @@ class ilRoomSharingFloorPlans {
         global $ilDB;
         if ($file_id) {
           //  $next_id = $ilDB->nextId('roomsharing_floorplans');
-            return $ilDB->manipulate('INSERT INTO roomsharing_floorplans'.
+            return $ilDB->manipulate('INSERT INTO rep_robj_xrs_fplans'.
 			' (file_id, pool_id)'.
 			' VALUES ('.$ilDB->quote($file_id, 'integer').
-			','.$ilDB->quote($this->pool_id, 'integer').')');
+			','.$ilDB->quote(99, 'integer').')');
             
         } 
     }
