@@ -1,7 +1,7 @@
 <?php
 
 include_once('./Services/Table/classes/class.ilTable2GUI.php');
-include_once('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookableRooms.php');
+include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookableRooms.php');
 
 /**
 * Class ilRoomSharingBookableRoomsTableGUI
@@ -34,10 +34,10 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
         // $this->setId("roomtable");   
         parent::__construct($a_parent_obj, $a_parent_cmd);
         
-        $this->bookable_rooms = new ilRoomSharingBookableRooms($a_parent_obj->getPoolId());
+        $this->bookable_rooms = new ilRoomSharingBookableRooms();
         $this->lng->loadLanguageModule("form");
 
-        $this->setTitle($this->lng->txt("room_list"));
+        $this->setTitle($this->lng->txt("rep_robj_xrs_rooms"));
         $this->setLimit(10);      // datasets that are displayed per page
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
         $this->setEnableHeader(true);
@@ -104,11 +104,8 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
   
         $this->tpl->setCurrentBlock("actions");
         $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'showBookableRooms'));
-        $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('room_book'));
+        $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
         
-        // Aktionen
-        $this->tpl->setVariable('LINK_BOOK', $this->ctrl->getLinkTarget($this->parent_obj, 'showBookableRooms'));
-        $this->tpl->setVariable('LINK_BOOK_TXT',$this->lng->txt('rep_robj_xrs_room_book'));
         // allow administrators to edit and delete rooms
         if ($ilAccess->checkAccess('write', '', $this->ref_id))
         {
@@ -179,8 +176,8 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
         // Room Name
         include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
-        include_once("./Modules/RoomSharing/classes/class.ilRoomSharingTextInputGUI.php");
-        include_once("./Modules/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+        include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingTextInputGUI.php");
+        include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
         $room_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_room"), "room");
         $room_name_input = new ilRoomSharingTextInputGUI("", "room_name");
         $room_name_input->setMaxLength(14);
@@ -199,15 +196,15 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
     {
         include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
-        include_once("./Modules/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
-        $seats_comb = new ilCombinationInputGUI($this->lng->txt("room_seats"), "seats");
+        include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+        $seats_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_seats"), "seats");
         // Seats
         $room_seats_input = new ilRoomSharingNumberInputGUI("", "room_seats");
         $room_seats_input->setMaxLength(8);
         $room_seats_input->setSize(8);
         $room_seats_input->setMinValue(0);
         $room_seats_input->setMaxValue($this->bookable_rooms->getMaxSeatCount());
-        $seats_comb->addCombinationItem("room_seats", $room_seats_input, $this->lng->txt("room_seats_needed"));
+        $seats_comb->addCombinationItem("room_seats", $room_seats_input, $this->lng->txt("rep_robj_xrs_amount"));
         $this->addFilterItem($seats_comb);
         $seats_comb->readFromSession();     // get the value that was submitted
         $this->filter["seats"] = $seats_comb->getValue();
@@ -277,7 +274,7 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
     protected function createRoomAttributeFormItem()
     {
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
-        include_once("./Modules/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+        include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
         include_once('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookableRooms.php');
         $room_attributes = $this->bookable_rooms->getAllAttributes();
         foreach ($room_attributes as $room_attribute)
@@ -289,7 +286,7 @@ class ilRoomSharingBookableRoomsTableGUI extends ilTable2GUI
             $room_attribute_input->setSize(8);
             $room_attribute_input->setMinValue(0);
             $room_attribute_input->setMaxValue($this->bookable_rooms->getMaxCountForAttribute($room_attribute));
-            $room_attribute_comb->addCombinationItem("amount", $room_attribute_input, $this->lng->txt("room_amount"));
+            $room_attribute_comb->addCombinationItem("amount", $room_attribute_input, $this->lng->txt("rep_robj_xrs_amount"));
 
             $this->addFilterItem($room_attribute_comb);
             $room_attribute_comb->readFromSession();

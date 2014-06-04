@@ -52,7 +52,7 @@ class ilRoomSharingFloorPlansGUI {
     function renderObject() {
         global $tpl, $ilCtrl, $ilAccess;
         
-        echo "hi ".$this->getPoolId();
+//        echo "hi ".$this->getPoolId();
         if ($ilAccess->checkAccess('write', '', $this->ref_id)) {
             include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
             $bar = new ilToolbarGUI;

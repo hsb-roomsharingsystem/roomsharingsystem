@@ -34,10 +34,11 @@ class ilRoomSharingBookings
                 {
                     //Check whether only the specific booking should be deleted
                     if(!$a_seq || $row['seq_id'] == NULL || !is_numeric($row['seq_id'])) {
-                    $ilDB->query('DELETE FROM rep_robj_xrs_bookings'.
-                            ' WHERE id = '.$ilDB->quote($booking_id, 'integer'));
-                    $ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
-                            ' WHERE booking_id = '.$ilDB->quote($booking_id, 'integer'));
+                        $ilDB->query('DELETE FROM rep_robj_xrs_bookings'.
+                                ' WHERE id = '.$ilDB->quote($booking_id, 'integer'));
+                        $ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
+                                ' WHERE booking_id = '.$ilDB->quote($booking_id, 'integer'));
+                            ilUtil::sendSuccess($lng->txt("Dieser Termin wurde gelöscht! (folgende Serientermine nicht betroffen)"), true);
 					}
 					//else delete every booking in the sequence
 					else 
@@ -52,24 +53,6 @@ class ilRoomSharingBookings
 									' WHERE id = '.$ilDB->quote($a_booking_id, 'integer'));
 							$ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
 									' WHERE booking_id = '.$ilDB->quote($a_booking_id, 'integer'));
-							
-							ilUtil::sendSuccess($lng->txt("Dieser Termin wurde gelöscht! (folgende Serientermine nicht betroffen)"), true);
-						}
-						//else delete every booking in the sequence
-						else 
-						{
-							//Get every booking which is in the specific sequence
-							$seq_set = $ilDB->query('SELECT id FROM roomsharing_bookings'.
-									' WHERE seq = '.$ilDB->quote($row['seq_id'], 'integer').
-									' AND pool_id = '.$ilDB->quote(1, 'integer'));
-							while($seq_row = $ilDB->fetchAssoc($seq_set)) 
-							{
-								//Delete the booking, which is part of the sequence
-								$ilDB->query('DELETE FROM roomsharing_bookings'.
-									' WHERE id = '.$ilDB->quote($seq_row['id'], 'integer'));
-								$ilDB->query('DELETE FROM roomsharing_book_user'.
-									' WHERE booking_id = '.$ilDB->quote($seq_row['id'], 'integer'));
-							}
 							ilUtil::sendSuccess($lng->txt("Dieser Termin und alle folgenden Serientermine wurden gelöscht!"), true);
 						}
 					}
@@ -175,9 +158,9 @@ class ilRoomSharingBookings
             
             //Get variable attributes of a booking
             $attributesSet = $ilDB->query('SELECT value, attr.name AS name'.
-                        ' FROM roomsharing_book_attr'.
-                        ' LEFT JOIN roomsharing_booking_attributes AS attr'.
-                        ' ON attr.id = roomsharing_book_attr.attr_id'.
+                        ' FROM rep_robj_xrs_book_attr'.
+                        ' LEFT JOIN rep_robj_xrs_battr AS attr'.
+                        ' ON attr.id = rep_robj_xrs_book_attr.attr_id'.
                         ' WHERE booking_id = '.$ilDB->quote($row['id'], 'integer'));
             while($attributesRow = $ilDB->fetchAssoc($attributesSet))
             {
@@ -218,14 +201,12 @@ class ilRoomSharingBookings
         global $ilDB;
         $cols = array();
         $attributesSet = $ilDB->query('SELECT *'.
-                ' FROM roomsharing_booking_attributes'.
+                ' FROM rep_robj_xrs_battr'.
                 ' WHERE pool_id = '.$ilDB->quote(1, 'integer'));
         while($attributesRow = $ilDB->fetchAssoc($attributesSet))
         {
             $cols[$attributesRow['name']] = array("txt" => $attributesRow['name']);
         }
-        // Pattern: $cols["column_heading"] = array("txt" => "column_js_entry")
-        /*$cols["Modul"] = array("txt" => "Modul");*/
         return $cols;
     }
 }

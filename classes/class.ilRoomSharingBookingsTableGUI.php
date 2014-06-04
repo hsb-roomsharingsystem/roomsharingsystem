@@ -40,9 +40,9 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         $this->addColumns();    // add columns and column headings
         $this->setSelectAllCheckbox('bookings');   // checkboxes labeled with "bookings" get
                                                    // get affected by the "Select All"-Checkbox
-		$this->setRowTemplate("tpl.room_bookings_row.html", "Modules/RoomSharing");
+		$this->setRowTemplate("tpl.room_bookings_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
 		// command for cancelling bookings
-        $this->addMultiCommand('showBookings', $this->lng->txt('rep_robj_xrs_cancel'));
+        $this->addMultiCommand('showBookings', $this->lng->txt('rep_robj_xrs_booking_cancel'));
         
 		$this->getItems();
     }
@@ -113,10 +113,10 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
             }
             else        // put together a link for the user profile view
             {			
-                $this->ctrl->setParameterByClass('ilobjroomsharingpoolgui', 'user_id', $a_set['participants'][$i]);
-                $this->tpl->setVariable('HREF_PROFILE', $this->ctrl->getLinkTargetByClass('ilobjroomsharingpoolgui', 'showprofile'));
+                $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', $a_set['participants'][$i]);
+                $this->tpl->setVariable('HREF_PROFILE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
                 // unset the parameter for safety purposes
-                $this->ctrl->setParameterByClass('ilobjroomsharingpoolgui', 'user_id', '');
+                $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', '');
             }
             
             $this->tpl->setVariable("TXT_PARTICIPANT", $participant);
@@ -144,7 +144,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         $this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
         $this->tpl->parseCurrentBlock();
         $this->tpl->setVariable('LINK_ACTION',$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-        $this->tpl->setVariable('LINK_ACTION_TXT',$this->lng->txt('rep_robj_xrs_cancel'));
+        $this->tpl->setVariable('LINK_ACTION_TXT',$this->lng->txt('rep_robj_xrs_booking_cancel'));
         $this->tpl->parseCurrentBlock();
     }
        

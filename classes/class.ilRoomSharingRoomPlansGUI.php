@@ -15,13 +15,13 @@ class ilRoomSharingRoomPlansGUI
 	 * Constructor of ilRoomSharingRoomPlansGUI
 	 * @param	object	$a_parent_obj
 	 */
-	public function __construct(ilObjRoomSharingPoolGUI $a_parent_obj)
+	public function __construct(ilObjRoomSharingGUI $a_parent_obj)
 	{   
         global $ilCtrl, $lng, $tpl;
         
 //         $this->parent_obj = $a_parent_obj;
-//         $this->ref_id = $a_parent_obj->ref_id;
-// 		$this->pool_id = $a_parent_obj->object->getId();	
+        $this->ref_id = $a_parent_obj->ref_id;
+ 		$this->pool_id = $a_parent_obj->object->getId();	
         
         $this->ctrl = $ilCtrl;
 		$this->lng = $lng;

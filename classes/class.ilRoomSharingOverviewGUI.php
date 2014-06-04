@@ -40,7 +40,7 @@ class ilRoomSharingOverviewGUI {
 		global $ilCtrl, $tpl;
 		
 		$cmd = $ilCtrl->getCmd ( "showBookings" );
-		echo "<br>CMD: RoomSharingOverview." . $cmd;
+//		echo "<br>CMD: RoomSharingOverview." . $cmd;
 		
 		if ($cmd == 'render' || $cmd == 'schowContent') 
 		{
@@ -48,7 +48,7 @@ class ilRoomSharingOverviewGUI {
 		} else if ($cmd != 'showBookings')
 		{
 			$next_class = $ilCtrl->getNextClass ( $this );
-			echo "<br>next_Class: " . $next_class;
+//			echo "<br>next_Class: " . $next_class;
 		}
 		
 		$ilCtrl->setReturn ( $this, "showBookings" );

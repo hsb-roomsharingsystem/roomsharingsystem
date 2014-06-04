@@ -33,7 +33,7 @@ class ilRoomSharingBookingsGUI
 	
 	function performCommand($cmd)
 	{
-		echo "Perform CMD: ".$cmd;
+//		echo "Perform CMD: ".$cmd;
 	}
 
     /**
@@ -44,14 +44,6 @@ class ilRoomSharingBookingsGUI
         // Auskommentiert lassen, sonst kracht das Programm. Warum, wird noch erforscht.
 //		$next_class = $ilCtrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd("showBookings");
-
-
-
-
-
-          // Auskommentiert lassen, sonst kracht das Programm. Warum, wird noch erforscht.
-//		$next_class = $ilCtrl->getNextClass($this);
-        $cmd = $ilCtrl->getCmd("showBookings");
 
         if ($cmd == 'render') {
         	$cmd = 'showBookings';
@@ -75,7 +67,7 @@ class ilRoomSharingBookingsGUI
 
         include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
         $toolbar = new ilToolbarGUI;
-        $toolbar->addButton($this->lng->txt('room_booking_add'), $this->ctrl->getLinkTarget($this, "showBookings"));
+        $toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'), $this->ctrl->getLinkTarget($this, "showBookings"));
         include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookingsTableGUI.php");
         $bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
 

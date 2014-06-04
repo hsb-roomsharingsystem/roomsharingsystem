@@ -65,6 +65,17 @@ room_write#:#Benuzter darf Einstellungen und Inhalt vom Roomsharingpool ändern
 room_cancel#:#Stornieren
 room_administration#:#Raumverwaltung
 room_search#:#Raumsuche
+rooms#:#Räume
+booking_add#:#Buchung hinzufügen
+at_most#:#Höchstens
+quick_search#:#Schnellsuche
+advanced_search#:#Erweiterte Suche
+search#:#Suchen
+time_range#:#Zeitbereich
+on#:#Am
+between#:#Zwischen
+add_room#:#Raum hinzufügen
+booking_cancel#:#Stornieren
 roomsharing_plugin_configuration#:#RoomSharing Plugin Konfiguration
 root_create_xrs#:#RoomSharing erstellen
 save#:#Speichern

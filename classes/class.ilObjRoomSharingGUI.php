@@ -19,7 +19,7 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  * - GUI classes used by this class are ilPermissionGUI (provides the rbac
  *   screens) and ilInfoScreenGUI (handles the info screen).
  *
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingOverviewGUI, ilRoomsharingRoomplansGUI, ilRoomsharingFloorplansGUI, ilPublicUserProfileGUI
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
  *
@@ -55,14 +55,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $ilTabs, $ilCtrl, $tpl, $ilTabs, $ilNavigationHistory, $cmd;
 		$next_class = $ilCtrl->getNextClass($this);
-		echo "Command: ".$cmd;
-		echo "<br>Next_Class: ".$next_class;
+//		echo "Command: ".$cmd;
+//		echo "<br>Next_Class: ".$next_class;
 
 		$pl_obj = new ilRoomSharingPlugin();
 		
 		$cmd = $ilCtrl->getCmd();
 		
-		if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')
+		if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings' || $cmd == 'showProfile')
 		{
 			$ilTabs->setTabActive('settings');
 			// In case the edit button was clicked in the repository.
@@ -99,12 +99,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
 		
-				// Info.
+			// Info.
 			case 'ilinfoscreengui':
 				$this->infoScreen();
 				break;
 		
-				// Roomplans.
+            // Search
+            case 'ilroomsharingsearchgui':
+                $this->tabs_gui->setTabActive('room_search');
+				$pl_obj->includeClass("class.ilRoomSharingSearchGUI.php");
+				$object_gui = & new ilRoomSharingSearchGUI($this);
+				$ret = & $this->ctrl->forwardCommand($object_gui);
+				break;
+            
+			// Roomplans.
 			case 'ilroomsharingroomplansgui':
 				$this->tabs_gui->setTabActive('room_plans');
 				$pl_obj->includeClass("class.ilRoomSharingRoomPlansGUI.php");
@@ -112,7 +120,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
 		
-				// Floorplan.
+			// Floorplan.
 			case 'ilroomsharingfloorplansgui':
 				$this->tabs_gui->setTabActive('floor_plans');
  				$pl_obj->includeClass("class.ilRoomSharingFloorPlansGUI.php");
@@ -121,7 +129,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				//$this->tpl->setContent("Die Ansicht der Pläne ist noch nicht an die neue Plugin-Ordnerstruktur angepasst.");
 				break;
 		
-				// Permissions.
+			// Permissions.
 			case 'ilpermissiongui':
 				$this->tabs_gui->setTabActive('perm_settings');
 				include_once("Services/AccessControl/classes/class.ilPermissionGUI.php");
@@ -129,35 +137,36 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$ret = & $this->ctrl->forwardCommand($perm_gui);
 				break;
 		
-				//Userprofile GUI.
+			//Userprofile GUI.
 			case 'ilpublicuserprofilegui':
 				$ilTabs->clearTargets();
-				include_once("Services/User/classes/class.ilPublicUserProfileGUI.php");
-				$profile = new ilPublicUserProfileGUI((int) $_GET["user_id"]);
-				$profile->setBackUrl($this->ctrl->getLinkTarget($this, 'log'));
-				$ret = $this->ctrl->forwardCommand($profile);
-				$tpl->setContent($ret);
-				break;
+                include_once("Services/User/classes/class.ilPublicUserProfileGUI.php");
+                $profile = new ilPublicUserProfileGUI((int) $_GET["user_id"]);
+                $profile->setBackUrl($this->ctrl->getLinkTarget($this, 'log'));
+                $ret = $this->ctrl->forwardCommand($profile);
+                $tpl->setContent($ret);
+                break;
+
 		
-				// Standard dispatcher GUI.
+			// Standard dispatcher GUI.
 			case "ilcommonactiondispatchergui":
 				include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
 				$gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
 				$this->ctrl->forwardCommand($gui);
 				break;
 		
-				// Copy GUI. Not supported yet.
+			// Copy GUI. Not supported yet.
 			case "ilobjectcopygui":
 				include_once "./Services/Object/classes/class.ilObjectCopyGUI.php";
 				$cp = new ilObjectCopyGUI($this);
 				$cp->setType("roomsharing");
 				$this->ctrl->forwardCommand($cp);
 				break;
-				// Standard cmd handling if cmd is not recognized.
+			// Standard cmd handling if cmd is not recognized.
 			default:
 				
 // 				$cmd = $ilCtrl->getCmd();
-				echo "defaultcmd:".$cmd;
+//				echo "defaultcmd:".$cmd;
 				$this->$cmd();
 				break;
 		}
@@ -197,14 +206,15 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Standard info screen tab.
 		$this->addInfoTab();
 		
+        // Search.
+        $this->tabs_gui->addTab("search", $this->lng->txt("search"), $this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showQuickSearch"));
+
 		// Roomplans.
-		$this->tabs_gui->addTab("room_plans", $this->txt("room_plans"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomplansgui', "showBookableRooms"));
+		$this->tabs_gui->addTab("room_plans", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomplansgui', "showBookableRooms"));
 
 		// Floorplans.
 		$this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
 
-
-		
 		// Show permissions and settings tabs if the user has write permissions.
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
 		{
@@ -314,6 +324,31 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	
 	}
 	
+    
+
+    /**
+
+     * Used to show the user profile information.
+
+     * @global type $tpl
+
+     * @global type $ilCtrl
+
+     */
+
+    function showProfile()
+    {
+        global $tpl, $ilCtrl;
+        $this->tabs_gui->clearTargets();
+        $user_id = (int) $_GET['user_id'];
+        include_once 'Services/User/classes/class.ilPublicUserProfileGUI.php';
+        $profile = new ilPublicUserProfileGUI($user_id);
+        // the back button on the user profile page momentarily links back to the bookings page
+        $profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingoverviewgui', 'showBookings'));
+        $tpl->setContent($ilCtrl->getHTML($profile));
+    }
+
+    
 	/**
 	 * Returns roomsharing pool id.
 	 */

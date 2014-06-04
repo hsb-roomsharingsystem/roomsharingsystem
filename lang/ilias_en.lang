@@ -51,7 +51,7 @@ pools#:#RoomSharing Pools
 room#:#Room
 room_add#:#Add Room
 room_attributes#:#Room Attributes
-room_book#:#Book Room
+room_book#:#Book
 room_date_recurrence#:#Date Recurrence
 room_delete#:#User can move or delete Roomsharing Pool
 room_edit#:#Edit Room
@@ -64,6 +64,17 @@ room_visible#:#RoomSharing Pool is visible
 room_write#:#User can edit settings and content of RoomSharing Pool
 room_administration#:#Room Administration
 room_search#:#Room Search
+rooms#:#Rooms
+booking_add#:#Add Booking
+at_most#:#At most
+quick_search#:#Quick Search
+advanced_search#:#Advanced Search
+search#:#Search
+time_range#:#Time Range
+on#:#On
+between#:#Between
+add_room#:#Add Room
+booking_cancel#:#Cancel
 roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
 root_create_xrs#:#Create RoomSharing
 save#:#Save
