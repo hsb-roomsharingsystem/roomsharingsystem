@@ -3,7 +3,8 @@
 /**
  * Class ilRoomSharingParticipations
  *
- * @author Alex
+ * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  */
 class ilRoomSharingParticipations
 {
@@ -12,18 +13,19 @@ class ilRoomSharingParticipations
      * @param type $booking_id The booking id of the participation
      * @global type $ilDB, $ilUser
      */
-    /*
-     * TODO: Error handling fehlt noch, Fehler werden "ignoriert"
-     */
-    public function removeParticipation($booking_id) 
+    public function removeParticipation($a_booking_id) 
     {
         global $ilDB, $ilUser;
         
-        if(!empty($booking_id) && is_numeric($booking_id)) 
+        if(!empty($a_booking_id) && is_numeric($a_booking_id)) 
         {
             $ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
                     ' WHERE user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
-                    ' AND booking_id = '.$ilDB->quote($booking_id, 'integer'));
+                    ' AND booking_id = '.$ilDB->quote($a_booking_id, 'integer'));
+        }
+        else
+        {
+            ilUtil::sendFailure($lng->txt("Keine oder nicht numerische ID angegeben!"), true);
         }
     }
     
@@ -122,25 +124,7 @@ class ilRoomSharingParticipations
                       'course' => "Technische Informatik (TI Bsc.)",
                       'semester' => "4, 6",
                       'room' => "116",
-                      'person_responsible' => "Prof. Dr. Thomas Risse");
-        
-        $res[] =  array('recurrence' => true, 
-                      'date'   => "4. März 2014, 09:00 - 13:00", 
-                      'module'  => "PROJEKT1 RSS",
-                      'subject' => "Projekt",
-                      'course' => "Technische Informatik (TI Bsc.)",
-                      'semester' => "6",
-                      'room' => "116",
-                      'person_responsible' => "Prof. Dr. Andreas Spillner");
-        
-        $res[] =  array('recurrence' => false, 
-                      'date'   => "4. April 2014, 13:00 - 15:00", 
-                      'module'  => "",
-                      'subject' => "Lernen",
-                      'course' => "Technische Informatik (TI Bsc.)",
-                      'semester' => "",
-                      'room' => "118",
-                      'person_responsible' => "Peter Schulz");*/
+                      'person_responsible' => "Prof. Dr. Thomas Risse");*/
         
         return $res;
     }

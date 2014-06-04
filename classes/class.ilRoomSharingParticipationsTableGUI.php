@@ -19,7 +19,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	 */
     public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
     {
-        global $ilCtrl, $lng, $ilAccess;
+        global $ilCtrl, $lng;
         
         $this->parent_obj = $a_parent_obj;
         $this->lng = $lng;

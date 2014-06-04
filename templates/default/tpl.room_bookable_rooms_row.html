@@ -1,4 +1,4 @@
-<tr class="{CSS_ROW} small">
+<tr class="{CSS_ROW}">
 	<!-- BEGIN room -->
 	<td class="std">
 		<a href="{HREF_ROOM}">{TXT_ROOM}</a>
@@ -14,10 +14,11 @@
 		{TXT_AMOUNT} {TXT_ATTRIBUTE}{TXT_BREAK}
         <!--  END attributes -->
 	</td>
-    <!--  END sound_system -->
 	<td class="std">
+        <!-- BEGIN actions -->
 		<div class="ilFloatRight">
-		  <a class="il_ContainerItemCommand2" href="{LINK_BOOK}">{LINK_BOOK_TXT}</a>&nbsp;&nbsp;
-		</div>
+		  <a class="il_ContainerItemCommand2" href="{LINK_ACTION}">{LINK_ACTION_TXT}</a>&nbsp;&nbsp
+		</div> {LINK_ACTION_SEPARATOR}
+        <!-- END actions -->
 	</td>
 </tr>

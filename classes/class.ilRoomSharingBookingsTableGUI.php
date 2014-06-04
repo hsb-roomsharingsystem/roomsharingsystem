@@ -20,7 +20,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
     public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
     {
-        global $ilCtrl, $lng, $ilAccess;
+        global $ilCtrl, $lng;
         
         $this->parent_obj = $a_parent_obj;
         $this->lng = $lng;
@@ -34,19 +34,17 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		parent::__construct($a_parent_obj, $a_parent_cmd);
         
 		$this->setTitle($lng->txt("rep_robj_xrs_bookings"));
-		$this->setLimit(20);      // data sets per page
+		$this->setLimit(10);      // data sets per page
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
 		
         $this->addColumns();    // add columns and column headings
-        $this->setSelectAllCheckbox('bookings');   // checkboxes labelled with "bookings" get
+        $this->setSelectAllCheckbox('bookings');   // checkboxes labeled with "bookings" get
                                                    // get affected by the "Select All"-Checkbox
 		$this->setRowTemplate("tpl.room_bookings_row.html", "Modules/RoomSharing");
 		// command for cancelling bookings
         $this->addMultiCommand('showBookings', $this->lng->txt('rep_robj_xrs_cancel'));
         
 		$this->getItems();
-        $this->getSelectAllCheckbox();
-        $this->setShowRowsSelector("test");
     }
 	
     /**
@@ -99,23 +97,37 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         
         $this->tpl->setVariable('TXT_DATE', $a_set['date']);
         $this->tpl->setVariable('TXT_ROOM', $a_set['room']);
-        $this->tpl->setVariable('TXT_SUBJECT', ($a_set['subject'] == null ? '' : $a_set['subject']) );
+        $this->tpl->setVariable('TXT_SUBJECT', $a_set['subject']);
         
         // Teilnehmer
         $participant_count = count($a_set['participants']);
         for($i = 0; $i < $participant_count; ++$i) 
         {
             $this->tpl->setCurrentBlock("participants");
-            $participant = $a_set['participants'][$i];
+            $participant = ilObjUser::_lookupFullName($a_set['participants'][$i]);
+            
+            // if the user doesn't exist
+            if(!trim($participant))
+            {
+                $participant = "[".$this->lng->txt("user_deleted")."]";
+            }
+            else        // put together a link for the user profile view
+            {			
+                $this->ctrl->setParameterByClass('ilobjroomsharingpoolgui', 'user_id', $a_set['participants'][$i]);
+                $this->tpl->setVariable('HREF_PROFILE', $this->ctrl->getLinkTargetByClass('ilobjroomsharingpoolgui', 'showprofile'));
+                // unset the parameter for safety purposes
+                $this->ctrl->setParameterByClass('ilobjroomsharingpoolgui', 'user_id', '');
+            }
+            
+            $this->tpl->setVariable("TXT_PARTICIPANT", $participant);
             
             if($i < $participant_count - 1)
             { 
                 $this->tpl->setVariable('TXT_COMMA', ',');
             }
-            $this->tpl->setVariable('TXT_PARTICIPANT', $participant);
             $this->tpl->parseCurrentBlock();
         }    
-        
+ 
         // Populate the selected additional table cells
         foreach ($this->getSelectedColumns() as $c)
 		{
@@ -124,12 +136,16 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
             $this->tpl->parseCurrentBlock();
         }
         
-        
         // actions
-        $this->tpl->setVariable('LINK_EDIT',$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-        $this->tpl->setVariable('LINK_EDIT_TXT',$this->lng->txt('rep_robj_xrs_edit'));
-        $this->tpl->setVariable('LINK_CANCEL',$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-        $this->tpl->setVariable('LINK_CANCEL_TXT',$this->lng->txt('rep_robj_xrs_cancel'));
+
+        $this->tpl->setCurrentBlock("actions");
+        $this->tpl->setVariable('LINK_ACTION',$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
+        $this->tpl->setVariable('LINK_ACTION_TXT',$this->lng->txt('edit'));
+        $this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
+        $this->tpl->parseCurrentBlock();
+        $this->tpl->setVariable('LINK_ACTION',$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
+        $this->tpl->setVariable('LINK_ACTION_TXT',$this->lng->txt('rep_robj_xrs_cancel'));
+        $this->tpl->parseCurrentBlock();
     }
        
     /**

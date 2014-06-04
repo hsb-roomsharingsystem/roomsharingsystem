@@ -14,18 +14,20 @@ include_once("./Services/Form/classes/class.ilDateTimeInputGUI.php");
 class ilRoomSharingDateTimeInputGUI extends ilDateTimeInputGUI
 { 
     /**
-	* Constructor
-	*
-	* @param	string	$a_title	Title
-	* @param	string	$a_postvar	Post Variable
-	*/
+	 * Constructor of ilRoomSharingDateTimeInputGUI; an own take on of 
+     * the ilDateTimeInputGUI primarily targeted towards the input validation
+     * of time ranges.
+	 *
+	 * @param	string	$a_title	Title
+	 * @param	string	$a_postvar	Post Variable
+	 */
 	function __construct($a_title = "", $a_postvar = "")
 	{
 		parent::__construct($a_title, $a_postvar);
 	}
     
     /**
-	* Check input, strip slashes etc. for one time input.
+	* Check input, strip slashes etc. for a time input.
 	*
 	* @return	boolean		Input ok, true/false
 	*/	
@@ -33,7 +35,7 @@ class ilRoomSharingDateTimeInputGUI extends ilDateTimeInputGUI
 	{
 		global $ilUser, $lng;
 		
-        // use the UNIX time stamp "0", since we don't care about the date
+        // for the date use the  UNIX time stamp "0", since we don't care about it
         $dt['mday'] = 1;
         $dt['mon'] = 1;
         $dt['year'] = 1970;

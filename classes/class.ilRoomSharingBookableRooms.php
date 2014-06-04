@@ -5,10 +5,15 @@
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @author Dan Soergel <dansoergel@t-online.de>
  * @author Malte Ahlering <mahlering@stud.hs-bremen.de>
+ * @author Bernd Hitzelberger <bhitzelberger@stud.hs-bremen.de>
  */
 class ilRoomSharingBookableRooms {
+    public function __construct($a_pool_id) {
+		$this->pool_id = $a_pool_id;
+	}
+	
 	/**
-	 * Get the rooms for a given ppol_id from database
+	 * Get the rooms for a given pool_id from database
 	 *
 	 * @global type $ilDB
 	 * @return array Rooms and Attributes in the following format:
@@ -31,43 +36,83 @@ class ilRoomSharingBookableRooms {
 		
 		if ($debug) {
 			echo "<br />";
+			echo "Entered getList() with filter-array:";
+			echo "<br />";
 			print_r ( $filter );
 			echo "<br />";
 		}
 		
 		/*
-		 * Add filters to query strings
+		 * Get all room ids where attributes match the filter (if any).
 		 */
+		$roomsWithAttrib = array ();
+		if ($filter ['attributes']) {
+			$first_filter_apllied = false;
+			foreach ( $filter ['attributes'] as $key => $value ) {
+				$q = 'SELECT room_id FROM roomsharing_room_attr ra LEFT JOIN roomsharing_attributes attr ON ra.att_id = attr.id WHERE name = ' . $ilDB->quote ( $key, 'text' ) . ' AND count >= ' . $ilDB->quote ( $value, 'integer' ) . ' AND pool_id = ' . $ilDB->quote ( $this->pool_id, 'integer' ) . ' ';
+				if ($debug) {
+					echo "<br />";
+					echo $q;
+					echo "<br />";
+				}
+				$resAttr = $ilDB->query ( $q );
+				$room_with_attr = array ();
+				while ( $row = $ilDB->fetchAssoc ( $resAttr ) ) {
+					if (array_key_exists ( $row ['room_id'], $roomsWithAttrib )) {
+						$roomsWithAttrib [$row ['room_id']] [$key] = $value;
+					}
+					if (! $first_filter_apllied) {
+						$roomsWithAttrib [$row ['room_id']] = array (
+								$key => $value 
+						);
+					}
+				}
+				$first_filter_apllied = true;
+			}
+		} else { // when no filter set, get all
+			$query = 'SELECT id FROM roomsharing_rooms';
+			$resRoomIds = $ilDB->query ( $query );
+			while ( $row = $ilDB->fetchAssoc ( $resRoomIds ) ) {
+				$roomsWithAttrib [$row ['id']] = 1;
+			}
+		}
 		
+		if ($debug) {
+			echo "<br />";
+			print_r ( $roomsWithAttrib );
+			echo "<br />";
+			print_r ( array_keys ( $roomsWithAttrib ) );
+			echo "<br />";
+		}
 		$select_query = 'SELECT room.id, name, max_alloc FROM rep_robj_xrs_rooms room ';
 		$order_by_name = ' ORDER BY name ';
 		$join_part = ' ';
 		$where_part = ' WHERE room.pool_id = ' . $ilDB->quote ( 1, 'integer' ) . ' '; // 1 until yet
 		
-		if ($filter ["room_name"]) {
+		/*
+		 * Add remaining filters to query string
+		 */
+		$where_part = ' AND room.pool_id = ' . $ilDB->quote ( $this->pool_id, 'integer' ) . ' '; // 1 until yet
+		
+		if ($filter ["room_name"] || $filter ["room_name"] === "0") {
 			$where_part = $where_part . ' AND name LIKE ' . $ilDB->quote ( '%' . $filter ["room_name"] . '%', 'text' ) . ' ';
 		}
-		if ($filter ["room_seats"]) {
+		if ($filter ["room_seats"] || $filter ["room_seats"] === 0.0) {
 			$where_part = $where_part . ' AND max_alloc >= ' . $ilDB->quote ( $filter ["room_seats"], 'integer' ) . ' ';
 		}
-		if ($filter ["date_from"] && $filter ["date_to"]) {
-			
-			ilUtil::sendInfo ( "Filtern nach Datum noch nicht implementiert", false );
+		if ($filter ["date_from"] && $filter ["date_to"]) { // search for date and time not implemented
+			ilUtil::sendInfo ( "Filtern nach Datum nicht implementiert", false );
 			
 			if ($filter ["time_duration"]) {
-				ilUtil::sendInfo ( "Filtern nach Zeitspanne noch nicht implementiert", false );
+				ilUtil::sendInfo ( "Filtern nach Zeitspanne nicht implementiert", false );
 			}
 		}
 		
-		$query = $select_query . $join_part . $where_part . $order_by_name;
-		
-		if ($debug) {
-			echo "<br />";
-			echo $query;
-			echo "<br />";
-		}
-		
-		$set = $ilDB->query ( $query );
+		/*
+		 * Prepare and execute statement
+		 */
+		$st = $ilDB->prepare ( 'SELECT room.id, name, max_alloc FROM roomsharing_rooms room WHERE ' . $ilDB->in ( "room.id", array_keys ( $roomsWithAttrib ) ) . $where_part . ' ORDER BY name', $ilDB->addTypesToArray ( $types, "integer", count ( $room . ids ) ) );
+		$set = $ilDB->execute ( $st, array_keys ( $roomsWithAttrib ) );
 		
 		$res_room = array ();
 		$room_ids = array ();
@@ -76,12 +121,9 @@ class ilRoomSharingBookableRooms {
 			$room_ids [] = $row ['id']; // Remember the ids in order to filter for room attributes within the number of room ids
 		}
 		
-		if ($debug) {
-			echo "<br />";
-			print_r ( $res_room );
-			echo "<br />";
-		}
-		
+		/*
+		 * Bring data in a specific format for display purposes
+		 */
 		$res_attribute = $this->getAttributes ( $room_ids );
 		$res = $this->formatDataForGui ( $res_room, $res_attribute );
 		return $res;
@@ -165,5 +207,39 @@ class ilRoomSharingBookableRooms {
 			$res [] = $row;
 		}
 		return $res;
+	}
+	
+	/**
+	 * Returns the maximum amount of seats of all available rooms in the current pool, so that the
+	 * the user can be notified about it in the filter options.
+	 */
+	public function getMaxSeatCount() {
+		global $ilDB;
+		$valueSet = $ilDB->query ( 'SELECT MAX(max_alloc) AS value FROM roomsharing_rooms WHERE pool_id = ' . $ilDB->quote ( $this->pool_id, 'integer' ) );
+		$valueRow = $ilDB->fetchAssoc ( $valueSet );
+		$value = $valueRow ['value'];
+		return $value;
+	}
+	
+    /**
+     * Determines the maximum amount of a given room attribute and returns it.
+     * 
+     * @param type $a_room_attribute the attribute for which the max count
+	 *                               should be determined
+     * @return type the max value of the attribute
+     */
+	public function getMaxCountForAttribute($a_room_attribute) {
+		global $ilDB;
+		// get the id of the attribute in this pool
+		$attributIdSet = $ilDB->query ( 'SELECT id FROM roomsharing_attributes WHERE name =' . $ilDB->quote ( $a_room_attribute, 'text' ) . ' AND pool_id = ' . $ilDB->quote ( $this->pool_id, 'integer' ) );
+		$attributIdRow = $ilDB->fetchAssoc ( $attributIdSet );
+		$attributID = $attributIdRow ['id'];
+		
+		// get the max value of the attribut in this pool
+		$valueSet = $ilDB->query ( 'SELECT MAX(count) AS value FROM roomsharing_room_attr LEFT JOIN roomsharing_rooms as room
+				 ON room.id = roomsharing_room_attr.room_id WHERE att_id =' . $ilDB->quote ( $attributID, 'integer' ) . ' AND pool_id =' . $ilDB->quote ( $this->pool_id, 'integer' ) );
+		$valueRow = $ilDB->fetchAssoc ( $valueSet );
+		$value = $valueRow ['value'];
+		return $value;
 	}
 }
