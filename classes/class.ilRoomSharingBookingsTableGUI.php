@@ -7,8 +7,6 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
 * @author Alexander Keller <a.k3ll3r@gmail.com>
 * @version $Id$
 *
-*@ilCtrl_IsCalledBy ilRoomSharingBookingsTableGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
-*
 */
 
 class ilRoomSharingBookingsTableGUI extends ilTable2GUI

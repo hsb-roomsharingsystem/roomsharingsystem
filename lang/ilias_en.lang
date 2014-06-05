@@ -35,7 +35,7 @@ objs_xrs_duplicate#:#Copy RoomSharing
 offline#:#Offline
 option_one#:#Option One
 option_two#:#Option Two
-overview#:#Dates
+appointments#:#Appointments
 participants#:#Participants
 participations#:#Participations
 person_responsible#:#Person Responsible
@@ -62,8 +62,6 @@ room_plans#:#Room List
 room_read#:#User can use resources / objects in RoomSharing Pool
 room_visible#:#RoomSharing Pool is visible
 room_write#:#User can edit settings and content of RoomSharing Pool
-room_administration#:#Room Administration
-room_search#:#Room Search
 rooms#:#Rooms
 booking_add#:#Add Booking
 at_most#:#At most

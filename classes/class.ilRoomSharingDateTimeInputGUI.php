@@ -7,8 +7,6 @@ include_once("./Services/Form/classes/class.ilDateTimeInputGUI.php");
 * @author Alexander Keller <a.k3ll3r@gmail.com>
 * @version $Id$
 * 
-* @ilCtrl_IsCalledBy ilRoomSharingDateTimeInputGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
-*
 */
 
 class ilRoomSharingDateTimeInputGUI extends ilDateTimeInputGUI

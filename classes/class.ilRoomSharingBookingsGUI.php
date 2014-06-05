@@ -1,14 +1,12 @@
 <?php
 
 /**
-* Class ilRoomSharingBookingsGUI
-*
-* @author Alexander Keller <a.k3ll3r@gmail.com>
-* @version $Id$
-* 
-* @ilCtrl_IsCalledBy ilRoomSharingBookingsGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
-* 
-*/
+ * Class ilRoomSharingBookingsGUI
+ *
+ * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @version $Id$
+ * 
+ */
 class ilRoomSharingBookingsGUI
 {
 
@@ -16,10 +14,10 @@ class ilRoomSharingBookingsGUI
     protected $pool_id;
 
     /**
-     * Constructor of ilRoomSharingOverviewGUI
+     * Constructor of ilRoomSharingBookingsGUI
      * @param	object	$a_parent_obj
      */
-    function __construct(ilRoomSharingOverviewGUI $a_parent_obj)
+    function __construct(ilRoomSharingAppointmentsGUI $a_parent_obj)
     {
         global $ilCtrl, $lng, $tpl;
 
@@ -29,36 +27,35 @@ class ilRoomSharingBookingsGUI
         $this->lng = $lng;
         $this->tpl = $tpl;
     }
-	
-	
-	function performCommand($cmd)
-	{
+
+    function performCommand($cmd)
+    {
 //		echo "Perform CMD: ".$cmd;
-	}
+    }
 
     /**
      * Main switch for command execution.
      */
     function executeCommand()
     {
-        // Auskommentiert lassen, sonst kracht das Programm. Warum, wird noch erforscht.
-//		$next_class = $ilCtrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd("showBookings");
 
-        if ($cmd == 'render') {
-        	$cmd = 'showBookings';
+        if ($cmd == 'render')
+        {
+            $cmd = 'showBookings';
         }
-        
-		switch($next_class)
-		{
-			default:
-				$cmd .= 'Object';
-				$this->$cmd();
-				break;
-		}
-		return true;
-	}
-	    /**
+
+        switch ($next_class)
+        {
+            default:
+                $cmd .= 'Object';
+                $this->$cmd();
+                break;
+        }
+        return true;
+    }
+
+    /**
      * Shows all made bookings.
      */
     function showBookingsObject()

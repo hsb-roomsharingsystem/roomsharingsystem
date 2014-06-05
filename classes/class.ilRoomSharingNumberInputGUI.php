@@ -14,13 +14,13 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
      * Overwritten method from ilNumberInputGUI. This method is primarily used 
      * to make use of a different template.
      */
-    
+
     /**
-	* Constructor
-	*
-	* @param	string	$a_title	Title
-	* @param	string	$a_postvar	Post Variable
-	*/
+     * Constructor
+     *
+     * @param	string	$a_title	Title
+     * @param	string	$a_postvar	Post Variable
+     */
     public function render()
     {
         global $lng;
@@ -66,7 +66,7 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
         {
             $tpl->setVariable("TXT_NUMBER_CONSTRAINTS", $constraints);
         }
-        
+
         $tpl->parseCurrentBlock();
         return $tpl->get();
     }
@@ -138,4 +138,5 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
             $this->setValue(false);
         }
     }
+
 }
