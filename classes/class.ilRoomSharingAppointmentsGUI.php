@@ -40,18 +40,16 @@ class ilRoomSharingAppointmentsGUI
     {
         global $ilCtrl, $tpl;
 
+        // set cmd to 'showBookings' if no cmd can be found
         $cmd = $ilCtrl->getCmd("showBookings");
 //		echo "<br>CMD: RoomSharingAppointmentsGUI." . $cmd;
 
+        // if the plugin is called
         if ($cmd == 'render' || $cmd == 'schowContent')
         {
             $cmd = 'showBookings';
-        } else if ($cmd != 'showBookings')
-        {
-            $next_class = $ilCtrl->getNextClass($this);
-//			echo "<br>next_Class: " . $next_class;
         }
-
+  
         $ilCtrl->setReturn($this, "showBookings");
 
         switch ($next_class)
@@ -106,7 +104,7 @@ class ilRoomSharingAppointmentsGUI
     /**
      * Show all participations.
      */
-    function showParticipationsObject()
+    function showParticipations()
     {
         $this->setSubTabs('participations');
         include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingParticipationsGUI.php");

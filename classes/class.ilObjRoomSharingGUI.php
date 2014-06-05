@@ -55,16 +55,15 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
      */
     function performCommand($cmd)
     {
-        global $ilTabs, $ilCtrl, $tpl, $ilTabs, $ilNavigationHistory, $cmd;
+        global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd;
         $next_class = $ilCtrl->getNextClass($this);
 //		echo "Command: ".$cmd;
 //		echo "<br>Next_Class: ".$next_class;
 
-        $pl_obj = new ilRoomSharingPlugin();
-
+        $this->pl_obj = new ilRoomSharingPlugin();
         $cmd = $ilCtrl->getCmd();
 
-        if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings' || $cmd == 'showProfile')
+        if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')
         {
             $ilTabs->setTabActive('settings');
             // In case the edit button was clicked in the repository.
@@ -73,16 +72,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $cmd = 'editSettings';
             }
             $this->$cmd();
-            return true;
-        }
-
-        // On initial call of the plugin.
-        if (!$next_class)
-        {
-            $ilTabs->setTabActive('appointments');
-            $pl_obj->includeClass("class.ilRoomSharingAppointmentsGUI.php");
-            $object_gui = & new ilRoomSharingAppointmentsGUI($this);
-            $ilCtrl->forwardCommand($object_gui);
             return true;
         }
 
@@ -96,7 +85,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             // Appointments
             case 'ilroomsharingappointmentsgui':
                 $this->tabs_gui->setTabActive('appointments');
-                $pl_obj->includeClass("class.ilRoomSharingAppointmentsGUI.php");
+                $this->pl_obj->includeClass("class.ilRoomSharingAppointmentsGUI.php");
                 $object_gui = & new ilRoomSharingAppointmentsGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
                 break;
@@ -109,7 +98,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             // Search
             case 'ilroomsharingsearchgui':
                 $this->tabs_gui->setTabActive('room_search');
-                $pl_obj->includeClass("class.ilRoomSharingSearchGUI.php");
+                $this->pl_obj->includeClass("class.ilRoomSharingSearchGUI.php");
                 $object_gui = & new ilRoomSharingSearchGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
                 break;
@@ -117,7 +106,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             // Rooms
             case 'ilroomsharingroomsgui':
                 $this->tabs_gui->setTabActive('rooms');
-                $pl_obj->includeClass("class.ilRoomSharingRoomsGUI.php");
+                $this->pl_obj->includeClass("class.ilRoomSharingRoomsGUI.php");
                 $object_gui = & new ilRoomSharingRoomsGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
                 break;
@@ -125,7 +114,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             // Floorplans
             case 'ilroomsharingfloorplansgui':
                 $this->tabs_gui->setTabActive('floor_plans');
-                $pl_obj->includeClass("class.ilRoomSharingFloorPlansGUI.php");
+                $this->pl_obj->includeClass("class.ilRoomSharingFloorPlansGUI.php");
                 $schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
                 $ret = & $this->ctrl->forwardCommand($schedule_gui);
                 //$this->tpl->setContent("Die Ansicht der Pläne ist noch nicht an die neue Plugin-Ordnerstruktur angepasst.");
@@ -166,8 +155,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 break;
             // Standard cmd handling if cmd is not recognized.
             default:
-
-// 				$cmd = $ilCtrl->getCmd();
+ 				$cmd = $ilCtrl->getCmd('render');
 //				echo "defaultcmd:".$cmd;
                 $this->$cmd();
                 break;
@@ -177,7 +165,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 // 		$this->addHeaderAction();
         return true;
     }
-
+    
+    /**
+     * Default command that is executed if no "nextClass" can be determined.
+     */
+    public function render() 
+    {
+        global $ilTabs, $ilCtrl;
+        $ilTabs->setTabActive('appointments');
+        $this->pl_obj->includeClass("class.ilRoomSharingAppointmentsGUI.php");
+        $object_gui = & new ilRoomSharingAppointmentsGUI($this);
+        $ilCtrl->forwardCommand($object_gui);
+        return true;
+    }
+    
     /**
      * After object has been created -> jump to this command
      */
@@ -232,7 +233,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
      */
     function showContent()
     {
-        global $tpl, $ilTabs;
         $this->tabs_gui->activateTab('appointments');
     }
 
@@ -324,11 +324,40 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     }
 
     /**
+     * Function that redirects to the overview of a made booking.
+     * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
+     */
+    public function showBooking() 
+    {
+        global $ilCtrl;
+        
+        $booking_id = (int) $_GET['booking_id'];
+        $ilCtrl->setCmd("showBookings");
+        $this->render();
+        echo "booking_id = " . $booking_id;
+    }
+    
+    /**
+     * Displays a page that displays room information.
+     * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
+     */
+    public function showRoom()
+    {
+        global $ilCtrl;
+        
+        $room_id = (int) $_GET['room_id'];
+        $ilCtrl->setCmd("showBookings");
+        $this->render();
+        echo "room_id = " . $room_id;
+    }  
+    
+    
+    /**
      * Used to show the user profile information.
      * @global type $tpl
      * @global type $ilCtrl
      */
-    function showProfile()
+    public function showProfile()
     {
         global $tpl, $ilCtrl;
         $this->tabs_gui->clearTargets();
@@ -339,7 +368,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', 'showBookings'));
         $tpl->setContent($ilCtrl->getHTML($profile));
     }
-
+    
     /**
      * Returns roomsharing pool id.
      */
