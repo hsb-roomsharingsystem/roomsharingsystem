@@ -87,8 +87,7 @@ class ilRoomSharingBookings
                         ' WHERE pool_id = '.$ilDB->quote(1, 'integer').
                         ' AND user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
                         ' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
-                        ' OR date_to >= "'.date('Y-m-d H:i:s').'"'.
-                        ' OR seq_id IS NOT NULL)'.
+                        ' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
                         ' ORDER BY date_from ASC');
         $res = array();
         while($row = $ilDB->fetchAssoc($set))
