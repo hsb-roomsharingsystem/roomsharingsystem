@@ -23,6 +23,7 @@ floor_plans_delete#:#delete floorplan
 floor_plans_show#:#Show Floor Plans
 floor_plans_deleted#:#Floorplan deleted
 floor_plans_deleted#:#Error while deleting floorplan
+floor_plans_upload_error#:#Error while uploading floorplan
 fold_create_xrs#:#Create RoomSharing
 grp_create_xrs#:#Create RoomSharing
 leave#:#Leave

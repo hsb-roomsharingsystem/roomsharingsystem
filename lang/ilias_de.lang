@@ -23,6 +23,7 @@ floor_plans_delete#:#Gebäudeplan löschen
 floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_deleted#:#Gebäudeplan erfolgreich gelöscht
 floor_plans_deleted_error#:#Fehler beim Löschen des Gebäudeplans
+floor_plans_upload_error#:#Fehler beim Hochladen des Gebäudeplans
 fold_create_xrs#:#RoomSharing erstellen
 grp_create_xrs#:#RoomSharing erstellen
 leave#:#Austreten

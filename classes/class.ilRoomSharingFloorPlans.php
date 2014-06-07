@@ -4,7 +4,7 @@
  * Class ilRilRoomSharingFloorPlans
  * Stores all available data to an floor plan.
  *
- * @author T. Wolscht
+ * @author Thomas Wolscht <t.wolscht@googlemail.com>
  */
 class ilRoomSharingFloorPlans {
 
@@ -143,25 +143,6 @@ class ilRoomSharingFloorPlans {
     }
 
     /**
-     * Returns all available rooms
-     *
-     * @return string
-     */
-    public function getAllRooms() {
-        global $ilDB;
-
-        $set = $ilDB->query('SELECT name, file_id FROM roomsharing_rooms ORDER BY name');
-
-        $rooms = array();
-        while ($row = $ilDB->fetchAssoc($set)) {
-            $rooms [] = $row;
-        }
-        //$res = $this->formatDataForGui ( $rooms );
-        //return $res;
-        return $rooms;
-    }
-
-    /**
      * Inserts the just uploaded file to Roomsharing database
      */
     public function fileToDatabase($file_id) {
@@ -190,8 +171,8 @@ class ilRoomSharingFloorPlans {
                         ' WHERE file_id = '.$ilDB->quote($fid, 'integer'));
         }
         else{
+            // no id given
             return 0;
-            echo "Keine ID angegeben";
         }
         include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
         $mediaObj = new ilObjMediaObject($fid);

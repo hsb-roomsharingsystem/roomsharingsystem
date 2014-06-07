@@ -4,6 +4,7 @@
  * Class ilRoomSharingFloorPlansGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ *         Thomas Wolscht <t.wolscht@googlemail.com>
  * @version $Id$
  */
 class ilRoomSharingFloorPlansGUI {
@@ -80,7 +81,6 @@ class ilRoomSharingFloorPlansGUI {
      */
     function showFloorPlansObject() {
         global $tpl;
-        $tpl->setContent("Gebäudeplan");
 // Set Sub-Tasks
 //   $this->setSubTabs('bookable_rooms');
 //	include_once("Modules/RoomSharing/classes/class.ilRoomSharingBookableRoomsGUI.php");
@@ -252,7 +252,7 @@ class ilRoomSharingFloorPlansGUI {
             if ($result == 1) {
                 ilUtil::sendSuccess($this->lng->txt("file_added"), true);
             } else {
-                ilUtil::sendFailure("Fehler beim hochladen des Plans", true);
+                ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_floor_plans_upload_error'), true);
             }
 
             $this->renderObject();
@@ -295,7 +295,9 @@ class ilRoomSharingFloorPlansGUI {
         $cgui->setHeaderText($this->lng->txt("info_delete_sure"));
         $cgui->setCancel($this->lng->txt("cancel"), "render");
         $cgui->setConfirm($this->lng->txt("confirm"), "removeFloorplan");
-        $cgui->addItem('file_id', (int) $_GET['file_id'], 'Dateiname');
+        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+        $f = new ilObjMediaObject((int) $_GET['file_id']);
+        $cgui->addItem('file_id', (int) $_GET['file_id'], $f->getTitle());
         $this->tpl->setContent($cgui->getHTML());
     }
     
