@@ -21,6 +21,8 @@ floor_plans_add#:#Add Floor Plan
 floor_plans_added#:#Floor Plan added
 floor_plans_delete#:#delete floorplan
 floor_plans_show#:#Show Floor Plans
+floor_plans_deleted#:#Floorplan deleted
+floor_plans_deleted#:#Error while deleting floorplan
 fold_create_xrs#:#Create RoomSharing
 grp_create_xrs#:#Create RoomSharing
 leave#:#Leave

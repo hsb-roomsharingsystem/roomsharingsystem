@@ -175,6 +175,28 @@ class ilRoomSharingFloorPlans {
             
         } 
     }
+    
+    /**
+     * Deletes a floorplan by id
+     * 
+     * @global type $ilDB
+     * @param type $fid
+     * @return type
+     */
+    public function deleteFloorPlan($fid){
+        global $ilDB;
+        if($fid){
+            return $ilDB->manipulate('DELETE FROM rep_robj_xrs_fplans'.
+                        ' WHERE file_id = '.$ilDB->quote($fid, 'integer'));
+        }
+        else{
+            return 0;
+            echo "Keine ID angegeben";
+        }
+        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+        $mediaObj = new ilObjMediaObject($fid);
+        $mediaObj->delete();
+    }
 
 }
 

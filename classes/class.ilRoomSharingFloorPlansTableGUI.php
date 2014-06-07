@@ -104,7 +104,8 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
 			
 			if(!$a_set["is_used"])
 			{
-				$alist->addItem($lng->txt('delete'), 'delete', $ilCtrl->getLinkTarget($this->parent_obj, 'confirmDelete'));
+                            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $a_set['file_id']);
+                            $alist->addItem($lng->txt('delete'), 'delete', $ilCtrl->getLinkTarget($this->parent_obj, 'confirmDelete'));
 			}		
 		//}
 
