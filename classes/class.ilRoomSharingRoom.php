@@ -364,7 +364,7 @@ class ilRoomSharingRoom
                             'SELECT *' . ' FROM rep_robj_xrs_rooms' .
                                      ' WHERE id = ' .
                                      $ilDB->quote($this->id, 'integer')));
-            if (array_count_values($room) != 0) {
+            if (count($room) != 0) {
                 return true;
             }
         }
