@@ -38,10 +38,6 @@ class ilRoomSharingRoom
         if ($a_create == false) {
             $this->id = $a_room_id;
             $this->read();
-            foreach ($this->attributes as $rows => $row) {
-                print_r($row);
-                echo "<br>";
-            }
         }
     }
 
