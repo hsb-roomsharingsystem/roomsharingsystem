@@ -64,7 +64,7 @@ class ilRoomSharingBookingsGUI
 
         include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
         $toolbar = new ilToolbarGUI;
-        $toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'), $this->ctrl->getLinkTarget($this, "showBookings"));
+        $toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'), $this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
         include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookingsTableGUI.php");
         $bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
 

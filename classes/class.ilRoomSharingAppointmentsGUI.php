@@ -111,7 +111,7 @@ class ilRoomSharingAppointmentsGUI
         $object_gui = & new ilRoomSharingParticipationsGUI($this);
         $this->ctrl->forwardCommand($object_gui);
     }
-
+    
     /**
      * Returns roomsharing pool id.
      */

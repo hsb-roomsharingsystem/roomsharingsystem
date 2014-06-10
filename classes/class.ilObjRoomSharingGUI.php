@@ -73,6 +73,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             }
             $this->$cmd();
             return true;
+        }     
+        // the handling of the command showSearchQuick is needed because
+        // otherwise the wrong $next_class would be called
+        else if ($cmd == 'showSearchQuick') 
+        {
+            $next_class = ilroomsharingsearchgui;
         }
 
         // Extend list of last visited objects by this pool.
