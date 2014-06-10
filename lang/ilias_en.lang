@@ -79,6 +79,7 @@ root_create_xrs#:#Create RoomSharing
 save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
 search#:#Search
+search_results#:#Search Results
 seats#:#Seats
 semester#:#Semester
 setting_1#:#Setting 1

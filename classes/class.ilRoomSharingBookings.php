@@ -9,6 +9,13 @@
  */
 class ilRoomSharingBookings
 {   
+    private $pool_id = 1;
+
+    function __construct($pool_id = 1)
+    {
+        $this->pool_id = $pool_id;
+    }
+
     /**
      * Remove a booking
      * @param int $booking_id The id of the booking
@@ -84,7 +91,7 @@ class ilRoomSharingBookings
         
         $set = $ilDB->query('SELECT *'.
                         ' FROM rep_robj_xrs_bookings'.
-                        ' WHERE pool_id = '.$ilDB->quote(1, 'integer').
+                        ' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer').
                         ' AND user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
                         ' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
                         ' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
@@ -205,7 +212,7 @@ class ilRoomSharingBookings
         $cols = array();
         $attributesSet = $ilDB->query('SELECT *'.
                 ' FROM rep_robj_xrs_battr'.
-                ' WHERE pool_id = '.$ilDB->quote(1, 'integer'));
+                ' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer'));
         while($attributesRow = $ilDB->fetchAssoc($attributesSet))
         {
             $cols[$attributesRow['name']] = array("txt" => $attributesRow['name']);
