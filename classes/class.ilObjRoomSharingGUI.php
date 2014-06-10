@@ -97,7 +97,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
             // Search
             case 'ilroomsharingsearchgui':
-                $this->tabs_gui->setTabActive('room_search');
+                $this->tabs_gui->setTabActive('search');
                 $this->pl_obj->includeClass("class.ilRoomSharingSearchGUI.php");
                 $object_gui = & new ilRoomSharingSearchGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
@@ -138,7 +138,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $tpl->setContent($ret);
                 break;
 
-
             // Standard dispatcher GUI
             case "ilcommonactiondispatchergui":
                 include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
@@ -155,7 +154,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 break;
             // Standard cmd handling if cmd is not recognized.
             default:
- 				$cmd = $ilCtrl->getCmd('render');
+                $cmd = $ilCtrl->getCmd('render');
 //				echo "defaultcmd:".$cmd;
                 $this->$cmd();
                 break;
@@ -165,11 +164,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 // 		$this->addHeaderAction();
         return true;
     }
-    
+
     /**
      * Default command that is executed if no "nextClass" can be determined.
      */
-    public function render() 
+    public function render()
     {
         global $ilTabs, $ilCtrl;
         $ilTabs->setTabActive('appointments');
@@ -178,7 +177,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $ilCtrl->forwardCommand($object_gui);
         return true;
     }
-    
+
     /**
      * After object has been created -> jump to this command
      */
@@ -327,31 +326,44 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
      * Function that redirects to the overview of a made booking.
      * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
      */
-    public function showBooking() 
+    public function showBooking()
     {
         global $ilCtrl;
-        
+
         $booking_id = (int) $_GET['booking_id'];
         $ilCtrl->setCmd("showBookings");
         $this->render();
         echo "booking_id = " . $booking_id;
     }
-    
+
     /**
-     * Displays a page that displays room information.
+     * Displays a page with room information.
      * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
      */
     public function showRoom()
     {
         global $ilCtrl;
-        
+
         $room_id = (int) $_GET['room_id'];
         $ilCtrl->setCmd("showBookings");
         $this->render();
         echo "room_id = " . $room_id;
-    }  
+    }
     
-    
+    /**
+     * Function that displays a booking form
+     * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
+     */
+    public function book()
+    {
+        global $ilCtrl;
+
+        $room_id = (int) $_GET['room_id'];
+        $ilCtrl->setCmd("showBookings");
+        $this->render();
+        echo "room_id = " . $room_id;
+    }
+
     /**
      * Used to show the user profile information.
      * @global type $tpl
@@ -368,7 +380,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', 'showBookings'));
         $tpl->setContent($ilCtrl->getHTML($profile));
     }
-    
+
     /**
      * Returns roomsharing pool id.
      */

@@ -38,7 +38,7 @@ class ilRoomSharingSearchGUI
 
         $next_class = $ilCtrl->getNextClass($this);
         $cmd = $ilCtrl->getCmd("showSearchQuick");
-
+        
         switch ($next_class)
         {
             // Quick Search
@@ -92,9 +92,10 @@ class ilRoomSharingSearchGUI
     public function showSearchAdvancedObject()
     {
         $this->setSubTabs('advanced_search');
-        include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingSearchAdvancedGUI.php");
-        $object_gui = & new ilRoomSharingSearchAdvancedGUI($this);
-        $this->ctrl->forwardCommand($object_gui);
+//        include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingSearchAdvancedGUI.php");
+//        $object_gui = & new ilRoomSharingSearchAdvancedGUI($this);
+//        $this->ctrl->forwardCommand($object_gui);
+        $this->tpl->setContent($this->lng->txt("rep_robj_xrs_not_yet_implemented"));
     }
 
     /**

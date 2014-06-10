@@ -105,7 +105,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         
         // ### Room ###
         $this->tpl->setVariable('TXT_ROOM', $a_set['room']);
-        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['id']);
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['room_id']);
         $this->tpl->setVariable('HREF_ROOM', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
         

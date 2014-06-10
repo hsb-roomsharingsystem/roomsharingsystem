@@ -80,6 +80,7 @@ root_create_xrs#:#RoomSharing erstellen
 save#:#Speichern
 saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
 search#:#Suchen
+search_results#:#Suchresultate
 seats#:#Sitzplätze
 semester#:#Semester
 setting_1#:#Einstellung 1
