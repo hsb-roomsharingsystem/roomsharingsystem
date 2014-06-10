@@ -8,6 +8,14 @@
  */
 class ilRoomSharingParticipations
 {
+
+    private $pool_id = 1;
+
+    function __construct($pool_id = 1)
+    {
+        $this->pool_id = $pool_id;
+    }
+
     /**
      * Remove a participation
      * @param type $booking_id The booking id of the participation
