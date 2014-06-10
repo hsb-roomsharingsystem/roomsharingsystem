@@ -44,7 +44,7 @@ class ilRoomSharingParticipations
      */
     public function getList()
     {
-        global $ilDB, $ilUser, $lng;
+        global $ilDB, $ilUser, $lng, $pool_id;
 
 		$set = $ilDB->query('SELECT booking_id'.
                         ' FROM rep_robj_xrs_book_user'.
@@ -140,11 +140,11 @@ class ilRoomSharingParticipations
      */
     public function getAdditionalBookingInfos()
     {
-    	global $ilDB;
+    	global $ilDB, $pool_id;
     	$cols = array();
     	$attributesSet = $ilDB->query('SELECT *'.
     			' FROM rep_robj_xrs_battr'.
-    			' WHERE pool_id = '.$ilDB->quote(1, 'integer'));
+    			' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer'));
     	while($attributesRow = $ilDB->fetchAssoc($attributesSet))
     	{
     		$cols[$attributesRow['name']] = array("txt" => $attributesRow['name']);
