@@ -22,7 +22,6 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomsharingRoomsGUI, ilRoomsharingFloorplansGUI, ilPublicUserProfileGUI
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
  *
  */
