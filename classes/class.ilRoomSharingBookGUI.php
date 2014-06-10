@@ -85,22 +85,16 @@ class ilRoomSharingBookGUI {
         $form->addCommandButton("room_book", $lng->txt("room_book"));
         $form->addCommandButton("book_reset", $lng->txt("reset"));
         $form->addCommandButton("book_cancel", $lng->txt("cancel"));
-
-        $rmc = new ilTextInputGUI($lng->txt("room_course"), "room_course");
-        $rmc->setSize(40);
-        $rmc->setMaxLength(120);
-        $form->addItem($rmc);
-
-        $ecs = new ilTextInputGUI($lng->txt("room_semester"), "room_semester");
-        $ecs->setSize(4);
-        $ecs->setMaxLength(10);
-        $form->addItem($ecs);
-
-        $learnm = new ilTextInputGUI($lng->txt("learning module"), "learning module");
-        $learnm->setSize(40);
-        $learnm->setMaxLength(120);
-        $form->addItem($learnm);
-
+        
+        include('class.ilRoomSharingBookings.php');
+        $ilBookings = new ilRoomSharingBookings($pool_id);
+        foreach($ilBookings->getAdditionalBookingInfos() as $attr => $attr_key) {
+            $formding = new ilTextInputGUI($attr, $attr);
+            $formding->setSize(40);
+            $formding->setMaxLength(120);
+            $form->addItem($formding);
+        }
+        
         include_once("class.ilRoomSharingDateTimeInputGUI.php");
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
 
