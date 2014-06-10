@@ -39,7 +39,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     protected function afterConstructor()
     {
         // Set pool id.
-        $this->pool_id = $this->object->object_id;
+        $this->pool_id = $this->obj_id;
     }
 
     /**
@@ -211,7 +211,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $this->tabs_gui->addTab("search", $this->lng->txt("search"), $this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick"));
 
         // Rooms
-        $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+        $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', "showRoom"));
 
         // Floorplans
         $this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
