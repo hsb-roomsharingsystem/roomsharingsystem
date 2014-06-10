@@ -12,6 +12,8 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
 class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 {
 
+	protected $participations;
+	
     /**
      * Constructor
      * @param	object	$a_parent_obj
@@ -22,24 +24,28 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 
         $this->parent_obj = $a_parent_obj;
         $this->lng = $lng;
+        
         $this->ctrl = $ilCtrl;
         $this->ref_id = $a_ref_id;
         $this->setId("roomobj");
 
+        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingParticipations.php';
+        $this->participations = new ilRoomSharingParticipations();
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->setTitle($lng->txt("rep_robj_xrs_participations"));
-        $this->setLimit(20);      // Anzahl der Datensätze pro Seite
+        $this->setLimit(10);      // data sets per page
+        $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
 
-        $this->addColumns();    // Spalten(-überschriften) hinzufügen
-        $this->setSelectAllCheckbox('participations');   // zum Auswählen aller Checkboxes
-
-        $this->setEnableHeader(true);
-        $this->setRowTemplate("tpl.room_participations_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
-        // zum Stornieren der ausgewählten Checkboxes
+        $this->addColumns();    // add columns and column headings
+        // checkboxes labeled with "bookings" get affected by the "Select All"-Checkbox
+        $this->setSelectAllCheckbox('participations');
+        $this->setRowTemplate("tpl.room_appointment_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
+        // command for cancelling bookings
         $this->addMultiCommand('showParticipations', $this->lng->txt('rep_robj_xrs_leave'));
 
         $this->getItems();
+        
     }
 
     /**
@@ -47,9 +53,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
      */
     function getItems()
     {
-        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingParticipations.php';
-        $participations = new ilRoomSharingParticipations();
-        $data = $participations->getList();
+        $data = $this->participations->getList();
 
         $this->setMaxCount(sizeof($data));
         $this->setData($data);
@@ -66,7 +70,14 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
         $this->addColumn($this->lng->txt("rep_robj_xrs_room"), "room");
         $this->addColumn($this->lng->txt("rep_robj_xrs_subject"), "subject");
         $this->addColumn($this->lng->txt("rep_robj_xrs_person_responsible"), "person_responsible");
+        
+        // Add the selected optional columns to the table
+        foreach ($this->getSelectedColumns() as $c)
+        {
+        	$this->addColumn($c, $c);
+        }
         $this->addColumn($this->lng->txt(''), 'optional');
+        
     }
 
     /**
@@ -76,7 +87,8 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
     {
         // Checkbox-Name must be the same which was set in setSelectAllCheckbox.
         $this->tpl->setVariable('CHECKBOX_NAME', 'participations');
-
+		
+        // ### Recurrence ###
         if ($a_set['recurrence'])
         {
             // Picture for recursive appointment.
@@ -84,16 +96,51 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
         }
         $this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("rep_robj_xrs_room_date_recurrence"));
 
+        // ### Date ###
         $this->tpl->setVariable('TXT_DATE', $a_set['date']);
-        $this->tpl->setVariable('TXT_SUBJECT', ($a_set['subject'] == null ? '' : $a_set['subject']));
+        
+		// ### Room ###
         $this->tpl->setVariable('TXT_ROOM', $a_set['room']);
-        $this->tpl->setVariable('TXT_PERSON_RESPONSIBLE', $a_set['person_responsible']);
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['id']);
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showParticipations');
+        $this->tpl->setVariable('HREF_ROOM', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
+        
+        $this->tpl->setVariable('TXT_SUBJECT', ($a_set['subject'] == null ? '' : $a_set['subject']));
+        
+        // ### Responsible ###
+        $this->tpl->setVariable('TXT_USER', $a_set['person_responsible']);
+        // put together a link for the responsible profile view
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', $a_set['person_responsible_id']);
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showParticipations');
+        $this->tpl->setVariable('HREF_PROFILE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
+        // unset the parameter for safety purposes
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', '');
 
-        // Set actions.
-        $this->tpl->setVariable('LINK_LEAVE', $this->ctrl->getLinkTarget($this->parent_obj, 'showParticipations'));
-        $this->tpl->setVariable('LINK_LEAVE_TXT', $this->lng->txt('rep_robj_xrs_leave'));
-    }
-
+        // Populate the selected additional table cells
+        foreach ($this->getSelectedColumns() as $c)
+        {
+        	$c = strtolower($c);
+        	$this->tpl->setCurrentBlock("additional");
+        	$this->tpl->setVariable("TXT_ADDITIONAL", $a_set[$c] == null ? "" : $a_set[$c]);
+        	$this->tpl->parseCurrentBlock();
+        }
+        
+        // actions
+        $this->tpl->setCurrentBlock("actions");
+        $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'showParticipations'));
+        $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_leave'));
+        $this->tpl->parseCurrentBlock();
+	}
+	
+	/** Can be used to add additional columns to the bookings table.
+	* @return boolean
+	*/
+	public function getSelectableColumns()
+	{
+		return $this->participations->getAdditionalBookingInfos();
+	}
+        
 }
 
 ?>
