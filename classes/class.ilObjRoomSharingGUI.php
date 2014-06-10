@@ -21,11 +21,7 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  *   screens) and ilInfoScreenGUI (handles the info screen).
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
-<<<<<<< HEAD
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingOverviewGUI, ilRoomsharingRoomplansGUI, ilRoomsharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
-=======
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI
->>>>>>> 79044ae44998beb7ff5abc026cfa9b16270a7608
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
  *
  */
@@ -106,15 +102,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $object_gui = & new ilRoomSharingSearchGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
                 break;
-				
-            // Book.
-            case 'ilroomsharingbookgui':
-                $this->tabs_gui->setTabActive('book');
-                include_once("class.ilRoomSharingBookGUI.php");
-                $book_gui = & new ilRoomSharingBookGUI($this);
-                $ret = & $this->ctrl->forwardCommand($book_gui);
-                break;
-				
+
             // Rooms
             case 'ilroomsharingroomsgui':
                 $this->tabs_gui->setTabActive('rooms');
@@ -139,7 +127,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $perm_gui = & new ilPermissionGUI($this);
                 $ret = & $this->ctrl->forwardCommand($perm_gui);
                 break;
-
 
             // Userprofile GUI
             case 'ilpublicuserprofilegui':
@@ -225,9 +212,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
         // Rooms
         $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
-		
-		// Book.
-        $this->tabs_gui->addTab("book", $this->lng->txt("room_book"), $this->ctrl->getLinkTargetByClass("ilroomsharingbookgui", "render"));
 
         // Floorplans
         $this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
