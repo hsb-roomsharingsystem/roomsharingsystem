@@ -73,6 +73,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             }
             $this->$cmd();
             return true;
+        }     
+        // the handling of the command showSearchQuick is needed because
+        // otherwise the wrong $next_class would be called
+        else if ($cmd == 'showSearchQuick') 
+        {
+            $next_class = ilroomsharingsearchgui;
         }
 
         // Extend list of last visited objects by this pool.
@@ -357,7 +363,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         global $ilCtrl;
 
         $room_id = (int) $_GET['room_id'];
-        $ilCtrl->setCmd("showBookings");
+        $last_cmd = empty($_GET['last_cmd']) ? "showBookings": (String) $_GET['last_cmd'];
+        $ilCtrl->setCmd("$last_cmd");
         $this->render();
         echo "room_id = " . $room_id;
     }
@@ -386,10 +393,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         global $tpl, $ilCtrl;
         $this->tabs_gui->clearTargets();
         $user_id = (int) $_GET['user_id'];
+        $last_cmd = empty($_GET['last_cmd']) ? "showBookings": (String) $_GET['last_cmd'];
         include_once 'Services/User/classes/class.ilPublicUserProfileGUI.php';
         $profile = new ilPublicUserProfileGUI($user_id);
         // the back button on the user profile page momentarily links back to the bookings page
-        $profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', 'showBookings'));
+        $profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', $last_cmd));
         $tpl->setContent($ilCtrl->getHTML($profile));
     }
 

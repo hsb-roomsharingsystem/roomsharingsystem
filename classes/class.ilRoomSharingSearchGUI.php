@@ -36,19 +36,10 @@ class ilRoomSharingSearchGUI
     {
         global $ilCtrl;
 
-        $next_class = $ilCtrl->getNextClass($this);
         $cmd = $ilCtrl->getCmd("showSearchQuick");
         
         switch ($next_class)
         {
-            // Quick Search
-            case 'ilroomsharingsearchquickgui':
-                $this->showSearchQuickObject();
-                break;
-            // Advanced Search
-            case 'ilroomsharingsearchadvancedgui':
-                $this->showSearchAdvancedObject();
-                break;
             default:
                 $cmd .= 'Object';
                 $this->$cmd();

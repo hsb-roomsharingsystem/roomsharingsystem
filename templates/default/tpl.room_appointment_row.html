@@ -22,14 +22,21 @@
 		{TXT_SUBJECT}
 	</td>
 	<!--  END subject -->
-    <!--  BEGIN person_responsible -->
 	<td class="std">
-		<a href="{HREF_PERSON_RESPONSIBLE}">{TXT_PERSON_RESPONSIBLE}</a>
+        <!--  BEGIN participants -->
+		<a href="{HREF_PROFILE}">{TXT_USER}</a>{TXT_SEPARATOR}
+        <!--  END participants -->
 	</td>
-    <!--  END person_responsible -->
+    <!-- BEGIN additional -->
 	<td class="std">
+		{TXT_ADDITIONAL}
+	</td>
+	<!-- END additional -->
+	<td class="std">
+        <!-- BEGIN actions -->
 		<div class="ilFloatRight">
-		  <a class="il_ContainerItemCommand2" href="{LINK_LEAVE}">{LINK_LEAVE_TXT}</a>&nbsp;&nbsp;
-		</div>
+            <a class="il_ContainerItemCommand2" href="{LINK_ACTION}">{LINK_ACTION_TXT}</a>&nbsp;&nbsp;
+		</div> {LINK_ACTION_SEPARATOR}
+        <!-- END actions -->
 	</td>
 </tr>

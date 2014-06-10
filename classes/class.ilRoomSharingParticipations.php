@@ -69,7 +69,7 @@ class ilRoomSharingParticipations
                 {
                     $date_from = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_from']);
                     $date_to = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_to']);
-                    $date = '<br>'.$date_from->format('d').'.'.
+                    $date = $date_from->format('d').'.'.
                             ' '.$lng->txt('month_'.$date_from->format('m').'_short').
                             ' '.$date_from->format('Y').','.
                             ' '.$date_from->format('H:i');
@@ -78,7 +78,7 @@ class ilRoomSharingParticipations
                     //Check whether the date_from differs from the date_to
                     if($date_from->format('dmY') !== $date_to->format('dmY'))
                     {
-                       $date .= $date_to->format('d').'.'.
+                       $date .= '<br>'.$date_to->format('d').'.'.
                             ' '.$lng->txt('month_'.$date_to->format('m').'_short').
                             ' '.$date_to->format('Y').', ';
                     }
@@ -122,15 +122,39 @@ class ilRoomSharingParticipations
         }
 	
         // Dummy-Daten
-        /*$res[] =  array('recurrence' => true, 
+        $res[] =  array('recurrence' => true, 
                       'date'   => "3. März 2014, 11:30 - 15:00", 
-                      'module'  => "COMARCH",
+                      'modul'  => "COMARCH",
                       'subject' => "Vorlesung",
-                      'course' => "Technische Informatik (TI Bsc.)",
+                      'kurs' => "Technische Informatik (TI Bsc.)",
                       'semester' => "4, 6",
                       'room' => "116",
-                      'person_responsible' => "Prof. Dr. Thomas Risse");*/
+                      'person_responsible' => "Prof. Dr. Thomas Risse");
         
         return $res;
+    }
+
+    /**
+     * Returns all the additional information that can be displayed in the
+     * bookings table.
+     */
+    public function getAdditionalBookingInfos()
+    {
+    	global $ilDB;
+    	$cols = array();
+    	$attributesSet = $ilDB->query('SELECT *'.
+    			' FROM rep_robj_xrs_battr'.
+    			' WHERE pool_id = '.$ilDB->quote(1, 'integer'));
+    	while($attributesRow = $ilDB->fetchAssoc($attributesSet))
+    	{
+    		$cols[$attributesRow['name']] = array("txt" => $attributesRow['name']);
+    	}
+    
+    	// Dummy-Data
+    	$cols["Modul"] = array("txt" => "Modul");
+    	$cols["Kurs"] = array("txt" => "Kurs");
+    	$cols["Semester"] = array("txt" => "Semester");
+    
+    	return $cols;
     }
 }

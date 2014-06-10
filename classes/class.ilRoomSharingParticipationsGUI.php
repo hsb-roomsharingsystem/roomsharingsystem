@@ -33,10 +33,13 @@ class ilRoomSharingParticipationsGUI
      */
     function executeCommand()
     {
-        global $ilCtrl;
+        $cmd = $this->ctrl->getCmd("showParticipations");
 
-        $cmd = $ilCtrl->getCmd("showParticipations");
-
+        if ($cmd == 'render')
+        {
+        	$cmd = 'showParticipations';
+        }
+        
         switch ($next_class)
         {
             default:
