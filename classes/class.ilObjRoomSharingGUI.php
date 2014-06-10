@@ -21,7 +21,7 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  *   screens) and ilInfoScreenGUI (handles the info screen).
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
  *
  */
@@ -109,6 +109,15 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $this->pl_obj->includeClass("class.ilRoomSharingRoomsGUI.php");
                 $object_gui = & new ilRoomSharingRoomsGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
+                break;
+            
+              // Book.
+            case 'ilroomsharingbookgui':
+                $this->tabs_gui->setTabActive('book');
+                $this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
+//                include_once("class.ilRoomSharingBookGUI.php");
+                $book_gui = & new ilRoomSharingBookGUI($this);
+                $ret = & $this->ctrl->forwardCommand($book_gui);
                 break;
 
             // Floorplans
@@ -212,7 +221,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
         // Rooms
         $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
-
+	
+        // Book.
+        $this->tabs_gui->addTab("book", $this->lng->txt("room_book"), $this->ctrl->getLinkTargetByClass('ilroomsharingbookgui', "render"));
+        
         // Floorplans
         $this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
 
