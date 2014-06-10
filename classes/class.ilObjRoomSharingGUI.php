@@ -21,7 +21,7 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  *   screens) and ilInfoScreenGUI (handles the info screen).
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomsharingRoomsGUI, ilRoomsharingFloorplansGUI, ilPublicUserProfileGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
  *
  */
@@ -211,7 +211,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $this->tabs_gui->addTab("search", $this->lng->txt("search"), $this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick"));
 
         // Rooms
-        $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', "showRoom"));
+        $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 
         // Floorplans
         $this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
