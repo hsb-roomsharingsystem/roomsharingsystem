@@ -76,7 +76,7 @@ class ilRoomSharingBookGUI {
         $form->setFormAction($ilCtrl->getFormAction($this));
         $form->setTitle($lng->txt("room_book"));
 
-// text input
+        // text input
         $thread = new ilTextInputGUI($lng->txt("thread"), "thread");
         $thread->setRequired(true);
         $thread->setSize(40);
@@ -110,18 +110,14 @@ class ilRoomSharingBookGUI {
         $dt_prop1->setShowTime(true);
         $form->addItem($time_range);
 
-
         // checkbox to confirm the room use agreement       
         $cb_prop = new ilCheckboxInputGUI("Raumnutzungsvereinbarung akzeptieren", "cbox1");
         $cb_prop->setValue("1");
         $cb_prop->setChecked(false);
         $cb_prop->setRequired(true);
         $form->addItem($cb_prop);
-
-//        foreach ($array as $key => $value) {
-//            
-//        }
-
+        
+        // checkbox to confirm the room use agreement   
         include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookInputGUI.php';
         $participants = new ilRoomSharingBookInputGUI($lng->txt("participants"), "participants");
         $participants->setRequired(true);
@@ -142,33 +138,7 @@ class ilRoomSharingBookGUI {
         $form = $this->initForm();
         $tpl->setContent($form->getHTML());
     }
-
-//    function getSelectedItems()
-//	{
-//		$scol = array();
-//		foreach ($this->selected_item as $k => $v)
-//		{
-//			if ($v)
-//			{
-//				$scol[$k] = $k;
-//			}
-//		}
-//		return $scol;
-//	}
-//     private function addItems()
-//    {
-//        // Add the selected optional columns to the table
-//        foreach ($this->getSelectedItems() as $c)
-//		{
-//			$this->addItems($c, $c);
-//		}
-//        $this->addItems($this->lng->txt(''),'optional');
-//    }
-//      function getSelectableItems()
-//    {
-//        return $this->bookings->getBookingAddenda();
-//    }
-
+    
     /**
      * Returns roomsharing pool id.
      */

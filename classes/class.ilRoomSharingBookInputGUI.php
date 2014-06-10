@@ -52,7 +52,7 @@ class ilRoomSharingBookInputGUI extends ilFormPropertyGUI {
 
 
         foreach ($def as $slot) {
-            $tpl->setVariable("TXT_PARTICIPANT", $lng->txt("participant"));
+            $tpl->setVariable("TXT_PARTICIPANT", $lng->txt(""));
             $tpl->setVariable("IMG_MULTI_ADD", ilUtil::getImagePath('edit_add.png'));
             $tpl->setVariable("IMG_MULTI_REMOVE", ilUtil::getImagePath('edit_remove.png'));
             $tpl->setVariable("TXT_MULTI_ADD", $lng->txt("add"));
