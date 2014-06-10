@@ -14,13 +14,13 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
      * Overwritten method from ilNumberInputGUI. This method is primarily used 
      * to make use of a different template.
      */
-    
+
     /**
-	* Constructor
-	*
-	* @param	string	$a_title	Title
-	* @param	string	$a_postvar	Post Variable
-	*/
+     * Constructor
+     *
+     * @param	string	$a_title	Title
+     * @param	string	$a_postvar	Post Variable
+     */
     public function render()
     {
         global $lng;
@@ -66,7 +66,7 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
         {
             $tpl->setVariable("TXT_NUMBER_CONSTRAINTS", $constraints);
         }
-        
+
         $tpl->parseCurrentBlock();
         return $tpl->get();
     }
@@ -75,7 +75,7 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
      * This method overwrites the one found in ilNumberInputGUI. It is used
      * to implement an own check algorithm for the number input. 
      *
-     * @return	boolean	true, if the input is  ok; false otherwise
+     * @return	boolean	true, if the input is ok; false otherwise
      */
     public function checkInput()
     {
@@ -85,7 +85,7 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
         // Is an input required but the input itself empty?
         if ($this->getRequired() && trim($_POST[$this->getPostVar()]) == "")
         {
-//            ilUtil::sendFailure($this->setAlert($lng->txt("msg_input_is_required"), false));
+            $this->setAlert($lng->txt("msg_input_is_required"));
             return false;
         }
 
@@ -93,7 +93,7 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
         if (trim($_POST[$this->getPostVar()]) != "" &&
                 !is_numeric(str_replace(',', '.', $_POST[$this->getPostVar()])))
         {
-//            ilUtil::sendFailure($lng->txt("form_msg_numeric_value_required"), false);
+            $this->setAlert($lng->txt("form_msg_numeric_value_required"));
             return false;
         }
 
@@ -102,7 +102,7 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
                 $this->getMinValue() !== false &&
                 $_POST[$this->getPostVar()] < $this->getMinValue())
         {
-//            ilUtil::sendFailure($lng->txt("form_msg_value_too_low"), false);
+            $this->setAlert($lng->txt("form_msg_value_too_low"));
             return false;
         }
 
@@ -111,7 +111,7 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
                 $this->getMaxValue() !== false &&
                 $_POST[$this->getPostVar()] > $this->getMaxValue())
         {
-//            ilUtil::sendFailure($lng->txt("form_msg_value_too_high"), false);
+            $this->setAlert($lng->txt("form_msg_value_too_high"));
             return false;
         }
 
@@ -138,4 +138,5 @@ class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
             $this->setValue(false);
         }
     }
+
 }

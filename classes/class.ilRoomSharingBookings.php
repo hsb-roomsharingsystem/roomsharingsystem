@@ -9,6 +9,13 @@
  */
 class ilRoomSharingBookings
 {   
+    private $pool_id = 1;
+
+    function __construct($pool_id = 1)
+    {
+        $this->pool_id = $pool_id;
+    }
+
     /**
      * Remove a booking
      * @param int $booking_id The id of the booking
@@ -84,11 +91,10 @@ class ilRoomSharingBookings
         
         $set = $ilDB->query('SELECT *'.
                         ' FROM rep_robj_xrs_bookings'.
-                        ' WHERE pool_id = '.$ilDB->quote(1, 'integer').
+                        ' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer').
                         ' AND user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
                         ' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
-                        ' OR date_to >= "'.date('Y-m-d H:i:s').'"'.
-                        ' OR seq_id IS NOT NULL)'.
+                        ' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
                         ' ORDER BY date_from ASC');
         $res = array();
         while($row = $ilDB->fetchAssoc($set))
@@ -173,22 +179,26 @@ class ilRoomSharingBookings
             $res[] = $one_booking;
         }
 
-        // Dummy-Daten
+        // Dummy-Data
         $res[] =  array('recurrence' => true, 
                       'date'   => "7. März 2014, 9:00 - 13:00", 
-                      'module'  => "MATHE2",
-                      'subject' => "Tutorium",
-                      'Kurs' => "Technische Informatik (TI Bsc.)",
-                      'Semester' => "2, 4",
+                      'id'     => 1,
                       'room' => "117",
-                      'participants' => array("6", "270"));
+                      'room_id' => 3,
+                      'subject' => "Tutorium",
+                      'participants' => array("Tim Lehr"),
+                      'participants_ids' => array("6"),
+                      'Modul'  => "MATHE2",
+                      'Kurs' => "Technische Informatik (TI Bsc.)");
         
-         $res[] =  array('recurrence' => false, 
+        $res[] =  array('recurrence' => false, 
                       'date'   => "3. April 2014, 15:00 - 17:00", 
-                      'subject' => "Vorbereitung Präsentation",
+                      'id'     => 2,
                       'room' => "118",
-                      'participants' => array(""));
-	return $res;
+                      'room_id' => 4,
+                      'subject' => "Vorbereitung Präsentation",
+                      'Semester' => "6");
+        return $res;
         
     }
     
@@ -196,17 +206,23 @@ class ilRoomSharingBookings
      * Returns all the additional information that can be displayed in the
      * bookings table.
      */
-    public function getBookingAddenda() 
+    public function getAdditionalBookingInfos() 
     {
         global $ilDB;
         $cols = array();
         $attributesSet = $ilDB->query('SELECT *'.
                 ' FROM rep_robj_xrs_battr'.
-                ' WHERE pool_id = '.$ilDB->quote(1, 'integer'));
+                ' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer'));
         while($attributesRow = $ilDB->fetchAssoc($attributesSet))
         {
             $cols[$attributesRow['name']] = array("txt" => $attributesRow['name']);
         }
+        
+        // Dummy-Data
+        $cols["Modul"] = array("txt" => "Modul");
+        $cols["Kurs"] = array("txt" => "Kurs");
+        $cols["Semester"] = array("txt" => "Semester");
+        
         return $cols;
     }
 }

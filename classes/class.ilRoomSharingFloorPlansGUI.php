@@ -4,12 +4,14 @@
  * Class ilRoomSharingFloorPlansGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ *         Thomas Wolscht <t.wolscht@googlemail.com>
  * @version $Id$
  */
 class ilRoomSharingFloorPlansGUI {
 
     protected $ref_id;
     protected $pool_id;
+    protected $remove_id;
 
     /**
      * Konstruktor der Klasse ilRoomSharingFloorPlansGUI
@@ -79,7 +81,6 @@ class ilRoomSharingFloorPlansGUI {
      */
     function showFloorPlansObject() {
         global $tpl;
-        $tpl->setContent("Gebäudeplan");
 // Set Sub-Tasks
 //   $this->setSubTabs('bookable_rooms');
 //	include_once("Modules/RoomSharing/classes/class.ilRoomSharingBookableRoomsGUI.php");
@@ -251,7 +252,7 @@ class ilRoomSharingFloorPlansGUI {
             if ($result == 1) {
                 ilUtil::sendSuccess($this->lng->txt("file_added"), true);
             } else {
-                ilUtil::sendFailure("Fehler beim hochladen des Plans", true);
+                ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_floor_plans_upload_error'), true);
             }
 
             $this->renderObject();
@@ -276,7 +277,7 @@ class ilRoomSharingFloorPlansGUI {
     }
 
     /**
-     * confirm remove of floorplan
+     * display confirmation message to remove a floorplan
      */
     function confirmDeleteObject() {
         global $ilAccess, $ilCtrl, $lng;
@@ -288,30 +289,34 @@ class ilRoomSharingFloorPlansGUI {
 //            $this->ilias->raiseError($this->lng->txt("no_checkbox"), $this->ilias->error_obj->MESSAGE);
 //        }
 
-        // display confirmation message
         include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
         $cgui = new ilConfirmationGUI();
         $cgui->setFormAction($this->ctrl->getFormAction($this));
         $cgui->setHeaderText($this->lng->txt("info_delete_sure"));
         $cgui->setCancel($this->lng->txt("cancel"), "render");
-        $cgui->setConfirm($this->lng->txt("confirm"), "remove");
-
-//        foreach ($_POST["id"] as $obj_id) {
-//            $type = ilMediaPoolItem::lookupType($obj_id);
-//            $title = ilMediaPoolItem::lookupTitle($obj_id);
-//
-//            // check whether page can be removed
-//            $add = "";
-//
-//            $caption = ilUtil::getImageTagByType($type, $this->tpl->tplPath) .
-//                    " " . $title . $add;
-//
-//            $cgui->addItem("id[]", $obj_id, $caption);
-//        }
-
+        $cgui->setConfirm($this->lng->txt("confirm"), "removeFloorplan");
+        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+        $f = new ilObjMediaObject((int) $_GET['file_id']);
+        $cgui->addItem('file_id', (int) $_GET['file_id'], $f->getTitle());
         $this->tpl->setContent($cgui->getHTML());
     }
-
+    
+    /**
+     * execute remove_function to delete the selected floorplan
+     */
+    function removeFloorplanObject(){
+       include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
+       $fplan = new ilRoomSharingFloorPlans();
+       $result = $fplan->deleteFloorPlan((int)$_POST['file_id']);
+       if ($result == 1){
+           ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_deleted"), true);
+       }
+       else{
+           ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_floor_plans_deleted_error"), true);
+       }
+       $this->renderObject();
+    }
+       
 }
 
 ?>

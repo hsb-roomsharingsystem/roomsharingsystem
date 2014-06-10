@@ -8,6 +8,14 @@
  */
 class ilRoomSharingParticipations
 {
+
+    private $pool_id = 1;
+
+    function __construct($pool_id = 1)
+    {
+        $this->pool_id = $pool_id;
+    }
+
     /**
      * Remove a participation
      * @param type $booking_id The booking id of the participation
@@ -48,11 +56,8 @@ class ilRoomSharingParticipations
             $bookingSet = $ilDB->query('SELECT *'.
                         ' FROM rep_robj_xrs_bookings'.
                         ' WHERE id = '.$ilDB->quote($row['booking_id'], 'integer').
-                        //Eigentlich gibt es bei MySQL hierfür "NOW()",
-                        //aber das würde halt nicht für etwa ORACLE gelten.
                         ' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
-                        ' OR date_to >= "'.date('Y-m-d H:i:s').'"'.
-                        ' OR seq_id IS NOT NULL)'.
+                        ' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
                         ' ORDER BY date_from ASC');
             while($bookingRow = $ilDB->fetchAssoc($bookingSet)) 
             {

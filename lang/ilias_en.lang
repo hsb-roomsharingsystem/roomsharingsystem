@@ -3,9 +3,16 @@
 //
 
 <!-- language file start -->
+add_room#:#Add Room
+advanced_search#:#Advanced Search
 amount#:#Amount
+appointments#:#Appointments
+at_most#:#At most
 back_to_list#:#Back to floorplans
+between#:#Between
 bookablerooms#:#Bookable Rooms
+booking_add#:#Add Booking
+booking_cancel#:#Cancel
 bookings#:#Bookings
 cancel#:#Cancel
 cat_create_xrs#:#Create RoomSharing
@@ -20,7 +27,10 @@ edit_properties#:#Edit Properties
 floor_plans_add#:#Add Floor Plan
 floor_plans_added#:#Floor Plan added
 floor_plans_delete#:#delete floorplan
+floor_plans_deleted#:#Error while deleting floorplan
+floor_plans_deleted#:#Floorplan deleted
 floor_plans_show#:#Show Floor Plans
+floor_plans_upload_error#:#Error while uploading floorplan
 fold_create_xrs#:#Create RoomSharing
 grp_create_xrs#:#Create RoomSharing
 leave#:#Leave
@@ -33,9 +43,9 @@ obj_xrs_select#:#Select RoomSharing
 objs_xrs#:#RoomSharings
 objs_xrs_duplicate#:#Copy RoomSharing
 offline#:#Offline
+on#:#On
 option_one#:#Option One
 option_two#:#Option Two
-overview#:#Dates
 participants#:#Participants
 participations#:#Participations
 person_responsible#:#Person Responsible
@@ -48,6 +58,7 @@ poolcreate#:#Create RoomSharing Pool
 pooledit#:#Edit RoomSharing Pool
 poolnew#:#New RoomSharing Pool
 pools#:#RoomSharing Pools
+quick_search#:#Quick Search
 room#:#Room
 room_add#:#Add Room
 room_attributes#:#Room Attributes
@@ -62,33 +73,24 @@ room_plans#:#Room List
 room_read#:#User can use resources / objects in RoomSharing Pool
 room_visible#:#RoomSharing Pool is visible
 room_write#:#User can edit settings and content of RoomSharing Pool
-room_administration#:#Room Administration
-room_search#:#Room Search
 rooms#:#Rooms
-booking_add#:#Add Booking
-at_most#:#At most
-quick_search#:#Quick Search
-advanced_search#:#Advanced Search
-search#:#Search
-time_range#:#Time Range
-on#:#On
-between#:#Between
-add_room#:#Add Room
-booking_cancel#:#Cancel
 roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
 root_create_xrs#:#Create RoomSharing
 save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
+search#:#Search
+search_results#:#Search Results
 seats#:#Seats
 semester#:#Semester
-settings#:#Settings
 setting_1#:#Setting 1
 setting_2#:#Setting 2
+settings#:#Settings
 status#:#Status
 subject#:#Subject
 time_duration#:#Time Duration
 time_duration_activate#:#Activate
 time_duration_continuous#:#Continuous
+time_range#:#Time Range
 time_range#:#Time Range
 title#:#Title
 view#:#View
