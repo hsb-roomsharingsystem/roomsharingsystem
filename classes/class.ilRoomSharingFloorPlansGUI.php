@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class ilRoomSharingFloorPlansGUI
  *
@@ -9,314 +8,335 @@
  */
 class ilRoomSharingFloorPlansGUI {
 
-    protected $ref_id;
-    protected $pool_id;
-    protected $remove_id;
+	protected $ref_id;
+	protected $pool_id;
+	protected $remove_id;
 
-    /**
-     * Konstruktor der Klasse ilRoomSharingFloorPlansGUI
-     * @param	object	$a_parent_obj
-     */
-    function __construct(ilObjRoomSharingGUI $a_parent_obj) {
-        global $ilCtrl, $lng, $tpl;
+	/**
+	 * Konstruktor der Klasse ilRoomSharingFloorPlansGUI
+	 * @param	object	$a_parent_obj
+	 */
+	function __construct(ilObjRoomSharingGUI $a_parent_obj)
+	{
+		global $ilCtrl, $lng, $tpl;
 
-        $this->ref_id = $a_parent_obj->ref_id;
-        $this->pool_id = $a_parent_obj->getPoolId();
+		$this->ref_id = $a_parent_obj->ref_id;
+		$this->pool_id = $a_parent_obj->getPoolId();
 
-        $this->ctrl = $ilCtrl;
-        $this->lng = $lng;
-        $this->tpl = $tpl;
-    }
+		$this->ctrl = $ilCtrl;
+		$this->lng = $lng;
+		$this->tpl = $tpl;
+	}
 
-    /**
-     * Kommando ausführen.
-     */
-    function executeCommand() {
-        global $ilCtrl;
+	/**
+	 * Execute Command.
+	 * 
+	 * @return Returns always true.
+	 */
+	function executeCommand()
+	{
+		global $ilCtrl;
 
-        $next_class = $ilCtrl->getNextClass($this);
-        $cmd = $ilCtrl->getCmd("render");
+		$next_class = $ilCtrl->getNextClass($this);
+		$cmd = $ilCtrl->getCmd("render");
 
-        switch ($next_class) {
-            default:
-                $cmd .= 'Object';
-                $this->$cmd();
-                break;
-        }
-        return true;
-    }
+		switch ($next_class)
+		{
+			default:
+				$cmd .= 'Object';
+				$this->$cmd();
+				break;
+		}
+		return true;
+	}
 
-    /**
-     * Render list of booking objects
-     *
-     * uses ilBookingObjectsTableGUI
-     */
-    function renderObject() {
-        global $tpl, $ilCtrl, $ilAccess;
-        
-//        echo "hi ".$this->getPoolId();
-        if ($ilAccess->checkAccess('write', '', $this->ref_id)) {
-            include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
-            $bar = new ilToolbarGUI;
-            $bar->addButton($this->lng->txt('rep_robj_xrs_floor_plans_add'), $ilCtrl->getLinkTarget($this, 'create'));
-            $bar = $bar->getHTML();
-        }
+	/**
+	 * Render list of booking objects
+	 *
+	 * uses ilBookingObjectsTableGUI
+	 */
+	function renderObject()
+	{
+		global $tpl, $ilCtrl, $ilAccess;
 
-//        include_once('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
-//        $plink = new ilPermanentLinkGUI('book', $this->ref_id);
-//include_once 'Modules/BookingManager/classes/class.ilBookingObjectsTableGUI.php';
-//$table = new ilBookingObjectsTableGUI($this, 'render', $this->ref_id, $this->pool_id, $this->pool_has_schedule);
-        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlansTableGUI.php';
-        $table = new ilRoomSharingFloorPlansTableGUI($this, 'showFloorplans', 1);
-        $table->setPoolId($this->pool_id);
-//$tpl->setContent("hh");
+		//        echo "hi ".$this->getPoolId();
+		if ($ilAccess->checkAccess('write', '', $this->ref_id))
+		{
+			include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
+			$bar = new ilToolbarGUI;
+			$bar->addButton($this->lng->txt('rep_robj_xrs_floor_plans_add'),
+					$ilCtrl->getLinkTarget($this, 'create'));
+			$bar = $bar->getHTML();
+		}
 
-        $tpl->setContent($bar . $table->getHTML());
+		//        include_once('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
+		//        $plink = new ilPermanentLinkGUI('book', $this->ref_id);
+		//include_once 'Modules/BookingManager/classes/class.ilBookingObjectsTableGUI.php';
+		//$table = new ilBookingObjectsTableGUI($this, 'render', $this->ref_id,
+		//$this->pool_id, $this->pool_has_schedule);
+		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlansTableGUI.php';
+		$table = new ilRoomSharingFloorPlansTableGUI($this, 'showFloorplans', 1);
+		$table->setPoolId($this->pool_id);
+		//$tpl->setContent("hh");
 
-// $this->showFloorPlansObject();
-    }
+		$tpl->setContent($bar . $table->getHTML());
 
-    /**
-     * Gebäudepläne anzeigen.
-     */
-    function showFloorPlansObject() {
-        global $tpl;
-// Set Sub-Tasks
-//   $this->setSubTabs('bookable_rooms');
-//	include_once("Modules/RoomSharing/classes/class.ilRoomSharingBookableRoomsGUI.php");
-//	$object_gui =& new ilRoomSharingBookableRoomsGUI($this);
-//	$this->ctrl->forwardCommand($object_gui);
-// Show 'not_implemented' message
-//ilUtil::sendInfo($this->lng->txt("room_not_yet_implemented"), false);
-        $form = $this->initForm();
-        $tpl->setContent($form->getHTML());
-    }
+		// $this->showFloorPlansObject();
+	}
 
-    /**
-     * Formular zum hinzufuegen von Gebaeudeplaene
-     */
-    function initForm($a_mode = "create", $id = NULL) {
-        global $lng, $ilCtrl;
+	/**
+	 * Show foor plans
+	 */
+	function showFloorPlansObject()
+	{
+		global $tpl;
+		// Set Sub-Tasks
+		//   $this->setSubTabs('bookable_rooms');
+		//	include_once("Modules/RoomSharing/classes/class.ilRoomSharingBookableRoomsGUI.php");
+		//	$object_gui =& new ilRoomSharingBookableRoomsGUI($this);
+		//	$this->ctrl->forwardCommand($object_gui);
+		// Show 'not_implemented' message
+		//ilUtil::sendInfo($this->lng->txt("room_not_yet_implemented"), false);
+		$form = $this->initForm();
+		$tpl->setContent($form->getHTML());
+	}
 
-        include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+	/**
+	 * Form for addind a floor plan
+	 * @param string mode
+	 * @param id int
+	 * @return Returns the GUI
+	 */
+	function initForm($a_mode = "create", $id = NULL)
+	{
+		global $lng, $ilCtrl;
 
-        $form_gui = new ilPropertyFormGUI();
+		include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 
-        $title = new ilTextInputGUI($lng->txt("title"), "title");
-        $title->setRequired(true);
-        $title->setSize(40);
-        $title->setMaxLength(120);
-        $form_gui->addItem($title);
+		$form_gui = new ilPropertyFormGUI();
 
-        $desc = new ilTextAreaInputGUI($lng->txt("description"), "description");
-        $desc->setCols(70);
-        $desc->setRows(8);
-        $form_gui->addItem($desc);
+		$title = new ilTextInputGUI($lng->txt("title"), "title");
+		$title->setRequired(true);
+		$title->setSize(40);
+		$title->setMaxLength(120);
+		$form_gui->addItem($title);
 
-        $file = new ilFileInputGUI($lng->txt("rep_robj_xrs_room_floor_plans"), "upload_file");
-        $file->setRequired(true);
-        $file->setALlowDeletion(true);
-        $form_gui->addItem($file);
+		$desc = new ilTextAreaInputGUI($lng->txt("description"), "description");
+		$desc->setCols(70);
+		$desc->setRows(8);
+		$form_gui->addItem($desc);
 
-//		if ($a_mode == "edit")
-//		{
-//			$form_gui->setTitle($lng->txt("book_edit_object"));
-//
-//			$item = new ilHiddenInputGUI('object_id');
-//			$item->setValue($id);
-//			$form_gui->addItem($item);
-//
-//			include_once 'Modules/BookingManager/classes/class.ilBookingObject.php';
-//			$obj = new ilBookingObject($id);
-//			$title->setValue($obj->getTitle());
-//			$desc->setValue($obj->getDescription());
-//			$nr->setValue($obj->getNrOfItems());
-//			$pdesc->setValue($obj->getPostText());
-//			$file->setValue($obj->getFile());
-//			$pfile->setValue($obj->getPostFile());
-//			
-//			if(isset($schedule))
-//			{
-//				$schedule->setValue($obj->getScheduleId());
-//			}
-//			
-//			$form_gui->addCommandButton("update", $lng->txt("save"));
-//		}
-//		else
-//		{
-        $form_gui->setTitle($lng->txt("rep_robj_xrs_floor_plans_add"));
-        $form_gui->addCommandButton("save", $lng->txt("save"));
-        $form_gui->addCommandButton("render", $lng->txt("cancel"));
-//		}
-        $form_gui->setFormAction($ilCtrl->getFormAction($this));
+		$file = new ilFileInputGUI($lng->txt("rep_robj_xrs_room_floor_plans"), "upload_file");
+		$file->setRequired(true);
+		$file->setALlowDeletion(true);
+		$form_gui->addItem($file);
 
-        return $form_gui;
-    }
+		//		if ($a_mode == "edit")
+			//		{
+			//			$form_gui->setTitle($lng->txt("book_edit_object"));
+			//
+			//			$item = new ilHiddenInputGUI('object_id');
+			//			$item->setValue($id);
+			//			$form_gui->addItem($item);
+			//
+			//			include_once 'Modules/BookingManager/classes/class.ilBookingObject.php';
+			//			$obj = new ilBookingObject($id);
+			//			$title->setValue($obj->getTitle());
+			//			$desc->setValue($obj->getDescription());
+			//			$nr->setValue($obj->getNrOfItems());
+			//			$pdesc->setValue($obj->getPostText());
+			//			$file->setValue($obj->getFile());
+			//			$pfile->setValue($obj->getPostFile());
+			//
+			//			if(isset($schedule))
+				//			{
+				//				$schedule->setValue($obj->getScheduleId());
+				//			}
+				//
+				//			$form_gui->addCommandButton("update", $lng->txt("save"));
+				//		}
+				//		else
+					//		{
+					$form_gui->setTitle($lng->txt("rep_robj_xrs_floor_plans_add"));
+				$form_gui->addCommandButton("save", $lng->txt("save"));
+				$form_gui->addCommandButton("render", $lng->txt("cancel"));
+				//		}
+				$form_gui->setFormAction($ilCtrl->getFormAction($this));
 
-    /**
-     * Render creation form
-     */
-    function createObject() {
-        global $ilCtrl, $tpl, $lng, $ilTabs;
+				return $form_gui;
+	}
 
-        $ilTabs->clearTargets();
-        $ilTabs->setBackTarget($lng->txt('rep_robj_xrs_back_to_list'), $ilCtrl->getLinkTarget($this, 'render'));
+	/**
+	 * Render creation form
+	 */
+	function createObject()
+	{
+		global $ilCtrl, $tpl, $lng, $ilTabs;
 
-        $form = $this->initForm();
-        $tpl->setContent($form->getHTML());
-    }
+		$ilTabs->clearTargets();
+		$ilTabs->setBackTarget($lng->txt('rep_robj_xrs_back_to_list'),
+				$ilCtrl->getLinkTarget($this, 'render'));
 
-    /**
-     * Save Floor-Plan
-     */
-//	function saveObject()
-//	{
-//		global $ilCtrl, $tpl, $lng, $ilTabs;
-//
-//		$form = $this->initForm();
-//		if($form->checkInput())
-//		{
-//			include_once 'Modules/RoomSharing/classes/class.ilRoomSharingFloorPlans.php';
-//			$obj = new ilRoomSharingFloorPlans;
-//			$obj->setTitle($form->getInput("title"));
-//			//$obj->setDescription($form->getInput("desc"));
-//			$obj->setDescription($form->getInput("description"));
-//			
-//			$file = $form->getItemByPostVar("file");						
-//			if($_FILES["file"]["tmp_name"]) 
-//			{
-//				$obj->uploadFile($_FILES["file"]);
-//			}
-//			else if($file->getDeletionFlag())
-//			{
-//				$obj->deleteFile();
-//			}		
-//			//$obj->save();
-//			//$obj->update();
-//
-//			ilUtil::sendSuccess($lng->txt("room_floor_plans_added"));
-//			$this->renderObject();
-//		}
-//		else
-//		{			
-//			//$ilTabs->clearTargets();
-//			//$ilTabs->setBackTarget($lng->txt('book_back_to_list'), $ilCtrl->getLinkTarget($this, 'render'));
-//
-//			$form->setValuesByPost();
-//			$tpl->setContent($form->getHTML());
-//		}
-//	}
+		$form = $this->initForm();
+		$tpl->setContent($form->getHTML());
+	}
 
-    /**
-     * Save Funktion mit File_Upload vom ILIAS-Service
-     */
-    function saveObject() {
-        global $tpl;
-        $form = $this->initForm();
+	/**
+	 * Save Floor-Plan
+	 */
+	//	function saveObject()
+	//	{
+	//		global $ilCtrl, $tpl, $lng, $ilTabs;
+	//
+	//		$form = $this->initForm();
+	//		if($form->checkInput())
+		//		{
+		//			include_once 'Modules/RoomSharing/classes/class.ilRoomSharingFloorPlans.php';
+		//			$obj = new ilRoomSharingFloorPlans;
+		//			$obj->setTitle($form->getInput("title"));
+		//			//$obj->setDescription($form->getInput("desc"));
+		//			$obj->setDescription($form->getInput("description"));
+		//
+		//			$file = $form->getItemByPostVar("file");
+		//			if($_FILES["file"]["tmp_name"])
+			//			{
+		//				$obj->uploadFile($_FILES["file"]);
+		//			}
+		//			else if($file->getDeletionFlag())
+			//			{
+			//				$obj->deleteFile();
+			//			}
+			//			//$obj->save();
+			//			//$obj->update();
+			//
+			//			ilUtil::sendSuccess($lng->txt("room_floor_plans_added"));
+			//			$this->renderObject();
+			//		}
+			//		else
+				//		{
+				//			//$ilTabs->clearTargets();
+				//			//$ilTabs->setBackTarget($lng->txt('book_back_to_list'), 
+				//	$ilCtrl->getLinkTarget($this, 'render'));
+				//
+				//			$form->setValuesByPost();
+				//			$tpl->setContent($form->getHTML());
+				//		}
+				//	}
 
-
-
-        if ($form->checkInput()) {
-            include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-            include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
-            $title = $form->getInput("title");
-            $description = $form->getInput("description");
-            $upload_file = $form->getInput("upload_file");
-            $mediaObj = new ilObjMediaObject();
-            $mediaObj->setTitle($title);
-            $mediaObj->setDescription($description);
-            $mediaObj->create();
-            $mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
-            if (!is_dir($mob_dir)) {
-                $mediaObj->createDirectory();
-            }
-            $media_item = new ilMediaItem();
-            $mediaObj->addMediaItem($media_item);
-            $media_item->setPurpose("Standard");
+				/**
+				 * Save Funktion mit File_Upload vom ILIAS-Service
+				 */
+				function saveObject()
+				{
+					global $tpl;
+					$form = $this->initForm();
 
 
-            $file_name = ilUtil::getASCIIFilename($upload_file["name"]);
-            $file_name = str_replace(" ", "_", $file_name);
-            $file = $mob_dir . "/" . $file_name;
-            ilUtil::moveUploadedFile($upload_file["tmp_name"], $file_name, $file);
-            ilUtil::renameExecutables($mob_dir);
-            $format = ilObjMediaObject::getMimeType($file);
-            $media_item->setFormat($format);
-            $media_item->setLocation($file_name);
-            $media_item->setLocationType("LocalFile");
-            $mediaObj->update();
-            include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
-            $roomplan = new ilRoomSharingFloorPlans();
-            $roomplan->setPoolID($this->getPoolId());
-            $result = $roomplan->fileToDatabase($mediaObj->getId());
-            if ($result == 1) {
-                ilUtil::sendSuccess($this->lng->txt("file_added"), true);
-            } else {
-                ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_floor_plans_upload_error'), true);
-            }
 
-            $this->renderObject();
-        } else {
-            $form->setValuesByPost();
-            $tpl->setContent($form->getHTML());
-        }
-    }
+					if ($form->checkInput())
+					{
+						include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+						include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+						$title = $form->getInput("title");
+						$description = $form->getInput("description");
+						$upload_file = $form->getInput("upload_file");
+						$mediaObj = new ilObjMediaObject();
+						$mediaObj->setTitle($title);
+						$mediaObj->setDescription($description);
+						$mediaObj->create();
+						$mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
+						if (!is_dir($mob_dir))
+						{
+							$mediaObj->createDirectory();
+						}
+						$media_item = new ilMediaItem();
+						$mediaObj->addMediaItem($media_item);
+						$media_item->setPurpose("Standard");
 
-    /**
-     * Returns roomsharing pool id.
-     */
-    function getPoolId() {
-        return $this->pool_id;
-    }
 
-    /**
-     * Sets roomsharing pool id.
-     */
-    function setPoolId($a_pool_id) {
-        $this->pool_id = $a_pool_id;
-    }
+						$file_name = ilUtil::getASCIIFilename($upload_file["name"]);
+						$file_name = str_replace(" ", "_", $file_name);
+						$file = $mob_dir . "/" . $file_name;
+						ilUtil::moveUploadedFile($upload_file["tmp_name"], $file_name, $file);
+						ilUtil::renameExecutables($mob_dir);
+						$format = ilObjMediaObject::getMimeType($file);
+						$media_item->setFormat($format);
+						$media_item->setLocation($file_name);
+						$media_item->setLocationType("LocalFile");
+						$mediaObj->update();
+						include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
+						$roomplan = new ilRoomSharingFloorPlans();
+						$roomplan->setPoolID($this->getPoolId());
+						$result = $roomplan->fileToDatabase($mediaObj->getId());
+						if ($result == 1)
+						{
+							ilUtil::sendSuccess($this->lng->txt("file_added"), true);
+						} else {
+							ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_floor_plans_upload_error'), true);
+						}
 
-    /**
-     * display confirmation message to remove a floorplan
-     */
-    function confirmDeleteObject() {
-        global $ilAccess, $ilCtrl, $lng;
-//        if (!$ilAccess->checkAccess("write", "", $this->object->getRefId())) {
-//            $this->ilias->raiseError($this->lng->txt("permission_denied"), $this->ilias->error_obj->MESSAGE);
-//        }
-//
-//        if (!isset($_POST["id"])) {
-//            $this->ilias->raiseError($this->lng->txt("no_checkbox"), $this->ilias->error_obj->MESSAGE);
-//        }
+						$this->renderObject();
+					} else {
+						$form->setValuesByPost();
+						$tpl->setContent($form->getHTML());
+					}
+				}
 
-        include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
-        $cgui = new ilConfirmationGUI();
-        $cgui->setFormAction($this->ctrl->getFormAction($this));
-        $cgui->setHeaderText($this->lng->txt("info_delete_sure"));
-        $cgui->setCancel($this->lng->txt("cancel"), "render");
-        $cgui->setConfirm($this->lng->txt("confirm"), "removeFloorplan");
-        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-        $f = new ilObjMediaObject((int) $_GET['file_id']);
-        $cgui->addItem('file_id', (int) $_GET['file_id'], $f->getTitle());
-        $this->tpl->setContent($cgui->getHTML());
-    }
-    
-    /**
-     * execute remove_function to delete the selected floorplan
-     */
-    function removeFloorplanObject(){
-       include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
-       $fplan = new ilRoomSharingFloorPlans();
-       $result = $fplan->deleteFloorPlan((int)$_POST['file_id']);
-       if ($result == 1){
-           ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_deleted"), true);
-       }
-       else{
-           ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_floor_plans_deleted_error"), true);
-       }
-       $this->renderObject();
-    }
-       
-}
+				/**
+				 * Returns roomsharing pool id.
+				 */
+				function getPoolId() {
+					return $this->pool_id;
+				}
 
-?>
+				/**
+				 * Sets roomsharing pool id.
+				 */
+				function setPoolId($a_pool_id) {
+					$this->pool_id = $a_pool_id;
+				}
+
+				/**
+				 * display confirmation message to remove a floorplan
+				 */
+				function confirmDeleteObject() {
+					global $ilAccess, $ilCtrl, $lng;
+					//        if (!$ilAccess->checkAccess("write", "", $this->object->getRefId())) {
+					//            $this->ilias->raiseError($this->lng->txt("permission_denied"), $this->ilias->error_obj->MESSAGE);
+					//        }
+					//
+					//        if (!isset($_POST["id"])) {
+					//            $this->ilias->raiseError($this->lng->txt("no_checkbox"), $this->ilias->error_obj->MESSAGE);
+					//        }
+
+						include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
+						$cgui = new ilConfirmationGUI();
+						$cgui->setFormAction($this->ctrl->getFormAction($this));
+						$cgui->setHeaderText($this->lng->txt("info_delete_sure"));
+						$cgui->setCancel($this->lng->txt("cancel"), "render");
+						$cgui->setConfirm($this->lng->txt("confirm"), "removeFloorplan");
+						include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+						$f = new ilObjMediaObject((int) $_GET['file_id']);
+						$cgui->addItem('file_id', (int) $_GET['file_id'], $f->getTitle());
+						$this->tpl->setContent($cgui->getHTML());
+					}
+
+					/**
+					 * execute remove_function to delete the selected floorplan
+					 */
+					function removeFloorplanObject(){
+						include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
+						$fplan = new ilRoomSharingFloorPlans();
+						$result = $fplan->deleteFloorPlan((int)$_POST['file_id']);
+						if ($result == 1){
+							ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_deleted"), true);
+						}
+						else{
+							ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_floor_plans_deleted_error"), true);
+						}
+						$this->renderObject();
+					}
+					 
+				}
+
+				?>
