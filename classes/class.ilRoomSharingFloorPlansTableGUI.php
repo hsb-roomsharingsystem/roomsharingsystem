@@ -24,6 +24,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
         $this->lng = $lng;
         $this->ctrl = $ilCtrl;
         $this->ref_id = $a_ref_id;
+        $this->pool_id = $a_parent_obj->getPoolId();
         $this->setId("roomobj");
 
         parent::__construct($a_parent_obj, $a_parent_cmd);

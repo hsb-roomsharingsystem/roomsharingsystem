@@ -38,6 +38,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     protected $settingsForm;
     //Pool id
     protected $pool_id;
+    protected $pl_obj;
     protected $cal, $seed;
 
     /**
@@ -45,17 +46,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
      */
     protected function afterConstructor()
     {
-        // TODO when supported: Set pool id.
-        // $this->pool_id = $this->object->object_id;
-        //for testing always 1
-    	$this->pool_id = 1;
+    	$this->pl_obj = new ilRoomSharingPlugin();
+
+    	$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
+    	// Set pool id.
+    	$this->pool_id = ilObjRoomSharing::getPoolID();
         
     	//Initialize the Calendar
         include_once("./Services/Calendar/classes/class.ilCalendarBlockGUI.php");
         $this->seed = new ilDate();
         $this->cal = new ilCalendarBlockGUI(true);
         $this->cal->setCurrentDetailLevel(1);
-        initCategories();
+        $this->initCategories();
     }
 
     /**
@@ -76,7 +78,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 // 		echo "Command: ".$cmd;
 // 		echo "<br>Next_Class: ".$next_class;
 
-        $this->pl_obj = new ilRoomSharingPlugin();
         $cmd = $ilCtrl->getCmd();
 
         if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')
