@@ -52,7 +52,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
     	$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
     	// Set pool id.
-    	$this->pool_id = ilObjRoomSharing::getPoolID();
+    	$this->pool_id = $this->object->getPoolID();
         
     	//Initialize the Calendar
         include_once("./Services/Calendar/classes/class.ilCalendarBlockGUI.php");
