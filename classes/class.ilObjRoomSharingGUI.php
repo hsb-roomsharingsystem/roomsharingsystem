@@ -21,8 +21,16 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  *   screens) and ilInfoScreenGUI (handles the info screen).
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
+
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
+
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilConsultationHoursGUI, ilCalendarBlockGUI, ilColumnGUI 
+ *
+
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
+ * @ilCtrl_IsCalledBy ilObjRoomSharingGUI: ilColumnGUI
  *
  */
 class ilObjRoomSharingGUI extends ilObjectPluginGUI
@@ -32,14 +40,26 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     protected $settingsForm;
     //Pool id
     protected $pool_id;
+    protected $pl_obj;
+    protected $cal, $seed;
 
     /**
      * Initialization.
      */
     protected function afterConstructor()
     {
-        // Set pool id.
-        $this->pool_id = $this->obj_id;
+    	$this->pl_obj = new ilRoomSharingPlugin();
+
+    	$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
+    	// Set pool id.
+    	$this->pool_id = ilObjRoomSharing::getPoolID();
+        
+    	//Initialize the Calendar
+        include_once("./Services/Calendar/classes/class.ilCalendarBlockGUI.php");
+        $this->seed = new ilDate();
+        $this->cal = new ilCalendarBlockGUI(true);
+        $this->cal->setCurrentDetailLevel(1);
+        $this->initCategories();
     }
 
     /**
@@ -57,10 +77,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     {
         global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd;
         $next_class = $ilCtrl->getNextClass($this);
-//		echo "Command: ".$cmd;
-//		echo "<br>Next_Class: ".$next_class;
+// 		echo "Command: ".$cmd;
+// 		echo "<br>Next_Class: ".$next_class;
 
-        $this->pl_obj = new ilRoomSharingPlugin();
         $cmd = $ilCtrl->getCmd();
 
         if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')
@@ -167,6 +186,26 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $cp->setType("roomsharing");
                 $this->ctrl->forwardCommand($cp);
                 break;
+            // various CalendarGUIs
+            case "ilcalendardaygui":
+      	  		include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
+            	$day = new ilCalendarDayGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+            	$this->ctrl->forwardCommand($day);
+            	break;
+            case "ilcalendarmonthgui":
+            	include_once("./Services/Calendar/classes/class.ilCalendarMonthGUI.php");
+            	$month = new ilCalendarMonthGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+            	$this->ctrl->forwardCommand($month);
+            	break;
+            case "ilcalendarweekgui":
+            	include_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
+            	$week = new ilCalendarweekGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+            	$this->ctrl->forwardCommand($week);
+            	break;
+            case "ilcalendarblockgui":
+            	$this->ctrl->forwardCommand($this->cal);
+            	break;
+            	
             // Standard cmd handling if cmd is not recognized.
             default:
                 $cmd = $ilCtrl->getCmd('render');
@@ -177,6 +216,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
         // Action menu (top right corner of the module)
 // 		$this->addHeaderAction();
+
+        //adds Minicalendar to the right 
+        $tpl->setRightContent($this->cal->getHTML());
         return true;
     }
 
@@ -243,6 +285,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             // Permission
             $this->addPermissionTab();
         }
+        //show first tab per default
+        $this->tabs_gui->activateTab('appointments');
     }
 
     /**
@@ -417,6 +461,31 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $this->pool_id = $a_pool_id;
     }
 
+    /**
+     * init categories of Calendar
+     * 
+     * Used to display personal appointments in the minicalendar
+     * copied from ilPDBlockCalendar
+     *
+     * @access protected
+     * @param
+     * @return
+     */
+    protected function initCategories()
+    {
+    	include_once './Services/Calendar/classes/class.ilCalendarUserSettings.php';
+    	if(ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
+    	{
+    		$mode = ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP;
+    	}
+    	else
+    	{
+    		$mode = ilCalendarCategories::MODE_PERSONAL_DESKTOP_ITEMS;
+    	}
+    
+    	include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
+    	ilCalendarCategories::_getInstance()->initialize($mode,(int)$_GET['ref_id'],true);
+    }
 }
 
 ?>
