@@ -31,7 +31,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         // $this->setId("roomtable");   
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
-        $this->rooms = new ilRoomSharingRooms();
+        $this->rooms = new ilRoomSharingRooms($a_parent_obj->getPoolID());
         $this->lng->loadLanguageModule("form");
 
         $this->setTitle($this->lng->txt("rep_robj_xrs_rooms"));

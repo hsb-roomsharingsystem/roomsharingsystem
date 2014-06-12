@@ -9,7 +9,7 @@
  */
 class ilRoomSharingBookings
 {   
-    protected $pool_id = 1;
+    protected $pool_id;
 
     function __construct($pool_id = 1)
     {
@@ -53,7 +53,7 @@ class ilRoomSharingBookings
 						//Get every booking which is in the specific sequence
 						$seq_set = $ilDB->query('SELECT id FROM rep_robj_xrs_bookings'.
 								' WHERE seq = '.$ilDB->quote($row['seq'], 'integer').
-								' AND pool_id = '.$ilDB->quote(1, 'integer'));
+								' AND pool_id = '.$ilDB->quote($pool_id, 'integer'));
 						while($seq_row = $ilDB->fetchAssoc($seq_set)) 
 						{
 							$ilDB->query('DELETE FROM rep_robj_xrs_bookings'.

@@ -29,7 +29,7 @@ class ilRoomSharingSearchQuickGUI
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
         $this->tpl = $tpl;
-        $this->rooms = new ilRoomSharingRooms();
+        $this->rooms = new ilRoomSharingRooms($this->pool_id);
     }
 
     /**

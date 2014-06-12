@@ -48,13 +48,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
      */
     protected function afterConstructor()
     {
-    	$this->pl_obj = new ilRoomSharingPlugin();
-
-    	$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
-    	// Set pool id.
-    	$this->pool_id = $this->object->getPoolID();
-        
-    	//Initialize the Calendar
+    		//Initialize the Calendar
         include_once("./Services/Calendar/classes/class.ilCalendarBlockGUI.php");
         $this->seed = new ilDate();
         $this->cal = new ilCalendarBlockGUI(true);
@@ -80,6 +74,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 // 		echo "Command: ".$cmd;
 // 		echo "<br>Next_Class: ".$next_class;
 
+        $this->pl_obj = new ilRoomSharingPlugin();
+    	$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
+    	// Set pool id.
+    	$this->pool_id = $this->object->getPoolID();
+        
+    
         $cmd = $ilCtrl->getCmd();
 
         if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')

@@ -9,6 +9,8 @@
  * @author Bernd Hitzelberger <bhitzelberger@stud.hs-bremen.de>
  */
 class ilRoomSharingRooms {
+	
+	protected $pool_id;
 	public function __construct($a_pool_id = 1) {
 		$this->pool_id = $a_pool_id;
 	}
@@ -95,7 +97,7 @@ class ilRoomSharingRooms {
 		$select_query = 'SELECT room.id, name, max_alloc FROM rep_robj_xrs_rooms room ';
 		$order_by_name = ' ORDER BY name ';
 		$join_part = ' ';
-		$where_part = ' WHERE room.pool_id = ' . $ilDB->quote ( 1, 'integer' ) . ' ';
+		$where_part = ' WHERE room.pool_id = ' . $ilDB->quote ( $this->pool_id, 'integer' ) . ' ';
 		
 		/*
 		 * Add remaining filters to query string

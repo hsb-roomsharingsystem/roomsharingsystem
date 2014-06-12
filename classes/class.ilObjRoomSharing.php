@@ -25,19 +25,10 @@ class ilObjRoomSharing extends ilObjectPlugin
 	function __construct($a_ref_id = 0)
 	{
 		parent::__construct($a_ref_id); 
-		$this->pool_id = $this->getFixId();
+		$this->pool_id = $this->getId();
 		$this->doRead();
 	}
-	/**
-	 * Für Testzwecke wird hier die pool_id fest auf 1 gesetzt.
-	 * 
-	 * !!!Diese Funktion wird später wieder entfernt!!!
-	 * @see ilObject2::getId()
-	 */
-	function getFixId()
-	{
-		return 1;
-	}
+	
 	/**
 	* Get type.
 	*/
@@ -63,11 +54,11 @@ class ilObjRoomSharing extends ilObjectPlugin
 	{
 		global $ilDB;
 		parent::doCreate();
-		$this->pool_id = $this->getFixId();
+		$this->pool_id = $this->getId();
 		$fields = $this->getDBFields();
 		$fields["id"] = array("integer", $this->pool_id);
 		$ilDB->insert("rep_robj_xrs_pools", $fields);
-// 		return $this->getFixId(); vorerst direkte parent-Ansprache weil getID überschrieben
+// 		return $this->getId(); vorerst direkte parent-Ansprache weil getID überschrieben
 		return parent::getId();
 		
 	}
@@ -79,13 +70,13 @@ class ilObjRoomSharing extends ilObjectPlugin
 	{
 		global $ilDB;
 		
-		$objId = $this->getFixId();
+		$objId = $this->getId();
 		
 		if ($objId)
 		{
 			$this->pool_id = $objId;
 			$set = $ilDB->query('SELECT * FROM rep_robj_xrs_pools' .
-					' WHERE id = ' . $ilDB->quote($this->getFixId(), 'integer'));
+					' WHERE id = ' . $ilDB->quote($this->getId(), 'integer'));
 			$row = $ilDB->fetchAssoc($set);
 			$this->setOnline($row['pool_online']);
 		}
@@ -100,9 +91,9 @@ class ilObjRoomSharing extends ilObjectPlugin
 		global $ilDB;
 
 		// Put here object specific stuff.
-		if ($this->getFixId())
+		if ($this->getId())
 		{
-			$ilDB->update("rep_robj_xrs_pools", $this->getDBFields(), array("id" => array("integer", $this->getFixId())));
+			$ilDB->update("rep_robj_xrs_pools", $this->getDBFields(), array("id" => array("integer", $this->getId())));
 		}
 		return true;
 	}
@@ -113,7 +104,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	function doDelete()
 	{
 		global $ilDB;
-		$id = $this->getFixId();
+		$id = $this->getId();
 		// always call parent delete function first!!
 
 		// put here your module specific stuff
@@ -174,7 +165,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 */
 	function getPoolId()
 	{
-		return $pool_id;
+		return 1; //$pool_id;
 	}
 	
 	/**
