@@ -18,12 +18,17 @@ description#:#Beschreibung
 edit#:#Bearbeiten
 edit_properties#:#Einstellungen bearbeiten
 floor_plans_add#:#Gebäudeplan hinzufügen
+floor_plans_edit#:#Gebäudeplan bearbeiten
 floor_plans_added#:#Gebäudeplan hinzugefügt
 floor_plans_delete#:#Gebäudeplan löschen
 floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_deleted#:#Gebäudeplan erfolgreich gelöscht
 floor_plans_deleted_error#:#Fehler beim Löschen des Gebäudeplans
 floor_plans_upload_error#:#Fehler beim Hochladen des Gebäudeplans
+floor_plans_replace#:#Gebäudeplan ersetzen
+floor_plans_replace_info#:#Der bisherige Gebäudeplan wird ersetzt
+floor_plans_keep#:#Gebäudeplan behalten
+floor_plans_keep_info#:#Der bisherige Gebäudeplan wird behalten
 fold_create_xrs#:#RoomSharing erstellen
 grp_create_xrs#:#RoomSharing erstellen
 leave#:#Austreten
