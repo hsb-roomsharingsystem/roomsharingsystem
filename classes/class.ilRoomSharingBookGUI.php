@@ -5,40 +5,38 @@
  * @author Michael Dazjuk
  * @version $Id$
  */
-class ilRoomSharingBookGUI {
+class ilRoomSharingBookGUI
+{
 
-//    protected $bookings;
     protected $ref_id;
     protected $pool_id;
-
-//    protected $selected_item = array();
 
     /**
      * Constructur for ilRoomSharingBookGUI
      * @param	object	$a_parent_obj
      */
-    function __construct(ilObjRoomSharingGUI $a_parent_obj) {
+    function __construct(ilObjRoomSharingGUI $a_parent_obj)
+    {
         global $ilCtrl, $lng, $tpl;
 
-//include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBook.php';
-//	$this->bookings = new ilRoomSharingBook();
         $this->ref_id = $a_parent_obj->ref_id;
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
         $this->tpl = $tpl;
-//        $this->addItems();
     }
 
     /**
      * Main switch for command execution.
      */
-    function executeCommand() {
+    function executeCommand()
+    {
         global $ilCtrl;
 
         $next_class = $ilCtrl->getNextClass($this);
         $cmd = $ilCtrl->getCmd("render");
 
-        switch ($next_class) {
+        switch ($next_class)
+        {
             default:
                 $cmd .= 'Object';
                 $this->$cmd();
@@ -52,10 +50,12 @@ class ilRoomSharingBookGUI {
      *
      * uses ilBookingObjectsTableGUI
      */
-    function renderObject() {
+    function renderObject()
+    {
         global $tpl, $ilAccess;
 
-        if ($ilAccess->checkAccess('write', '', $this->ref_id)) {
+        if ($ilAccess->checkAccess('write', '', $this->ref_id))
+        {
             include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
         }
 
@@ -66,9 +66,11 @@ class ilRoomSharingBookGUI {
     }
 
     /**
-     * Initialize form to boo
+     * Form for booking
+     * @return Returns the GUI
      */
-    function initForm() {
+    function initForm()
+    {
         global $lng, $ilCtrl;
 
         include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
@@ -76,7 +78,6 @@ class ilRoomSharingBookGUI {
         $form->setFormAction($ilCtrl->getFormAction($this));
         $form->setTitle($lng->txt("room_book"));
 
-        // text input
         $thread = new ilTextInputGUI($lng->txt("thread"), "thread");
         $thread->setRequired(true);
         $thread->setSize(40);
@@ -85,16 +86,17 @@ class ilRoomSharingBookGUI {
         $form->addCommandButton("room_book", $lng->txt("room_book"));
         $form->addCommandButton("book_reset", $lng->txt("reset"));
         $form->addCommandButton("book_cancel", $lng->txt("cancel"));
-        
+
         include('class.ilRoomSharingBookings.php');
         $ilBookings = new ilRoomSharingBookings($pool_id);
-        foreach($ilBookings->getAdditionalBookingInfos() as $attr => $attr_key) {
+        foreach ($ilBookings->getAdditionalBookingInfos() as $attr => $attr_key)
+        {
             $formding = new ilTextInputGUI($attr, $attr);
             $formding->setSize(40);
             $formding->setMaxLength(120);
             $form->addItem($formding);
         }
-        
+
         include_once("class.ilRoomSharingDateTimeInputGUI.php");
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
 
@@ -111,13 +113,12 @@ class ilRoomSharingBookGUI {
         $form->addItem($time_range);
 
         // checkbox to confirm the room use agreement       
-        $cb_prop = new ilCheckboxInputGUI("Raumnutzungsvereinbarung akzeptieren", "cbox1");
+        $cb_prop = new ilCheckboxInputGUI($lng->txt("room_use_agreement"), "cbox1");
         $cb_prop->setValue("1");
         $cb_prop->setChecked(false);
         $cb_prop->setRequired(true);
         $form->addItem($cb_prop);
-        
-        // checkbox to confirm the room use agreement   
+
         include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookInputGUI.php';
         $participants = new ilRoomSharingBookInputGUI($lng->txt("participants"), "participants");
         $participants->setRequired(true);
@@ -127,29 +128,18 @@ class ilRoomSharingBookGUI {
     }
 
     /**
-     * Render creation form
-     */
-    function createObject() {
-        global $ilCtrl, $tpl, $lng, $ilTabs;
-
-        $ilTabs->clearTargets();
-        $ilTabs->setBackTarget($lng->txt('room_back_to_list'), $ilCtrl->getLinkTarget($this, 'render'));
-
-        $form = $this->initForm();
-        $tpl->setContent($form->getHTML());
-    }
-    
-    /**
      * Returns roomsharing pool id.
      */
-    function getPoolId() {
+    function getPoolId()
+    {
         return $this->pool_id;
     }
 
     /**
      * Sets roomsharing pool id.
      */
-    function setPoolId($a_pool_id) {
+    function setPoolId($a_pool_id)
+    {
         $this->pool_id = $a_pool_id;
     }
 

@@ -72,6 +72,7 @@ room_floor_plans#:#Gebäudeplan
 room_name#:#Raumbezeichnung
 room_plans#:#Raumliste
 room_read#:#Benutzer darf Ressourcen / Objekte im Roomsharingpool verwenden
+room_use_agreement#:#Raumnutzungsvereinbarung akzeptieren  
 room_visible#:#Roomsharingpool ist sichtbar
 room_write#:#Benuzter darf Einstellungen und Inhalt vom Roomsharingpool ändern
 rooms#:#Räume
