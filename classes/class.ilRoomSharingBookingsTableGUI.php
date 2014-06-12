@@ -40,7 +40,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         $this->addColumns();    // add columns and column headings
         // checkboxes labeled with "bookings" get affected by the "Select All"-Checkbox
         $this->setSelectAllCheckbox('bookings');   
-        $this->setRowTemplate("tpl.room_appointment_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
+        $this->setRowTemplate("tpl.room_bookings_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
         // command for cancelling bookings
         $this->addMultiCommand('showBookings', $this->lng->txt('rep_robj_xrs_booking_cancel'));
 
@@ -99,18 +99,18 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         // ### Date ###
         $this->tpl->setVariable('TXT_DATE', $a_set['date']);
         // link for the date overview
-//         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $a_set['id']);
-//         $this->tpl->setVariable('HREF_DATE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showBooking'));
-//         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', '');
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $a_set['id']);
+        $this->tpl->setVariable('HREF_DATE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showBooking'));
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', '');
         
         // ### Room ###
         $this->tpl->setVariable('TXT_ROOM', $a_set['room']);
-        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['room_id']);
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['id']);
         $this->tpl->setVariable('HREF_ROOM', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
         
-        $this->tpl->setVariable('TXT_SUBJECT', ($a_set['subject'] == null ? '' : $a_set['subject']));
-        
+        $this->tpl->setVariable('TXT_SUBJECT', $a_set['subject']);
+
         // ### Participants ###
         $participant_count = count($a_set['participants']);
         for ($i = 0; $i < $participant_count; ++$i)

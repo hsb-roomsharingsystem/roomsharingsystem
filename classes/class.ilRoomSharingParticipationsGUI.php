@@ -22,7 +22,7 @@ class ilRoomSharingParticipationsGUI
         global $ilCtrl, $lng, $tpl;
 
         $this->ref_id = $a_parent_obj->ref_id;
-        $this->pool_id = $a_parent_obj->getPoolId();
+
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
         $this->tpl = $tpl;
@@ -33,13 +33,10 @@ class ilRoomSharingParticipationsGUI
      */
     function executeCommand()
     {
-        $cmd = $this->ctrl->getCmd("showParticipations");
+        global $ilCtrl;
 
-        if ($cmd == 'render')
-        {
-        	$cmd = 'showParticipations';
-        }
-        
+        $cmd = $ilCtrl->getCmd("showParticipations");
+
         switch ($next_class)
         {
             default:

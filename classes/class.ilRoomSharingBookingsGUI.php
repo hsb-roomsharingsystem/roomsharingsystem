@@ -22,7 +22,7 @@ class ilRoomSharingBookingsGUI
         global $ilCtrl, $lng, $tpl;
 
         $this->ref_id = $a_parent_obj->ref_id;
-        $this->pool_id = $a_parent_obj->getPoolId();
+
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
         $this->tpl = $tpl;
@@ -64,7 +64,7 @@ class ilRoomSharingBookingsGUI
 
         include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
         $toolbar = new ilToolbarGUI;
-        $toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'), $this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
+        $toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'), $this->ctrl->getLinkTarget($this, "showBookings"));
         include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookingsTableGUI.php");
         $bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
 

@@ -22,7 +22,7 @@ class ilRoomSharingSearchGUI
 
         $this->parent_obj = $a_parent_obj;
         $this->ref_id = $a_parent_obj->ref_id;
-        $this->pool_id = $a_parent_obj->getPoolId();
+        $this->pool_id = $a_parent_obj->object->getId();
 
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
@@ -36,10 +36,19 @@ class ilRoomSharingSearchGUI
     {
         global $ilCtrl;
 
+        $next_class = $ilCtrl->getNextClass($this);
         $cmd = $ilCtrl->getCmd("showSearchQuick");
-        
+
         switch ($next_class)
         {
+            // Quick Search
+            case 'ilroomsharingsearchquickgui':
+                $this->showSearchQuickObject();
+                break;
+            // Advanced Search
+            case 'ilroomsharingsearchadvancedgui':
+                $this->showSearchAdvancedObject();
+                break;
             default:
                 $cmd .= 'Object';
                 $this->$cmd();
@@ -83,10 +92,9 @@ class ilRoomSharingSearchGUI
     public function showSearchAdvancedObject()
     {
         $this->setSubTabs('advanced_search');
-//        include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingSearchAdvancedGUI.php");
-//        $object_gui = & new ilRoomSharingSearchAdvancedGUI($this);
-//        $this->ctrl->forwardCommand($object_gui);
-        $this->tpl->setContent($this->lng->txt("rep_robj_xrs_not_yet_implemented"));
+        include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingSearchAdvancedGUI.php");
+        $object_gui = & new ilRoomSharingSearchAdvancedGUI($this);
+        $this->ctrl->forwardCommand($object_gui);
     }
 
     /**

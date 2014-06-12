@@ -9,13 +9,6 @@
  */
 class ilRoomSharingBookings
 {   
-    protected $pool_id;
-
-    function __construct($pool_id = 1)
-    {
-        $this->pool_id = $pool_id;
-    }
-    
     /**
      * Remove a booking
      * @param int $booking_id The id of the booking
@@ -53,7 +46,7 @@ class ilRoomSharingBookings
 						//Get every booking which is in the specific sequence
 						$seq_set = $ilDB->query('SELECT id FROM rep_robj_xrs_bookings'.
 								' WHERE seq = '.$ilDB->quote($row['seq'], 'integer').
-								' AND pool_id = '.$ilDB->quote($pool_id, 'integer'));
+								' AND pool_id = '.$ilDB->quote(1, 'integer'));
 						while($seq_row = $ilDB->fetchAssoc($seq_set)) 
 						{
 							$ilDB->query('DELETE FROM rep_robj_xrs_bookings'.
@@ -66,17 +59,17 @@ class ilRoomSharingBookings
 				}
                 else
                 {
-                    ilUtil::sendFailure($lng->txt("No permission, to delete this booking"), true);
+                    ilUtil::sendFailure($lng->txt("Keine Berechtigung, diese Buchung zu löschen!"), true);
                 }
             }
             else
             {
-                ilUtil::sendFailure($lng->txt("This booking doesn't exist any more!"), true);
+                ilUtil::sendFailure($lng->txt("Diese Buchung existiert nicht (mehr)!"), true);
             }
         }
         else
         {
-            ilUtil::sendFailure($lng->txt("None or not a numeric ID submitted!"), true);
+            ilUtil::sendFailure($lng->txt("Keine oder nicht numerische ID angegeben!"), true);
         }
     }
     
@@ -87,11 +80,11 @@ class ilRoomSharingBookings
      */
     public function getList()
     {
-        global $ilDB, $ilUser, $lng, $pool_id;
+        global $ilDB, $ilUser, $lng;
         
         $set = $ilDB->query('SELECT *'.
                         ' FROM rep_robj_xrs_bookings'.
-                        ' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer').
+                        ' WHERE pool_id = '.$ilDB->quote(1, 'integer').
                         ' AND user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
                         ' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
                         ' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
@@ -208,11 +201,11 @@ class ilRoomSharingBookings
      */
     public function getAdditionalBookingInfos() 
     {
-        global $ilDB, $pool_id;
+        global $ilDB;
         $cols = array();
         $attributesSet = $ilDB->query('SELECT *'.
                 ' FROM rep_robj_xrs_battr'.
-                ' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer'));
+                ' WHERE pool_id = '.$ilDB->quote(1, 'integer'));
         while($attributesRow = $ilDB->fetchAssoc($attributesSet))
         {
             $cols[$attributesRow['name']] = array("txt" => $attributesRow['name']);

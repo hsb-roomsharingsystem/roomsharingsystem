@@ -58,9 +58,7 @@ class ilRoomSharingRoomsGUI
 
         include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomsTableGUI.php");
         $roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
-        $roomsTable->initFilter();
-        $roomsTable->getItems($roomsTable->getCurrentFilter());
-        
+
         if ($ilAccess->checkAccess('write', '', $this->ref_id))
         {
             include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
@@ -83,7 +81,6 @@ class ilRoomSharingRoomsGUI
     {
         include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomsTableGUI.php");
         $roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
-        $roomsTable->initFilter();
         $roomsTable->writeFilterToSession();    // writes filter to session
         $roomsTable->resetOffset();             // set the record offset to 0 (first page)
         $this->showRoomsObject();
@@ -96,7 +93,6 @@ class ilRoomSharingRoomsGUI
     {
         include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomsTableGUI.php");
         $roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
-        $roomsTable->initFilter();
         $roomsTable->resetFilter();
         $roomsTable->resetOffset();             // set the record offset to 0 (first page)
         $this->showRoomsObject();

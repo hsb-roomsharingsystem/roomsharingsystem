@@ -29,6 +29,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 		$this->doRead();
 	}
 	
+
 	/**
 	* Get type.
 	*/
@@ -58,9 +59,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 		$fields = $this->getDBFields();
 		$fields["id"] = array("integer", $this->pool_id);
 		$ilDB->insert("rep_robj_xrs_pools", $fields);
-// 		return $this->getId(); vorerst direkte parent-Ansprache weil getID überschrieben
-		return parent::getId();
-		
+		return $this->getId();
 	}
 	
 	/**
@@ -165,7 +164,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 */
 	function getPoolId()
 	{
-		return 1; //$pool_id;
+		return $this->pool_id;
 	}
 	
 	/**
