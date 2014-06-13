@@ -29,6 +29,12 @@ edit_properties#:#Edit Properties
 floor_plans_add#:#Add Floor Plan
 floor_plans_added#:#Floor Plan added
 floor_plans_delete#:#delete floorplan
+floor_plans_edit#:#Edit floorplan
+floor_plans_keep#:#Hold floorplan
+floor_plans_keep_info#:#The uploaded floorplan will be hold
+floor_plans_replace#:#Replace floorplan
+floor_plans_replace_info#:#The uploaded floorplan will be replaced
+floor_plans_delete#:#Delete floorplan
 floor_plans_deleted#:#Error while deleting floorplan
 floor_plans_deleted#:#Floorplan deleted
 floor_plans_show#:#Show Floor Plans
