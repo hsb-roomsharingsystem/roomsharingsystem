@@ -31,7 +31,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         // $this->setId("roomtable");   
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
-        $this->rooms = new ilRoomSharingRooms();
+        $this->rooms = new ilRoomSharingRooms($a_parent_obj->getPoolID());
         $this->lng->loadLanguageModule("form");
 
         $this->setTitle($this->lng->txt("rep_robj_xrs_rooms"));
@@ -41,9 +41,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         $this->addColumns();    // add columns and column headings
         $this->setEnableHeader(true);
         $this->setRowTemplate("tpl.room_rooms_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
-
-        $this->initFilter();
-        $this->getItems($this->getCurrentFilter());
     }
 
     /**
@@ -76,10 +73,16 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
     {
         global $ilAccess;
 
+        // ### Room ###
         $this->tpl->setVariable('TXT_ROOM', $a_set['room']);
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['room_id']);
+        $this->tpl->setVariable('HREF_ROOM', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
+        
+        // ### Seats ###
         $this->tpl->setVariable('TXT_SEATS', $a_set['seats']);
 
-        // Room Attributes     
+        // ### Room Attributes ###    
         $attribute_keys = array_keys($a_set['attributes']);
         $attribute_count = count($attribute_keys);
         for ($i = 0; $i < $attribute_count; ++$i)
@@ -90,7 +93,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
             // make sure that the last room attribute has no break at the end
             if ($i < $attribute_count - 1)
             {
-                $this->tpl->setVariable('TXT_BREAK', '<br>');
+                $this->tpl->setVariable('TXT_SEPARATOR', '<br>');
             }
             $this->tpl->setVariable('TXT_AMOUNT', $a_set['attributes'][$attribute]);
             $this->tpl->setVariable('TXT_ATTRIBUTE', $attribute);
@@ -99,8 +102,10 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
         // actions
         $this->tpl->setCurrentBlock("actions");
-        $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'showRooms'));
         $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['room_id']);
+        $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'book'));
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
 
         // allow administrators to edit and delete rooms
         if ($ilAccess->checkAccess('write', '', $this->ref_id))
@@ -189,11 +194,11 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
      */
     protected function createSeatsFormItem()
     {
+        // Seats
         include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
         include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
         $seats_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_seats"), "seats");
-        // Seats
         $room_seats_input = new ilRoomSharingNumberInputGUI("", "room_seats");
         $room_seats_input->setMaxLength(8);
         $room_seats_input->setSize(8);
@@ -270,7 +275,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
     {
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
         include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
-        include_once('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRooms.php');
         $room_attributes = $this->rooms->getAllAttributes();
         foreach ($room_attributes as $room_attribute)
         {

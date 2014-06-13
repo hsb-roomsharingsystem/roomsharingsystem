@@ -22,7 +22,7 @@ class ilRoomSharingAppointmentsGUI
 
         $this->parent_obj = $a_parent_obj;
         $this->ref_id = $a_parent_obj->ref_id;
-        $this->pool_id = $a_parent_obj->object->getId();
+        $this->pool_id = $a_parent_obj->getPoolId();
 
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
@@ -111,7 +111,7 @@ class ilRoomSharingAppointmentsGUI
         $object_gui = & new ilRoomSharingParticipationsGUI($this);
         $this->ctrl->forwardCommand($object_gui);
     }
-
+    
     /**
      * Returns roomsharing pool id.
      */

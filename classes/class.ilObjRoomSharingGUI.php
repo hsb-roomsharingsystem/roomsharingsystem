@@ -21,8 +21,16 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  *   screens) and ilInfoScreenGUI (handles the info screen).
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomsharingRoomsGUI, ilRoomsharingFloorplansGUI, ilPublicUserProfileGUI
+
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
+
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilConsultationHoursGUI, ilCalendarBlockGUI, ilColumnGUI 
+ *
+
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
+ * @ilCtrl_IsCalledBy ilObjRoomSharingGUI: ilColumnGUI
  *
  */
 class ilObjRoomSharingGUI extends ilObjectPluginGUI
@@ -32,14 +40,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     protected $settingsForm;
     //Pool id
     protected $pool_id;
+    protected $pl_obj;
+    protected $cal, $seed;
 
     /**
      * Initialization.
      */
     protected function afterConstructor()
     {
-        // Set pool id.
-        $this->pool_id = $this->object->object_id;
+    		//Initialize the Calendar
+        include_once("./Services/Calendar/classes/class.ilCalendarBlockGUI.php");
+        $this->seed = new ilDate();
+        $this->cal = new ilCalendarBlockGUI(true);
+        $this->cal->setCurrentDetailLevel(1);
+        $this->initCategories();
     }
 
     /**
@@ -57,10 +71,15 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     {
         global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd;
         $next_class = $ilCtrl->getNextClass($this);
-//		echo "Command: ".$cmd;
-//		echo "<br>Next_Class: ".$next_class;
+// 		echo "Command: ".$cmd;
+// 		echo "<br>Next_Class: ".$next_class;
 
         $this->pl_obj = new ilRoomSharingPlugin();
+    	$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
+    	// Set pool id.
+    	$this->pool_id = $this->object->getPoolID();
+        
+    
         $cmd = $ilCtrl->getCmd();
 
         if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')
@@ -73,6 +92,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             }
             $this->$cmd();
             return true;
+        }     
+        // the handling of the command showSearchQuick is needed because
+        // otherwise the wrong $next_class would be called
+        else if ($cmd == 'showSearchQuick') 
+        {
+            $next_class = ilroomsharingsearchgui;
         }
 
         // Extend list of last visited objects by this pool.
@@ -97,7 +122,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
             // Search
             case 'ilroomsharingsearchgui':
-                $this->tabs_gui->setTabActive('room_search');
+                $this->tabs_gui->setTabActive('search');
                 $this->pl_obj->includeClass("class.ilRoomSharingSearchGUI.php");
                 $object_gui = & new ilRoomSharingSearchGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
@@ -109,6 +134,15 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $this->pl_obj->includeClass("class.ilRoomSharingRoomsGUI.php");
                 $object_gui = & new ilRoomSharingRoomsGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
+                break;
+            
+              // Book.
+            case 'ilroomsharingbookgui':
+                $this->tabs_gui->setTabActive('book');
+                $this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
+//                include_once("class.ilRoomSharingBookGUI.php");
+                $book_gui = & new ilRoomSharingBookGUI($this);
+                $ret = & $this->ctrl->forwardCommand($book_gui);
                 break;
 
             // Floorplans
@@ -138,7 +172,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $tpl->setContent($ret);
                 break;
 
-
             // Standard dispatcher GUI
             case "ilcommonactiondispatchergui":
                 include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
@@ -153,9 +186,29 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $cp->setType("roomsharing");
                 $this->ctrl->forwardCommand($cp);
                 break;
+            // various CalendarGUIs
+            case "ilcalendardaygui":
+      	  		include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
+            	$day = new ilCalendarDayGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+            	$this->ctrl->forwardCommand($day);
+            	break;
+            case "ilcalendarmonthgui":
+            	include_once("./Services/Calendar/classes/class.ilCalendarMonthGUI.php");
+            	$month = new ilCalendarMonthGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+            	$this->ctrl->forwardCommand($month);
+            	break;
+            case "ilcalendarweekgui":
+            	include_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
+            	$week = new ilCalendarweekGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+            	$this->ctrl->forwardCommand($week);
+            	break;
+            case "ilcalendarblockgui":
+            	$this->ctrl->forwardCommand($this->cal);
+            	break;
+            	
             // Standard cmd handling if cmd is not recognized.
             default:
- 				$cmd = $ilCtrl->getCmd('render');
+                $cmd = $ilCtrl->getCmd('render');
 //				echo "defaultcmd:".$cmd;
                 $this->$cmd();
                 break;
@@ -163,13 +216,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
         // Action menu (top right corner of the module)
 // 		$this->addHeaderAction();
+
+        //adds Minicalendar to the right 
+        $tpl->setRightContent($this->cal->getHTML());
         return true;
     }
-    
+
     /**
      * Default command that is executed if no "nextClass" can be determined.
      */
-    public function render() 
+    public function render()
     {
         global $ilTabs, $ilCtrl;
         $ilTabs->setTabActive('appointments');
@@ -178,7 +234,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $ilCtrl->forwardCommand($object_gui);
         return true;
     }
-    
+
     /**
      * After object has been created -> jump to this command
      */
@@ -213,7 +269,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
         // Rooms
         $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
-
+	
+        // Book.
+        $this->tabs_gui->addTab("book", $this->lng->txt("room_book"), $this->ctrl->getLinkTargetByClass('ilroomsharingbookgui', "render"));
+        
         // Floorplans
         $this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
 
@@ -226,6 +285,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             // Permission
             $this->addPermissionTab();
         }
+        //show first tab per default
+        $this->tabs_gui->activateTab('appointments');
     }
 
     /**
@@ -327,31 +388,45 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
      * Function that redirects to the overview of a made booking.
      * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
      */
-    public function showBooking() 
+    public function showBooking()
     {
         global $ilCtrl;
-        
+
         $booking_id = (int) $_GET['booking_id'];
         $ilCtrl->setCmd("showBookings");
         $this->render();
         echo "booking_id = " . $booking_id;
     }
-    
+
     /**
-     * Displays a page that displays room information.
+     * Displays a page with room information.
      * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
      */
     public function showRoom()
     {
         global $ilCtrl;
-        
+
+        $room_id = (int) $_GET['room_id'];
+        $last_cmd = empty($_GET['last_cmd']) ? "showBookings": (String) $_GET['last_cmd'];
+        $ilCtrl->setCmd("$last_cmd");
+        $this->render();
+        echo "room_id = " . $room_id;
+    }
+    
+    /**
+     * Function that displays a booking form
+     * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
+     */
+    public function book()
+    {
+        global $ilCtrl;
+
         $room_id = (int) $_GET['room_id'];
         $ilCtrl->setCmd("showBookings");
         $this->render();
         echo "room_id = " . $room_id;
-    }  
-    
-    
+    }
+
     /**
      * Used to show the user profile information.
      * @global type $tpl
@@ -362,13 +437,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         global $tpl, $ilCtrl;
         $this->tabs_gui->clearTargets();
         $user_id = (int) $_GET['user_id'];
+        $last_cmd = empty($_GET['last_cmd']) ? "showBookings": (String) $_GET['last_cmd'];
         include_once 'Services/User/classes/class.ilPublicUserProfileGUI.php';
         $profile = new ilPublicUserProfileGUI($user_id);
         // the back button on the user profile page momentarily links back to the bookings page
-        $profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', 'showBookings'));
+        $profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', $last_cmd));
         $tpl->setContent($ilCtrl->getHTML($profile));
     }
-    
+
     /**
      * Returns roomsharing pool id.
      */
@@ -385,6 +461,31 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $this->pool_id = $a_pool_id;
     }
 
+    /**
+     * init categories of Calendar
+     * 
+     * Used to display personal appointments in the minicalendar
+     * copied from ilPDBlockCalendar
+     *
+     * @access protected
+     * @param
+     * @return
+     */
+    protected function initCategories()
+    {
+    	include_once './Services/Calendar/classes/class.ilCalendarUserSettings.php';
+    	if(ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
+    	{
+    		$mode = ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP;
+    	}
+    	else
+    	{
+    		$mode = ilCalendarCategories::MODE_PERSONAL_DESKTOP_ITEMS;
+    	}
+    
+    	include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
+    	ilCalendarCategories::_getInstance()->initialize($mode,(int)$_GET['ref_id'],true);
+    }
 }
 
 ?>
