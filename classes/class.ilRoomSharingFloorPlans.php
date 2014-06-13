@@ -9,6 +9,7 @@
 class ilRoomSharingFloorPlans {
 
     protected $id;   // int
+    protected $pool_id;
 
     function __construct($a_id = NULL) {
         $this->id = (int) $a_id;
