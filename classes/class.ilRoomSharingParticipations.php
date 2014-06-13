@@ -125,7 +125,7 @@ class ilRoomSharingParticipations
         $res[] =  array('recurrence' => true, 
                       'date'   => "3. März 2014, 11:30 - 15:00", 
                       'modul'  => "COMARCH",
-                      'subject' => "Vorlesung",
+                      'subject' => "HARDKODIERT Vorlesung",
                       'kurs' => "Technische Informatik (TI Bsc.)",
                       'semester' => "4, 6",
                       'room' => "116",
