@@ -26,8 +26,6 @@ class ilRoomSharingBook {
               $booking_values['to']['time'];
       $room_id = 2;
       $user_id = $ilUser->getId();
-      //print_r($booking_values);
-      echo $this->pool_id;
       $nextId = $ilDB->nextID('rep_robj_xrs_bookings');
       $addBookingQuery = "INSERT INTO rep_robj_xrs_bookings"
               . " (id,date_from, date_to, room_id, pool_id, user_id, subject)"
@@ -43,8 +41,8 @@ class ilRoomSharingBook {
       
       $insertedId = $nextId;
       foreach($booking_attr_values as $booking_attr_key => $booking_attr_value) {
-          //Only insert the attribute value, if a value was submitted by the user
-          echo $booking_attr_value." ".$booking_attr_key." <br>";
+        echo "d".print_r($booking_attr_values);  
+        //Only insert the attribute value, if a value was submitted by the user
           if($booking_attr_value != "") {
             $ilDB->query("INSERT INTO rep_robj_xrs_book_attr"
                     . " (booking_id, attr_id, value)"

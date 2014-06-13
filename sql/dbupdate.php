@@ -561,3 +561,15 @@ $ilDB->executeMultiple($statementRoomAttributes,$dataRoomAttributes305);
 $ilDB->dropPrimaryKey("rep_robj_xrs_book_attr");
 $ilDB->addPrimaryKey("rep_robj_xrs_book_attr", array('booking_id','attr_id'));
 ?>
+<#6>
+<?php
+//Testattributes for Roomsharing Bookings
+/*$resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
+$ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
+                . "(".$ilDB->quote($resultNextId, 'integer').", 'Modul', 1)");
+$resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
+$ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
+                . "(".$ilDB->quote($resultNextId, 'integer').", 'Kurs', 1)");
+$resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
+$ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
+                . "(".$ilDB->quote($resultNextId, 'integer').", 'Semester', 1)");*/

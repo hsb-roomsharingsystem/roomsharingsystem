@@ -91,7 +91,8 @@ class ilRoomSharingBookGUI
         $form->addCommandButton("book_cancel", $lng->txt("cancel"));
         
         include_once('class.ilRoomSharingBookings.php');
-        $ilBookings = new ilRoomSharingBookings($pool_id);
+        $ilBookings = new ilRoomSharingBookings();
+        $ilBookings->setPoolId($this->pool_id);
         foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value) {
             $formattr = new ilTextInputGUI($attr_value['txt'], $attr_value['id']);
             $formattr->setSize(40);
@@ -146,11 +147,11 @@ class ilRoomSharingBookGUI
             
             $booking_attr_values_array = array();
             include_once('class.ilRoomSharingBookings.php');
-            $ilBookings = new ilRoomSharingBookings($pool_id);
+            $ilBookings = new ilRoomSharingBookings();
+            $ilBookings->setPoolId($this->pool_id);
             foreach($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value) {
                 $booking_attr_values_array[$attr_value['id']] = $form->getInput($attr_value['id']);
             }
-            print_r($booking_attr_values_array);
             
             $result = $book->addBooking($booking_values_array, $booking_attr_values_array);
             if($result == 1) {
@@ -159,7 +160,6 @@ class ilRoomSharingBookGUI
                 ilUtil::sendFailure($this->lng->txt('booking_add_error'), true);
             }
         } else {
-            echo "else";
             $form->setValuesByPost();
             $tpl->setContent($form->getHTML());
         }

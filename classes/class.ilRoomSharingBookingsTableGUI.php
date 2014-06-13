@@ -13,6 +13,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 {
 
     protected $bookings;
+    protected $pool_id;
 
     /**
      * Constructor
@@ -31,6 +32,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
         include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php';
         $this->bookings = new ilRoomSharingBookings();
+        $this->bookings->setPoolId($a_parent_obj->getPoolId());
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->setTitle($lng->txt("rep_robj_xrs_bookings"));
