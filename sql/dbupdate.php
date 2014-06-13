@@ -387,7 +387,7 @@ $ilDB->addPrimaryKey($table_name, array("room_id", "att_id"));
 	// add sequence
 	//$ilDB->createSequence($table_name);
 	// add index
-	$ilDB->addIndex($table_name, array('file_id'), 'i1');	
+	$ilDB->addIndex($table_name, array('file_id'), 'i1');
 ?>
 
 <#4>
@@ -556,4 +556,8 @@ $ilDB->executeMultiple($statementRoomAttributes,$dataRoomAttributes235);
 $ilDB->executeMultiple($statementRoomAttributes,$dataRoomAttributes245);
 $ilDB->executeMultiple($statementRoomAttributes,$dataRoomAttributes305);
 ?>
-
+<#5>
+<?php
+$ilDB->dropPrimaryKey("rep_robj_xrs_book_attr");
+$ilDB->addPrimaryKey("rep_robj_xrs_book_attr", array('booking_id','attr_id'));
+?>

@@ -87,11 +87,11 @@ class ilRoomSharingBookings
      */
     public function getList()
     {
-        global $ilDB, $ilUser, $lng, $pool_id;
+        global $ilDB, $ilUser, $lng;
         
         $set = $ilDB->query('SELECT *'.
                         ' FROM rep_robj_xrs_bookings'.
-                        ' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer').
+                        ' WHERE pool_id = '.$ilDB->quote($this->pool_id, 'integer').
                         ' AND user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
                         ' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
                         ' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
@@ -170,7 +170,7 @@ class ilRoomSharingBookings
                         ' WHERE booking_id = '.$ilDB->quote($row['id'], 'integer'));
             while($attributesRow = $ilDB->fetchAssoc($attributesSet))
             {
-                $one_booking[$attributesRow['name']] = "1".$attributesRow['value'];
+                $one_booking[$attributesRow['name']] = $attributesRow['value'];
             }
 
             //The booking id
@@ -185,7 +185,7 @@ class ilRoomSharingBookings
                       'id'     => 1,
                       'room' => "117",
                       'room_id' => 3,
-                      'subject' => "Tutorium",
+                      'subject' => "HARDKODIERT Tutorium",
                       'participants' => array("Tim Lehr"),
                       'participants_ids' => array("6"),
                       'Modul'  => "MATHE2",
@@ -196,7 +196,7 @@ class ilRoomSharingBookings
                       'id'     => 2,
                       'room' => "118",
                       'room_id' => 4,
-                      'subject' => "Vorbereitung Präsentation",
+                      'subject' => "HARDKODIERT Vorbereitung Präsentation",
                       'Semester' => "6");
         return $res;
         
@@ -208,21 +208,29 @@ class ilRoomSharingBookings
      */
     public function getAdditionalBookingInfos() 
     {
-        global $ilDB, $pool_id;
+        global $ilDB;
         $cols = array();
         $attributesSet = $ilDB->query('SELECT *'.
                 ' FROM rep_robj_xrs_battr'.
-                ' WHERE pool_id = '.$ilDB->quote($pool_id, 'integer'));
+                ' WHERE pool_id = '.$ilDB->quote($this->pool_id, 'integer'));
         while($attributesRow = $ilDB->fetchAssoc($attributesSet))
         {
-            $cols[$attributesRow['name']] = array("txt" => $attributesRow['name']);
+            $cols[$attributesRow['name']] = array("txt" => $attributesRow['name'], "id" => $attributesRow['id']);
         }
         
         // Dummy-Data
-        $cols["Modul"] = array("txt" => "Modul");
-        $cols["Kurs"] = array("txt" => "Kurs");
-        $cols["Semester"] = array("txt" => "Semester");
+        //$cols["Modul"] = array("txt" => "Modul", "id" => 1);
+        //$cols["Kurs"] = array("txt" => "Kurs", "id" => 2);
+        //$cols["Semester"] = array("txt" => "Semester", "id" => 3);
         
         return $cols;
+    }
+    
+    public function setPoolId($pool_id) {
+        $this->pool_id = $pool_id;
+    }
+    
+    public function getPoolId() {
+        return $this->pool_id;
     }
 }

@@ -12,6 +12,8 @@ back_to_list#:#Back to floorplans
 between#:#Between
 bookablerooms#:#Bookable Rooms
 booking_add#:#Add Booking
+booking_added#:#Booking added
+booking_add_error#:#Booking couldn't been added
 booking_cancel#:#Cancel
 bookings#:#Bookings
 cancel#:#Cancel

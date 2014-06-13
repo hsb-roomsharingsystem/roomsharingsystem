@@ -12,6 +12,8 @@ back_to_list#:#Zurück zu den Gebäudeplänen
 between#:#Zwischen
 bookablerooms#:#Buchbare Räume
 booking_add#:#Buchung hinzufügen
+booking_added#:#Buchung hinzugefügt
+booking_add_error#:#Buchung konnte nicht hinzugefügt werden
 booking_cancel#:#Stornieren
 bookings#:#Buchungen
 cancel#:#Abbrechen
