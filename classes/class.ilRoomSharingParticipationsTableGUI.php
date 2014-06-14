@@ -6,6 +6,7 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
  * Class ilRoomSharingParticipationsTableGUI
  * 
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Bernd Hitzelberger <bhitzelberger@stud.hs-bremen.de>
  * @version $Id$
  *
  */
@@ -30,7 +31,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
         $this->setId("roomobj");
 
         include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingParticipations.php';
-        $this->participations = new ilRoomSharingParticipations();
+        $this->participations = new ilRoomSharingParticipations($a_parent_obj->getPoolId());
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->setTitle($lng->txt("rep_robj_xrs_participations"));
@@ -38,14 +39,13 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
 
         $this->addColumns();    // add columns and column headings
-        // checkboxes labeled with "bookings" get affected by the "Select All"-Checkbox
+        // checkboxes labeled with "participations" get affected by the "Select All"-Checkbox
         $this->setSelectAllCheckbox('participations');
         $this->setRowTemplate("tpl.room_appointment_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
-        // command for cancelling bookings
+        // command for leaving 
         $this->addMultiCommand('showParticipations', $this->lng->txt('rep_robj_xrs_leave'));
 
         $this->getItems();
-        
     }
 
     /**
@@ -108,9 +108,9 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
         
         $this->tpl->setVariable('TXT_SUBJECT', ($a_set['subject'] == null ? '' : $a_set['subject']));
         
-        // ### Responsible ###
+        // ### Person Responsible ###
         $this->tpl->setVariable('TXT_USER', $a_set['person_responsible']);
-        // put together a link for the responsible profile view
+        // put together a link for the profile view
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', $a_set['person_responsible_id']);
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showParticipations');
         $this->tpl->setVariable('HREF_PROFILE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
@@ -127,20 +127,17 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
         }
         
         // actions
-        $this->tpl->setCurrentBlock("actions");
         $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'showParticipations'));
         $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_leave'));
-        $this->tpl->parseCurrentBlock();
 	}
 	
-	/** Can be used to add additional columns to the bookings table.
-	* @return boolean
-	*/
+	/** 
+     * Can be used to add additional columns to the participations table.
+	 */
 	public function getSelectableColumns()
 	{
 		return $this->participations->getAdditionalBookingInfos();
 	}
-        
 }
 
 ?>
