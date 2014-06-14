@@ -42,6 +42,7 @@ fold_create_xrs#:#RoomSharing erstellen
 grp_create_xrs#:#RoomSharing erstellen
 leave#:#Austreten
 manage#:#Verwalten
+missing_required_entries#:#Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.
 module#:#Modul
 not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
 obj_xrs#:#RoomSharing

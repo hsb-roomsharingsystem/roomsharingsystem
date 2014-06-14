@@ -43,6 +43,7 @@ fold_create_xrs#:#Create RoomSharing
 grp_create_xrs#:#Create RoomSharing
 leave#:#Leave
 manage#:#Manage
+missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.
 module#:#Module
 not_yet_implemented#:#This function has not yet been implemented.
 obj_xrs#:#RoomSharing
