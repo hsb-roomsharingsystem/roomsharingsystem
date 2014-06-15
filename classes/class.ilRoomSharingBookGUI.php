@@ -180,9 +180,6 @@ class ilRoomSharingBookGUI
             $result = $book->addBooking($booking_values_array, $booking_attr_values_array, $this->ilRoomSharingRooms);
             if ($result == 1) {
                 ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
-            
-                $form->setValuesByPost();
-                $tpl->setContent($form->getHTML());
             } elseif ($result < 0) {
                 if ($result == -1) {
                 ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_booking_add_error'), true);
