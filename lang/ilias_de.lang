@@ -22,6 +22,7 @@ content#:#Inhalt
 course#:#Studiengang
 crs_create_xrs#:#RoomSharing erstellen
 date#:#Termin
+datefrom_bigger_dateto#:#"von" ist später oder gleich "bis"
 date_range#:#Datumsbereich
 description#:#Beschreibung
 edit#:#Bearbeiten
@@ -69,6 +70,7 @@ pools#:#Roomsharingpools
 quick_search#:#Schnellsuche
 room#:#Raum
 room_add#:#Raum hinzufügen
+room_already_booked#:#Der Raum ist in dem Zeitraum bereits gebucht
 room_attributes#:#Raumattribute
 room_book#:#Buchen
 room_cancel#:#Stornieren

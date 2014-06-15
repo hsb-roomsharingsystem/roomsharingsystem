@@ -22,6 +22,7 @@ content#:#Content
 course#:#Course
 crs_create_xrs#:#Create RoomSharing
 date#:#Date
+datefrom_bigger_dateto#:#"of" is later or equal "to"
 date_range#:#Date Range
 description#:#Description
 edit#:#Edit
@@ -70,6 +71,7 @@ pools#:#RoomSharing Pools
 quick_search#:#Quick Search
 room#:#Room
 room_add#:#Add Room
+room_already_booked#:#Room is already booked
 room_attributes#:#Room Attributes
 room_book#:#Book
 room_date_recurrence#:#Date Recurrence

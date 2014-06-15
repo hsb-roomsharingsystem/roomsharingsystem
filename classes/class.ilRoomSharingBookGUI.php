@@ -11,21 +11,31 @@ class ilRoomSharingBookGUI
     protected $ref_id;
     protected $pool_id;
     protected $room_id;
+    protected $ilRoomSharingRooms;
+    protected $date_from;
+    protected $date_to;
 
     /**
      * Constructur for ilRoomSharingBookGUI
      * @param	object	$a_parent_obj
      */
-    function __construct(ilObjRoomSharingGUI $a_parent_obj, $a_room_id = 1)
+    function __construct(ilObjRoomSharingGUI $a_parent_obj, $a_room_id = 1, 
+                                    $a_date_from = "", $a_date_to = "")
     {
         global $ilCtrl, $lng, $tpl;
 
         $this->pool_id = $a_parent_obj->getPoolId();
         $this->ref_id = $a_parent_obj->ref_id;
         $this->room_id = $a_room_id;
+        $this->date_from = $a_date_from;
+        $this->date_to = $a_date_to;
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
         $this->tpl = $tpl;
+        
+        //Get an instance of ilRoomSharingRooms which is used in more than 1 function
+        include('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRooms.php');
+        $this->ilRoomSharingRooms = new ilRoomSharingRooms();
     }
 
     /**
@@ -81,11 +91,9 @@ class ilRoomSharingBookGUI
         $form->setFormAction($ilCtrl->getFormAction($this));
         
         //Set form frame title
-        include('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRooms.php');
-        $ilRoomSharingRooms = new ilRoomSharingRooms();
         $form->setTitle($lng->txt('rep_robj_xrs_room_book').': '
                 .$lng->txt('rep_robj_xrs_room').' '
-                .$ilRoomSharingRooms->getRoomName($this->room_id));
+                .$this->ilRoomSharingRooms->getRoomName($this->room_id));
         
         // text input
         $subject = new ilTextInputGUI($lng->txt("subject"), "subject");
@@ -114,10 +122,18 @@ class ilRoomSharingBookGUI
         //$time_range->setRequired(true);
 
         $dt_prop = new ilDateTimeInputGUI($lng->txt("of"), "from");
+        if(!empty($this->date_from)) {
+            $dt_prop->setDate(new ilDateTime($this->date_from,IL_CAL_DATETIME));
+            $this->date_from = "";
+        }
         $time_range->addCombinationItem("of", $dt_prop, $lng->txt("of"));
         $dt_prop->setShowTime(true);
 
         $dt_prop1 = new ilDateTimeInputGUI($lng->txt("to"), "to");
+        if(!empty($this->date_from)) {
+            $dt_prop1->setDate(new ilDateTime($this->date_to,IL_CAL_DATETIME));
+            $this->date_to = "";
+        }
         $time_range->addCombinationItem("to", $dt_prop1, $lng->txt("to"));
         $dt_prop1->setShowTime(true);
         $form->addItem($time_range);
@@ -151,6 +167,7 @@ class ilRoomSharingBookGUI
             $booking_values_array['from'] = $form->getInput('from');
             $booking_values_array['to'] = $form->getInput('to');
             $booking_values_array['accept_room_rules'] = $form->getInput('accept_room_rules');
+            $booking_values_array['room'] = $this->room_id;
             
             $booking_attr_values_array = array();
             include_once('class.ilRoomSharingBookings.php');
@@ -160,11 +177,22 @@ class ilRoomSharingBookGUI
                 $booking_attr_values_array[$attr_value['id']] = $form->getInput($attr_value['id']);
             }
             
-            $result = $book->addBooking($booking_values_array, $booking_attr_values_array);
-            if($result == 1) {
+            $result = $book->addBooking($booking_values_array, $booking_attr_values_array, $this->ilRoomSharingRooms);
+            if ($result == 1) {
                 ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
-            } else {
+            
+                $form->setValuesByPost();
+                $tpl->setContent($form->getHTML());
+            } elseif ($result < 0) {
+                if ($result == -1) {
                 ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_booking_add_error'), true);
+                } elseif ($result == -2) {
+                    ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_already_booked'), true);
+                } elseif ($result == -3) {
+                    ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_bigger_dateto'), true);
+                }
+                $form->setValuesByPost();
+                $tpl->setContent($form->getHTML());
             }
         } else {
             ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
@@ -175,8 +203,9 @@ class ilRoomSharingBookGUI
     
     /**
      * Returns roomsharing pool id.
+     * @return Pool-ID
      */
-    function getPoolId()
+    public function getPoolId()
     {
         return $this->pool_id;
     }
@@ -184,9 +213,26 @@ class ilRoomSharingBookGUI
     /**
      * Sets roomsharing pool id.
      */
-    function setPoolId($a_pool_id)
+    public function setPoolId($a_pool_id)
     {
         $this->pool_id = $a_pool_id;
+    }
+    
+    /**
+     * 
+     * @return \Room-IDReturns the room id
+     * @return Room-ID
+     */
+    public function getRoomId() {
+        return $this->room_id;
+    }
+    
+    /**
+     * Sets the room ID
+     * @param integer $a_room_id Room Id which should be set
+     */
+    public function setRoomId($a_room_id) {
+        $this->room_id = $a_room_id;
     }
 
 }
