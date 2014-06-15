@@ -259,21 +259,21 @@ class ilRoomSharingRooms {
 		$value = $valueRow ['value'];
 		return $value;
 	}
-        
-        /**
-         * Get's the room name by a given room id
-         * 
-         * @param integer $a_room_id Room id of the room which name is unknown
-         * 
-         * @return Room Name
-         */
-        public function getRoomName($a_room_id) {
-            global $ilDB;
-            $roomNameSet = $ilDB->query(' SELECT name FROM rep_robj_xrs_rooms'
-                    . ' WHERE id = '.$ilDB->quote($a_room_id, 'integer'));
-            $roomNameRow = $ilDB->fetchAssoc($roomNameSet);
-            return $roomNameRow['name'];
-        }
+	
+	/**
+	 * Get's the room name by a given room id
+	 *
+	 * @param integer $a_room_id
+	 *        	Room id of the room which name is unknown
+	 *        	
+	 * @return Room Name
+	 */
+	public function getRoomName($a_room_id) {
+		global $ilDB;
+		$roomNameSet = $ilDB->query ( ' SELECT name FROM rep_robj_xrs_rooms' . ' WHERE id = ' . $ilDB->quote ( $a_room_id, 'integer' ) );
+		$roomNameRow = $ilDB->fetchAssoc ( $roomNameSet );
+		return $roomNameRow ['name'];
+	}
 	
 	/**
 	 * Get the room-ids from all rooms that are booked in the given timerange.
@@ -293,8 +293,8 @@ class ilRoomSharingRooms {
 			$roomQuery = ' room_id = ' . $ilDB->quote ( $room_id, 'text' ) . ' AND ';
 		}
 		
-		$query = 'SELECT DISTINCT room_id FROM rep_robj_xrs_bookings WHERE ' . $roomQuery . ' ('. $ilDB->quote ( $date_from, 'timestamp' ) . ' BETWEEN date_from AND date_to OR ' . $ilDB->quote ( $date_to, 'timestamp' ) . ' BETWEEN date_from AND date_to )';
-                
+		$query = 'SELECT DISTINCT room_id FROM rep_robj_xrs_bookings WHERE ' . $roomQuery . ' (' . $ilDB->quote ( $date_from, 'timestamp' ) . ' BETWEEN date_from AND date_to OR ' . $ilDB->quote ( $date_to, 'timestamp' ) . ' BETWEEN date_from AND date_to OR date_from BETWEEN ' . $ilDB->quote ( $date_from, 'timestamp' ) . ' AND ' . $ilDB->quote ( $date_to, 'timestamp' ) . ' OR date_to BETWEEN ' . $ilDB->quote ( $date_from, 'timestamp' ) . ' AND ' . $ilDB->quote ( $date_to, 'timestamp' ) . ')';
+		
 		$set = $ilDB->query ( $query );
 		$res_room = array ();
 		while ( $row = $ilDB->fetchAssoc ( $set ) ) {
