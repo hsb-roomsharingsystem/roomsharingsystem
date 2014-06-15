@@ -80,6 +80,15 @@ room_edit#:#Editieren
 room_edit_permission#:#Benutzer darf Berechtigungen für Roomsharingpool ändern
 room_floor_plans#:#Gebäudeplan
 room_name#:#Raumbezeichnung
+room_type#:#Raumtyp
+room_min_alloc#:#Min. Belegung
+room_max_alloc#:#Max. Belegung
+room_file_id#:#Lageplan
+room_properties#:#Raumeigenschaften
+room_prop_description#:#Der ausgewählte Raum besitzt vollgende Eigenschaften:
+wrong_input#:#Falsche Eingaben. Prüfen Sie diese bitte.
+room_added#:#Raum wurde hizugefügt.
+back_to_rooms#:#Zurück zu allen Räumen
 room_plans#:#Raumliste
 room_read#:#Benutzer darf Ressourcen / Objekte im Roomsharingpool verwenden
 room_use_agreement#:#Raumnutzungsvereinbarung akzeptieren  
