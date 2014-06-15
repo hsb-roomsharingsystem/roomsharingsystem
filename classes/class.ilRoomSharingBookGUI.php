@@ -10,17 +10,19 @@ class ilRoomSharingBookGUI
 
     protected $ref_id;
     protected $pool_id;
+    protected $room_id;
 
     /**
      * Constructur for ilRoomSharingBookGUI
      * @param	object	$a_parent_obj
      */
-    function __construct(ilObjRoomSharingGUI $a_parent_obj)
+    function __construct(ilObjRoomSharingGUI $a_parent_obj, $a_room_id = 1)
     {
         global $ilCtrl, $lng, $tpl;
 
         $this->pool_id = $a_parent_obj->getPoolId();
         $this->ref_id = $a_parent_obj->ref_id;
+        $this->room_id = $a_room_id;
         $this->ctrl = $ilCtrl;
         $this->lng = $lng;
         $this->tpl = $tpl;
@@ -77,7 +79,13 @@ class ilRoomSharingBookGUI
         include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
         $form->setFormAction($ilCtrl->getFormAction($this));
-        $form->setTitle($lng->txt("room_book"));
+        
+        //Set form frame title
+        include('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRooms.php');
+        $ilRoomSharingRooms = new ilRoomSharingRooms();
+        $form->setTitle($lng->txt('rep_robj_xrs_room_book').': '
+                .$lng->txt('rep_robj_xrs_room').' '
+                .$ilRoomSharingRooms->getRoomName($this->room_id));
         
         // text input
         $subject = new ilTextInputGUI($lng->txt("subject"), "subject");
@@ -100,7 +108,6 @@ class ilRoomSharingBookGUI
             $form->addItem($formattr);
         }
         
-        include_once("class.ilRoomSharingDateTimeInputGUI.php");
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
 
         $time_range = new ilCombinationInputGUI($this->lng->txt("assessment_log_datetime"), "time_range");

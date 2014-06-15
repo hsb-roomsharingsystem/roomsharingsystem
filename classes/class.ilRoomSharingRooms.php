@@ -253,4 +253,12 @@ class ilRoomSharingRooms {
 		$value = $valueRow ['value'];
 		return $value;
 	}
+        
+        public function getRoomName($a_room_id) {
+            global $ilDB;
+            $roomNameSet = $ilDB->query(' SELECT name FROM rep_robj_xrs_rooms'
+                    . ' WHERE id = '.$ilDB->quote($a_room_id, 'integer'));
+            $roomNameRow = $ilDB->fetchAssoc($roomNameSet);
+            return $roomNameRow['name'];
+        }
 }
