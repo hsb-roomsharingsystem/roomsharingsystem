@@ -293,8 +293,8 @@ class ilRoomSharingRooms {
 			$roomQuery = ' room_id = ' . $ilDB->quote ( $room_id, 'text' ) . ' AND ';
 		}
 		
-		$query = 'SELECT room_id FROM rep_robj_xrs_bookings WHERE ' . $roomQuery . $ilDB->quote ( $date_from, 'text' ) . ' BETWEEN date_from AND date_to OR ' . $ilDB->quote ( $date_to, 'text' ) . ' BETWEEN date_from AND date_to ';
-		
+		$query = 'SELECT DISTINCT room_id FROM rep_robj_xrs_bookings WHERE ' . $roomQuery . ' ('. $ilDB->quote ( $date_from, 'timestamp' ) . ' BETWEEN date_from AND date_to OR ' . $ilDB->quote ( $date_to, 'timestamp' ) . ' BETWEEN date_from AND date_to )';
+                
 		$set = $ilDB->query ( $query );
 		$res_room = array ();
 		while ( $row = $ilDB->fetchAssoc ( $set ) ) {
