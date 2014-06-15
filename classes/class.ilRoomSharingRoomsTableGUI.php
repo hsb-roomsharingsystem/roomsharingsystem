@@ -210,63 +210,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         $this->filter["seats"] = $seats_comb->getValue();
     }
 
-//    /**
-//     * Creates input fields for the dates.
-//     */
-//    protected function createDateRangeFormItem()
-//    {
-//        // make use of a function that creates an ilCombinationInputGUI with a
-//        // "from" and "to" date input field 
-//        $date_range = $this->addFilterItemByMetaType("date_range", ilTable2GUI::FILTER_DATE_RANGE, false, $this->lng->txt("room_date_range"));
-//        $this->filter["date_range"] = $date_range->getDate();
-//    }
-//
-//    /**
-//     * Creates input fields that are used for the time range.
-//     */
-//    protected function createTimeRangeFormItem()
-//    {
-//        // create an ilCombinationInputGUI with the own implemented time input field 
-//        // "ilRoomSharingDateTimeInputGUI"
-//        // + Daily From
-//        include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
-//        include_once("Modules/RoomSharing/classes/class.ilRoomSharingDateTimeInputGUI.php");
-//        $time_range = new ilCombinationInputGUI($this->lng->txt("room_time_range"), "time_range");
-//        $time_range_from = new ilRoomSharingDateTimeInputGUI("", "time_range_from");
-//        $time_range_from->setShowTime(true);
-//        $time_range_from->setShowDate(false);
-//        $time_range->addCombinationItem("from", $time_range_from, $this->lng->txt("room_daily_from"));
-//        // + To
-//        $time_range_to = new ilRoomSharingDateTimeInputGUI("", "time_range_to");
-//        $time_range_to->setShowTime(true);
-//        $time_range_to->setShowDate(false);     // only the time should be displayed
-//        $time_range->addCombinationItem("to", $time_range_to, $this->lng->txt("to"));
-//        // make sure that $time_range_from <= time_range_to
-//        $time_range->setComparisonMode(ilCombinationInputGUI::COMPARISON_ASCENDING);
-//        $time_range->setMode(ilDateTimeInputGUI::MODE_INPUT);
-//        $this->addFilterItem($time_range);
-//        $time_range->readFromSession();     // get the value that was submitted
-//        $this->filter["time_range"] = $time_range->getDate();
-//    }
-//
-//    /**
-//     * The input field for the time duration is created right here.
-//     */
-//    protected function createTimeDurationFormItem()
-//    {
-//        include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
-//        include_once("Modules/RoomSharing/classes/class.ilRoomSharingDateTimeInputGUI.php");
-//        $time_duration_comb = new ilCombinationInputGUI($this->lng->txt("room_time_duration"), "time_duration");
-//        $time_duration_input = new ilRoomSharingDateTimeInputGUI("", "time_duration");
-//        $time_duration_input->setMode(ilDateTimeInputGUI::MODE_INPUT);
-//        $time_duration_comb->addCombinationItem("time_duration_continuous", $time_duration_input, $this->lng->txt("room_time_duration_continuous"));
-//        $time_duration_input->setShowTime(true);
-//        $time_duration_input->setShowDate(false);
-//        $this->addFilterItem($time_duration_comb);
-//        $time_duration_comb->readFromSession();    // get the value that was submitted
-//        $this->filter["time_duration"] = $time_duration_comb->getDate();
-//    }
-
     /**
      * If room attributes are present, display some input fields for the desired 
      * amount of those attributes. 

@@ -31,7 +31,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         $this->setId("roomobj");
 
         include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php';
-        $this->bookings = new ilRoomSharingBookings();
+        $this->bookings = new ilRoomSharingBookings($a_parent_obj->getPoolId());
         $this->bookings->setPoolId($a_parent_obj->getPoolId());
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
@@ -98,7 +98,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         }
         $this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("rep_robj_xrs_room_date_recurrence"));
 
-        // ### Date ###
+        // ### Appointment ###
         $this->tpl->setVariable('TXT_DATE', $a_set['date']);
         // link for the date overview
 //         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $a_set['id']);
@@ -154,7 +154,6 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
     /**
      * Can be used to add additional columns to the bookings table.
-     * @return boolean
      */
     public function getSelectableColumns()
     {

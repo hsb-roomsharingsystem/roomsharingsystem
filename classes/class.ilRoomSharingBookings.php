@@ -186,7 +186,7 @@ class ilRoomSharingBookings
                       'room' => "117",
                       'room_id' => 3,
                       'subject' => "HARDKODIERT Tutorium",
-                      'participants' => array("Tim Lehr"),
+                      'participants' => array("Tim Lehr", "Philipp Hörmann"),
                       'participants_ids' => array("6"),
                       'Modul'  => "MATHE2",
                       'Kurs' => "Technische Informatik (TI Bsc.)");
@@ -219,9 +219,9 @@ class ilRoomSharingBookings
         }
         
         // Dummy-Data
-        //$cols["Modul"] = array("txt" => "Modul", "id" => 1);
-        //$cols["Kurs"] = array("txt" => "Kurs", "id" => 2);
-        //$cols["Semester"] = array("txt" => "Semester", "id" => 3);
+        $cols["Modul"] = array("txt" => "Modul", "id" => 1);
+        $cols["Kurs"] = array("txt" => "Kurs", "id" => 2);
+        $cols["Semester"] = array("txt" => "Semester", "id" => 3);
         
         return $cols;
     }
