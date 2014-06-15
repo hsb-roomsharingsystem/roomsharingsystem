@@ -9,7 +9,6 @@
  * @author Bernd Hitzelberger <bhitzelberger@stud.hs-bremen.de>
  */
 class ilRoomSharingRooms {
-	
 	protected $pool_id;
 	public function __construct($a_pool_id = 1) {
 		$this->pool_id = $a_pool_id;
@@ -94,14 +93,28 @@ class ilRoomSharingRooms {
 			print_r ( array_keys ( $roomsMatchingAttributeFilters ) );
 			echo "<br />";
 		}
-		$select_query = 'SELECT room.id, name, max_alloc FROM rep_robj_xrs_rooms room ';
-		$order_by_name = ' ORDER BY name ';
-		$join_part = ' ';
-		$where_part = ' WHERE room.pool_id = ' . $ilDB->quote ( $this->pool_id, 'integer' ) . ' ';
+		
+		/*
+		 * Remove all rooms that are booked in time range
+		 */
+		if ($filter ["date"] && $filter ["time_from"] && $filter ["time_to"]) {
+			$date_from = $filter ['date'] . ' ' . $filter ['time_from'];
+			$date_to = $filter ['date'] . ' ' . $filter ['time_to'];
+			$roomsBookedInTimeRange = $this->getRoomsBookedInDateTimeRange ( $date_from, $date_to );
+			$roomsMatchingAttributeFilters_Temp = $roomsMatchingAttributeFilters;
+			$roomsMatchingAttributeFilters = array ();
+			foreach ( $roomsMatchingAttributeFilters_Temp as $key => $value ) {
+				if (array_search ( $key, $roomsBookedInTimeRange ) > - 1) {
+				} else {
+					$roomsMatchingAttributeFilters [$key] = 1;
+				}
+			}
+		}
 		
 		/*
 		 * Add remaining filters to query string
 		 */
+		$where_part = ' WHERE room.pool_id = ' . $ilDB->quote ( $this->pool_id, 'integer' ) . ' ';
 		$where_part = ' AND room.pool_id = ' . $ilDB->quote ( $this->pool_id, 'integer' ) . ' ';
 		
 		if ($filter ["room_name"] || $filter ["room_name"] === "0") {
@@ -109,13 +122,6 @@ class ilRoomSharingRooms {
 		}
 		if ($filter ["room_seats"] || $filter ["room_seats"] === 0.0) {
 			$where_part = $where_part . ' AND max_alloc >= ' . $ilDB->quote ( $filter ["room_seats"], 'integer' ) . ' ';
-		}
-		if ($filter ["date_from"] && $filter ["date_to"]) { // search for date and time not implemented
-			ilUtil::sendInfo ( "Filtern nach Datum nicht implementiert", false );
-			
-			if ($filter ["time_duration"]) {
-				ilUtil::sendInfo ( "Filtern nach Zeitspanne nicht implementiert", false );
-			}
 		}
 		
 		/*
@@ -252,5 +258,34 @@ class ilRoomSharingRooms {
 		$valueRow = $ilDB->fetchAssoc ( $valueSet );
 		$value = $valueRow ['value'];
 		return $value;
+	}
+	
+	/**
+	 * Get the room-ids from all rooms that are booked in the given timerange.
+	 * A specific room_id can be given if a single room should be queried (used for bookings).
+	 *
+	 * @param string $date_from        	
+	 * @param string $date_to        	
+	 * @param string $room_id
+	 *        	(optional)
+	 * @return array values = room ids booked in given range
+	 */
+	public function getRoomsBookedInDateTimeRange($date_from, $date_to, $room_id = null) {
+		global $ilDB;
+		
+		$roomQuery = '';
+		if ($room_id) {
+			$roomQuery = ' room_id = ' . $ilDB->quote ( $room_id, 'text' ) . ' AND ';
+		}
+		
+		$query = 'SELECT room_id FROM rep_robj_xrs_bookings WHERE ' . $roomQuery . $ilDB->quote ( $date_from, 'text' ) . ' BETWEEN date_from AND date_to OR ' . $ilDB->quote ( $date_to, 'text' ) . ' BETWEEN date_from AND date_to ';
+		
+		$set = $ilDB->query ( $query );
+		$res_room = array ();
+		while ( $row = $ilDB->fetchAssoc ( $set ) ) {
+			$res_room [] = $row ['room_id'];
+		}
+		
+		return $res_room;
 	}
 }
