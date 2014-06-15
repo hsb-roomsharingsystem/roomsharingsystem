@@ -78,6 +78,15 @@ room_edit#:#Edit Room
 room_edit_permission#:#User can change permission settings for RoomSharing Pool
 room_floor_plans#:#Floor Plans
 room_name#:#Room Name
+room_type#:#Room type
+room_min_alloc#:#Min. allocation
+room_max_alloc#:#Max. allocation
+room_file_id#:#Map
+room_properties#:#Room properties
+room_prop_description#:#The choosen room has following properties -
+wrong_input#:#Wrong input. Check it please.
+room_added#:#Room was added.
+back_to_rooms#:#Back to all rooms
 room_plans#:#Room List
 room_read#:#User can use resources / objects in RoomSharing Pool
 room_visible#:#RoomSharing Pool is visible
