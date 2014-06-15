@@ -96,12 +96,16 @@ class ilRoomSharingRoom
         if ($numsValid && ! empty($this->name)) {
             $ilDB->insert('rep_robj_xrs_rooms', 
                     array(
-                            'name' => array(
+                            'id' => array(
                                     'integer',
-                                    $this->id
+                                    $ilDB->nextId('rep_robj_xrs_rooms')
+                            ),
+                            'name' => array(
+                                    'text',
+                                    $this->name
                             ),
                             'type' => array(
-                                    'integer',
+                                    'text',
                                     $this->type
                             ),
                             'min_alloc' => array(
@@ -320,7 +324,7 @@ class ilRoomSharingRoom
                         $ilDB->query(
                                 'SELECT * FROM rep_robj_xrs_rattr WHERE id = ' .
                                          $ilDB->quote($attr['id'], 'integer')));
-                if (array_count_values($attrDB) == 0) {
+                if (array_count_values($attrDB) === 0) {
                     ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
                     return false;
                 }
@@ -340,7 +344,7 @@ class ilRoomSharingRoom
      */
     protected function compareAttributes ()
     {
-        if ((0 != array_count_values(
+        if ((0 !== array_count_values(
                 array_diff_assoc($this->attributes, 
                         $this->getAttributesFromDB())))) {
             return true;
