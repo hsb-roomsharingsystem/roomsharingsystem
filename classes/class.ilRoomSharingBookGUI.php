@@ -127,16 +127,18 @@ class ilRoomSharingBookGUI
             $dt_prop->setDate(new ilDateTime($this->date_from,IL_CAL_DATETIME));
             $this->date_from = "";
         }
+	$dt_prop->setMinuteStepSize(5);
         $time_range->addCombinationItem("of", $dt_prop, $lng->txt("of"));
-        $dt_prop->setShowTime(true);
+	$dt_prop->setShowTime(true);
 
         $dt_prop1 = new ilDateTimeInputGUI($lng->txt("to"), "to");
         if(!empty($this->date_to)) {
             $dt_prop1->setDate(new ilDateTime($this->date_to,IL_CAL_DATETIME));
             $this->date_to = "";
         }
+	$dt_prop1->setMinuteStepSize(5);
         $time_range->addCombinationItem("to", $dt_prop1, $lng->txt("to"));
-        $dt_prop1->setShowTime(true);
+	$dt_prop1->setShowTime(true);
         $form->addItem($time_range);
 
         // checkbox to confirm the room use agreement       
