@@ -107,7 +107,7 @@ class ilRoomSharingBookGUI
         //$form->addCommandButton("book_reset", $lng->txt("reset"));
         //$form->addCommandButton("book_cancel", $lng->txt("cancel"));
         
-        include_once('class.ilRoomSharingBookings.php');
+        include_once('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php');
         $ilBookings = new ilRoomSharingBookings();
         $ilBookings->setPoolId($this->pool_id);
         foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value) {
