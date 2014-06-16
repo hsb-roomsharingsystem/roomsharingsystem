@@ -147,6 +147,11 @@ class ilRoomSharingBookGUI
         $cb_prop->setChecked(false);
         $cb_prop->setRequired(true);
         $form->addItem($cb_prop);
+
+	$room_id_prop = new ilHiddenInputGUI("room_id");
+	$room_id_prop->setValue($this->room_id);
+	$room_id_prop->setRequired(true);
+	$form->addItem($room_id_prop);
         
         // checkbox to confirm the room use agreement   
         include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookInputGUI.php';
@@ -160,6 +165,7 @@ class ilRoomSharingBookGUI
     function saveObject() {
         global $tpl;
         $form = $this->initForm();
+	$this->room_id = $form->getInput('room_id');
         //print_r($form->getInputItemsRecursive());
         if($form->checkInput() && $form->getInput('accept_room_rules') == 1) {
             include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBook.php");
