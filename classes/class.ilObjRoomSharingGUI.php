@@ -93,9 +93,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             $this->$cmd();
             return true;
         }     
-        // the handling of the command showSearchQuick is needed because
-        // otherwise the wrong $next_class would be called
-        else if ($cmd == 'showSearchQuick') 
+        // the special handling of the commands showSearchQuick and 
+        // showSearchResults is needed becauseotherwise the wrong $next_class 
+        // would be called
+        else if ($cmd == 'showSearchQuick'  || $cmd == 'showSearchResults') 
         {
             $next_class = ilroomsharingsearchgui;
         }
@@ -414,17 +415,22 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     }
     
     /**
-     * Function that displays a booking form
-     * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
+     * Function that displays a booking form.
      */
     public function book()
     {
-        global $ilCtrl;
-
-        $room_id = (int) $_GET['room_id'];
-        $ilCtrl->setCmd("showBookings");
-        $this->render();
-        echo "room_id = " . $room_id;
+        global $tpl, $ilCtrl, $lng;
+        $this->tabs_gui->clearTargets();
+        $room_id = $_GET['room_id'];
+        $date = $_GET['date'];
+        $time_from = $_GET['time_from'];
+        $time_to = $_GET['time_to'];
+        $last_cmd = empty($_GET['last_cmd']) ? "showRooms": $_GET['last_cmd'];
+        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookGUI.php';
+        $book = new ilRoomSharingBookGUI($this, $room_id);
+        // the back button which links to where the user came from
+        $this->tabs_gui->setBackTarget($lng->txt('back'), $ilCtrl->getLinkTarget($this, $last_cmd));
+        $tpl->setContent($book->initForm()->getHTML());
     }
 
     /**

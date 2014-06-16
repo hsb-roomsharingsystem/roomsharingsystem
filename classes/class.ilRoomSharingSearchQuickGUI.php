@@ -64,35 +64,52 @@ class ilRoomSharingSearchQuickGUI
     }
 
     /**
-     * Checks and displays the search results of the given input.
+     * Function which is called when the search results need to be applied.
+     * @global type $tpl
+     */
+    public function applySearchObject() 
+    {
+        global $tpl;
+        $qsearch_form = $this->initForm();
+
+        // continue only if the input data is correct
+        if ($qsearch_form->checkInput())
+        {
+            $qsearch_form->writeInputsToSession();
+            $this->showSearchResultsObject();
+        }
+        // otherwise return to the form and display error messages if needed
+        else 
+        {
+           $qsearch_form->setValuesByPost();
+           $tpl->setContent($qsearch_form->getHTML()); 
+        }     
+    }
+    
+    /**
+     * Displays the results for the given input.
      */
     public function showSearchResultsObject()
     {
-        global $tpl, $ilTabs;
+        global $tpl;
         $qsearch_form = $this->initForm();
-
-        if ($qsearch_form->checkInput())
-        {
-            include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomsTableGUI.php");
-            $roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
-            $roomsTable->setTitle($this->lng->txt("rep_robj_xrs_search_results"));
-            $roomsTable->getItems($this->getFormInput($qsearch_form));
-            $tpl->setContent($roomsTable->getHTML());
-        } else
-        {
-            $qsearch_form->setValuesByPost();
-            $tpl->setContent($qsearch_form->getHTML());
-        }
+        
+        include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomsTableGUI.php");
+        $roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showSearchResults', $this->ref_id);
+        $roomsTable->setTitle($this->lng->txt("rep_robj_xrs_search_results"));
+        $roomsTable->getItems($this->getFormInput($qsearch_form));
+        $tpl->setContent($roomsTable->getHTML());
     }
 
     /**
      * Puts together an array which contains the search criterias for the 
-     * search results.
+     * search results. The standard procedure is to get those values from
+     * POST, but here it is actually coming from the SESSION.
      */
     protected function getFormInput($a_qsearch_form)
     {
         $filter = array();
-        $room = $a_qsearch_form->getInput("room_name");
+        $room = $a_qsearch_form->getInputFromSession("room_name");
 
         // "Room"
         // make sure that "0"-strings are not ignored  
@@ -102,25 +119,25 @@ class ilRoomSharingSearchQuickGUI
         }
 
         // "Seats"
-        $seats = $a_qsearch_form->getInput("room_seats");
+        $seats = $a_qsearch_form->getInputFromSession("room_seats");
         if ($seats)
         {
             $filter["room_seats"] = $seats;
         }
 
         // "Date" and "Time"
-        $date = $a_qsearch_form->getInput("date");
+        $date = $a_qsearch_form->getInputFromSession("date");
         $filter["date"] = $date["date"];
-        $time_from = $a_qsearch_form->getInput("time_from");   
+        $time_from = $a_qsearch_form->getInputFromSession("time_from");   
         $filter["time_from"] = $time_from["time"];
-        $time_to = $a_qsearch_form->getInput("time_to");
+        $time_to = $a_qsearch_form->getInputFromSession("time_to");
         $filter["time_to"] = $time_to["time"];
 
         // "Room Attributes"
         $room_attributes = $this->rooms->getAllAttributes();
         foreach ($room_attributes as $room_attribute)
         {
-            $attr_value = $a_qsearch_form->getInput("attribute_" . $room_attribute . "_amount");
+            $attr_value = $a_qsearch_form->getInputFromSession("attribute_" . $room_attribute . "_amount", false);
 
             if ($attr_value)
             {
@@ -129,7 +146,7 @@ class ilRoomSharingSearchQuickGUI
         }
         return $filter;
     }
-
+ 
     /**
      * Creates and returns the quick search form.
      * @return \ilPropertyFormGUI the quick search form
@@ -139,7 +156,9 @@ class ilRoomSharingSearchQuickGUI
         global $ilCtrl, $lng;
         include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingTextInputGUI.php");
         include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
-        $qsearch_form = new ilPropertyFormGUI();
+        include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingSearchFormGUI.php");
+        $qsearch_form = new ilRoomSharingSearchFormGUI();
+        $qsearch_form->setId("qsearchform");
 
         $this->createRoomFormItem($qsearch_form);
         $this->createSeatsFormItem($qsearch_form);
@@ -148,9 +167,9 @@ class ilRoomSharingSearchQuickGUI
         $this->createRoomAttributeFormItem($qsearch_form);
 
         $qsearch_form->setTitle($lng->txt("rep_robj_xrs_quick_search"));
-        $qsearch_form->addCommandButton("showSearchResults", $lng->txt("rep_robj_xrs_search"));
+        $qsearch_form->addCommandButton("applySearch", $lng->txt("rep_robj_xrs_search"));
         $qsearch_form->setFormAction($ilCtrl->getFormAction($this));
-
+        
         return $qsearch_form;
     }
 
@@ -160,8 +179,11 @@ class ilRoomSharingSearchQuickGUI
     protected function createRoomFormItem($a_qsearch_form)
     {
         $room_name_input = new ilRoomSharingTextInputGUI($this->lng->txt("rep_robj_xrs_room"), "room_name");
+        $room_name_input->setParent($a_qsearch_form);
         $room_name_input->setMaxLength(14);
         $room_name_input->setSize(14);
+        // if the input has been set before, set it with this very value
+        $room_name_input->readFromSession();    
         $a_qsearch_form->addItem($room_name_input);
     }
 
@@ -175,10 +197,12 @@ class ilRoomSharingSearchQuickGUI
         include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
         $room_seats_input = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_seats") . " (" . $this->lng->txt("rep_robj_xrs_amount") . ")", "room_seats");
+        $room_seats_input->setParent($a_qsearch_form);
         $room_seats_input->setMaxLength(8);
         $room_seats_input->setSize(8);
         $room_seats_input->setMinValue(0);
         $room_seats_input->setMaxValue($this->rooms->getMaxSeatCount());
+        $room_seats_input->readFromSession(); 
         $a_qsearch_form->addItem($room_seats_input);
     }
 
@@ -189,8 +213,8 @@ class ilRoomSharingSearchQuickGUI
         include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
         $date_comb = new ilCombinationInputGUI($this->lng->txt("date"), "date");
         $date = new ilDateTimeInputGUI("", "date");
-        $date_comb->addCombinationItem("date", $date, $this->lng->txt("rep_robj_xrs_on"));
         $date_comb->setRequired(true);
+        $date_comb->addCombinationItem("date", $date, $this->lng->txt("rep_robj_xrs_on"));
         $a_qsearch_form->addItem($date_comb);
     }
 
@@ -230,15 +254,17 @@ class ilRoomSharingSearchQuickGUI
         {
             // setup an ilRoomSharingNumberInputGUI for the room attributes
             $room_attribute_input = new ilRoomSharingNumberInputGUI($room_attribute . " (" . $this->lng->txt("rep_robj_xrs_amount") . ")", "attribute_" . $room_attribute . "_amount");
+            $room_attribute_input->setParent($a_qsearch_form);
             $room_attribute_input->setMaxLength(8);
             $room_attribute_input->setSize(8);
             $room_attribute_input->setMinValue(0);
             $room_attribute_input->setMaxValue($this->rooms->getMaxCountForAttribute($room_attribute));
 
+            $room_attribute_input->readFromSession();
             $a_qsearch_form->addItem($room_attribute_input);
         }
     }
-
+    
     /**
      * Returns the Roomsharing Pool ID.
      */

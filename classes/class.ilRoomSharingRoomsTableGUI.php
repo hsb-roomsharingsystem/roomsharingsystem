@@ -23,6 +23,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         global $ilCtrl, $lng;
 
         $this->parent_obj = $a_parent_obj;
+        $this->parent_cmd = $a_parent_cmd;
         $this->lng = $lng;
         $this->ctrl = $ilCtrl;
         $this->ref_id = $a_ref_id;
@@ -104,19 +105,38 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         $this->tpl->setCurrentBlock("actions");
         $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['room_id']);
-        $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'book'));
-        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', $this->parent_cmd);
 
+        // only display a booking form if a search was initialized beforehand
+        if ($this->parent_cmd == "showSearchResults")
+        {  
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', unserialize($_SESSION["form_qsearchform"]["date"]));
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', unserialize($_SESSION["form_qsearchform"]["time_from"]));
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', unserialize($_SESSION["form_qsearchform"]["time_to"]));
+            $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'book'));
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', "");
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', "");
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', "");
+        }
+        else
+        {
+            $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showSearchQuick'));
+        }
+            
+        // unset the parameters; just in case
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', "");
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', "");
+        
         // allow administrators to edit and delete rooms
         if ($ilAccess->checkAccess('write', '', $this->ref_id))
         {
             $this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
             $this->tpl->parseCurrentBlock();
-            $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'showRooms'));
+            $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, $this->parent_cmd));
             $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
             $this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
             $this->tpl->parseCurrentBlock();
-            $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'showRooms'));
+            $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, $this->parent_cmd));
             $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('delete'));
             $this->tpl->parseCurrentBlock();
         }

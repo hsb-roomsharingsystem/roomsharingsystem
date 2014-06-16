@@ -38,7 +38,7 @@ class ilRoomSharingSearchGUI
 
         $cmd = $ilCtrl->getCmd("showSearchQuick");
         
-        if ($cmd == "showSearchResults") {
+        if ($cmd == "showSearchResults" || $cmd == "applySearch") {
             $next_class = "ilroomsharingsearchquickgui";
         }
         

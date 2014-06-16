@@ -217,6 +217,7 @@ class ilRoomSharingRooms {
 			
 			$row = array (
 					'room' => $room ['name'],
+                    'room_id' => $room ['id'],
 					'seats' => $room ['max_alloc'],
 					'attributes' => $attr 
 			);
