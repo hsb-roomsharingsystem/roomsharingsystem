@@ -81,8 +81,37 @@ class ilRoomSharingBookingsGUI
     {
         include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php");
         $bookings = new ilRoomSharingBookings($this->pool_id);
-        $bookings->removeBooking($_GET["booking_id"]);
+        // the canceling has to be confirmed via a form, which is why we get the id from POST
+        $bookings->removeBooking($_POST["booking_id"]);
         $this->showBookingsObject();
+    }
+    
+    /**
+     * Displays a confirmation dialog, in which the user is given the chance
+     * to decline or confirm his decision.
+     */
+    public function confirmCancelObject()
+    {
+        global $tpl, $ilTabs;
+		include_once 'Services/Utilities/classes/class.ilConfirmationGUI.php';
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php");
+        
+		$ilTabs->clearTargets();
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'), $this->ctrl->getLinkTarget($this, 'showBookings'));
+
+        // create the confirmation GUI
+		$confirmation = new ilConfirmationGUI();
+		$confirmation->setFormAction($this->ctrl->getFormAction($this));
+		$confirmation->setHeaderText($this->lng->txt('rep_robj_xrs_booking_confirm'));
+
+        $booking_id = $_GET["booking_id"];
+        $booking_subject = $_GET["booking_subject"];
+        
+		$confirmation->addItem('booking_id', $booking_id, $booking_subject);
+		$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_booking_cancel_booking'), 'cancelBooking'); // cancel the booking
+		$confirmation->setCancel($this->lng->txt('cancel'), 'showBookings');    // cancel the confirmation dialog
+
+		$tpl->setContent($confirmation->getHTML());     // display
     }
     
     /**

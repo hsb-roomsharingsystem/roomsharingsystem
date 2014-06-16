@@ -78,12 +78,20 @@ class ilRoomSharingSearchQuickGUI
             $qsearch_form->writeInputsToSession();
             $this->showSearchResultsObject();
         }
-        // otherwise return to the form and display error messages if needed
+        // otherwise return to the form and display an error messages if needed
         else 
         {
            $qsearch_form->setValuesByPost();
            $tpl->setContent($qsearch_form->getHTML()); 
         }     
+    }
+    
+    public function resetSearchObject()
+    {
+        $qsearch_form = $this->initForm();
+        
+        $qsearch_form->resetFormInputs();
+        $this->showSearchQuickObject();
     }
     
     /**
@@ -168,6 +176,7 @@ class ilRoomSharingSearchQuickGUI
 
         $qsearch_form->setTitle($lng->txt("rep_robj_xrs_quick_search"));
         $qsearch_form->addCommandButton("applySearch", $lng->txt("rep_robj_xrs_search"));
+        $qsearch_form->addCommandButton("resetSearch", $lng->txt("reset"));
         $qsearch_form->setFormAction($ilCtrl->getFormAction($this));
         
         return $qsearch_form;
@@ -182,14 +191,13 @@ class ilRoomSharingSearchQuickGUI
         $room_name_input->setParent($a_qsearch_form);
         $room_name_input->setMaxLength(14);
         $room_name_input->setSize(14);
-        // if the input has been set before, set it with this very value
+        
         $room_get_value = $_GET["room"];
-        // if the user was redirected from the room list set the value for the room accordingly
-        if ($room_get_value) 
+        if ($room_get_value) // if the user was redirected from the room list, set the value for the room accordingly
         {
             $room_name_input->setValue($room_get_value);
         }
-        else
+        else    // otherwise use the input that has been set before
         {
             $room_name_input->readFromSession(); 
         }
@@ -197,7 +205,7 @@ class ilRoomSharingSearchQuickGUI
     }
 
     /**
-     * Creates a combination input item consisting of a number input field for 
+     * Creates a combination input item containing a number input field for 
      * the desired seat amount.
      */
     protected function createSeatsFormItem($a_qsearch_form)
@@ -215,6 +223,9 @@ class ilRoomSharingSearchQuickGUI
         $a_qsearch_form->addItem($room_seats_input);
     }
 
+    /**
+     * Used to create form item for the date.
+     */
     protected function createDateFormItem($a_qsearch_form)
     {
         // Date
@@ -227,6 +238,12 @@ class ilRoomSharingSearchQuickGUI
         $a_qsearch_form->addItem($date_comb);
     }
 
+    /**
+     * Creates a time range form item which consists of an ilCombinationGUI
+     * containing two customized ilDateTimeInputGUIs in the shape of 
+     * an ilRoomSharingTimeInputGUI.
+     * @param type $a_qsearch_form
+     */
     protected function createTimeRangeFormItem($a_qsearch_form)
     {
         // Time Range

@@ -53,6 +53,22 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
         }
     }
     
+   /**
+	* Reset the form inputs in order to start off with a fresh search form.
+	*/
+	public function resetFormInputs()
+	{
+		$items = $this->getInputItemsRecursive();
+
+		foreach ($items as $item)
+		{
+			if ($item->checkInput())
+			{
+				$item->clearFromSession();
+			}
+		}
+    }
+    
     /**
      * Writes a single input into SESSION.
      * @param type $a_id the id of the input

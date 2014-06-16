@@ -142,7 +142,7 @@ class ilRoomSharingBookGUI
         $form->addItem($time_range);
 
         // checkbox to confirm the room use agreement       
-        $cb_prop = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_use_agreement"), "accept_room_rules");
+        $cb_prop = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_user_agreement"), "accept_room_rules");
         $cb_prop->setValue("1");
         $cb_prop->setChecked(false);
         $cb_prop->setRequired(true);
@@ -203,10 +203,10 @@ class ilRoomSharingBookGUI
             //Exeucte the database operations and check for return value
             $result = $book->addBooking($booking_values_array, $booking_attr_values_array, $this->ilRoomSharingRooms);
             if ($result == 1) {
-                $ilCtrl->setCmd("render");
-                $this->parent_obj->performCommand("");
                 $ilTabs->clearTargets();
                 $this->parent_obj->setTabs();
+                $ilCtrl->setCmd("render");
+                $this->parent_obj->performCommand("");
                 ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
             } elseif ($result < 0) {
                 if ($result == -1) {

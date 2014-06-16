@@ -111,16 +111,25 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         // only display a booking form if a search was initialized beforehand
         if ($this->parent_cmd == "showSearchResults")
         {
-            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', unserialize($_SESSION["form_qsearchform"]["date"])['date']);
-            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', unserialize($_SESSION["form_qsearchform"]["time_from"])['time']);
-            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', unserialize($_SESSION["form_qsearchform"]["time_to"])['time']);
+            // if this class is used to display search results, the input made
+            // must be transported to the book form
+            $date = unserialize($_SESSION["form_qsearchform"]["date"]);
+            $time_from = unserialize($_SESSION["form_qsearchform"]["time_from"]);
+            $time_to = unserialize($_SESSION["form_qsearchform"]["time_to"]);
+            
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', $date['date']);
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', $time_from['time']);
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', $time_to['time']);
             $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'book'));
+            // free those parameters, since we don't need them anymore
             $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', "");
             $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', "");
             $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', "");
         }
         else
         {
+            // the user is linked to the quick search form if he is trying to book
+            // a room when the normal room list is displayed
             $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showSearchQuick'));
         }
             
@@ -128,7 +137,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', "");
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', "");
         
-        // allow administrators to edit and delete rooms
+        // allow administrators to edit and delete rooms, but only if the room list and not the search results are displayed
         if ($ilAccess->checkAccess('write', '', $this->ref_id) && $this->parent_cmd == "showRooms")
         {
             $this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');

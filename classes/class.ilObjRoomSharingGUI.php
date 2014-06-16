@@ -424,7 +424,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
     }
     
     /**
-     * Function that displays a booking form.
+     * Displays a booking form, where the user can book a specific room.
      */
     public function book()
     {
@@ -435,11 +435,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $time_from = $_GET['time_from'];
         $time_to = $_GET['time_to'];
         $last_cmd = empty($_GET['last_cmd']) ? "showRooms": $_GET['last_cmd'];
-        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookGUI.php';
+        $this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
         $book = new ilRoomSharingBookGUI($this, $room_id, $date." ".$time_from, $date." ".$time_to);
+        $book->renderObject();
         // the back button which links to where the user came from
-        $this->tabs_gui->setBackTarget($lng->txt('back'), $ilCtrl->getLinkTarget($this, $last_cmd));
-        $tpl->setContent($book->initForm()->getHTML());
+        $this->tabs_gui->setBackTarget($lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this, $last_cmd));
     }
 
     /**
@@ -455,7 +455,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $last_cmd = empty($_GET['last_cmd']) ? "showBookings": (String) $_GET['last_cmd'];
         include_once 'Services/User/classes/class.ilPublicUserProfileGUI.php';
         $profile = new ilPublicUserProfileGUI($user_id);
-        // the back button on the user profile page momentarily links back to the bookings page
         $profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', $last_cmd));
         $tpl->setContent($ilCtrl->getHTML($profile));
     }

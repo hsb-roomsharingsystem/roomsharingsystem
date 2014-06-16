@@ -46,11 +46,11 @@ class ilRoomSharingAppointmentsGUI
 
 //        $next_class = $ilCtrl->getNextClass();
         // if the plugin is called
-        if ($cmd == 'render' || $cmd == 'schowContent')
+        if ($cmd == 'render' || $cmd == 'showContent')
         {
             $cmd = 'showBookings';
         } 
-        else if ($cmd == 'cancelBooking') 
+        else if ($cmd == 'cancelBooking' || $cmd == 'confirmCancel') 
         {
             $next_class = 'ilroomsharingbookingsgui';
         }

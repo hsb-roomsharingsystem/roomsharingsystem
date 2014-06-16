@@ -14,7 +14,10 @@ bookablerooms#:#Buchbare Räume
 booking_add#:#Buchung hinzufügen
 booking_added#:#Buchung hinzugefügt
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
+booking_back#:#Zurück zu den Buchungen
 booking_cancel#:#Stornieren
+booking_cancel_booking#:#Buchung stornieren
+booking_confirm#:#Sind Sie sich sicher, dass folgende Buchung(en) storniert werden soll(en)?
 booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
 booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
@@ -96,7 +99,7 @@ room_added#:#Raum wurde hizugefügt.
 back_to_rooms#:#Zurück zu allen Räumen
 room_plans#:#Raumliste
 room_read#:#Benutzer darf Ressourcen / Objekte im Roomsharingpool verwenden
-room_use_agreement#:#Raumnutzungsvereinbarung akzeptieren  
+room_user_agreement#:#Raumnutzungsvereinbarung akzeptieren  
 room_visible#:#Roomsharingpool ist sichtbar
 room_write#:#Benuzter darf Einstellungen und Inhalt vom Roomsharingpool ändern
 rooms#:#Räume
@@ -106,6 +109,7 @@ save#:#Speichern
 saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
 search#:#Suchen
 search_results#:#Suchresultate
+search_back#:#Zurück zu den Suchresultaten
 seats#:#Sitzplätze
 semester#:#Semester
 setting_1#:#Einstellung 1

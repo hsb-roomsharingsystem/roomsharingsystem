@@ -14,7 +14,10 @@ bookablerooms#:#Bookable Rooms
 booking_add#:#Add Booking
 booking_added#:#Booking added
 booking_add_error#:#Booking couldn't been added
+booking_back#:#Back to bookings
 booking_cancel#:#Cancel
+booking_cancel_booking#:#Cancel booking
+booking_confirm#:#Are you sure that you want to cancel the following booking(s)?
 booking_deleted#:#Booking deleted! (following sequence bookings are not affected)
 booking_doesnt_exists#:#This booking doesn't exist any more!
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
@@ -96,6 +99,7 @@ room_added#:#Room was added.
 back_to_rooms#:#Back to all rooms
 room_plans#:#Room List
 room_read#:#User can use resources / objects in RoomSharing Pool
+room_user_agreement#:#Accept Room User Agreement
 room_visible#:#RoomSharing Pool is visible
 room_write#:#User can edit settings and content of RoomSharing Pool
 rooms#:#Rooms
@@ -105,6 +109,7 @@ save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
 search#:#Search
 search_results#:#Search Results
+search_back#:#Back to search results
 seats#:#Seats
 semester#:#Semester
 setting_1#:#Setting 1

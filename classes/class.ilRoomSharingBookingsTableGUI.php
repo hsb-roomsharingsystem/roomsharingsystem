@@ -149,9 +149,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         $this->tpl->parseCurrentBlock();
         
         $this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_set['id']);
-        $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'cancelBooking'));
+        $this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', $a_set['subject']);
+        $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'confirmCancel'));
         $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_cancel'));
         $this->ctrl->setParameterByClass('ilroomsharingbookingssgui', 'booking_id', '');
+        $this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', '');
 
         $this->tpl->parseCurrentBlock();
     }
