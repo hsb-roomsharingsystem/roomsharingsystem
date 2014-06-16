@@ -8,7 +8,7 @@
  */
 class ilRoomSharingBookGUI
 {
-
+    protected $parent_obj;
     protected $ref_id;
     protected $pool_id;
     protected $room_id;
@@ -25,6 +25,7 @@ class ilRoomSharingBookGUI
     {
         global $ilCtrl, $lng, $tpl;
 
+        $this->parent_obj = $a_parent_obj;
         $this->pool_id = $a_parent_obj->getPoolId();
         $this->ref_id = $a_parent_obj->ref_id;
         $this->room_id = $a_room_id;
@@ -163,7 +164,7 @@ class ilRoomSharingBookGUI
     }
     
     function saveObject() {
-        global $tpl;
+        global $tpl, $ilCtrl, $ilTabs;
         $form = $this->initForm();
 	//$this->room_id = $form->getInput('room_id');
         //print_r($form->getInputItemsRecursive());
@@ -190,6 +191,10 @@ class ilRoomSharingBookGUI
             
             $result = $book->addBooking($booking_values_array, $booking_attr_values_array, $this->ilRoomSharingRooms);
             if ($result == 1) {
+                $ilCtrl->setCmd("render");
+                $this->parent_obj->performCommand("");
+                $ilTabs->clearTargets();
+                $this->parent_obj->setTabs();
                 ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
             } elseif ($result < 0) {
                 if ($result == -1) {

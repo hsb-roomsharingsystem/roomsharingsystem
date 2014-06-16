@@ -61,7 +61,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
     private function addColumns()
     {
         $this->addColumn($this->lng->txt("rep_robj_xrs_room"), "room");
-        $this->addColumn($this->lng->txt("rep_robj_xrs_seats"), "seats");
+        $this->addColumn($this->lng->txt("rep_robj_xrs_seats"));
         $this->addColumn($this->lng->txt("rep_robj_xrs_room_attributes"));   // not sortable
         $this->addColumn("", "action");
     }
@@ -104,6 +104,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
         // actions
         $this->tpl->setCurrentBlock("actions");
         $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
+        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $a_set['room']);
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set['room_id']);
         $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', $this->parent_cmd);
 

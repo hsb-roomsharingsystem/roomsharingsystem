@@ -139,9 +139,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
             
               // Book.
             case 'ilroomsharingbookgui':
-                $this->tabs_gui->setTabActive('book');
+                $this->tabs_gui->clearTargets();
+                $this->tabs_gui->setBackTarget($this->lng->txt('back'), $ilCtrl->getLinkTarget($this, "showSearchResults"));
                 $this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
-//                include_once("class.ilRoomSharingBookGUI.php");
                 $book_gui = & new ilRoomSharingBookGUI($this);
                 $ret = & $this->ctrl->forwardCommand($book_gui);
                 break;
@@ -271,9 +271,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         // Rooms
         $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 	
-        // Book.
-        $this->tabs_gui->addTab("book", $this->lng->txt("room_book"), $this->ctrl->getLinkTargetByClass('ilroomsharingbookgui', "render"));
-        
         // Floorplans
         $this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
 
