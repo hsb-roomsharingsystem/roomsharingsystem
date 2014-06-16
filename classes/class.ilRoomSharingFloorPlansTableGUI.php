@@ -3,12 +3,12 @@
 include_once('./Services/Table/classes/class.ilTable2GUI.php');
 
 /**
- * Table-GUI for the uploaded Roomsharing floorplans
+ * Class FloorPlansTableGUI. Table-GUI for the uploaded Roomsharing floorplans
  *
  * This class is used to show a table with all uploaded floorplans.
  * A Thumbnail shows a small picture of the floorplan next to the 
  * title and the description. In this table it is possible to edit 
- * or remove a plan.
+ * or remove a plan (if looged user has 'write' permissions).
  * 
  * @author T. Wolscht <t.wolscht@googlemail.com>
  */
@@ -33,22 +33,23 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->setTitle($lng->txt("rep_robj_xrs_floor_plans_show"));
-        $this->setLimit(20);      // Anzahl der Datensätze pro Seite
-
-        $this->addColumns();    // Spalten(-überschriften) hinzufügen
+        $this->setLimit(20);      // max no. of rows
+        $this->addColumns();    // set column-headers
         $this->setEnableHeader(true);
         $this->setRowTemplate("tpl.room_floorplans.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
         $this->getItems();
     }
 
     /**
-     * returns all informations to the uploaded floorplans from Roomsharing DB
+     * sets the data for the 'fillRow' method.
+     * 
+     * gets all informations of floorplans from Roomsharing DB
      */
     function getItems() {
         include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingFloorPlans.php';
         $floorplans = new ilRoomSharingFloorPlans();
         $floorplans->setPoolID($this->getPoolId());
-        $data = $floorplans->getAllFloorPlans();
+        $data = $floorplans->getAllFloorPlans($this->pool_id);
         $this->setMaxCount(sizeof($data));
         $this->setData($data);
     }
@@ -61,17 +62,20 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
         $this->addColumn($this->lng->txt("rep_robj_xrs_plan"));
         $this->addColumn($lng->txt("title"));
         $this->addColumn($lng->txt("desc"));
-        //   $this->addColumn("POOL-ID");
         $this->addColumn($lng->txt("actions"));
     }
 
     /**
      * fills the rows of the table
+     * 
+     * -- Thumbnail -- Title -- Description --Actions --
+     * 
+     * Info: The possibility to sort the table by title will be implemented
+     * in the next Roomsharing-Version.
      *
      */
     public function fillRow($a_set) {
         global $ilCtrl, $lng, $ilAccess;
-        
         include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
         $mobj = new ilObjMediaObject($a_set['file_id']);
         $med = $mobj->getMediaItem("Standard");
@@ -90,12 +94,11 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI {
         $alist = new ilAdvancedSelectionListGUI();
         $alist->setId($a_set['file_id']);
         $alist->setListTitle($lng->txt("actions"));
-        if ($ilAccess->checkAccess('write', '', $this->ref_id))
-        {     
-        $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $a_set['file_id']);
-        $alist->addItem($lng->txt('edit'), 'edit', $ilCtrl->getLinkTarget($this->parent_obj, 'editFloorplan')); // #12306
+        if ($ilAccess->checkAccess('write', '', $this->ref_id)) {
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $a_set['file_id']);
+            $alist->addItem($lng->txt('edit'), 'edit', $ilCtrl->getLinkTarget($this->parent_obj, 'editFloorplan')); // #12306
 
-        $alist->addItem($lng->txt('delete'), 'delete', $ilCtrl->getLinkTarget($this->parent_obj, 'confirmDelete'));
+            $alist->addItem($lng->txt('delete'), 'delete', $ilCtrl->getLinkTarget($this->parent_obj, 'confirmDelete'));
         }
         $this->tpl->setVariable("LAYER", $alist->getHTML());
     }
