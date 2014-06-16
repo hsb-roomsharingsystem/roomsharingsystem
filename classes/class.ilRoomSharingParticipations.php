@@ -9,7 +9,7 @@
 class ilRoomSharingParticipations
 {
 
-    private $pool_id = 1;
+    private $pool_id;
 
     function __construct($pool_id = 1)
     {
