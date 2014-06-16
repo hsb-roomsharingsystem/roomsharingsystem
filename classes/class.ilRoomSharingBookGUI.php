@@ -3,6 +3,7 @@
 /**
  * Class ilRoomSharingBookGUI
  * @author Michael Dazjuk
+ * @author Robert Heimsoth
  * @version $Id$
  */
 class ilRoomSharingBookGUI
@@ -130,7 +131,7 @@ class ilRoomSharingBookGUI
         $dt_prop->setShowTime(true);
 
         $dt_prop1 = new ilDateTimeInputGUI($lng->txt("to"), "to");
-        if(!empty($this->date_from)) {
+        if(!empty($this->date_to)) {
             $dt_prop1->setDate(new ilDateTime($this->date_to,IL_CAL_DATETIME));
             $this->date_to = "";
         }
