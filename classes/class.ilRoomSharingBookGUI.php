@@ -207,6 +207,9 @@ class ilRoomSharingBookGUI
 	    ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
             $form->setValuesByPost();
             $tpl->setContent($form->getHTML());
+	    $form->setTitle($lng->txt('rep_robj_xrs_room_book').": "
+		.$lng->txt('rep_robj_xrs_room').' '
+		.$this->ilRoomSharingRooms->getRoomName($this->room_id));
         }
     }
     
