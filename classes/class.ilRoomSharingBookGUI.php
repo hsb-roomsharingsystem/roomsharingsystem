@@ -92,12 +92,12 @@ class ilRoomSharingBookGUI
         $form = new ilPropertyFormGUI();
         $form->setFormAction($ilCtrl->getFormAction($this));
         
-        //Set form frame title
+        // Set form frame title
         $form->setTitle($lng->txt('rep_robj_xrs_room_book').': '
                 .$lng->txt('rep_robj_xrs_room').' '
                 .$this->ilRoomSharingRooms->getRoomName((empty($this->room_id))?$_POST['room_id']:$this->room_id));
         
-        // text input
+        // Input for the subject of the booking
         $subject = new ilTextInputGUI($lng->txt("subject"), "subject");
         $subject->setRequired(true);
         $subject->setSize(40);
@@ -105,9 +105,8 @@ class ilRoomSharingBookGUI
         $form->addItem($subject);
         
         $form->addCommandButton("save", $lng->txt("rep_robj_xrs_room_book"));
-        //$form->addCommandButton("book_reset", $lng->txt("reset"));
-        //$form->addCommandButton("book_cancel", $lng->txt("cancel"));
         
+        // List the booking-attributes
         include_once('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php');
         $ilBookings = new ilRoomSharingBookings();
         $ilBookings->setPoolId($this->pool_id);
@@ -119,10 +118,9 @@ class ilRoomSharingBookGUI
         }
         
         include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
-
         $time_range = new ilCombinationInputGUI($this->lng->txt("assessment_log_datetime"), "time_range");
-        //$time_range->setRequired(true);
-
+        
+        // Datetime Input for "Of"
         $dt_prop = new ilDateTimeInputGUI($lng->txt("of"), "from");
         if(!empty($this->date_from)) {
             $dt_prop->setDate(new ilDateTime($this->date_from,IL_CAL_DATETIME));
@@ -132,6 +130,7 @@ class ilRoomSharingBookGUI
         $time_range->addCombinationItem("of", $dt_prop, $lng->txt("of"));
 	$dt_prop->setShowTime(true);
 
+        // Datetime Input for "To"
         $dt_prop1 = new ilDateTimeInputGUI($lng->txt("to"), "to");
         if(!empty($this->date_to)) {
             $dt_prop1->setDate(new ilDateTime($this->date_to,IL_CAL_DATETIME));
@@ -148,7 +147,8 @@ class ilRoomSharingBookGUI
         $cb_prop->setChecked(false);
         $cb_prop->setRequired(true);
         $form->addItem($cb_prop);
-
+        
+        // Save room-id in a hidden input field
 	$room_id_prop = new ilHiddenInputGUI("room_id");
 	$room_id_prop->setValue($this->room_id);
 	$room_id_prop->setRequired(true);
@@ -163,15 +163,25 @@ class ilRoomSharingBookGUI
         return $form;
     }
     
+    /**
+     * Function to the validate and save the form data
+     * 
+     * @global type $tpl
+     * @global type $ilCtrl
+     * @global type $ilTabs
+     */
     function saveObject() {
         global $tpl, $ilCtrl, $ilTabs;
         $form = $this->initForm();
-	//$this->room_id = $form->getInput('room_id');
-        //print_r($form->getInputItemsRecursive());
-        if($form->checkInput() && $form->getInput('accept_room_rules') == 1) {
-            include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBook.php");
-            $this->room_id = $form->getInput('room_id');
 
+        //Check if the form is valid
+        if($form->checkInput() && $form->getInput('accept_room_rules') == 1) {
+            //Save the room_id in case of error for the next form
+            $this->room_id = $form->getInput('room_id');
+            
+            include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBook.php");
+            
+            //Build array with the standard-values for a booking
 	    $book = new ilRoomSharingBook();
             $book->setPoolId($this->getPoolId());
             $booking_values_array = array();
@@ -181,6 +191,7 @@ class ilRoomSharingBookGUI
             $booking_values_array['accept_room_rules'] = $form->getInput('accept_room_rules');
             $booking_values_array['room'] = $this->room_id;
             
+            //Build array with the booking-attribute-values for a booking
             $booking_attr_values_array = array();
             include_once('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php');
             $ilBookings = new ilRoomSharingBookings();
@@ -189,6 +200,7 @@ class ilRoomSharingBookGUI
                 $booking_attr_values_array[$attr_value['id']] = $form->getInput($attr_value['id']);
             }
             
+            //Exeucte the database operations and check for return value
             $result = $book->addBooking($booking_values_array, $booking_attr_values_array, $this->ilRoomSharingRooms);
             if ($result == 1) {
                 $ilCtrl->setCmd("render");
