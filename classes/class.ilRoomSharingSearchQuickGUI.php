@@ -149,7 +149,7 @@ class ilRoomSharingSearchQuickGUI
  
     /**
      * Creates and returns the quick search form.
-     * @return \ilPropertyFormGUI the quick search form
+     * @return \ilRoomSharingSearchFormGUI the customized quick search form
      */
     protected function initForm()
     {

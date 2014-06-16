@@ -271,9 +271,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         // Rooms
         $this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 	
-        // Book.
-        $this->tabs_gui->addTab("book", $this->lng->txt("room_book"), $this->ctrl->getLinkTargetByClass('ilroomsharingbookgui', "render"));
-        
         // Floorplans
         $this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
 
