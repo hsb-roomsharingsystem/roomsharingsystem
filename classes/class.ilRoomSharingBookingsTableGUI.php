@@ -147,11 +147,15 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
         $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
         $this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
         $this->tpl->parseCurrentBlock();
-        $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
+        
+        $this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_set['id']);
+        $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'cancelBooking'));
         $this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_cancel'));
+        $this->ctrl->setParameterByClass('ilroomsharingbookingssgui', 'booking_id', '');
+
         $this->tpl->parseCurrentBlock();
     }
-
+    
     /**
      * Can be used to add additional columns to the bookings table.
      */

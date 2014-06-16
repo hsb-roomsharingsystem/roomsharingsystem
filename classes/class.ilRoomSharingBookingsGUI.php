@@ -73,7 +73,18 @@ class ilRoomSharingBookingsGUI
 
         $tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
     }
-
+    
+    /**
+     * Used for deleting bookings.
+     */
+    public function cancelBookingObject() 
+    {
+        include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php");
+        $bookings = new ilRoomSharingBookings($this->pool_id);
+        $bookings->removeBooking($_GET["booking_id"]);
+        $this->showBookingsObject();
+    }
+    
     /**
      * Returns roomsharing pool id.
      */

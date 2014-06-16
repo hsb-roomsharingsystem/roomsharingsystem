@@ -44,10 +44,15 @@ class ilRoomSharingAppointmentsGUI
         $cmd = $ilCtrl->getCmd("showBookings");
 //		echo "<br>CMD: RoomSharingAppointmentsGUI." . $cmd;
 
+//        $next_class = $ilCtrl->getNextClass();
         // if the plugin is called
         if ($cmd == 'render' || $cmd == 'schowContent')
         {
             $cmd = 'showBookings';
+        } 
+        else if ($cmd == 'cancelBooking') 
+        {
+            $next_class = 'ilroomsharingbookingsgui';
         }
   
         $ilCtrl->setReturn($this, "showBookings");
@@ -61,7 +66,7 @@ class ilRoomSharingAppointmentsGUI
 
             // Participations
             case 'ilroomsharingparticipationsgui' :
-                $this->showParticipationsObject();
+                $this->showParticipations();
                 break;
 
             default :
@@ -100,7 +105,7 @@ class ilRoomSharingAppointmentsGUI
         $object_gui = & new ilRoomSharingBookingsGUI($this);
         $this->ctrl->forwardCommand($object_gui);
     }
-
+    
     /**
      * Show all participations.
      */
