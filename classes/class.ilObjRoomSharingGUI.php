@@ -101,6 +101,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         {
             $next_class = ilroomsharingsearchgui;
         }
+        // the special handling of the commands addRoom and editRoom 
+        else if ($cmd == 'addRoom'  || $cmd == 'editRoom')
+        {
+            $next_class = ilroomsharingroomgui;
+        }
 
         // Extend list of last visited objects by this pool.
         $ilNavigationHistory->addItem($this->ref_id, "./goto.php?target=xrs_" . $this->ref_id, "xrs");
@@ -137,8 +142,17 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
                 $object_gui = & new ilRoomSharingRoomsGUI($this);
                 $ret = & $this->ctrl->forwardCommand($object_gui);
                 break;
+                
+            // Room
+            case 'ilroomsharingroomgui':
+                $this->tabs_gui->setTabActive('rooms');
+                $room_id = (int) $_GET['room_id'];
+                $this->pl_obj->includeClass("class.ilRoomSharingRoomGUI.php");
+                $object_gui = & new ilRoomSharingRoomGUI($this, $room_id);
+                $ret = & $this->ctrl->forwardCommand($object_gui);
+                break;
             
-              // Book.
+            // Book.
             case 'ilroomsharingbookgui':
                 $this->tabs_gui->clearTargets();
                 $this->tabs_gui->setBackTarget($this->lng->txt('back'), $ilCtrl->getLinkTarget($this, "showSearchResults"));

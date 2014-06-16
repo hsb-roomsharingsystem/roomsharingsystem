@@ -65,7 +65,7 @@ class ilRoomSharingRoomsGUI
         {
             include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
             $toolbar = new ilToolbarGUI;
-            $toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'), $this->ctrl->getLinkTarget($this, "showRooms"));
+            $toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'addRoom'));
             $bar = $toolbar->getHTML();
         }
 

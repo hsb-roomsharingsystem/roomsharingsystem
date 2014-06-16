@@ -95,9 +95,9 @@ class ilRoomSharingRoomGUI
         
         include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
         $toolbar = new ilToolbarGUI();
-        $toolbar->addButton($this->lng->txt('rep_robj_xrs_cancel'), 
-                $this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 
-                        "showRoom"));
+        $toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), 
+                $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', 
+                        "showRooms"));
         $this->form_gui = $this->initForm("create", true);
         $this->form_gui->clearCommandButtons();
         $this->form_gui->addCommandButton("createRoom", $this->lng->txt("save"));
@@ -117,11 +117,11 @@ class ilRoomSharingRoomGUI
         
         include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
         $toolbar = new ilToolbarGUI();
-        $toolbar->addButton($this->lng->txt('rep_robj_xrs_cancel'), 
+        $toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), 
                 $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', 
                         "showRooms"));
         // FIXME Room data is erased after edit called.
-        ilUtil::sendInfo($this->lng->txt('not_yet_implemented'));
+        ilUtil::sendInfo($this->lng->txt('rep_robj_xrs_not_yet_implemented'));
         $this->tpl->setContent($toolbar->getHTML());
 //         $this->form_gui = $this->initForm("edit");
 //         $this->tpl->setContent($toolbar->getHTML() . $this->form_gui->getHTML());
@@ -194,8 +194,7 @@ class ilRoomSharingRoomGUI
             $file_id->setDisabled(false);
             $building_id->setDisabled(false);
             if ($a_mode == "create") {
-                $form_gui->addCommandButton("addRoom", 
-                        $lng->txt("rep_robj_xrs_add_room"));
+                $form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"), $lng->txt("rep_robj_xrs_add_room"));                
             } else {
                 $form_gui->addCommandButton("saveRoom", 
                         $lng->txt("rep_robj_xrs_save_room"));
