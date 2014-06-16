@@ -23,7 +23,8 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
 
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
-
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI
+ * 
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilConsultationHoursGUI, ilCalendarBlockGUI, ilColumnGUI 
@@ -398,17 +399,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
     /**
      * Displays a page with room information.
-     * !!! Landet später höchstwahrscheinlich noch in einer anderen Klasse !!!
      */
     public function showRoom()
     {
-        global $ilCtrl;
-
         $room_id = (int) $_GET['room_id'];
-        $last_cmd = empty($_GET['last_cmd']) ? "showBookings": (String) $_GET['last_cmd'];
-        $ilCtrl->setCmd("$last_cmd");
-        $this->render();
-        echo "room_id = " . $room_id;
+        $this->tabs_gui->setTabActive('rooms');
+        $this->pl_obj->includeClass("class.ilRoomSharingRoomGUI.php");
+        $room_gui = new ilRoomSharingRoomGUI($this, $room_id);
+        $room_gui->showRoomObject();
     }
     
     /**
