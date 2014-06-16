@@ -181,7 +181,7 @@ class ilRoomSharingBookGUI
             $booking_values_array['room'] = $this->room_id;
             
             $booking_attr_values_array = array();
-            include_once('class.ilRoomSharingBookings.php');
+            include_once('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php');
             $ilBookings = new ilRoomSharingBookings();
             $ilBookings->setPoolId($this->pool_id);
             foreach($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value) {
