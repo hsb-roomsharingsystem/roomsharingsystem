@@ -427,7 +427,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
         $time_to = $_GET['time_to'];
         $last_cmd = empty($_GET['last_cmd']) ? "showRooms": $_GET['last_cmd'];
         include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookGUI.php';
-        //$book = new ilRoomSharingBookGUI($this, $room_id, $date." ".$time_from, $date." ".$time_to);
+        $book = new ilRoomSharingBookGUI($this, $room_id, $date." ".$time_from, $date." ".$time_to);
         // the back button which links to where the user came from
         $this->tabs_gui->setBackTarget($lng->txt('back'), $ilCtrl->getLinkTarget($this, $last_cmd));
         $tpl->setContent($book->initForm()->getHTML());

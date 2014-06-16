@@ -109,13 +109,10 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
         // only display a booking form if a search was initialized beforehand
         if ($this->parent_cmd == "showSearchResults")
-        {  
-		print_r(unserialize($_SESSION['form_qsearchform']['date']));
-	echo "<br><br>";
-	print_r($_SESSION);
-            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', unserialize($_SESSION["form_qsearchform"]["date"]));
-            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', unserialize($_SESSION["form_qsearchform"]["time_from"]));
-            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', unserialize($_SESSION["form_qsearchform"]["time_to"]));
+        {
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', unserialize($_SESSION["form_qsearchform"]["date"]['date']));
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', unserialize($_SESSION["form_qsearchform"]["time_from"]['time']));
+            $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', unserialize($_SESSION["form_qsearchform"]["time_to"]['time']));
             $this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'book'));
             $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', "");
             $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', "");
