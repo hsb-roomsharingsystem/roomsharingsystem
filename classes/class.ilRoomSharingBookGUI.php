@@ -94,7 +94,7 @@ class ilRoomSharingBookGUI
         //Set form frame title
         $form->setTitle($lng->txt('rep_robj_xrs_room_book').': '
                 .$lng->txt('rep_robj_xrs_room').' '
-                .$this->ilRoomSharingRooms->getRoomName((empty($this->room_id))?$_POST['room_id']:$this->room_id);
+                .$this->ilRoomSharingRooms->getRoomName((empty($this->room_id))?$_POST['room_id']:$this->room_id));
         
         // text input
         $subject = new ilTextInputGUI($lng->txt("subject"), "subject");
