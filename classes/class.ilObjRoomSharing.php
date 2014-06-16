@@ -15,7 +15,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 {   
 	
 	protected $pool_id;
-    protected $online; // bool
+        protected $online; // bool
     
 	/**
 	* Constructor

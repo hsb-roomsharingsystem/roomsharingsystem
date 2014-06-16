@@ -142,7 +142,7 @@ class ilRoomSharingRoomGUI
         include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
         
         $form_gui = new ilPropertyFormGUI();
-        $form_gui->setTitle($lng->txt("room_properties"));
+        $form_gui->setTitle($lng->txt("rep_robj_xrs_room_properties"));
         $form_gui->setDescription(
                 $lng->txt("rep_robj_xrs_room_prop_description"));
         

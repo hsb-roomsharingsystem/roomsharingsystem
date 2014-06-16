@@ -90,7 +90,7 @@ room_min_alloc#:#Min. Belegung
 room_max_alloc#:#Max. Belegung
 room_file_id#:#Lageplan
 room_properties#:#Raumeigenschaften
-room_prop_description#:#Der ausgewählte Raum besitzt vollgende Eigenschaften:
+room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
 wrong_input#:#Falsche Eingaben. Prüfen Sie diese bitte.
 room_added#:#Raum wurde hizugefügt.
 back_to_rooms#:#Zurück zu allen Räumen
