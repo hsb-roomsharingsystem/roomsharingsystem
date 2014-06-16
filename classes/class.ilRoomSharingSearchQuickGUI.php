@@ -183,7 +183,16 @@ class ilRoomSharingSearchQuickGUI
         $room_name_input->setMaxLength(14);
         $room_name_input->setSize(14);
         // if the input has been set before, set it with this very value
-        $room_name_input->readFromSession();    
+        $room_get_value = $_GET["room"];
+        // if the user was redirected from the room list set the value for the room accordingly
+        if ($room_get_value) 
+        {
+            $room_name_input->setValue($room_get_value);
+        }
+        else
+        {
+            $room_name_input->readFromSession(); 
+        }
         $a_qsearch_form->addItem($room_name_input);
     }
 
