@@ -42,9 +42,9 @@ class ilRoomSharingBookings
                     //Check whether only the specific booking should be deleted
                     if(!$a_seq || $row['seq_id'] == NULL || !is_numeric($row['seq_id'])) {
                         $ilDB->query('DELETE FROM rep_robj_xrs_bookings'.
-                                ' WHERE id = '.$ilDB->quote($booking_id, 'integer'));
+                                ' WHERE id = '.$ilDB->quote($a_booking_id, 'integer'));
                         $ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
-                                ' WHERE booking_id = '.$ilDB->quote($booking_id, 'integer'));
+                                ' WHERE booking_id = '.$ilDB->quote($a_booking_id, 'integer'));
                             ilUtil::sendSuccess($lng->txt('rep_robj_xrs_booking_deleted'), true);
 					}
 					//else delete every booking in the sequence
