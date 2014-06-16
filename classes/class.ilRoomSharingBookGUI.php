@@ -165,11 +165,13 @@ class ilRoomSharingBookGUI
     function saveObject() {
         global $tpl;
         $form = $this->initForm();
-	$this->room_id = $form->getInput('room_id');
+	//$this->room_id = $form->getInput('room_id');
         //print_r($form->getInputItemsRecursive());
         if($form->checkInput() && $form->getInput('accept_room_rules') == 1) {
             include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBook.php");
-            $book = new ilRoomSharingBook();
+            $this->room_id = $form->getInput('room_id');
+
+	    $book = new ilRoomSharingBook();
             $book->setPoolId($this->getPoolId());
             $booking_values_array = array();
             $booking_values_array['subject'] = $form->getInput('subject');
@@ -201,7 +203,8 @@ class ilRoomSharingBookGUI
                 $tpl->setContent($form->getHTML());
             }
         } else {
-            ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
+            $this->room_id = $form->getInput('room_id');
+	    ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
             $form->setValuesByPost();
             $tpl->setContent($form->getHTML());
         }
