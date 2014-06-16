@@ -15,6 +15,9 @@ booking_add#:#Buchung hinzufügen
 booking_added#:#Buchung hinzugefügt
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
 booking_cancel#:#Stornieren
+booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
+booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
+booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
 bookings#:#Buchungen
 cancel#:#Abbrechen
 cat_create_xrs#:#RoomSharing erstellen
@@ -45,6 +48,8 @@ leave#:#Austreten
 manage#:#Verwalten
 missing_required_entries#:#Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.
 module#:#Modul
+no_delete_permission#:#Keine Berechtigung, diese Buchung zu löschen
+no_id_submitted#:#Keine oder nicht numerische ID übergeben
 not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
 obj_xrs#:#RoomSharing
 obj_xrs_duplicate#:#Kopieren

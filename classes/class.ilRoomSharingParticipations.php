@@ -33,7 +33,7 @@ class ilRoomSharingParticipations
         }
         else
         {
-            ilUtil::sendFailure($lng->txt("Keine oder nicht numerische ID angegeben!"), true);
+            ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
         }
     }
     

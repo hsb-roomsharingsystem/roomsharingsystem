@@ -15,6 +15,9 @@ booking_add#:#Add Booking
 booking_added#:#Booking added
 booking_add_error#:#Booking couldn't been added
 booking_cancel#:#Cancel
+booking_deleted#:#Booking deleted! (following sequence bookings are not affected)
+booking_doesnt_exists#:#This booking doesn't exist any more!
+booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
 bookings#:#Bookings
 cancel#:#Cancel
 cat_create_xrs#:#Create RoomSharing
@@ -46,6 +49,8 @@ leave#:#Leave
 manage#:#Manage
 missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.
 module#:#Module
+no_delete_permission#:#No permission, to delete this booking
+no_id_submitted#:#None or not a numeric ID submitted
 not_yet_implemented#:#This function has not yet been implemented.
 obj_xrs#:#RoomSharing
 obj_xrs_duplicate#:#Copy

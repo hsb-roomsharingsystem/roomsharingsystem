@@ -45,7 +45,7 @@ class ilRoomSharingBookings
                                 ' WHERE id = '.$ilDB->quote($booking_id, 'integer'));
                         $ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
                                 ' WHERE booking_id = '.$ilDB->quote($booking_id, 'integer'));
-                            ilUtil::sendSuccess($lng->txt("Dieser Termin wurde gelöscht! (folgende Serientermine nicht betroffen)"), true);
+                            ilUtil::sendSuccess($lng->txt('rep_robj_xrs_booking_deleted'), true);
 					}
 					//else delete every booking in the sequence
 					else 
@@ -60,23 +60,23 @@ class ilRoomSharingBookings
 									' WHERE id = '.$ilDB->quote($a_booking_id, 'integer'));
 							$ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
 									' WHERE booking_id = '.$ilDB->quote($a_booking_id, 'integer'));
-							ilUtil::sendSuccess($lng->txt("Dieser Termin und alle folgenden Serientermine wurden gelöscht!"), true);
+							ilUtil::sendSuccess($lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
 						}
 					}
 				}
                 else
                 {
-                    ilUtil::sendFailure($lng->txt("No permission, to delete this booking"), true);
+                    ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_delete_permission"), true);
                 }
             }
             else
             {
-                ilUtil::sendFailure($lng->txt("This booking doesn't exist any more!"), true);
+                ilUtil::sendFailure($lng->txt("rep_robj_xrs_booking_doesnt_exist"), true);
             }
         }
         else
         {
-            ilUtil::sendFailure($lng->txt("None or not a numeric ID submitted!"), true);
+            ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
         }
     }
     

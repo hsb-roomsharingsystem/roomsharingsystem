@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Description of class
- * @author Michael
+ * Backend-Class for booking-mask
+ * @author Robert Heimsoth
  */
 class ilRoomSharingBook {
   protected $pool_id;
