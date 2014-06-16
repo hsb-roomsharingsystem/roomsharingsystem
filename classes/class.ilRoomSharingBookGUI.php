@@ -20,7 +20,7 @@ class ilRoomSharingBookGUI
      * Constructur for ilRoomSharingBookGUI
      * @param	object	$a_parent_obj
      */
-    function __construct(ilObjRoomSharingGUI $a_parent_obj, $a_room_id = 1, 
+    function __construct(ilObjRoomSharingGUI $a_parent_obj, $a_room_id = null, 
                                     $a_date_from = "", $a_date_to = "")
     {
         global $ilCtrl, $lng, $tpl;
@@ -94,7 +94,7 @@ class ilRoomSharingBookGUI
         //Set form frame title
         $form->setTitle($lng->txt('rep_robj_xrs_room_book').': '
                 .$lng->txt('rep_robj_xrs_room').' '
-                .$this->ilRoomSharingRooms->getRoomName($this->room_id));
+                .$this->ilRoomSharingRooms->getRoomName((empty($this->room_id))?$_POST['room_id']:$this->room_id);
         
         // text input
         $subject = new ilTextInputGUI($lng->txt("subject"), "subject");
@@ -207,9 +207,6 @@ class ilRoomSharingBookGUI
 	    ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
             $form->setValuesByPost();
             $tpl->setContent($form->getHTML());
-	    $form->setTitle($lng->txt('rep_robj_xrs_room_book').": "
-		.$lng->txt('rep_robj_xrs_room').' '
-		.$this->ilRoomSharingRooms->getRoomName($this->room_id));
         }
     }
     
