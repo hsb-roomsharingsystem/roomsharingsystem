@@ -104,8 +104,8 @@ class ilRoomSharingBookGUI
         $form->addItem($subject);
         
         $form->addCommandButton("save", $lng->txt("rep_robj_xrs_room_book"));
-        $form->addCommandButton("book_reset", $lng->txt("reset"));
-        $form->addCommandButton("book_cancel", $lng->txt("cancel"));
+        //$form->addCommandButton("book_reset", $lng->txt("reset"));
+        //$form->addCommandButton("book_cancel", $lng->txt("cancel"));
         
         include_once('class.ilRoomSharingBookings.php');
         $ilBookings = new ilRoomSharingBookings();
