@@ -409,7 +409,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$booking_id = (int) $_GET['booking_id'];
 		$ilCtrl->setCmd("showBookings");
 		$this->render();
-		//echo "booking_id = " . $booking_id;
 	}
 
 	/**
@@ -431,10 +430,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $tpl, $ilCtrl, $lng;
 		$this->tabs_gui->clearTargets();
-		//$room_id = $_GET['room_id'];
-		//$date = $_GET['date'];
-		//$time_from = $_GET['time_from'];
-		//$time_to = $_GET['time_to'];
 		$last_cmd = empty($_GET['last_cmd']) ? "showRooms": $_GET['last_cmd'];
 		$this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
 		$book = new ilRoomSharingBookGUI(
