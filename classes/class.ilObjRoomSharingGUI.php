@@ -56,6 +56,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 	/**
 	 * Get type.
+	 * @return string type of this ilObjRoomSharingGUI
 	 */
 	final function getType()
 	{
@@ -65,6 +66,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	/**
 	 * Handles all commmands of this class, centralizes permission checks
 	 * @param string $cmd Given Command to Execute
+	 * @return boolean true
 	 */
 	function performCommand($cmd)
 	{
@@ -75,11 +77,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Set pool id
 		$this->pool_id = $this->object->getPoolID();
 		$cmd = $ilCtrl->getCmd();
-		if ($cmd == 'edit' || $cmd == 'editSettings' || $cmd == 'updateSettings')
+		if ($cmd === 'edit' || $cmd === 'editSettings' || $cmd === 'updateSettings')
 		{
 			$ilTabs->setTabActive('settings');
 			// In case the edit button was clicked in the repository
-			if ($cmd == 'edit')
+			if ($cmd === 'edit')
 			{
 				$cmd = 'editSettings';
 			}
@@ -91,12 +93,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		 * showSearchResults is needed because otherwise the wrong $next_class 
 		 * would be called
 		 */
-		else if ($cmd == 'showSearchQuick'  || $cmd == 'showSearchResults') 
+		else if ($cmd === 'showSearchQuick'  || $cmd === 'showSearchResults') 
 		{
 			$next_class = ilroomsharingsearchgui;
 		}
 		// the special handling of the commands addRoom and editRoom 
-		else if ($cmd == 'addRoom'  || $cmd == 'editRoom')
+		else if ($cmd === 'addRoom'  || $cmd === 'editRoom')
 		{
 			$next_class = ilroomsharingroomgui;
 		}
@@ -234,7 +236,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * After object has been created, jump to this command
+	 * After object has been created, jump to this command.
+	 * @return string Next Command after Creation
 	 */
 	function getAfterCreationCmd()
 	{
@@ -242,7 +245,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * Get standard command
+	 * Get standard command.
+	 * @return string Standard Command
 	 */
 	function getStandardCmd()
 	{
@@ -328,7 +332,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function initSettingsForm()
 	{
-		$this->settingsForm = new ilPropertyFormGUI ();
+		$this->settingsForm = new ilPropertyFormGUI();
 
 		// Title
 		$field = new ilTextInputGUI($this->lng->txt('title'), 'title');
@@ -361,6 +365,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	/**
 	 * Forbids to import and to close an roomsharing pool.
 	 * @see ilObjectPluginGUI::initCreateForm()
+	 * @param string $a_new_type New type
+	 * @return array Array with Creation methods. CFORM_CLONE and CFORM_IMPORT are ommited
 	 */
 	public function initCreationForms($a_new_type)
 	{
@@ -438,6 +444,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 	/**
 	 * Returns roomsharing pool id.
+	 * @return int current pool_id of this booking pool
 	 */
 	function getPoolId()
 	{
@@ -446,6 +453,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 	/**
 	 * Sets roomsharing pool id.
+	 * @param int new pool id for this booking pool
 	 */
 	function setPoolId($a_pool_id)
 	{
@@ -463,7 +471,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	protected function initCategories()
 	{
 		include_once './Services/Calendar/classes/class.ilCalendarUserSettings.php';
-		if(ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
+		if (ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
 		{
 			$mode = ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP;
 		}
