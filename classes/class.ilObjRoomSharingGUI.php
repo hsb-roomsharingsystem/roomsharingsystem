@@ -145,7 +145,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Book
 			case 'ilroomsharingbookgui':
 				$this->tabs_gui->clearTargets();
-				$this->tabs_gui->setBackTarget($this->lng->txt('back'), $ilCtrl->getLinkTarget($this, "showSearchResults"));
+				$this->tabs_gui->setBackTarget(
+					$this->lng->txt('back'),
+					$ilCtrl->getLinkTarget($this, "showSearchResults")
+				);
 				$this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
 				$ret = & $this->ctrl->forwardCommand($book_gui);
@@ -156,7 +159,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$this->pl_obj->includeClass("class.ilRoomSharingFloorPlansGUI.php");
 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
-				//$this->tpl->setContent("Die Ansicht der Pläne ist noch nicht an die neue Plugin-Ordnerstruktur angepasst.");
 				break;
 			// Permissions
 			case 'ilpermissiongui':
@@ -189,7 +191,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				break;
 			// Various CalendarGUIs
 			case "ilcalendardaygui":
-	  	  		include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
+				include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
 				$day = new ilCalendarDayGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
 				$this->ctrl->forwardCommand($day);
 				break;
@@ -224,6 +226,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 	/**
 	 * Default command that is executed if no "nextClass" can be determined.
+	 * @param boolean true
 	 */
 	public function render()
 	{
@@ -261,20 +264,40 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		global $ilTabs, $ilCtrl, $ilAccess;
 
 		// Appointments
-		$ilTabs->addTab("appointments", $this->txt("appointments"), $ilCtrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
+		$ilTabs->addTab(
+			"appointments",
+			$this->txt("appointments"),
+			$ilCtrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings")
+		);
 		// Standard info screen tab
 		$this->addInfoTab();
 		// Search
-		$this->tabs_gui->addTab("search", $this->lng->txt("search"), $this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick"));
+		$this->tabs_gui->addTab(
+			"search",
+			$this->lng->txt("search"),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
+		);
 		// Rooms
-		$this->tabs_gui->addTab("rooms", $this->txt("rooms"), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		$this->tabs_gui->addTab(
+			"rooms",
+			$this->txt("rooms"),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms")
+		);
 		// Floorplans
-		$this->tabs_gui->addTab("floor_plans", $this->txt("room_floor_plans"), $this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render"));
+		$this->tabs_gui->addTab(
+			"floor_plans",
+			$this->txt("room_floor_plans"),
+			$this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render")
+		);
 		// Show permissions and settings tabs if the user has write permissions.
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
 		{
 			// Settings
-			$this->tabs_gui->addTab('settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings'));
+			$this->tabs_gui->addTab(
+				'settings',
+				$this->txt('settings'),
+				$this->ctrl->getLinkTarget($this, 'editSettings')
+			);
 			// Permission
 			$this->addPermissionTab();
 		}
@@ -422,7 +445,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		);
 		$book->renderObject();
 		// the back button which links to where the user came from
-		$this->tabs_gui->setBackTarget($lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this, $last_cmd));
+		$this->tabs_gui->setBackTarget(
+			$lng->txt('rep_robj_xrs_search_back'),
+			$ilCtrl->getLinkTarget($this, $last_cmd)
+		);
 	}
 
 	/**
@@ -438,7 +464,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$last_cmd = empty($_GET['last_cmd']) ? "showBookings" : (string) $_GET['last_cmd'];
 		include_once 'Services/User/classes/class.ilPublicUserProfileGUI.php';
 		$profile = new ilPublicUserProfileGUI($user_id);
-		$profile->setBackUrl($this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', $last_cmd));
+		$profile->setBackUrl(
+			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', $last_cmd)
+		);
 		$tpl->setContent($ilCtrl->getHTML($profile));
 	}
 
