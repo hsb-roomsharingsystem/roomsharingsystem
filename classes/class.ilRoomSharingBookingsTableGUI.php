@@ -187,5 +187,3 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		return $this->bookings->getAdditionalBookingInfos();
 	}
 }
-
-?>

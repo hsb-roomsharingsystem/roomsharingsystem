@@ -148,7 +148,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', "");
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', "");
 		
-		// allow administrators to edit and delete rooms, but only if the room list and not the search results are displayed
+		// allow administrators to edit and delete rooms, but only if the room list and not the
+		// search results are displayed
 		if ($ilAccess->checkAccess('write', '', $this->ref_id) && $this->parent_cmd === "showRooms")
 		{
 			$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
@@ -290,5 +291,3 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		}
 	}
 }
-
-?>
