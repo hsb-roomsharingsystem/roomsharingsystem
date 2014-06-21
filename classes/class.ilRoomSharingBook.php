@@ -38,8 +38,8 @@ class ilRoomSharingBook
 		$user_id = $ilUser->getId();
 		
 		// Check if the selected room is already booked in the given time range
-		if ($ilRoomSharingRooms->getRoomsBookedInDateTimeRange($date_from, $date_to, $room_id) !=
-				 array())
+		if ($ilRoomSharingRooms->getRoomsBookedInDateTimeRange($date_from, $date_to, $room_id) !==
+				array())
 		{
 			return - 2;
 		}
@@ -47,29 +47,29 @@ class ilRoomSharingBook
 		// Insert the booking
 		$nextId = $ilDB->nextID('rep_robj_xrs_bookings');
 		$addBookingQuery = "INSERT INTO rep_robj_xrs_bookings" .
-				 " (id,date_from, date_to, room_id, pool_id, user_id, subject)" . " VALUES (" .
-				 $nextId . "," . " " . $ilDB->quote($date_from, 'timestamp') . "," . " " .
-				 $ilDB->quote($date_to, 'timestamp') . "," . " " . $ilDB->quote($room_id, 'integer') .
-				 "," . " " . $ilDB->quote($this->pool_id, 'integer') . "," . " " .
-				 $ilDB->quote($user_id, 'integer') . "," . " " . $ilDB->quote($subject, 'text') . ")";
+				" (id,date_from, date_to, room_id, pool_id, user_id, subject)" . " VALUES (" .
+				$nextId . "," . " " . $ilDB->quote($date_from, 'timestamp') . "," . " " .
+				$ilDB->quote($date_to, 'timestamp') . "," . " " . $ilDB->quote($room_id, 'integer') .
+				"," . " " . $ilDB->quote($this->pool_id, 'integer') . "," . " " .
+				$ilDB->quote($user_id, 'integer') . "," . " " . $ilDB->quote($subject, 'text') . ")";
 		// Check whether the insert failed
-		if ($ilDB->manipulate($addBookingQuery) == - 1)
+		if ($ilDB->manipulate($addBookingQuery) === - 1)
 		{
 			return - 1;
 		}
 		
 		// Insert the attributes for the booking in the conjunction table
 		$insertedId = $nextId;
-		foreach ( $booking_attr_values as $booking_attr_key => $booking_attr_value )
+		foreach ($booking_attr_values as $booking_attr_key => $booking_attr_value)
 		{
 			// Only insert the attribute value, if a value was submitted by the user
-			if ($booking_attr_value != "")
+			if ($booking_attr_value !== "")
 			{
 				$ilDB->query(
 						"INSERT INTO rep_robj_xrs_book_attr" . " (booking_id, attr_id, value)" .
-								 " VALUES (" . $ilDB->quote($insertedId, 'integer') . "," . " " .
-								 $ilDB->quote($booking_attr_key, 'integer') . "," . " " .
-								 $ilDB->quote($booking_attr_value, 'text') . ")");
+								" VALUES (" . $ilDB->quote($insertedId, 'integer') . "," . " " .
+								$ilDB->quote($booking_attr_key, 'integer') . "," . " " .
+								$ilDB->quote($booking_attr_value, 'text') . ")");
 			}
 		}
 		return 1;

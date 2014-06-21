@@ -15,6 +15,10 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	
 	/**
 	 * Constructor for the class ilRoomSharingRoomsTableGUI
+	 * 
+	 * @param unknown $a_parent_obj
+	 * @param unknown $a_parent_cmd
+	 * @param unknown $a_ref_id
 	 */
 	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
 	{
@@ -37,7 +41,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->setLimit(10); // datasets that are displayed per page
 		$this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
 		$this->setEnableHeader(true);
-		$this->addColumns(); // add columns and column headings
+		$this->_addColumns(); // add columns and column headings
 		$this->setEnableHeader(true);
 		$this->setRowTemplate("tpl.room_rooms_row.html", 
 				"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
@@ -45,19 +49,21 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	
 	/**
 	 * Gets all the items that need to populated into the table.
+	 * 
+	 * @param array $filter
 	 */
 	public function getItems(array $filter)
 	{
 		$data = $this->rooms->getList($filter);
 		
-		$this->setMaxCount(sizeof($data));
+		$this->setMaxCount(count($data));
 		$this->setData($data);
 	}
 	
 	/**
 	 * Adds columns and column headings to the table.
 	 */
-	private function addColumns()
+	private function _addColumns()
 	{
 		$this->addColumn($this->lng->txt("rep_robj_xrs_room"), "room");
 		$this->addColumn($this->lng->txt("rep_robj_xrs_seats"));
@@ -67,8 +73,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	
 	/**
 	 * Fills an entire table row with the given set.
-	 * The corresponding array
-	 * has the following shape:
+	 * The corresponding array has the following shape:
+	 * 
+	 * @see ilTable2GUI::fillRow()
 	 */
 	public function fillRow($a_set)
 	{
@@ -87,7 +94,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		// ### Room Attributes ###
 		$attribute_keys = array_keys($a_set ['attributes']);
 		$attribute_count = count($attribute_keys);
-		for($i = 0; $i < $attribute_count; ++ $i)
+		for ($i = 0; $i < $attribute_count; ++ $i)
 		{
 			$this->tpl->setCurrentBlock('attributes');
 			$attribute = $attribute_keys [$i];
@@ -110,7 +117,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', $this->parent_cmd);
 		
 		// only display a booking form if a search was initialized beforehand
-		if ($this->parent_cmd == "showSearchResults")
+		if ($this->parent_cmd === "showSearchResults")
 		{
 			// if this class is used to display search results, the input made
 			// must be transported to the book form
@@ -255,7 +262,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
 		$room_attributes = $this->rooms->getAllAttributes();
-		foreach ( $room_attributes as $room_attribute )
+		foreach ($room_attributes as $room_attribute)
 		{
 			// setup an ilCombinationInputGUI for the room attributes
 			$room_attribute_comb = new ilCombinationInputGUI($room_attribute, 

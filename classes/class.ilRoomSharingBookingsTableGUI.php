@@ -16,7 +16,9 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	/**
 	 * Constructor
 	 * 
-	 * @param object $a_parent_obj        	
+	 * @param unknown $a_parent_obj
+	 * @param unknown $a_parent_cmd
+	 * @param unknown $a_ref_id
 	 */
 	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
 	{
@@ -38,8 +40,10 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->setLimit(10); // data sets per page
 		$this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
 		
-		$this->addColumns(); // add columns and column headings
-		                     // checkboxes labeled with "bookings" get affected by the "Select All"-Checkbox
+		// add columns and column headings
+		$this->_addColumns();
+		
+		// checkboxes labeled with "bookings" get affected by the "Select All"-Checkbox
 		$this->setSelectAllCheckbox('bookings');
 		$this->setRowTemplate("tpl.room_appointment_row.html", 
 				"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
@@ -56,14 +60,14 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	{
 		$data = $this->bookings->getList();
 		
-		$this->setMaxCount(sizeof($data));
+		$this->setMaxCount(count($data));
 		$this->setData($data);
 	}
 	
 	/**
 	 * Adds columns and column headings to the table.
 	 */
-	private function addColumns()
+	private function _addColumns()
 	{
 		$this->addColumn('', 'f', '1'); // checkboxes
 		$this->addColumn('', 'f', '1'); // icons
@@ -73,7 +77,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->addColumn($this->lng->txt("rep_robj_xrs_participants"), "participants");
 		
 		// Add the selected optional columns to the table
-		foreach ( $this->getSelectedColumns() as $c )
+		foreach ($this->getSelectedColumns() as $c)
 		{
 			$this->addColumn($c, $c);
 		}
@@ -82,6 +86,9 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	
 	/**
 	 * Fills an entire table row with the given set.
+	 *
+	 * (non-PHPdoc)
+	 * @see ilTable2GUI::fillRow()
 	 */
 	public function fillRow($a_set)
 	{
@@ -103,7 +110,8 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('TXT_DATE', $a_set ['date']);
 		// link for the date overview
 		// $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $a_set['id']);
-		// $this->tpl->setVariable('HREF_DATE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showBooking'));
+		// $this->tpl->setVariable('HREF_DATE', $this->ctrl->getLinkTargetByClass(
+		// 'ilobjroomsharinggui', 'showBooking'));
 		// $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', '');
 		
 		// ### Room ###
@@ -113,11 +121,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
 		
-		$this->tpl->setVariable('TXT_SUBJECT', ($a_set ['subject'] == null ? '' : $a_set ['subject']));
+		$this->tpl->setVariable('TXT_SUBJECT', ($a_set ['subject'] === null ? '' : $a_set ['subject']));
 		
 		// ### Participants ###
 		$participant_count = count($a_set ['participants']);
-		for($i = 0; $i < $participant_count; ++ $i)
+		for ($i = 0; $i < $participant_count; ++ $i)
 		{
 			$this->tpl->setCurrentBlock("participants");
 			$this->tpl->setVariable("TXT_USER", $a_set ['participants'] [$i]);
@@ -141,7 +149,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		foreach ( $this->getSelectedColumns() as $c )
 		{
 			$this->tpl->setCurrentBlock("additional");
-			$this->tpl->setVariable("TXT_ADDITIONAL", $a_set [$c] == null ? "" : $a_set [$c]);
+			$this->tpl->setVariable("TXT_ADDITIONAL", $a_set [$c] === null ? "" : $a_set [$c]);
 			$this->tpl->parseCurrentBlock();
 		}
 		
@@ -167,6 +175,10 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	
 	/**
 	 * Can be used to add additional columns to the bookings table.
+	 * 
+	 * (non-PHPdoc)
+	 * @see ilTable2GUI::getSelectableColumns()
+	 * @return additional information for bookings
 	 */
 	public function getSelectableColumns()
 	{
