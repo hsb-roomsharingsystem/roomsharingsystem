@@ -31,7 +31,8 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->ref_id = $a_ref_id;
 		$this->setId("roomobj");
 		
-		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php';
+		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/' . 
+		'RoomSharing/classes/class.ilRoomSharingBookings.php';
 		$this->bookings = new ilRoomSharingBookings($a_parent_obj->getPoolId());
 		$this->bookings->setPoolId($a_parent_obj->getPoolId());
 		parent::__construct($a_parent_obj, $a_parent_cmd);
@@ -89,6 +90,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 *
 	 * (non-PHPdoc)
 	 * @see ilTable2GUI::fillRow()
+	 * @param $a_set data set for that row
 	 */
 	public function fillRow($a_set)
 	{
@@ -146,7 +148,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		}
 		
 		// Populate the selected additional table cells
-		foreach ( $this->getSelectedColumns() as $c )
+		foreach ($this->getSelectedColumns() as $c)
 		{
 			$this->tpl->setCurrentBlock("additional");
 			$this->tpl->setVariable("TXT_ADDITIONAL", $a_set [$c] === null ? "" : $a_set [$c]);
