@@ -15,7 +15,7 @@ class ilRoomSharingParticipations
 	 *
 	 * @param integer $pool_id
 	 */
-	function __construct ($pool_id = 1)
+	function __construct($pool_id = 1)
 	{
 		$this->pool_id = $pool_id;
 	}
@@ -26,17 +26,20 @@ class ilRoomSharingParticipations
 	 * @param integer $booking_id The booking id of the participation.
 	 * @global type $ilDB, $ilUser
 	 */
-	public function removeParticipation ($a_booking_id)
+	public function removeParticipation($a_booking_id)
 	{
 		global $ilDB, $ilUser;
 		
-		if (! empty($a_booking_id) && is_numeric($a_booking_id)) {
+		if (! empty($a_booking_id) && is_numeric($a_booking_id))
+		{
 			$ilDB->query(
 					'DELETE FROM rep_robj_xrs_book_user' . ' WHERE user_id = ' .
 							 $ilDB->quote($ilUser->getId(), 'integer') .
 							 ' AND booking_id = ' .
 							 $ilDB->quote($a_booking_id, 'integer'));
-		} else {
+		}
+		else
+		{
 			ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
 		}
 	}
@@ -47,7 +50,7 @@ class ilRoomSharingParticipations
 	 * @global type $ilDB, $ilUser, $lng
 	 * @return array with the participation details.
 	 */
-	public function getList ()
+	public function getList()
 	{
 		global $ilDB, $ilUser, $lng;
 		
@@ -56,7 +59,8 @@ class ilRoomSharingParticipations
 						 ' WHERE user_id = ' .
 						 $ilDB->quote($ilUser->getId(), 'integer'));
 		$res = array();
-		while ($row = $ilDB->fetchAssoc($set)) {
+		while ($row = $ilDB->fetchAssoc($set))
+		{
 			$one_booking = array();
 			$bookingSet = $ilDB->query(
 					'SELECT *' . ' FROM rep_robj_xrs_bookings' . ' WHERE id = ' .
@@ -64,10 +68,14 @@ class ilRoomSharingParticipations
 							 ' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
 							 ' OR date_to >= "' . date('Y-m-d H:i:s') . '")' .
 							 ' ORDER BY date_from ASC');
-			while ($bookingRow = $ilDB->fetchAssoc($bookingSet)) {
-				if (is_numeric($bookingRow['seq_id'])) {
+			while ($bookingRow = $ilDB->fetchAssoc($bookingSet))
+			{
+				if (is_numeric($bookingRow['seq_id']))
+				{
 					$one_booking['recurrence'] = true;
-				} else {
+				}
+				else
+				{
 					$date_from = DateTime::createFromFormat("Y-m-d H:i:s", 
 							$bookingRow['date_from']);
 					$date_to = DateTime::createFromFormat("Y-m-d H:i:s", 
@@ -79,7 +87,8 @@ class ilRoomSharingParticipations
 					$date .= " - ";
 					
 					// Check whether the date_from differs from the date_to
-					if ($date_from->format('dmY') !== $date_to->format('dmY')) {
+					if ($date_from->format('dmY') !== $date_to->format('dmY'))
+					{
 						$date .= '<br>' . $date_to->format('d') . '.' . ' ' . $lng->txt(
 								'month_' . $date_to->format('m') . '_short') . ' ' .
 								 $date_to->format('Y') . ', ';
@@ -107,11 +116,13 @@ class ilRoomSharingParticipations
 				$userRow = $ilDB->fetchAssoc($userSet);
 				
 				// Check whether the user has a firstname or lastname
-				if (empty($userRow['firstname']) || empty($userRow['lastname'])) {
+				if (empty($userRow['firstname']) || empty($userRow['lastname']))
+				{
 					$one_booking['person_responsible'] = $userRow['firstname'] .
 							 ' ' . $userRow['lastname'];
-				} 				// ...if not, use the username
-				else {
+				} // ...if not, use the username
+				else
+				{
 					$one_booking['person_responsible'] = $userRow['login'];
 				}
 				$one_booking['person_responsible_id'] = $bookingRow['user_id'];
@@ -144,14 +155,15 @@ class ilRoomSharingParticipations
 	 *
 	 * @return array (associative) with additional information.
 	 */
-	public function getAdditionalBookingInfos ()
+	public function getAdditionalBookingInfos()
 	{
 		global $ilDB;
 		$cols = array();
 		$attributesSet = $ilDB->query(
 				'SELECT *' . ' FROM rep_robj_xrs_battr' . ' WHERE pool_id = ' .
 						 $ilDB->quote($this->pool_id, 'integer'));
-		while ($attributesRow = $ilDB->fetchAssoc($attributesSet)) {
+		while ($attributesRow = $ilDB->fetchAssoc($attributesSet))
+		{
 			$cols[$attributesRow['name']] = array(
 					"txt" => $attributesRow['name']
 			);
@@ -176,7 +188,7 @@ class ilRoomSharingParticipations
 	 *
 	 * @return int pool id
 	 */
-	function getPoolId ()
+	function getPoolId()
 	{
 		return $this->pool_id;
 	}
@@ -186,7 +198,7 @@ class ilRoomSharingParticipations
 	 *
 	 * @param integer $a_pool_id current pool id.
 	 */
-	function setPoolId ($a_pool_id)
+	function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
 	}

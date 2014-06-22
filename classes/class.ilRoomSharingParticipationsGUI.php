@@ -14,10 +14,10 @@ class ilRoomSharingParticipationsGUI
 
 	/**
 	 * Constructor of ilRoomSharingParticipationsGUI.
-	 * 
+	 *
 	 * @param ilRoomSharingAppointmentsGUI $a_parent_obj
 	 */
-	function __construct (ilRoomSharingAppointmentsGUI $a_parent_obj)
+	function __construct(ilRoomSharingAppointmentsGUI $a_parent_obj)
 	{
 		global $ilCtrl, $lng, $tpl;
 		
@@ -30,18 +30,20 @@ class ilRoomSharingParticipationsGUI
 
 	/**
 	 * Main switch for command execution.
-	 * 
+	 *
 	 * @return bool whether the command execution was successful.
 	 */
-	function executeCommand ()
+	function executeCommand()
 	{
 		$cmd = $this->ctrl->getCmd("showParticipations");
 		
-		if ($cmd == 'render') {
+		if ($cmd == 'render')
+		{
 			$cmd = 'showParticipations';
 		}
 		
-		switch ($next_class) {
+		switch ($next_class)
+		{
 			default:
 				$cmd .= 'Object';
 				$this->$cmd();
@@ -53,7 +55,7 @@ class ilRoomSharingParticipationsGUI
 	/**
 	 * Show all participations.
 	 */
-	function showParticipationsObject ()
+	function showParticipationsObject()
 	{
 		global $tpl;
 		
@@ -72,7 +74,7 @@ class ilRoomSharingParticipationsGUI
 	 *
 	 * @return int pool id
 	 */
-	function getPoolId ()
+	function getPoolId()
 	{
 		return $this->pool_id;
 	}
@@ -82,7 +84,7 @@ class ilRoomSharingParticipationsGUI
 	 *
 	 * @param integer $a_pool_id current pool id.
 	 */
-	function setPoolId ($a_pool_id)
+	function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
 	}
