@@ -25,6 +25,7 @@ class ilRoomSharingRooms
 	 * Get the rooms for a given pool_id from database
 	 *
 	 * @global type $ilDB
+	 * @param array $filter optional room-filter
 	 * @return array Rooms and Attributes in the following format:
 	 *         array (
 	 *         array (
@@ -143,8 +144,7 @@ class ilRoomSharingRooms
 		/*
 		 * Add remaining filters to query string
 		 */
-		$where_part = ' WHERE room.pool_id = '.$ilDB->quote($this->pool_id, 'integer').
-					' AND room.pool_id = '.$ilDB->quote($this->pool_id, 'integer').' ';
+		$where_part = ' AND room.pool_id = '.$ilDB->quote($this->pool_id, 'integer').' ';
 		
 		if ($filter ["room_name"] || $filter ["room_name"] === "0")
 		{
@@ -170,7 +170,8 @@ class ilRoomSharingRooms
 		while ($row = $ilDB->fetchAssoc($set))
 		{
 			$res_room [] = $row;
-			$room_ids [] = $row ['id']; // Remember the ids in order to filter for room attributes within the number of room ids
+			// Remember the ids in order to filter for room attributes within the number of room ids
+			$room_ids [] = $row ['id']; 
 		}
 		
 		/*
@@ -276,12 +277,14 @@ class ilRoomSharingRooms
 	/**
 	 * Returns the maximum amount of seats of all available rooms in the current pool, so that the
 	 * the user can be notified about it in the filter options.
+	 * 
+	 * @return integer $value maximum seats
 	 */
 	public function getMaxSeatCount()
 	{
 		global $ilDB;
-		$valueSet = $ilDB->query('SELECT MAX(max_alloc) AS value FROM rep_robj_xrs_rooms  WHERE pool_id = '.
-				$ilDB->quote($this->pool_id, 'integer'));
+		$valueSet = $ilDB->query('SELECT MAX(max_alloc) AS value FROM rep_robj_xrs_rooms '.
+				' WHERE pool_id = '.$ilDB->quote($this->pool_id, 'integer'));
 		$valueRow = $ilDB->fetchAssoc($valueSet);
 		$value = $valueRow ['value'];
 		return $value;

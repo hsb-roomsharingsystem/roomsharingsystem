@@ -35,7 +35,7 @@ class ilRoomSharingBookings
 		
 		if (!empty($a_booking_id) && is_numeric($a_booking_id))
 		{
-			$set = $ilDB->query('SELECT seq_id, user_id'.' FROM rep_robj_xrs_bookings'.
+			$set = $ilDB->query('SELECT seq_id, user_id  FROM rep_robj_xrs_bookings'.
 					' WHERE id = '.$ilDB->quote($a_booking_id, 'integer'));
 			$row = $ilDB->fetchAssoc($set);
 			
@@ -53,7 +53,7 @@ class ilRoomSharingBookings
 						$ilDB->query('DELETE FROM rep_robj_xrs_book_user'.
 								' WHERE booking_id = '.$ilDB->quote($a_booking_id, 'integer'));
 						ilUtil::sendSuccess($lng->txt('rep_robj_xrs_booking_deleted'), true);
-					} // else
+					} else //delete every booking in the sequence                    
 					{
 						// Get every booking which is in the specific sequence
 						$seq_set = $ilDB->query('SELECT id FROM rep_robj_xrs_bookings'.
@@ -85,13 +85,13 @@ class ilRoomSharingBookings
 	/**
 	 * Get's the bookings from the database
 	 *
-	 * @global type $ilDB
+	 * @global type $ilDB, $ilUser, $lng
 	 * @return type
 	 */
 	public function getList()
 	{
 		global $ilDB, $ilUser, $lng;
-		$set = $ilDB->query('SELECT *'.' FROM rep_robj_xrs_bookings'.
+		$set = $ilDB->query('SELECT * FROM rep_robj_xrs_bookings'.
 				' WHERE pool_id = '.$ilDB->quote($this->pool_id, 'integer').
 				' AND user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
 				' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
@@ -111,7 +111,8 @@ class ilRoomSharingBookings
 						$date_from->format('m').'_short').' '.
 						$date_from->format('Y').', '.$date_from->format('H:i');
 				$date .= " - ";
-				if ($date_from->format('dmY') !== $date_to->format('dmY'))// Check whether the date_from differs from the date_to
+				// Check whether the date_from differs from the date_to
+				if ($date_from->format('dmY') !== $date_to->format('dmY'))
 				{
 					$date .= '<br>'.$date_to->format('d').'. '.
 					$lng->txt('month_'.$date_to->format('m').'_short').' '.
@@ -173,7 +174,7 @@ class ilRoomSharingBookings
 				'recurrence' => true, 'date' => "7. März 2014, 9:00 - 13:00",
 				'id' => 1, 'room' => "117", 'room_id' => 3,
 				'subject' => "HARDKODIERT Tutorium",
-				'participants' => array ("Tim Lehr", "Philipp Hörmann" ),
+				'participants' => array ("Tim Lehr", "Philipp Hörmann"),
 				'participants_ids' => array ("6"),
 				'Modul' => "MATHE2",
 				'Kurs' => "Technische Informatik (TI Bsc.)" 
@@ -198,7 +199,7 @@ class ilRoomSharingBookings
 	{
 		global $ilDB;
 		$cols = array ();
-		$attributesSet = $ilDB->query('SELECT *'.' FROM rep_robj_xrs_battr'.
+		$attributesSet = $ilDB->query('SELECT * FROM rep_robj_xrs_battr'.
 				' WHERE pool_id = '.$ilDB->quote($this->pool_id, 'integer'));
 		while ($attributesRow = $ilDB->fetchAssoc($attributesSet))
 		{
@@ -224,6 +225,7 @@ class ilRoomSharingBookings
 		
 		return $cols;
 	}
+	
 	/**
 	 * Set the poolID of bookings
 	 *
@@ -234,6 +236,7 @@ class ilRoomSharingBookings
 	{
 		$this->pool_id = $pool_id;
 	}
+
 	/**
 	 * Get the PoolID of bookings
 	 *
