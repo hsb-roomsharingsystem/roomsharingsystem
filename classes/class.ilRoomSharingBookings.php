@@ -33,7 +33,7 @@ class ilRoomSharingBookings
 	{
 		global $ilDB, $ilUser, $ilCtrl, $lng;
 		
-		if (! empty($a_booking_id) && is_numeric($a_booking_id))
+		if (!empty($a_booking_id) && is_numeric($a_booking_id))
 		{
 			$set = $ilDB->query('SELECT seq_id, user_id'.' FROM rep_robj_xrs_bookings'.
 					' WHERE id = '.$ilDB->quote($a_booking_id, 'integer'));
@@ -46,7 +46,7 @@ class ilRoomSharingBookings
 				if ($row ['user_id'] == $ilUser->getId())
 				{
 					// Check whether only the specific booking should be deleted
-					if (! $a_seq || $row ['seq_id'] == NULL || ! is_numeric($row ['seq_id']))
+					if (!$a_seq || $row ['seq_id'] == NULL || !is_numeric($row ['seq_id']))
 					{
 						$ilDB->query('DELETE FROM rep_robj_xrs_bookings'.
 								' WHERE id = '.$ilDB->quote($a_booking_id, 'integer'));
@@ -91,19 +91,16 @@ class ilRoomSharingBookings
 	public function getList()
 	{
 		global $ilDB, $ilUser, $lng;
-		
 		$set = $ilDB->query('SELECT *'.' FROM rep_robj_xrs_bookings'.
 				' WHERE pool_id = '.$ilDB->quote($this->pool_id, 'integer').
 				' AND user_id = '.$ilDB->quote($ilUser->getId(), 'integer').
 				' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
-				' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
-				' ORDER BY date_from ASC');
+				' OR date_to >= "'.date('Y-m-d H:i:s').'")'.' ORDER BY date_from ASC');
 		$res = array ();
 		while ($row = $ilDB->fetchAssoc($set))
 		{
 			$one_booking = array ();
-			// Is it a recurring appointment?
-			if (is_numeric($row ['seq_id']))
+			if (is_numeric($row ['seq_id'])) // Is it a recurring appointment?
 			{
 				$one_booking ['recurrence'] = true;
 			} else
@@ -112,21 +109,16 @@ class ilRoomSharingBookings
 				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_to']);
 				$date = $date_from->format('d').'. '.$lng->txt('month_'.
 						$date_from->format('m').'_short').' '.
-						$date_from->format('Y').', '.
-						$date_from->format('H:i');
+						$date_from->format('Y').', '.$date_from->format('H:i');
 				$date .= " - ";
-				
-				// Check whether the date_from differs from the date_to
-				if ($date_from->format('dmY') !== $date_to->format('dmY'))
+				if ($date_from->format('dmY') !== $date_to->format('dmY'))// Check whether the date_from differs from the date_to
 				{
 					$date .= '<br>'.$date_to->format('d').'. '.
 					$lng->txt('month_'.$date_to->format('m').'_short').' '.
 					$date_to->format('Y').', ';
 				}
-				
 				$date .= $date_to->format('H:i');
 			}
-			
 			$one_booking ['date'] = $date;
 			
 			// Get the name of the booked room
@@ -135,10 +127,9 @@ class ilRoomSharingBookings
 			$roomRow = $ilDB->fetchAssoc($roomSet);
 			$one_booking ['room'] = $roomRow ['name'];
 			$one_booking ['room_id'] = $row ['room_id'];
-			
 			$participants = array ();
 			$participants_ids = array ();
-			
+
 			// Get the participants
 			$participantSet = $ilDB->query('SELECT users.firstname AS firstname,'.
 					' users.lastname AS lastname, users.login AS login,'.
@@ -147,13 +138,11 @@ class ilRoomSharingBookings
 					' WHERE booking_id = '.$ilDB->quote($row ['id'], 'integer').
 					' ORDER BY users.lastname, users.firstname ASC');
 			while ($participantRow = $ilDB->fetchAssoc($participantSet))
-			{
-				// Check if the user has a firstname and lastname
+			{// Check if the user has a firstname and lastname	
 				if (empty($userRow ['firstname']) || empty($userRow ['lastname']))
 				{
 					$participants [] = $participantRow ['firstname'].' '.$participantRow ['lastname'];
-				} 				// ...if not, use the username
-				else
+				} else				// ...if not, use the username
 				{
 					$participants [] = $participantRow ['login'];
 				}
@@ -181,29 +170,18 @@ class ilRoomSharingBookings
 		
 		// Dummy-Data
 		$res [] = array (
-				'recurrence' => true,
-				'date' => "7. März 2014, 9:00 - 13:00",
-				'id' => 1,
-				'room' => "117",
-				'room_id' => 3,
+				'recurrence' => true, 'date' => "7. März 2014, 9:00 - 13:00",
+				'id' => 1, 'room' => "117", 'room_id' => 3,
 				'subject' => "HARDKODIERT Tutorium",
-				'participants' => array (
-						"Tim Lehr",
-						"Philipp Hörmann" 
-				),
-				'participants_ids' => array (
-						"6" 
-				),
+				'participants' => array ("Tim Lehr", "Philipp Hörmann" ),
+				'participants_ids' => array ("6"),
 				'Modul' => "MATHE2",
 				'Kurs' => "Technische Informatik (TI Bsc.)" 
 		);
 		
 		$res [] = array (
-				'recurrence' => false,
-				'date' => "3. April 2014, 15:00 - 17:00",
-				'id' => 2,
-				'room' => "118",
-				'room_id' => 4,
+				'recurrence' => false, 'date' => "3. April 2014, 15:00 - 17:00",
+				'id' => 2, 'room' => "118", 'room_id' => 4,
 				'subject' => "HARDKODIERT Vorbereitung Präsentation",
 				'Semester' => "6" 
 		);
