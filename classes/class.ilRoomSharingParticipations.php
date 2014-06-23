@@ -74,28 +74,26 @@ class ilRoomSharingParticipations
 				{
 					$one_booking['recurrence'] = true;
 				}
-				else
+				
+				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", 
+						$bookingRow['date_from']);
+				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", 
+						$bookingRow['date_to']);
+				$date = $date_from->format('d') . '.' . ' ' . $lng->txt(
+						'month_' . $date_from->format('m') . '_short') . ' ' .
+						 $date_from->format('Y') . ',' . ' ' .
+						 $date_from->format('H:i');
+				$date .= " - ";
+				
+				// Check whether the date_from differs from the date_to
+				if ($date_from->format('dmY') !== $date_to->format('dmY'))
 				{
-					$date_from = DateTime::createFromFormat("Y-m-d H:i:s", 
-							$bookingRow['date_from']);
-					$date_to = DateTime::createFromFormat("Y-m-d H:i:s", 
-							$bookingRow['date_to']);
-					$date = $date_from->format('d') . '.' . ' ' . $lng->txt(
-							'month_' . $date_from->format('m') . '_short') . ' ' .
-							 $date_from->format('Y') . ',' . ' ' .
-							 $date_from->format('H:i');
-					$date .= " - ";
-					
-					// Check whether the date_from differs from the date_to
-					if ($date_from->format('dmY') !== $date_to->format('dmY'))
-					{
-						$date .= '<br>' . $date_to->format('d') . '.' . ' ' . $lng->txt(
-								'month_' . $date_to->format('m') . '_short') . ' ' .
-								 $date_to->format('Y') . ', ';
-					}
-					
-					$date .= $date_to->format('H:i');
+					$date .= '<br>' . $date_to->format('d') . '.' . ' ' . $lng->txt(
+							'month_' . $date_to->format('m') . '_short') . ' ' .
+							 $date_to->format('Y') . ', ';
 				}
+				
+				$date .= $date_to->format('H:i');
 				
 				$one_booking['date'] = $date;
 				
@@ -115,8 +113,8 @@ class ilRoomSharingParticipations
 								 $ilDB->quote($bookingRow['user_id'], 'integer'));
 				$userRow = $ilDB->fetchAssoc($userSet);
 				
-				// Check whether the user has a firstname or lastname
-				if (empty($userRow['firstname']) || empty($userRow['lastname']))
+				// Check whether the user has a firstname and a lastname
+				if (empty($userRow['firstname']) && empty($userRow['lastname']))
 				{
 					$one_booking['person_responsible'] = $userRow['firstname'] .
 							 ' ' . $userRow['lastname'];
