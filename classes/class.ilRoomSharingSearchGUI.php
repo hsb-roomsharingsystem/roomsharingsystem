@@ -31,6 +31,7 @@ class ilRoomSharingSearchGUI
 
 	/**
 	 * Main switch for command execution.
+	 * @return Returns true if command was successful
 	 */
 	public function executeCommand()
 	{
@@ -38,7 +39,8 @@ class ilRoomSharingSearchGUI
 
 		$cmd = $ilCtrl->getCmd("showSearchQuick");
 
-		if ($cmd == "showSearchResults" || $cmd == "applySearch" || $cmd == "resetSearch") {
+		if ($cmd == "showSearchResults" || $cmd == "applySearch" || $cmd == "resetSearch")
+		{
 			$next_class = "ilroomsharingsearchquickgui";
 		}
 
@@ -107,6 +109,7 @@ class ilRoomSharingSearchGUI
 
 	/**
 	 * Returns roomsharing pool id.
+	 * @return returns poolid
 	 */
 	public function getPoolId()
 	{
@@ -115,6 +118,7 @@ class ilRoomSharingSearchGUI
 
 	/**
 	 * Sets roomsharing pool id.
+	 * @params int poolid
 	 */
 	public function setPoolId($a_pool_id)
 	{

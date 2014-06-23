@@ -79,16 +79,16 @@ class ilRoomSharingSearchQuickGUI
 		{
 			$qsearch_form->writeInputsToSession();
 			$this->showSearchResultsObject();
-		}
+		
 		// otherwise return to the form and display an error messages if needed
-		else
+		}else
 		{
 			$qsearch_form->setValuesByPost();
 			$tpl->setContent($qsearch_form->getHTML());
 		}
 	}
 	
-	/*
+	/**
 	 * Resets the search form
 	 */
 	public function resetSearchObject()
@@ -119,6 +119,8 @@ class ilRoomSharingSearchQuickGUI
 	 * Puts together an array which contains the search criterias for the
 	 * search results. The standard procedure is to get those values from
 	 * POST, but here it is actually coming from the SESSION.
+	 * @return returns the filter array
+	 * @param object the search form
 	 */
 	protected function getFormInput($a_qsearch_form)
 	{
@@ -194,6 +196,7 @@ class ilRoomSharingSearchQuickGUI
 
 	/**
 	 * Creates an input item which allows you to type in a room name.
+	 * @param object the search form
 	 */
 	protected function createRoomFormItem($a_qsearch_form)
 	{
@@ -219,6 +222,7 @@ class ilRoomSharingSearchQuickGUI
 	/**
 	 * Creates a combination input item containing a number input field for
 	 * the desired seat amount.
+	 * @param object the search form
 	 */
 	protected function createSeatsFormItem($a_qsearch_form)
 	{
@@ -239,6 +243,7 @@ class ilRoomSharingSearchQuickGUI
 
 	/**
 	 * Used to create form item for the date.
+	 * @param object the search form
 	 */
 	protected function createDateFormItem($a_qsearch_form)
 	{
@@ -285,6 +290,7 @@ class ilRoomSharingSearchQuickGUI
 	/**
 	 * If room attributes are present, display some input fields for the desired
 	 * amount of those attributes.
+	 * @param object the search form
 	 */
 	protected function createRoomAttributeFormItem($a_qsearch_form)
 	{
@@ -313,6 +319,7 @@ class ilRoomSharingSearchQuickGUI
 
 	/**
 	 * Returns the Roomsharing Pool ID.
+	 * @return poolid
 	 */
 	public function getPoolId()
 	{
@@ -321,6 +328,7 @@ class ilRoomSharingSearchQuickGUI
 
 	/**
 	 * Sets the Roomsharing Pool ID.
+	 * @param int the poolid
 	 */
 	public function setPoolId($a_pool_id)
 	{

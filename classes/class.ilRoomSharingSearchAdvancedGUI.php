@@ -98,6 +98,7 @@ class ilRoomSharingSearchAdvancedGUI
 
 	/**
 	 * Sets the Roomsharing Pool ID.
+	 * @param int poolid
 	 */
 	public function setPoolId($a_pool_id)
 	{
