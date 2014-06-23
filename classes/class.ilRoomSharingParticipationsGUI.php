@@ -35,38 +35,22 @@ class ilRoomSharingParticipationsGUI
 	 */
 	function executeCommand()
 	{
-		$cmd = $this->ctrl->getCmd("showParticipations");
-		
-		if ($cmd == 'render')
-		{
-			$cmd = 'showParticipations';
-		}
-		
-		switch ($next_class)
-		{
-			default:
-				$cmd .= 'Object';
-				$this->$cmd();
-				break;
-		}
+		$this->showParticipations();
 		return true;
 	}
 
 	/**
 	 * Show all participations.
 	 */
-	function showParticipationsObject()
+	function showParticipations()
 	{
 		global $tpl;
-		
-		include_once ('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
-		$plink = new ilPermanentLinkGUI('xrs', $this->ref_id);
 		
 		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingParticipationsTableGUI.php");
 		$participationsTable = new ilRoomSharingParticipationsTableGUI($this, 
 				'showParticipations', $this_ref_id);
 		
-		$tpl->setContent($participationsTable->getHTML() . $plink->getHTML());
+		$tpl->setContent($participationsTable->getHTML());
 	}
 
 	/**
