@@ -28,6 +28,11 @@ class ilRoomSharingAppointmentsGUI
 		$this->lng = $lng;
 	}
 	
+	/**
+	 * Perform the given Command
+	 * 
+	 * @param $cmd
+	 */
 	function performCommand($cmd)
 	{
 		echo $cmd;
@@ -48,10 +53,10 @@ class ilRoomSharingAppointmentsGUI
 		
 		// $next_class = $ilCtrl->getNextClass();
 		// if the plugin is called
-		if ($cmd == 'render' || $cmd == 'showContent')
+		if ($cmd === 'render' || $cmd === 'showContent')
 		{
 			$cmd = 'showBookings';
-		} else if ($cmd == 'cancelBooking' || $cmd == 'confirmCancel')
+		} else if ($cmd === 'cancelBooking' || $cmd === 'confirmCancel')
 		{
 			$next_class = 'ilroomsharingbookingsgui';
 		}

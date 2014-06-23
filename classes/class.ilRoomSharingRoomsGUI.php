@@ -27,7 +27,7 @@ class ilRoomSharingRoomsGUI
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
-    }
+	}
 
 	/**
 	* Execute the command given.

@@ -54,6 +54,8 @@ class ilObjRoomSharingAccess extends ilObjectPluginAccess
 	 * Check whether goto script will succeed.
 	 *
 	 * @return boolean true, if everything is ok
+	 * 
+	 * @param object $a_target
 	 */
 	function _checkGoto($a_target)
 	{
@@ -91,7 +93,7 @@ class ilObjRoomSharingAccess extends ilObjectPluginAccess
 	{
 		global $ilUser, $ilAccess;
 		// Check whether the user has write permissions (owner has always write permissions).
-		if ($a_user_id == "")
+		if ($a_user_id === "")
 		{
 			$a_user_id = $ilUser->getId();
 		}
@@ -101,13 +103,13 @@ class ilObjRoomSharingAccess extends ilObjectPluginAccess
 		}
 		
 		// Check whether user should see the pool.
-		if ($a_permission == "read")
+		if ($a_permission === "read")
 		{
 			$plugin = ilPlugin::getPluginObject('Services', 'Repository', 'robj', 'RoomSharing');
 			$plugin->includeClass('class.ilObjRoomSharing.php');
 			$pool = new ilObjRoomSharing($a_ref_id);
 			$pool->doRead();
-			if (! $pool->isOnline())
+			if (!$pool->isOnline())
 			{
 				return false;
 			}
