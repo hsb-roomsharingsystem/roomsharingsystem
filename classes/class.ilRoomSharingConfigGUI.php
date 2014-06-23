@@ -69,7 +69,6 @@ class ilRoomSharingConfigGUI extends ilPluginConfigGUI
 		$form->addItem($ti);
 	
 		$form->addCommandButton("save", $lng->txt("save"));
-	                
 		$form->setTitle($pl->txt("roomsharing_plugin_configuration"));
 		$form->setFormAction($ilCtrl->getFormAction($this));
 		

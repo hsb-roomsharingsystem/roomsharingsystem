@@ -3,7 +3,7 @@ include_once("./Services/Form/classes/class.ilDateTimeInputGUI.php");
 
 /**
 * Class ilRoomSharingTimeInputGUI
-* 
+*  
 * @author Alexander Keller <a.k3ll3r@gmail.com>
 * @version $Id$
 * 

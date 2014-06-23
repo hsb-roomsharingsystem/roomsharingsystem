@@ -5,7 +5,7 @@ include_once("./Services/Form/classes/class.ilNumberInputGUI.php");
 /**
  * This class is used for number inputs throughout the whole RoomSharing-Module.
  *
- * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Alexander Keller <a.k3ll3r@gmail.com> 
  * @version $Id$
  */
 class ilRoomSharingNumberInputGUI extends ilNumberInputGUI
