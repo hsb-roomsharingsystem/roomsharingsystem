@@ -49,10 +49,7 @@ class ilRoomSharingAppointmentsGUI
 		
 		// set cmd to 'showBookings' if no cmd can be found
 		$cmd = $ilCtrl->getCmd("showBookings");
-		// echo "<br>CMD: RoomSharingAppointmentsGUI." . $cmd;
-		
-		// $next_class = $ilCtrl->getNextClass();
-		// if the plugin is called
+
 		if ($cmd === 'render' || $cmd === 'showContent')
 		{
 			$cmd = 'showBookings';
