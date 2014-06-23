@@ -4,52 +4,59 @@
 include_once("./Services/Repository/classes/class.ilObjectPlugin.php");
 
 /**
- * Mainclass for roomsharing system module. Pool id is the object id and will be stored in the db table "rep_robj_xrs_pools".
+ * Mainclass for roomsharing system module. Pool id is the object id 
+ * and will be stored in the db table "rep_robj_xrs_pools".
  *
  * @author tmatern
  * @author mdazjuk
  * @author troehrig
- * $Id$
-*/
+ * @version $Id$
+ */
 class ilObjRoomSharing extends ilObjectPlugin
-{   
-	
+{
+
 	protected $pool_id;
-        protected $online; // bool
-    
+	protected $online; // bool
+
 	/**
-	* Constructor
-	*
-	* @access	public
-	*/
+	 * Constructor of ilObjRoomSharing
+	 *
+	 * @access	public
+	 * @param integer $a_ref_id
+	 */
+
 	function __construct($a_ref_id = 0)
 	{
-		parent::__construct($a_ref_id); 
+		parent::__construct($a_ref_id);
 		$this->pool_id = $this->getId();
 		$this->doRead();
 	}
-	
+
 	/**
-	* Get type.
-	*/
+	 * Get type.
+	 */
 	final function initType()
 	{
 		$this->setType("xrs");
 	}
-	
+
 	/**
 	 * Parse properties for sql statements
+	 * 
+	 * 	@return array $fields
 	 */
 	protected function getDBFields()
 	{
 		$fields = array(
-				"pool_online" => array("integer", $this->isOnline()));
+			"pool_online" => array("integer", $this->isOnline()));
 		return $fields;
 	}
-	
+
 	/**
-	* Create object
-	*/
+	 * Create object
+	 * 
+	 * @return integer with the pool_id
+	 */
 	function doCreate()
 	{
 		global $ilDB;
@@ -58,20 +65,19 @@ class ilObjRoomSharing extends ilObjectPlugin
 		$fields = $this->getDBFields();
 		$fields["id"] = array("integer", $this->pool_id);
 		$ilDB->insert("rep_robj_xrs_pools", $fields);
-// 		return $this->getId(); vorerst direkte parent-Ansprache weil getID überschrieben
 		return parent::getId();
-		
 	}
-	
+
 	/**
-	* Read data from db
-	*/
+	 * Read data from db
+	 * 
+	 */
 	function doRead()
 	{
 		global $ilDB;
-		
+
 		$objId = $this->getId();
-		
+
 		if ($objId)
 		{
 			$this->pool_id = $objId;
@@ -81,48 +87,46 @@ class ilObjRoomSharing extends ilObjectPlugin
 			$this->setOnline($row['pool_online']);
 		}
 	}
-	
+
 	/**
-	* Update data;
-	*	called when Object is updated
-	*/
+	 * Update data;
+	 * 	 
+	 * @return bool whether the Update was successful
+	 */
 	function doUpdate()
 	{
 		global $ilDB;
 
-		// Put here object specific stuff.
 		if ($this->getId())
 		{
 			$ilDB->update("rep_robj_xrs_pools", $this->getDBFields(), array("id" => array("integer", $this->getId())));
 		}
 		return true;
 	}
-	
+
 	/**
-	* Delete data from db
-	*/
+	 * Delete data from db
+	 */
 	function doDelete()
 	{
 		global $ilDB;
 		$id = $this->getId();
 		// always call parent delete function first!!
-
 		// put here your module specific stuff
-		// TODO: Discuss about data deletion..
 		// example - delete old db data
 		return true;
 	}
-	
+
 	/**
-	* Do Cloning
-	* @param type $a_target_id
-    * @param type $a_copy_id
-	*/
-	function doClone($a_target_id,$a_copy_id,$new_obj)
+	 * Do Cloning
+	 * 
+	 * @param type $new_obj
+	 */
+	function doClone($new_obj)
 	{
 		$new_obj->setOnline($this->isOnline());
 	}
-	
+
 	/**
 	 * Check object status
 	 *
@@ -132,14 +136,14 @@ class ilObjRoomSharing extends ilObjectPlugin
 	public static function _lookupOnline($a_obj_id)
 	{
 		global $ilDB;
-	
+
 		$set = $ilDB->query("SELECT pool_online" .
 				" FROM rep_robj_xrs_pools" .
 				" WHERE id = " . $ilDB->quote($a_obj_id, "integer"));
 		$row = $ilDB->fetchAssoc($set);
 		return (bool) $row["pool_online"];
 	}
-	
+
 	/**
 	 * Get online property
 	 *
@@ -149,7 +153,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	{
 		return (bool) $this->online;
 	}
-	
+
 	/**
 	 * Toggle online property.
 	 *
@@ -159,21 +163,25 @@ class ilObjRoomSharing extends ilObjectPlugin
 	{
 		$this->online = (bool) $a_value;
 	}
-	
+
 	/**
 	 * Returns roomsharing pool id.
+	 *
+	 * @return int pool id
 	 */
 	function getPoolId()
 	{
-		return 1; //$pool_id;
+		return $this->pool_id;
 	}
-	
+
 	/**
 	 * Sets roomsharing pool id.
+	 *
+	 * @param integer $a_pool_id current pool id.
 	 */
 	function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
 	}
+
 }
-?>
