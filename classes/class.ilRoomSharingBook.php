@@ -4,85 +4,77 @@
  * Backend-Class for booking-mask
  * @author Robert Heimsoth
  */
-class ilRoomSharingBook
-{
-	protected $pool_id;
-	
-	/**
-	 * Method to add a new booking into the database
-	 *
-	 * @global type $ilDB
-	 * @global type $ilUser
-	 * @global type $pool_id
-	 * @param array $booking_values
-	 *        	Array with the values of the booking
-	 * @param array $booking_attr_values
-	 *        	Array with the values of the booking-attributes
-	 * @param
-	 *        	ilRoomSharingRooms Object of ilRoomSharingRooms
-	 * @return type
-	 */
-	public function addBooking($booking_values, $booking_attr_values, $ilRoomSharingRooms)
-	{
-		global $ilDB, $ilUser;
-		$subject = $booking_values ['subject'];
-		$date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
-		$date_to = $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time'];
-		// Check whether the date_to is earlier or equal than the date_from
-		if ($date_from >= $date_to)
-		{
-			return - 3;
-		}
-		
-		$room_id = $booking_values ['room'];
-		$user_id = $ilUser->getId();
-		
-		// Check if the selected room is already booked in the given time range
-		if ($ilRoomSharingRooms->getRoomsBookedInDateTimeRange($date_from, $date_to, $room_id) !=
-				 array())
-		{
-			return - 2;
-		}
-		
-		// Insert the booking
-		$nextId = $ilDB->nextID('rep_robj_xrs_bookings');
-		$addBookingQuery = "INSERT INTO rep_robj_xrs_bookings" .
-				 " (id,date_from, date_to, room_id, pool_id, user_id, subject)" . " VALUES (" .
-				 $nextId . "," . " " . $ilDB->quote($date_from, 'timestamp') . "," . " " .
-				 $ilDB->quote($date_to, 'timestamp') . "," . " " . $ilDB->quote($room_id, 'integer') .
-				 "," . " " . $ilDB->quote($this->pool_id, 'integer') . "," . " " .
-				 $ilDB->quote($user_id, 'integer') . "," . " " . $ilDB->quote($subject, 'text') . ")";
-		// Check whether the insert failed
-		if ($ilDB->manipulate($addBookingQuery) == - 1)
-		{
-			return - 1;
-		}
-		
-		// Insert the attributes for the booking in the conjunction table
-		$insertedId = $nextId;
-		foreach ( $booking_attr_values as $booking_attr_key => $booking_attr_value )
-		{
-			// Only insert the attribute value, if a value was submitted by the user
-			if ($booking_attr_value != "")
-			{
-				$ilDB->query(
-						"INSERT INTO rep_robj_xrs_book_attr" . " (booking_id, attr_id, value)" .
-								 " VALUES (" . $ilDB->quote($insertedId, 'integer') . "," . " " .
-								 $ilDB->quote($booking_attr_key, 'integer') . "," . " " .
-								 $ilDB->quote($booking_attr_value, 'text') . ")");
-			}
-		}
-		return 1;
-	}
-	
-	/**
-	 * Sets the pool-id
-	 *
-	 * @param integer $pool_id
-	 *        	The pool id which should be set
-	 */
-	public function setPoolId($pool_id)
-	{
-		$this->pool_id = $pool_id;
-	}
+class ilRoomSharingBook {
+  protected $pool_id;
+  
+  /**
+   * Method to add a new booking into the database
+   * 
+   * @global type $ilDB
+   * @global type $ilUser
+   * @global type $pool_id
+   * @param array $booking_values Array with the values of the booking
+   * @param array $booking_attr_values Array with the values of the booking-attributes
+   * @param ilRoomSharingRooms Object of ilRoomSharingRooms
+   * @return type
+   */
+  public function addBooking($booking_values, $booking_attr_values, $ilRoomSharingRooms) {
+      global $ilDB, $ilUser;
+      $subject = $booking_values['subject'];
+      $date_from = $booking_values['from']['date']." ".
+              $booking_values['from']['time'];
+      $date_to = $booking_values['to']['date']." ".
+              $booking_values['to']['time'];
+      //Check whether the date_to is earlier or equal than the date_from
+      if($date_from >= $date_to) {
+          return -3;
+      }
+      
+      $room_id = $booking_values['room'];
+      $user_id = $ilUser->getId();
+      
+      //Check if the selected room is already booked in the given time range
+      if($ilRoomSharingRooms->getRoomsBookedInDateTimeRange($date_from, $date_to, $room_id) != array()) {
+          return -2;
+      }
+      
+      //Insert the booking
+      $nextId = $ilDB->nextID('rep_robj_xrs_bookings');
+      $addBookingQuery = "INSERT INTO rep_robj_xrs_bookings"
+              . " (id,date_from, date_to, room_id, pool_id, user_id, subject)"
+              . " VALUES (".$nextId.","
+              . " ".$ilDB->quote($date_from, 'timestamp').","
+              . " ".$ilDB->quote($date_to, 'timestamp').","
+              . " ".$ilDB->quote($room_id, 'integer').","
+              . " ".$ilDB->quote($this->pool_id, 'integer').","
+              . " ".$ilDB->quote($user_id, 'integer').","
+              . " ".$ilDB->quote($subject, 'text').")";
+      //Check whether the insert failed
+      if($ilDB->manipulate($addBookingQuery) == -1) {
+          return -1;
+      }
+      
+      //Insert the attributes for the booking in the conjunction table
+      $insertedId = $nextId;
+      foreach($booking_attr_values as $booking_attr_key => $booking_attr_value) {
+          //Only insert the attribute value, if a value was submitted by the user
+          if($booking_attr_value != "") {
+            $ilDB->query("INSERT INTO rep_robj_xrs_book_attr"
+                    . " (booking_id, attr_id, value)"
+                    . " VALUES (".$ilDB->quote($insertedId, 'integer').","
+                    . " ".$ilDB->quote($booking_attr_key, 'integer').","
+                    . " ".$ilDB->quote($booking_attr_value, 'text').")");
+          }
+      }
+      return 1;
+  }
+  
+  /**
+   * Sets the pool-id
+   * 
+   * @param integer $pool_id The pool id which should be set
+   */
+  public function setPoolId($pool_id) {
+      $this->pool_id = $pool_id;
+  }
 }
