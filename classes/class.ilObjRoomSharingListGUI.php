@@ -3,38 +3,41 @@
 include_once "./Services/Repository/classes/class.ilObjectPluginListGUI.php";
 
 /**
-* ListGUI implementation for Example object plugin. This one
-* handles the presentation in container items (categories, courses, ...)
-* together with the corresponfing ...Access class.
-*
-* PLEASE do not create instances of larger classes here. Use the
-* ...Access class to get DB data and keep it small.
-*
-* @author 		Alex Killing <alex.killing@gmx.de>
-*/
+ * ListGUI implementation for Example object plugin. This one
+ * handles the presentation in container items (categories, courses, ...)
+ * together with the corresponfing ...Access class.
+ *
+ * PLEASE do not create instances of larger classes here. Use the
+ * ...Access class to get DB data and keep it small.
+ *
+ * @author 		Alex Killing <alex.killing@gmx.de>
+ */
 class ilObjRoomSharingListGUI extends ilObjectPluginListGUI
 {
-	
+
 	/**
-	* Init type
-	*/
+	 * Init type
+	 */
 	function initType()
 	{
 		$this->setType("xrs");
-		
 	}
-	
+
 	/**
-	* Get name of gui class handling the commands
-	*/
+	 * Get name of gui class handling the commands
+	 * 
+	 * @return String
+	 */
 	function getGuiClass()
 	{
 		return "ilObjRoomSharingGUI";
 	}
-	
+
 	/**
-	* Get commands
-	*/
+	 * Get commands
+	 * 
+	 * @return array
+	 */
 	function initCommands()
 	{
 		$this->static_link_enabled = true;
@@ -45,14 +48,13 @@ class ilObjRoomSharingListGUI extends ilObjectPluginListGUI
 		$this->link_enabled = true;
 		$this->payment_enabled = false;
 		$this->info_screen_enabled = true;
-		
+
 		$this->gui_class_name = "ilobjroomsharinggui";
-		
+
 		// general commands array
 		include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharingAccess.php');
 		$this->commands = ilObjRoomSharingAccess::_getCommands();
 		return $this->commands;
-		
 	}
+
 }
-?>

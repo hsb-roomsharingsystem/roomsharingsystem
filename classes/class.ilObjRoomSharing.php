@@ -16,7 +16,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 {
 
 	protected $pool_id;
-	protected $online; // bool
+	protected $online;
 
 	/**
 	 * Constructor of ilObjRoomSharing
@@ -24,7 +24,6 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 * @access	public
 	 * @param integer $a_ref_id
 	 */
-
 	function __construct($a_ref_id = 0)
 	{
 		parent::__construct($a_ref_id);
@@ -99,20 +98,22 @@ class ilObjRoomSharing extends ilObjectPlugin
 
 		if ($this->getId())
 		{
-			$ilDB->update("rep_robj_xrs_pools", $this->getDBFields(), array("id" => array("integer", $this->getId())));
+			$ilDB->update("rep_robj_xrs_pools", $this->getDBFields(),
+			array("id" => array("integer", $this->getId())));
 		}
 		return true;
 	}
 
 	/**
 	 * Delete data from db
+	 * 
+	 * @return bool whether the Delete was successful
 	 */
 	function doDelete()
 	{
 		global $ilDB;
 		$id = $this->getId();
-		// always call parent delete function first!!
-		// put here your module specific stuff
+		// always call parent delete function first
 		// example - delete old db data
 		return true;
 	}

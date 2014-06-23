@@ -10,32 +10,24 @@ appointments#:#Appointments
 at_most#:#At most
 back_to_list#:#Back to floorplans
 between#:#Between
-bookablerooms#:#Bookable Rooms
 booking_add#:#Add Booking
 booking_added#:#Booking added
 booking_add_error#:#Booking couldn't been added
-booking_back#:#Back to bookings
 booking_cancel#:#Cancel
-booking_cancel_booking#:#Cancel booking
-booking_confirm#:#Are you sure that you want to cancel the following booking(s)?
 booking_deleted#:#Booking deleted! (following sequence bookings are not affected)
 booking_doesnt_exists#:#This booking doesn't exist any more!
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
 bookings#:#Bookings
 cancel#:#Cancel
-cat_create_xrs#:#Create RoomSharing
 content#:#Content
 course#:#Course
-crs_create_xrs#:#Create RoomSharing
 date#:#Date
 datefrom_bigger_dateto#:#"of" is later or equal "to"
-date_range#:#Date Range
 description#:#Description
 edit#:#Edit
 edit_properties#:#Edit Properties
 floor_plans_add#:#Add Floor Plan
 floor_plans_added#:#Floor Plan added
-floor_plans_delete#:#delete floorplan
 floor_plans_edit#:#Edit floorplan
 floor_plans_keep#:#Hold floorplan
 floor_plans_keep_info#:#The existing floorplan will be hold
@@ -46,8 +38,6 @@ floor_plans_deleted#:#Error while deleting floorplan
 floor_plans_deleted#:#Floorplan deleted
 floor_plans_show#:#Show Floor Plans
 floor_plans_upload_error#:#Error while uploading floorplan
-fold_create_xrs#:#Create RoomSharing
-grp_create_xrs#:#Create RoomSharing
 leave#:#Leave
 manage#:#Manage
 missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.
@@ -56,25 +46,12 @@ no_delete_permission#:#No permission, to delete this booking
 no_id_submitted#:#None or not a numeric ID submitted
 not_yet_implemented#:#This function has not yet been implemented.
 obj_xrs#:#RoomSharing
-obj_xrs_duplicate#:#Copy
-obj_xrs_select#:#Select RoomSharing
-objs_xrs#:#RoomSharings
-objs_xrs_duplicate#:#Copy RoomSharing
-offline#:#Offline
 on#:#On
-option_one#:#Option One
-option_two#:#Option Two
 participants#:#Participants
 participations#:#Participations
 person_responsible#:#Person Responsible
 plan#:#Plan
 pool#:#RoomSharing Pool
-pooladd#:#Add RoomSharing Pool
-pooladded#:#A RoomSharing pool has been added.
-poolcopy#:#Copy RoomSharing Pool
-poolcreate#:#Create RoomSharing Pool
-pooledit#:#Edit RoomSharing Pool
-poolnew#:#New RoomSharing Pool
 pools#:#RoomSharing Pools
 quick_search#:#Quick Search
 room#:#Room
@@ -83,9 +60,7 @@ room_already_booked#:#Room is already booked
 room_attributes#:#Room Attributes
 room_book#:#Book
 room_date_recurrence#:#Date Recurrence
-room_delete#:#User can move or delete Roomsharing Pool
 room_edit#:#Edit Room
-room_edit_permission#:#User can change permission settings for RoomSharing Pool
 room_floor_plans#:#Floor Plans
 room_name#:#Room Name
 room_type#:#Room type
@@ -97,14 +72,9 @@ room_prop_description#:#The choosen room has following properties -
 wrong_input#:#Wrong input. Check it please.
 room_added#:#Room was added.
 back_to_rooms#:#Back to all rooms
-room_plans#:#Room List
-room_read#:#User can use resources / objects in RoomSharing Pool
 room_user_agreement#:#Accept Room User Agreement
-room_visible#:#RoomSharing Pool is visible
-room_write#:#User can edit settings and content of RoomSharing Pool
 rooms#:#Rooms
 roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
-root_create_xrs#:#Create RoomSharing
 save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
 search#:#Search
@@ -117,9 +87,6 @@ setting_2#:#Setting 2
 settings#:#Settings
 status#:#Status
 subject#:#Subject
-time_duration#:#Time Duration
-time_duration_activate#:#Activate
-time_duration_continuous#:#Continuous
 time_range#:#Time Range
 time_range#:#Time Range
 title#:#Title
