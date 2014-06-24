@@ -72,13 +72,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	}
 
 	/**
-	 * Populates one row the table. The table has the following shape.
-	 * 
-	 * -- Thumbnail -- Title -- Description -- Actions --
-	 */
-	
-	/**
-	 * Populates one row the table. The table has the following shape:
+	 * Populates one row of the table. The table has the following shape:
 	 * 
 	 * -- Thumbnail -- Title -- Description -- Actions --
 	 * 
