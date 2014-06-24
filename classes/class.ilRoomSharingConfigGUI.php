@@ -96,8 +96,6 @@ class ilRoomSharingConfigGUI extends ilPluginConfigGUI {
 			$set1 = $form->getInput("setting_1");
 			$set2 = $form->getInput("setting_2");
 
-			// @todo: implement saving to db
-
 			ilUtil::sendSuccess($pl->txt("rep_robj_xrs_saving_invoked"), true);
 			$ilCtrl->redirect($this, "configure");
 			} else 
