@@ -297,6 +297,7 @@ class ilRoomSharingRoomGUI
 
 	/**
 	 * Returns roomsharing pool id.
+	 * @returns integer Pool-ID
 	 */
 	function getPoolId()
 	{
@@ -305,6 +306,7 @@ class ilRoomSharingRoomGUI
 
 	/**
 	 * Sets roomsharing pool id.
+	 * @param integer Pool-ID
 	 */
 	function setPoolId($a_pool_id)
 	{
