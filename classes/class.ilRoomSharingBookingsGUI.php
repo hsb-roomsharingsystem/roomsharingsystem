@@ -15,6 +15,9 @@ class ilRoomSharingBookingsGUI
 	/**
 	 * Constructor of ilRoomSharingBookingsGUI
 	 * 
+	 * @global type $ilCtrl
+	 * @global type $lng
+	 * @global type $ilCtrl
 	 * @param object $a_parent_obj        	
 	 */
 	function __construct(ilRoomSharingAppointmentsGUI $a_parent_obj)
@@ -27,12 +30,7 @@ class ilRoomSharingBookingsGUI
 		$this->lng = $lng;
 		$this->tpl = $tpl;
 	}
-	
-	function performCommand($cmd)
-	{
-		// echo "Perform CMD: ".$cmd;
-	}
-	
+		
 	/**
 	 * Main switch for command execution.
 	 * 
@@ -59,6 +57,8 @@ class ilRoomSharingBookingsGUI
 	
 	/**
 	 * Shows all made bookings.
+	 * 
+	 * @global type $tpl
 	 */
 	function showBookingsObject()
 	{
@@ -91,6 +91,9 @@ class ilRoomSharingBookingsGUI
 	/**
 	 * Displays a confirmation dialog, in which the user is given the chance
 	 * to decline or confirm his decision.
+	 * 
+	 * @global type $tpl
+	 * @global type $ilTabs
 	 */
 	public function confirmCancelObject()
 	{
@@ -129,8 +132,8 @@ class ilRoomSharingBookingsGUI
 	/**
 	 * Sets roomsharing pool id.
 	 *
-	 * @param
-	 *        	integer Pool-ID
+	 * @param integer Pool-ID
+	 *        	
 	 */
 	function setPoolId($a_pool_id)
 	{
