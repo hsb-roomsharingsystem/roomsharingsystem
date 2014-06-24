@@ -1,275 +1,204 @@
 <?php
 
 /**
- * Class ilRilRoomSharingFloorPlans
- * 
- * This class represents the backend of the Roomsharing floorplans.
- * 
+ * Class ilRoomSharingFloorPlans
+ *
+ * This class represents the backend of the RoomSharing floor plans.
  *
  * @author Thomas Wolscht <t.wolscht@googlemail.com>
  */
-class ilRoomSharingFloorPlans {
+class ilRoomSharingFloorPlans
+{
 
-    protected $id;
-    protected $pool_id;
-    protected $floorplan_file;
+	protected $pool_id;
 
-    function __construct($a_id = NULL) {
-        $this->id = (int) $a_id;
-    }
+	/**
+	 * Constructor of ilRoomSharingFloorPlans.
+	 * @param type $a_pool_id the pool id of the plugin instance
+	 */
+	public function __construct($a_pool_id = NULL)
+	{
+		$this->pool_id = $a_pool_id;
+	}
 
-    /**
-     * Set floorplan file
-     * @param	string	$a_value
-     */
-    function setFile($a_value) {
-        $this->floorplan_file = $a_value;
-    }
+	/**
+	 * Get an array that contains all floor plans.
+	 *
+	 * @global type $ilDB the database instance
+	 * @return type array containing all of the floor plans
+	 */
+	public function getAllFloorPlans()
+	{
+		global $ilDB;
 
-    /**
-     * Set pool id
-     * 
-     * @param type $pool_id
-     */
-    function setPoolID($pool_id) {
-        $this->pool_id = $pool_id;
-    }
+		$set = $ilDB->query('SELECT * FROM rep_robj_xrs_fplans WHERE pool_id = '
+				. $ilDB->quote($this->pool_id, 'integer') . ' order by file_id DESC');
+		$floorplans = array();
+		$row = $ilDB->fetchAssoc($set);
+		while ($row)
+		{
+			$floorplans [] = $row;
+			$row = $ilDB->fetchAssoc($set);
+		}
+		return $floorplans;
+	}
 
-    /**
-     * Get an Array of all floorplans
-     */
-    function getAllFloorPlans($pool_id) {
-        global $ilDB;
+	/**
+	 * Returns an array that contains all information to a floor plan.
+	 * @global type $ilDB the ilias db instance
+	 * @param type $a_file_id the id of the floor plan
+	 * @return type the result
+	 */
+	public function getFloorPlanInfo($a_file_id)
+	{
+		global $ilDB;
+		$set = $ilDB->query('SELECT * FROM rep_robj_xrs_fplans WHERE file_id = '
+				. $ilDB->quote($a_file_id, 'integer') . ' AND pool_id = '
+				. $ilDB->quote($this->pool_id, 'integer'));
+		$floorplan = array();
+		$row = $ilDB->fetchAssoc($set);
+		while ($row)
+		{
+			$floorplan [] = $row;
+			$row = $ilDB->fetchAssoc($set);
+		}
+		return $floorplan;
+	}
 
-        $set = $ilDB->query('SELECT * FROM rep_robj_xrs_fplans WHERE pool_id = ' . $ilDB->quote($pool_id, 'integer') . ' order by file_id DESC');
-        $floorplans = array();
-        while ($row = $ilDB->fetchAssoc($set)) {
-            $floorplans [] = $row;
-        }
-        return $floorplans;
-    }
+	/**
+	 * Inserts the file id of the uploaded image file to the database.
+	 * @global type $ilDB the ilias database instance
+	 * @param type $a_file_id the file id of the floor plan image
+	 * @return type the result of the database manipulation
+	 */
+	public function fileToDatabase($a_file_id)
+	{
+		global $ilDB;
+		if ($a_file_id)
+		{
+			return $ilDB->manipulate('INSERT INTO rep_robj_xrs_fplans'
+							. ' (file_id, pool_id)' . ' VALUES (' . $ilDB->quote($a_file_id, 'integer') . ','
+							. $ilDB->quote($this->pool_id, 'integer') . ')');
+		}
+	}
 
-    /**
-     * Get Array of infos of a floorplan
-     * 
-     * @global type $ilDB
-     * @param type $id
-     * @return type
-     */
-    function getFloorPlan($id, $pool_id) {
-        global $ilDB;
-        $set = $ilDB->query('SELECT * FROM rep_robj_xrs_fplans WHERE file_id = ' . $ilDB->quote($id, 'integer') . ' AND pool_id = ' . $ilDB->quote($pool_id, 'integer'));
-        $floorplan = array();
-        while ($row = $ilDB->fetchAssoc($set)) {
-            $floorplan [] = $row;
-        }
-        return $floorplan;
-    }
+	/**
+	 * Deletes a floor plan by file id.
+	 * @global type $ilDB ilias db instance
+	 * @param type $a_file_id the file id of the floor plan
+	 * @return the result of the manipulation
+	 */
+	public function deleteFloorPlan($a_file_id)
+	{
+		global $ilDB;
+		$res = null;
+		if ($a_file_id)
+		{
+			include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+			$mediaObj = new ilObjMediaObject($a_file_id);
+			$mediaObj->removeAllMediaItems();
+			$mediaObj->delete();
+			$res = $ilDB->manipulate('DELETE FROM rep_robj_xrs_fplans' .
+					' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer'));
+		}
+		return $res;
+	}
 
-    /**
-     * Inserts the just uploaded file to Roomsharing database
-     */
-    public function fileToDatabase($file_id, $pool_id) {
-        global $ilDB;
-        if ($file_id) {
-            //  $next_id = $ilDB->nextId('roomsharing_floorplans');
-            return $ilDB->manipulate('INSERT INTO rep_robj_xrs_fplans' .
-                            ' (file_id, pool_id)' .
-                            ' VALUES (' . $ilDB->quote($file_id, 'integer') .
-                            ',' . $ilDB->quote($pool_id, 'integer') . ')');
-        }
-    }
+	/**
+	 * This function updates the information of a floor plan, which means
+	 * that a new title and a new description will be added. The old floor plan
+	 * (file) will be kept.
+	 *
+	 * @param type $a_file_id the id of the floor plan
+	 * @param type $a_title the new title of the floor plan
+	 * @param type $a_desc the new description for the floor plan
+	 */
+	public function updateFpInfos($a_file_id, $a_title, $a_desc)
+	{
+		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+		$mediaObj = new ilObjMediaObject($a_file_id);
+		$mediaObj->setTitle($a_title);
+		$mediaObj->setDescription($a_desc);
+		$mediaObj->update();
+	}
 
-    /**
-     * Deletes a floorplan by id
-     * 
-     * @global type $ilDB
-     * @param type $fid
-     * @return type
-     */
-    function deleteFloorPlan($fid) {
-        global $ilDB;
-        if ($fid) {
-            include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-            $mediaObj = new ilObjMediaObject($fid);
-            $mediaObj->removeAllMediaItems();
-            $mediaObj->delete();
-            return $ilDB->manipulate('DELETE FROM rep_robj_xrs_fplans' .
-                            ' WHERE file_id = ' . $ilDB->quote($fid, 'integer'));
-        } else {
-            return 0;
-        }
-    }
+	/**
+	 * This function updates the information of a floor plan, which means
+	 * that a new title and a new description will be added. The old floor plan
+	 * will be removed in order to be replaced by the newly provided one.
+	 *
+	 * @param type $a_file_id the floor plan id
+	 * @param type $a_title the new title
+	 * @param type $a_desc the new description
+	 * @param type $a_newfile the new image
+	 */
+	public function updateFpInfosAndFile($a_file_id, $a_title, $a_desc, $a_newfile = null)
+	{
+		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+		include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+		$mediaObj = new ilObjMediaObject($a_file_id);
+		$mediaObj->setTitle($a_title);
+		$mediaObj->setDescription($a_desc);
+		$mediaObj->removeAllMediaItems();
 
-    /**
-     * Updates Floorplan-Infos (Title, Desc.)
-     * This function updates a floorplan and sets a new title and
-     * description. The old floorplan (file) will be kept.
-     * 
-     * @param type $id
-     * @param type $title
-     * @param type $desc
-     * @param type $newfile
-     */
-    function updateFpInfos($id, $title, $desc) {
-        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-        $mediaObj = new ilObjMediaObject($id);
-        $mediaObj->setTitle($title);
-        $mediaObj->setDescription($desc);
-        $mediaObj->update();
-    }
+		$mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
+		$media_item = new ilMediaItem();
+		$mediaObj->addMediaItem($media_item);
+		$media_item->setPurpose("Standard");
 
-    /**
-     * Updates Floorplan-Infos (Title, Desc., File)
-     * This function updates a floorplan and sets a new title,
-     * new description and adds a new file. The old file will be
-     * removed.
-     * 
-     * @param type $id
-     * @param type $title
-     * @param type $desc
-     * @param type $newfile
-     */
-    function updateFpInfosAndFile($id, $title, $desc, $newfile) {
-        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-        include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
-        $mediaObj = new ilObjMediaObject($id);
-        $mediaObj->setTitle($title);
-        $mediaObj->setDescription($desc);
-        $mediaObj->removeAllMediaItems();
-        $mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
-        $media_item = new ilMediaItem();
-        $mediaObj->addMediaItem($media_item);
-        $media_item->setPurpose("Standard");
-        $file_name = ilUtil::getASCIIFilename($newfile["name"]);
-        $file_name = str_replace(" ", "_", $file_name);
-        $file = $mob_dir . "/" . $file_name;
-        ilUtil::moveUploadedFile($newfile["tmp_name"], $file_name, $file);
-        ilUtil::renameExecutables($mob_dir);
-        $format = ilObjMediaObject::getMimeType($file);
-        $media_item->setFormat($format);
-        $media_item->setLocation($file_name);
-        $media_item->setLocationType("LocalFile");
-        $mediaObj->update();
-    }
+		$file_name = ilUtil::getASCIIFilename($a_newfile["name"]);
+		$file_name_mod = str_replace(" ", "_", $file_name);
+		$file = $mob_dir . "/" . $file_name_mod; // construct file path
+		ilUtil::moveUploadedFile($a_newfile["tmp_name"], $file_name_mod, $file);
+		ilUtil::renameExecutables($mob_dir);
+		$format = ilObjMediaObject::getMimeType($file);
 
-    /**
-     * Adding a new floorplan by using the ILIAS MediaObject Service 
-     * and creating a database entry to Roomsharing DB.
-     * 
-     * @param type $title
-     * @param type $desc
-     * @param type $newfile
-     * @param type $pool_id
-     * @return type
-     */
-    function addFloorPlan($title, $desc, $newfile, $pool_id) {
-        include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-        include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
-        $mediaObj = new ilObjMediaObject();
-        $mediaObj->setTitle($title);
-        $mediaObj->setDescription($desc);
-        $mediaObj->create();
-        $mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
-        if (!is_dir($mob_dir)) {
-            $mediaObj->createDirectory();
-        }
-        $media_item = new ilMediaItem();
-        $mediaObj->addMediaItem($media_item);
-        $media_item->setPurpose("Standard");
-        $file_name = ilUtil::getASCIIFilename($newfile["name"]);
-        $file_name = str_replace(" ", "_", $file_name);
-        $file = $mob_dir . "/" . $file_name;
-        ilUtil::moveUploadedFile($newfile["tmp_name"], $file_name, $file);
-        ilUtil::renameExecutables($mob_dir);
-        $format = ilObjMediaObject::getMimeType($file);
-        $media_item->setFormat($format);
-        $media_item->setLocation($file_name);
-        $media_item->setLocationType("LocalFile");
-        $mediaObj->update();
-        $result = $this->fileToDatabase($mediaObj->getId(), $pool_id);
-        return $result;
-    }
+		$media_item->setFormat($format);
+		$media_item->setLocation($file_name_mod);
+		$media_item->setLocationType("LocalFile");
+		$mediaObj->update();
+	}
 
-    /**
-     * This function is used, if the upload of a file will be done manually
-     * and not by using the ILIAS-Service
-     * 
-     * Upload new roomsharing file
-     * 
-     * @param array $a_upload
-     * @return bool
-     */
-    function uploadFile(array $a_upload) {
-        $this->deleteFile();
+	/**
+	 * Creates a new floor plan by using the ILIAS MediaObject Service
+	 * and leaves a database entry.
+	 * @param type $a_title the title of the floor plan
+	 * @param type $a_desc the floor plan description
+	 * @param type $a_newfile an array containing the input values of the form
+	 * @return type success or failure
+	 */
+	public function addFloorPlan($a_title, $a_desc, $a_newfile)
+	{
+		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+		include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+		$mediaObj = new ilObjMediaObject();
+		$mediaObj->setTitle($a_title);
+		$mediaObj->setDescription($a_desc);
+		$mediaObj->create();
+		$mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
+		if (!is_dir($mob_dir))
+		{  // if the directory doesn't exist, create one
+			$mediaObj->createDirectory();
+		}
+		$media_item = new ilMediaItem();
+		$mediaObj->addMediaItem($media_item);
+		$media_item->setPurpose("Standard");
 
-        $path = $this->initStorage($this->id, "file");
-        $original = $a_upload["name"];
+		$file_name = ilUtil::getASCIIFilename($a_newfile["name"]);
+		$file_name_mod = str_replace(" ", "_", $file_name);
+		$file = $mob_dir . "/" . $file_name_mod;
+		ilUtil::moveUploadedFile($a_newfile["tmp_name"], $file_name_mod, $file);
+		ilUtil::renameExecutables($mob_dir);
+		$format = ilObjMediaObject::getMimeType($file);
 
-        if (@move_uploaded_file($a_upload["tmp_name"], $path . $original)) {
-            chmod($path . $original, 0770);
+		$media_item->setFormat($format);
+		$media_item->setLocation($file_name_mod);
+		$media_item->setLocationType("LocalFile");
+		$mediaObj->update();
 
-            $this->setFile($original);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * This function is used, if the upload of a file will be done manually
-     * and not by using the ILIAS-Service
-     * 
-     * remove existing floorplan file
-     */
-    function deleteFile() {
-        if ($this->id) {
-            $path = $this->getFileFullPath();
-            if ($path) {
-                @unlink($path);
-                $this->setFile(null);
-            }
-        }
-    }
-
-    /**
-     * This function is used, if the upload of a file will be done manually
-     * and not by using the ILIAS-Service
-     * 
-     * Get path to info file
-     */
-    function getFileFullPath() {
-        if ($this->id && $this->floorplan_file) {
-            $path = $this->initStorage($this->id, "file");
-            return $path . $this->floorplan_file;
-        }
-    }
-
-    /**
-     * This function is used, if the upload of a file will be done manually
-     * and not by using the ILIAS-Service
-     * 
-     * Init file system storage
-     * 
-     * @param type $a_id
-     * @param type $a_subdir
-     * @return string 
-     */
-    public static function initStorage($a_id, $a_subdir = null) {
-        include_once "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilFSStorageRoomPlan.php";
-        $storage = new ilFSStorageRoomPlan($a_id);
-        $storage->create();
-        $path = $storage->getAbsolutePath() . "/";
-        $path2 = $storage->getAbsolutePath() . "/file";
-        $allfiles = scandir($path2);
-        if ($a_subdir) {
-            $path .= $a_subdir . "/";
-
-            if (!is_dir($path)) {
-                mkdir($path);
-            }
-        }
-        return $path;
-    }
+		$result = $this->fileToDatabase($mediaObj->getId());
+		return $result;
+	}
 
 }
 
