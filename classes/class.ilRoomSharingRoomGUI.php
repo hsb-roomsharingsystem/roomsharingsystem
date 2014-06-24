@@ -42,6 +42,7 @@ class ilRoomSharingRoomGUI
 
 	/**
 	 * Main switch for command execution.
+	 * @return true
 	 */
 	function executeCommand()
 	{
@@ -186,11 +187,13 @@ class ilRoomSharingRoomGUI
 			
 			if ($a_mode == "create")
 			{
-			$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"), $this->lng->txt("rep_robj_xrs_add_room"));
+				$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"), 
+					$this->lng->txt("rep_robj_xrs_add_room"));
 			}
 			else
 			{
-			$form_gui->addCommandButton("saveRoom", $this->lng->txt("rep_robj_xrs_save_room"));
+				$form_gui->addCommandButton("saveRoom", 
+					$this->lng->txt("rep_robj_xrs_save_room"));
 			}
 		}
 		if ($a_mode == "edit" || $a_mode == "show")
