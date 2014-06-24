@@ -30,13 +30,13 @@ class ilRoomSharingParticipations
 	{
 		global $ilDB, $ilUser;
 		
-		if (! empty($a_booking_id) && is_numeric($a_booking_id))
+		if (!empty($a_booking_id) && is_numeric($a_booking_id))
 		{
 			$ilDB->query(
-					'DELETE FROM rep_robj_xrs_book_user' . ' WHERE user_id = ' .
-							 $ilDB->quote($ilUser->getId(), 'integer') .
-							 ' AND booking_id = ' .
-							 $ilDB->quote($a_booking_id, 'integer'));
+					'DELETE FROM rep_robj_xrs_book_user'.' WHERE user_id = '.
+							$ilDB->quote($ilUser->getId(), 'integer').
+							' AND booking_id = '.
+							$ilDB->quote($a_booking_id, 'integer'));
 		}
 		else
 		{
@@ -55,19 +55,19 @@ class ilRoomSharingParticipations
 		global $ilDB, $ilUser, $lng;
 		
 		$set = $ilDB->query(
-				'SELECT booking_id' . ' FROM rep_robj_xrs_book_user' .
-						 ' WHERE user_id = ' .
-						 $ilDB->quote($ilUser->getId(), 'integer'));
+				'SELECT booking_id'.' FROM rep_robj_xrs_book_user'.
+						' WHERE user_id = '.
+						$ilDB->quote($ilUser->getId(), 'integer'));
 		$res = array();
 		while ($row = $ilDB->fetchAssoc($set))
 		{
 			$one_booking = array();
 			$bookingSet = $ilDB->query(
-					'SELECT *' . ' FROM rep_robj_xrs_bookings' . ' WHERE id = ' .
-							 $ilDB->quote($row['booking_id'], 'integer') .
-							 ' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
-							 ' OR date_to >= "' . date('Y-m-d H:i:s') . '")' .
-							 ' ORDER BY date_from ASC');
+					'SELECT *'.' FROM rep_robj_xrs_bookings'.' WHERE id = '.
+							$ilDB->quote($row['booking_id'], 'integer').
+							' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
+							' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
+							' ORDER BY date_from ASC');
 			while ($bookingRow = $ilDB->fetchAssoc($bookingSet))
 			{
 				if (is_numeric($bookingRow['seq_id']))
@@ -79,18 +79,18 @@ class ilRoomSharingParticipations
 						$bookingRow['date_from']);
 				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", 
 						$bookingRow['date_to']);
-				$date = $date_from->format('d') . '.' . ' ' . $lng->txt(
-						'month_' . $date_from->format('m') . '_short') . ' ' .
-						 $date_from->format('Y') . ',' . ' ' .
-						 $date_from->format('H:i');
+				$date = $date_from->format('d').'.'.' '.$lng->txt(
+						'month_'.$date_from->format('m').'_short').' '.
+						$date_from->format('Y').','.' '.
+						$date_from->format('H:i');
 				$date .= " - ";
 				
 				// Check whether the date_from differs from the date_to
 				if ($date_from->format('dmY') !== $date_to->format('dmY'))
 				{
-					$date .= '<br>' . $date_to->format('d') . '.' . ' ' . $lng->txt(
-							'month_' . $date_to->format('m') . '_short') . ' ' .
-							 $date_to->format('Y') . ', ';
+					$date .= '<br>'.$date_to->format('d').'.'.' '.$lng->txt(
+							'month_'.$date_to->format('m').'_short').' '.
+							$date_to->format('Y').', ';
 				}
 				
 				$date .= $date_to->format('H:i');
@@ -99,8 +99,8 @@ class ilRoomSharingParticipations
 				
 				// Get the name of the booked room
 				$roomSet = $ilDB->query(
-						'SELECT name FROM rep_robj_xrs_rooms' . ' WHERE id = ' .
-								 $ilDB->quote($bookingRow['room_id'], 'integer'));
+						'SELECT name FROM rep_robj_xrs_rooms'.' WHERE id = '.
+								$ilDB->quote($bookingRow['room_id'], 'integer'));
 				$roomRow = $ilDB->fetchAssoc($roomSet);
 				$one_booking['room'] = $roomRow['name'];
 				$one_booking['room_id'] = $bookingRow['room_id'];
@@ -158,8 +158,8 @@ class ilRoomSharingParticipations
 		global $ilDB;
 		$cols = array();
 		$attributesSet = $ilDB->query(
-				'SELECT *' . ' FROM rep_robj_xrs_battr' . ' WHERE pool_id = ' .
-						 $ilDB->quote($this->pool_id, 'integer'));
+				'SELECT *'.' FROM rep_robj_xrs_battr'.' WHERE pool_id = '.
+						$ilDB->quote($this->pool_id, 'integer'));
 		while ($attributesRow = $ilDB->fetchAssoc($attributesSet))
 		{
 			$cols[$attributesRow['name']] = array(
