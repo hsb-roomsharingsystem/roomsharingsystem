@@ -172,7 +172,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 */
 	function getPoolId()
 	{
-		return $this->pool_id;
+		return 1;
 	}
 
 	/**
