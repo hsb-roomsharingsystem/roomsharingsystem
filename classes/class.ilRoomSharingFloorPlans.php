@@ -190,7 +190,12 @@ class ilRoomSharingFloorPlans
 		ilUtil::moveUploadedFile($a_newfile["tmp_name"], $file_name_mod, $file);
 		ilUtil::renameExecutables($mob_dir);
 		$format = ilObjMediaObject::getMimeType($file);
-
+                
+                if($this->checkImageType($format) == false)
+                {
+                    return false;
+                }
+                
 		$media_item->setFormat($format);
 		$media_item->setLocation($file_name_mod);
 		$media_item->setLocationType("LocalFile");
@@ -199,7 +204,44 @@ class ilRoomSharingFloorPlans
 		$result = $this->fileToDatabase($mediaObj->getId());
 		return $result;
 	}
-
+        
+        public function checkImageType($a_mimeType) {
+            //Check for image format
+            switch ($a_mimeType) {
+                //Formats for type ".bmp"
+                case "image/bmp":
+                case "image/x-bmp":
+                case "image/x-bitmap":
+                case "image/x-xbitmap":
+                case "image/x-win-bitmap":
+                case "image/x-windows-bmp":
+                case "image/x-ms-bmp":
+                case "application/bmp":
+                case "application/x-bmp":
+                case "application/x-win-bitmap":
+                //Formats for type ".png"
+                case "image/png":
+                case "application/png":
+                case "application/x-png":
+                //Formats for type ".jpg/.jpeg"
+                case "image/jpeg":
+                case "image/jpg":
+                case "image/jp_":
+                case "application/jpg":
+                case "application/x-jpg":
+                case "image/pjpeg":
+                case "image/pipeg":
+                case "image/vnd.swiftview-jpeg":
+                case "image/x-xbitmap":
+                //Formats for type ".gif"
+                case "image/gif":
+                case "image/x-xbitmap":
+                case "image/gi_":
+                    return true;
+                default:
+                    return false;
+            }
+        }
 }
 
 ?>
