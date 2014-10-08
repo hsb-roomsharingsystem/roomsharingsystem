@@ -205,9 +205,11 @@ class ilRoomSharingFloorPlans
 		return $result;
 	}
         
-        public function checkImageType($a_mimeType) {
+        public function checkImageType($a_mimeType) 
+		{
             //Check for image format
-            switch ($a_mimeType) {
+            switch ($a_mimeType) 
+			{
                 //Formats for type ".bmp"
                 case "image/bmp":
                 case "image/x-bmp":
