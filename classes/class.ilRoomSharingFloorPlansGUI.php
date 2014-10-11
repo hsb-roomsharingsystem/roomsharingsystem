@@ -286,6 +286,10 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function confirmDeleteObject()
 	{
+		global $ilTabs;
+		$ilTabs->clearTargets();
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'), 
+				$this->ctrl->getLinkTarget($this, 'render'));
 		include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
 		$cgui = new ilConfirmationGUI();
 		$cgui->setFormAction($this->ctrl->getFormAction($this));
@@ -371,6 +375,7 @@ class ilRoomSharingFloorPlansGUI
 				$file_new = $form->getInput("upload_file");
 				$fplan->updateFpInfosAndFile($file_id, $title_new, $desc_new, $file_new);
 			}
+			ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_edited"), true);
 			$this->renderObject();
 		}
 		else // if that's not the case, restore the old input values
