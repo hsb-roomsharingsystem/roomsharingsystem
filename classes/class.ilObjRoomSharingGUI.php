@@ -24,13 +24,13 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI
- * 
+ *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilConsultationHoursGUI, ilCalendarBlockGUI, ilColumnGUI 
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilConsultationHoursGUI, ilCalendarBlockGUI, ilColumnGUI
  *
  *
- * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI 
+ * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
  * @ilCtrl_IsCalledBy ilObjRoomSharingGUI: ilColumnGUI
  *
  */
@@ -46,12 +46,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function afterConstructor()
 	{
+		global $ilUser;
 		//Initialize the Calendar
-		include_once("./Services/Calendar/classes/class.ilCalendarBlockGUI.php");
-		$this->seed = new ilDate();
-		$this->cal = new ilCalendarBlockGUI(true);
-		$this->cal->setCurrentDetailLevel(1);
-		$this->initCategories();
+		include_once("./Services/Calendar/classes/class.ilMiniCalendarGUI.php");
+		// Set pool id
+		$this->pool_id = $this->object->getPoolID();
+		$this->initSeed();
+		$this->cal = new ilMiniCalendarGUI($this->seed, $this);
+		$this->initCalendar();
 	}
 
 	/**
@@ -87,18 +89,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			}
 			$this->$cmd();
 			return true;
-		}	
+		}
 		/*
-		 * The special handling of the commands showSearchQuick and 
-		 * showSearchResults is needed because otherwise the wrong $next_class 
+		 * The special handling of the commands showSearchQuick and
+		 * showSearchResults is needed because otherwise the wrong $next_class
 		 * would be called
 		 */
-		else if ($cmd === 'showSearchQuick'  || $cmd === 'showSearchResults') 
+		else if ($cmd === 'showSearchQuick' || $cmd === 'showSearchResults')
 		{
 			$next_class = ilroomsharingsearchgui;
 		}
-		// the special handling of the commands addRoom and editRoom 
-		else if ($cmd === 'addRoom'  || $cmd === 'editRoom')
+		// the special handling of the commands addRoom and editRoom
+		else if ($cmd === 'addRoom' || $cmd === 'editRoom')
 		{
 			$next_class = ilroomsharingroomgui;
 		}
@@ -146,8 +148,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			case 'ilroomsharingbookgui':
 				$this->tabs_gui->clearTargets();
 				$this->tabs_gui->setBackTarget(
-					$this->lng->txt('back'),
-					$ilCtrl->getLinkTarget($this, "showSearchResults")
+					$this->lng->txt('back'), $ilCtrl->getLinkTarget($this, "showSearchResults")
 				);
 				$this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
@@ -192,21 +193,24 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Various CalendarGUIs
 			case "ilcalendardaygui":
 				include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
-				$day = new ilCalendarDayGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+				$day = new ilCalendarDayGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($day);
 				break;
 			case "ilcalendarmonthgui":
 				include_once("./Services/Calendar/classes/class.ilCalendarMonthGUI.php");
-				$month = new ilCalendarMonthGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+				$month = new ilCalendarMonthGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($month);
 				break;
 			case "ilcalendarweekgui":
 				include_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
-				$week = new ilCalendarweekGUI(new ilDate($_GET["seed"],IL_CAL_DATE));
+				$week = new ilCalendarweekGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($week);
 				break;
 			case "ilcalendarblockgui":
 				$this->ctrl->forwardCommand($this->cal);
+				break;
+			case "ilcolumngui":
+				//$this->ctrl->forwardCommand($this->cal);
 				break;
 			// Standard cmd handling if cmd is none of the above. In that case, the next page is
 			// appointments.
@@ -219,8 +223,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Action menu (top right corner of the module)
 		$this->addHeaderAction();
 
-		//adds Minicalendar to the right 
-		$tpl->setRightContent($this->cal->getHTML());
+		include_once('./Services/Calendar/classes/class.ilCalendarSettings.php');
+		if (ilCalendarSettings::_getInstance()->isEnabled())
+		{
+
+			//adds Minicalendar to the right if active
+			$tpl->setRightContent($this->cal->getHTML());
+			$tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'delos.css', 'Services/Calendar'));
+		}
 		return true;
 	}
 
@@ -265,28 +275,24 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 		// Appointments
 		$ilTabs->addTab(
-			"appointments",
-			$this->txt("appointments"),
+			"appointments", $this->txt("appointments"),
 			$ilCtrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings")
 		);
 		// Standard info screen tab
 		$this->addInfoTab();
 		// Search
 		$this->tabs_gui->addTab(
-			"search",
-			$this->lng->txt("search"),
+			"search", $this->lng->txt("search"),
 			$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
 		);
 		// Rooms
 		$this->tabs_gui->addTab(
-			"rooms",
-			$this->txt("rooms"),
+			"rooms", $this->txt("rooms"),
 			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms")
 		);
 		// Floorplans
 		$this->tabs_gui->addTab(
-			"floor_plans",
-			$this->txt("room_floor_plans"),
+			"floor_plans", $this->txt("room_floor_plans"),
 			$this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render")
 		);
 		// Show permissions and settings tabs if the user has write permissions.
@@ -294,9 +300,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		{
 			// Settings
 			$this->tabs_gui->addTab(
-				'settings',
-				$this->txt('settings'),
-				$this->ctrl->getLinkTarget($this, 'editSettings')
+				'settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings')
 			);
 			// Permission
 			$this->addPermissionTab();
@@ -422,7 +426,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
 		$room_gui->showRoomObject();
 	}
-	
+
 	/**
 	 * Displays a booking form where the user can book a given room.
 	 */
@@ -430,19 +434,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $tpl, $ilCtrl, $lng;
 		$this->tabs_gui->clearTargets();
-		$last_cmd = empty($_GET['last_cmd']) ? "showRooms": $_GET['last_cmd'];
+		$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
 		$this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
 		$book = new ilRoomSharingBookGUI(
-			$this,
-			$_GET['room_id'],
-			$_GET['date']." ".$_GET['time_from'],
-			$_GET['date']." ".$_GET['time_to']
+			$this, $_GET['room_id'], $_GET['date'] . " " . $_GET['time_from'],
+			$_GET['date'] . " " . $_GET['time_to']
 		);
 		$book->renderObject();
 		// the back button which links to where the user came from
 		$this->tabs_gui->setBackTarget(
-			$lng->txt('rep_robj_xrs_search_back'),
-			$ilCtrl->getLinkTarget($this, $last_cmd)
+			$lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this, $last_cmd)
 		);
 	}
 
@@ -484,26 +485,104 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * init categories of Calendar
-	 * 
-	 * Used to display personal appointments in the minicalendar
+	 * Create a new bookings calendar category.
+	 *
+	 * The name includes the poolId
+	 *
+	 * @access protected
+	 * @return
+	 */
+	protected function createBookingsCalendarCategory()
+	{
+		global $ilUser, $lng;
+
+		$cat = new ilCalendarCategory();
+		$cat->setColor('#ff8000');
+		$cat->setType(ilCalendarCategory::TYPE_USR);
+		$title = "RoomSharing Buchungen " . $this->pool_id;
+		$cat->setTitle($title);
+		$cat->setObjId($ilUser->getId());
+		return $cat->add();
+	}
+
+	/**
+	 * Initializes the date-seed for the calendar.
+	 *
+	 * @access protected
+	 * @return
+	 */
+	public function initSeed()
+	{
+		include_once('Services/Calendar/classes/class.ilDate.php');
+		$this->seed = $_REQUEST['seed'] ? new ilDate($_REQUEST['seed'], IL_CAL_DATE) : new ilDate(date('Y-m-d',
+				time()), IL_CAL_DATE);
+		$_GET['seed'] = $this->seed->get(IL_CAL_DATE, '');
+		$this->ctrl->saveParameter($this, array('seed'));
+	}
+
+	/**
+	 * init mini-calendar
+	 *
+	 * Used to display personal appointments and bookings in the minicalendar
 	 * copied from ilPDBlockCalendar
 	 *
 	 * @access protected
 	 */
-	protected function initCategories()
+	private function initCalendar()
 	{
+		global $ilUser;
+
+		include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
+		$cats = ilCalendarCategories::_getInstance($ilUser->getId());
+
 		include_once './Services/Calendar/classes/class.ilCalendarUserSettings.php';
 		if (ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
 		{
-			$mode = ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP;
+			$cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP);
 		}
 		else
 		{
-			$mode = ilCalendarCategories::MODE_PERSONAL_DESKTOP_ITEMS;
+			$cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_ITEMS);
 		}
-		include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
-		ilCalendarCategories::_getInstance()->initialize($mode,(int)$_GET['ref_id'],true);
+
+		$category = null;
+		foreach ($cats->getCategories() as $value)
+		{
+			if (ilCalendarCategory::getInstanceByCategoryId($value)->getTitle() == ("RoomSharing Buchungen " . $this->pool_id))
+			{
+				$category = ilCalendarCategory::getInstanceByCategoryId($value)->getCategoryID();
+				break;
+			}
+		}
+
+		if ($category == null)
+		{
+			$category = $this->createBookingsCalendarCategory();
+		}
+
+		//Erstellt zum Test einen Termin im Buchungskalender
+		//$this->addAppointment($category);
 	}
+
+	private function addAppointment($cat_id)
+	{
+		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+		include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+		$app = new ilCalendarEntry();
+		$app->setStart(new ilDateTime(time(), IL_CAL_UNIX));
+		$time = new ilDateTime(time(), IL_CAL_UNIX);
+		$time->increment(ilDate::HOUR);
+		$app->setEnd($time);
+		$app->setFullday(false);
+		$app->setTitle("Testbuchung");
+		$app->validate();
+		$app->save();
+
+		include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+		$ass = new ilCalendarCategoryAssignments($app->getEntryId());
+		$ass->addAssignment($cat_id);
+	}
+
 }
+
 ?>
