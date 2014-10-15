@@ -26,18 +26,18 @@ datefrom_bigger_dateto#:#"of" is later or equal "to"
 description#:#Description
 edit#:#Edit
 edit_properties#:#Edit Properties
-floor_plans_add#:#Add Floor Plan
-floor_plans_added#:#Floor Plan added
+floor_plans_add#:#Add floorplan
+floor_plans_added#:#Floorplan added
 floor_plans_edit#:#Edit floorplan
 floor_plans_edited#:#Floorplan updated
-floor_plans_keep#:#Hold floorplan
-floor_plans_keep_info#:#The existing floorplan will be hold
+floor_plans_keep#:#Keep floorplan
+floor_plans_keep_info#:#The existing floorplan will be kept
 floor_plans_replace#:#Replace floorplan
 floor_plans_replace_info#:#The existing floorplan will be replaced
 floor_plans_delete#:#Delete floorplan
 floor_plans_deleted#:#Error while deleting floorplan
 floor_plans_deleted#:#Floorplan deleted
-floor_plans_show#:#Show Floor Plans
+floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan
 leave#:#Leave
 manage#:#Manage
