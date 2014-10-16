@@ -1,5 +1,7 @@
 <?php
 
+include_once 'Database/class.ilRoomSharingDatabase.php';   
+
 /**
  * Backend-Class for booking-mask
  * @author Robert Heimsoth
@@ -25,6 +27,8 @@ class ilRoomSharingBook
 	public function addBooking($booking_values, $booking_attr_values, $ilRoomSharingRooms)
 	{
 		global $ilDB, $ilUser;
+                $ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+                
 		$subject = $booking_values ['subject'];
 		$date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
 		$date_to = $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time'];
@@ -45,31 +49,21 @@ class ilRoomSharingBook
 		}
 		
 		// Insert the booking
-		$nextId = $ilDB->nextID('rep_robj_xrs_bookings');
-		$addBookingQuery = "INSERT INTO rep_robj_xrs_bookings" .
-				" (id,date_from, date_to, room_id, pool_id, user_id, subject)" . " VALUES (" .
-				$nextId . "," . " " . $ilDB->quote($date_from, 'timestamp') . "," . " " .
-				$ilDB->quote($date_to, 'timestamp') . "," . " " . $ilDB->quote($room_id, 'integer') .
-				"," . " " . $ilDB->quote($this->pool_id, 'integer') . "," . " " .
-				$ilDB->quote($user_id, 'integer') . "," . " " . $ilDB->quote($subject, 'text') . ")";
+		$insertedId = $ilRoomsharingDatabase->insertBooking($room_id, $user_id, $subject, $date_from, $date_to);
+		
 		// Check whether the insert failed
-		if ($ilDB->manipulate($addBookingQuery) === - 1)
+		if ($insertedId === - 1)
 		{
 			return - 1;
 		}
 		
 		// Insert the attributes for the booking in the conjunction table
-		$insertedId = $nextId;
 		foreach ($booking_attr_values as $booking_attr_key => $booking_attr_value)
 		{
 			// Only insert the attribute value, if a value was submitted by the user
 			if ($booking_attr_value !== "")
 			{
-				$ilDB->query(
-						"INSERT INTO rep_robj_xrs_book_attr" . " (booking_id, attr_id, value)" .
-								" VALUES (" . $ilDB->quote($insertedId, 'integer') . "," . " " .
-								$ilDB->quote($booking_attr_key, 'integer') . "," . " " .
-								$ilDB->quote($booking_attr_value, 'text') . ")");
+				$ilRoomsharingDatabase->insertBookingAttribute($insertedId, $booking_attr_key, $booking_attr_value);
 			}
 		}
 		return 1;
