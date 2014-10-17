@@ -236,8 +236,7 @@ class ilRoomSharingBookGUI
 				$form->setValuesByPost();
 				$tpl->setContent($form->getHTML());
 				$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
-				$this->parent_obj->tabs_gui->setBackTarget($lng->txt('rep_robj_xrs_search_back'), 
-						$ilCtrl->getLinkTarget($this->parent_obj, $last_cmd);
+				$this->parent_obj->tabs_gui->setBackTarget($lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this->parent_obj, $last_cmd));
 			}
 		}
 		else
@@ -247,8 +246,7 @@ class ilRoomSharingBookGUI
 			$form->setValuesByPost();
 			$tpl->setContent($form->getHTML());
 			$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
-			$this->parent_obj->tabs_gui->setBackTarget($lng->txt('rep_robj_xrs_search_back'), 
-						$ilCtrl->getLinkTarget($this->parent_obj, $last_cmd);
+			$this->parent_obj->tabs_gui->setBackTarget($lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this->parent_obj, $last_cmd));
 		}
 	}
 
