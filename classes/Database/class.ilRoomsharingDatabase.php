@@ -14,8 +14,7 @@ class ilRoomsharingDatabase
 	 *
 	 * @param integer $a_pool_id
 	 */
-	public function
-	__construct($a_pool_id)
+	public function __construct($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
 	}
