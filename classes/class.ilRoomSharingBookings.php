@@ -141,7 +141,7 @@ class ilRoomSharingBookings
 		$participants_ids [] = $participantRow ['id'];
 	    }
 	    $one_booking ['participants'] = $participants;
-	    $one_booking ['participants_id'] = $participants_ids;
+	    $one_booking ['participants_ids'] = $participants_ids;
 	    $one_booking ['subject'] = $row ['subject'];
 
 	    // Get variable attributes of a booking
