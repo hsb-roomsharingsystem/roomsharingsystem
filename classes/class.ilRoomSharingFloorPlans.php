@@ -146,6 +146,11 @@ class ilRoomSharingFloorPlans
 		ilUtil::renameExecutables($mob_dir);
 		$format = ilObjMediaObject::getMimeType($file);
 
+		if ($this->checkImageType($format) == false)
+		{
+			return false;
+		}
+
 		$media_item->setFormat($format);
 		$media_item->setLocation($file_name_mod);
 		$media_item->setLocationType("LocalFile");
