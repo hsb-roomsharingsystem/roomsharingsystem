@@ -305,4 +305,39 @@ class ilRoomsharingDatabase
 				' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer'));
 	}
 
+	public function deleteParticipation($user_id, $a_booking_id)
+	{
+		global $ilDB;
+		return $ilDB->manipulate(
+				'DELETE FROM rep_robj_xrs_book_user' . ' WHERE user_id = ' .
+				$ilDB->quote($user_id(), 'integer') .
+				' AND booking_id = ' . $ilDB->quote($a_booking_id, 'integer'));
+	}
+
+	public function getParticipationsForUser($user_id)
+	{
+		global $ilDB;
+		return $ilDB->query(
+				'SELECT booking_id FROM rep_robj_xrs_book_user' .
+				' WHERE user_id = ' . $ilDB->quote($user_id, 'integer'));
+	}
+
+	public function getBooking($booking_id)
+	{
+		global $ilDB;
+		return $ilDB->query(
+				'SELECT *' . ' FROM rep_robj_xrs_bookings' . ' WHERE id = ' .
+				$ilDB->quote($booking_id, 'integer') .
+				' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
+				' OR date_to >= "' . date('Y-m-d H:i:s') . '")' .
+				' ORDER BY date_from ASC');
+	}
+
+	public function getUser($user_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT firstname, lastname, login' . ' FROM usr_data' .
+				' WHERE usr_id = ' . $ilDB->quote($user_id, 'integer'));
+	}
+
 }

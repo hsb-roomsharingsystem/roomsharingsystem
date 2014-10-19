@@ -1,5 +1,7 @@
 <?php
 
+include_once 'Database/class.ilRoomSharingDatabase.php';
+
 /**
  * Class ilRoomSharingParticipations
  *
@@ -9,6 +11,7 @@
 class ilRoomSharingParticipations
 {
 	private $pool_id;
+	protected $ilRoomsharingDatabase;
 
 	/**
 	 * Construct of ilRoomSharingParticipations.
@@ -18,6 +21,7 @@ class ilRoomSharingParticipations
 	function __construct($pool_id = 1)
 	{
 		$this->pool_id = $pool_id;
+		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 
 	/**
@@ -28,15 +32,11 @@ class ilRoomSharingParticipations
 	 */
 	public function removeParticipation($a_booking_id)
 	{
-		global $ilDB, $ilUser;
-		
+		global $ilUser, $lng;
+
 		if (!empty($a_booking_id) && is_numeric($a_booking_id))
 		{
-			$ilDB->query(
-					'DELETE FROM rep_robj_xrs_book_user'.' WHERE user_id = '.
-							$ilDB->quote($ilUser->getId(), 'integer').
-							' AND booking_id = '.
-							$ilDB->quote($a_booking_id, 'integer'));
+			$this->ilRoomsharingDatabase->deleteParticipation($ilUser->getId(), $a_booking_id);
 		}
 		else
 		{
@@ -53,97 +53,80 @@ class ilRoomSharingParticipations
 	public function getList()
 	{
 		global $ilDB, $ilUser, $lng;
-		
-		$set = $ilDB->query(
-				'SELECT booking_id'.' FROM rep_robj_xrs_book_user'.
-						' WHERE user_id = '.
-						$ilDB->quote($ilUser->getId(), 'integer'));
+
+		$set = $this->ilRoomsharingDatabase->getParticipationsForUser($ilUser->getId());
 		$res = array();
 		while ($row = $ilDB->fetchAssoc($set))
 		{
 			$one_booking = array();
-			$bookingSet = $ilDB->query(
-					'SELECT *'.' FROM rep_robj_xrs_bookings'.' WHERE id = '.
-							$ilDB->quote($row['booking_id'], 'integer').
-							' AND (date_from >= "'.date('Y-m-d H:i:s').'"'.
-							' OR date_to >= "'.date('Y-m-d H:i:s').'")'.
-							' ORDER BY date_from ASC');
+			$bookingSet = $this->ilRoomsharingDatabase->getBooking($row['booking_id']);
 			while ($bookingRow = $ilDB->fetchAssoc($bookingSet))
 			{
 				if (is_numeric($bookingRow['seq_id']))
 				{
 					$one_booking['recurrence'] = true;
 				}
-				
-				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", 
-						$bookingRow['date_from']);
-				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", 
-						$bookingRow['date_to']);
-				$date = $date_from->format('d').'.'.' '.$lng->txt(
-						'month_'.$date_from->format('m').'_short').' '.
-						$date_from->format('Y').','.' '.
-						$date_from->format('H:i');
+
+				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_from']);
+				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_to']);
+				$date = $date_from->format('d') . '.' . ' ' . $lng->txt(
+						'month_' . $date_from->format('m') . '_short') . ' ' .
+					$date_from->format('Y') . ',' . ' ' .
+					$date_from->format('H:i');
 				$date .= " - ";
-				
+
 				// Check whether the date_from differs from the date_to
 				if ($date_from->format('dmY') !== $date_to->format('dmY'))
 				{
-					$date .= '<br>'.$date_to->format('d').'.'.' '.$lng->txt(
-							'month_'.$date_to->format('m').'_short').' '.
-							$date_to->format('Y').', ';
+					$date .= '<br>' . $date_to->format('d') . '.' . ' ' . $lng->txt(
+							'month_' . $date_to->format('m') . '_short') . ' ' .
+						$date_to->format('Y') . ', ';
 				}
-				
+
 				$date .= $date_to->format('H:i');
-				
+
 				$one_booking['date'] = $date;
-				
+
 				// Get the name of the booked room
-				$roomSet = $ilDB->query(
-						'SELECT name FROM rep_robj_xrs_rooms'.' WHERE id = '.
-								$ilDB->quote($bookingRow['room_id'], 'integer'));
-				$roomRow = $ilDB->fetchAssoc($roomSet);
-				$one_booking['room'] = $roomRow['name'];
+				$one_booking['room'] = $this->ilRoomsharingDatabase->getRoomName($bookingRow['room_id']);
 				$one_booking['room_id'] = $bookingRow['room_id'];
-				
+
 				$one_booking['subject'] = $bookingRow['subject'];
-				
-				$userSet = $ilDB->query(
-						'SELECT firstname, lastname, login' . ' FROM usr_data' .
-								 ' WHERE usr_id = ' .
-								 $ilDB->quote($bookingRow['user_id'], 'integer'));
+
+				$userSet = $this->ilRoomsharingDatabase->getUser($bookingRow['user_id']);
 				$userRow = $ilDB->fetchAssoc($userSet);
-				
+
 				// Check whether the user has a firstname and a lastname
 				if (empty($userRow['firstname']) && empty($userRow['lastname']))
 				{
 					$one_booking['person_responsible'] = $userRow['firstname'] .
-							 ' ' . $userRow['lastname'];
+						' ' . $userRow['lastname'];
 				} // ...if not, use the username
 				else
 				{
 					$one_booking['person_responsible'] = $userRow['login'];
 				}
 				$one_booking['person_responsible_id'] = $bookingRow['user_id'];
-				
+
 				// The booking id
 				$one_booking['id'] = $row['id'];
-				
+
 				$res[] = $one_booking;
 			}
 		}
-		
+
 		// Dummy-Daten
 		$res[] = array(
-				'recurrence' => true,
-				'date' => "3. März 2014, 11:30 - 15:00",
-				'modul' => "COMARCH",
-				'subject' => "HARDKODIERT Vorlesung",
-				'kurs' => "Technische Informatik (TI Bsc.)",
-				'semester' => "4, 6",
-				'room' => "116",
-				'person_responsible' => "Prof. Dr. Thomas Risse"
+			'recurrence' => true,
+			'date' => "3. März 2014, 11:30 - 15:00",
+			'modul' => "COMARCH",
+			'subject' => "HARDKODIERT Vorlesung",
+			'kurs' => "Technische Informatik (TI Bsc.)",
+			'semester' => "4, 6",
+			'room' => "116",
+			'person_responsible' => "Prof. Dr. Thomas Risse"
 		);
-		
+
 		return $res;
 	}
 
@@ -157,27 +140,25 @@ class ilRoomSharingParticipations
 	{
 		global $ilDB;
 		$cols = array();
-		$attributesSet = $ilDB->query(
-				'SELECT *'.' FROM rep_robj_xrs_battr'.' WHERE pool_id = '.
-						$ilDB->quote($this->pool_id, 'integer'));
+		$attributesSet = $this->ilRoomsharingDatabase->getAllBookingAttributes();
 		while ($attributesRow = $ilDB->fetchAssoc($attributesSet))
 		{
 			$cols[$attributesRow['name']] = array(
-					"txt" => $attributesRow['name']
+				"txt" => $attributesRow['name']
 			);
 		}
-		
+
 		// Dummy-Data
 		$cols["Modul"] = array(
-				"txt" => "Modul"
+			"txt" => "Modul"
 		);
 		$cols["Kurs"] = array(
-				"txt" => "Kurs"
+			"txt" => "Kurs"
 		);
 		$cols["Semester"] = array(
-				"txt" => "Semester"
+			"txt" => "Semester"
 		);
-		
+
 		return $cols;
 	}
 
@@ -200,4 +181,5 @@ class ilRoomSharingParticipations
 	{
 		$this->pool_id = $a_pool_id;
 	}
+
 }
