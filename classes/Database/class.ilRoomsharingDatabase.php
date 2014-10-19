@@ -197,7 +197,7 @@ class ilRoomsharingDatabase
 
 		if ($ilDB->manipulate($addBookingQuery) === - 1)
 		{
-			return - 1;
+			$nextId = - 1;
 		}
 
 		return $nextId;
@@ -211,6 +211,68 @@ class ilRoomsharingDatabase
 			" VALUES (" . $ilDB->quote($insertedId, 'integer') . "," . " " .
 			$ilDB->quote($booking_attr_key, 'integer') . "," . " " .
 			$ilDB->quote($booking_attr_value, 'text') . ")");
+	}
+
+	public function deleteBooking($a_booking_id)
+	{
+		global $ilDB;
+		$ilDB->query('DELETE FROM rep_robj_xrs_bookings' .
+			' WHERE id = ' . $ilDB->quote($a_booking_id, 'integer'));
+		$ilDB->query('DELETE FROM rep_robj_xrs_book_user' .
+			' WHERE booking_id = ' . $ilDB->quote($a_booking_id, 'integer'));
+	}
+
+	public function getAllBookingIdsForSequence($seq_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT id FROM rep_robj_xrs_bookings' .
+				' WHERE seq = ' . $ilDB->quote($seq_id, 'integer') .
+				' AND pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
+	}
+
+	public function getSequenceAndUserForBooking($a_booking_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT seq_id, user_id  FROM rep_robj_xrs_bookings' .
+				' WHERE id = ' . $ilDB->quote($a_booking_id, 'integer'));
+	}
+
+	public function getBookingsForUser($user_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT * FROM rep_robj_xrs_bookings' .
+				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer') .
+				' AND user_id = ' . $ilDB->quote($user_id, 'integer') .
+				' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
+				' OR date_to >= "' . date('Y-m-d H:i:s') . '")' . ' ORDER BY date_from ASC');
+	}
+
+	public function getUsersForBooking($booking_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT users.firstname AS firstname,' .
+				' users.lastname AS lastname, users.login AS login,' .
+				' users.usr_id AS id FROM rep_robj_xrs_book_user' .
+				' LEFT JOIN usr_data AS users ON users.usr_id = rep_robj_xrs_book_user.user_id' .
+				' WHERE booking_id = ' . $ilDB->quote($booking_id, 'integer') .
+				' ORDER BY users.lastname, users.firstname ASC');
+	}
+
+	public function getAttributesForBooking($booking_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT value, attr.name AS name' .
+				' FROM rep_robj_xrs_book_attr' .
+				' LEFT JOIN rep_robj_xrs_battr AS attr' .
+				' ON attr.id = rep_robj_xrs_book_attr.attr_id' .
+				' WHERE booking_id = ' . $ilDB->quote($booking_id, 'integer'));
+	}
+
+	public function getAllBookingAttributes()
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT * FROM rep_robj_xrs_battr' .
+				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
 	}
 
 }
