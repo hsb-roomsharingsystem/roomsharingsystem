@@ -38,7 +38,7 @@ floor_plans_delete#:#Delete floorplan
 floor_plans_deleted#:#Error while deleting floorplan
 floor_plans_deleted#:#Floorplan deleted
 floor_plans_show#:#Show floorplans
-floor_plans_upload_error#:#Error while uploading floorplan
+floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
 leave#:#Leave
 manage#:#Manage
 missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.

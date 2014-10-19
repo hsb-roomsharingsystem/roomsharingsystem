@@ -3,16 +3,15 @@
 /**
  * Class ilRoomSharingFloorPlansGUI
  *
- * This class represents the frontend for the RoomSharing floor plans. It is 
+ * This class represents the frontend for the RoomSharing floor plans. It is
  * used for adding, editing and removing floorplans.
- * 
+ *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @author Thomas Wolscht <t.wolscht@googlemail.com>
  * @version $Id$
  */
 class ilRoomSharingFloorPlansGUI
 {
-
 	protected $ref_id;
 	protected $pool_id;
 
@@ -33,13 +32,13 @@ class ilRoomSharingFloorPlansGUI
 
 	/**
 	 * Switch for the command execution.
-	 * 
+	 *
 	 * @return true, if nothing bad happens when a command is executed
 	 */
 	public function executeCommand()
 	{
 		$next_class = $this->ctrl->getNextClass($this);
-		$cmd = $this->ctrl->getCmd("render");   // the default command, if none 
+		$cmd = $this->ctrl->getCmd("render");   // the default command, if none
 		// is found
 		switch ($next_class)
 		{
@@ -52,11 +51,11 @@ class ilRoomSharingFloorPlansGUI
 	}
 
 	/**
-	 * Main function of ilRoomSharingFloorPlansGUI. Creates an instance of 
-	 * RoomSharingFloorPlansTableGUI to display a table that contains all 
-	 * uploaded floor plans. If the user has 'write' permissions, a button for 
+	 * Main function of ilRoomSharingFloorPlansGUI. Creates an instance of
+	 * RoomSharingFloorPlansTableGUI to display a table that contains all
+	 * uploaded floor plans. If the user has 'write' permissions, a button for
 	 * adding a new floor plan is displayed.
-	 * 
+	 *
 	 * @global type $ilAccess needed for accessibility checks
 	 */
 	public function renderObject()
@@ -68,12 +67,12 @@ class ilRoomSharingFloorPlansGUI
 		{
 			include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
 			$bar = new ilToolbarGUI();
-			$bar->addButton($this->lng->txt('rep_robj_xrs_floor_plans_add'), 
-					$this->ctrl->getLinkTarget($this, 'create'));
+			$bar->addButton($this->lng->txt('rep_robj_xrs_floor_plans_add'),
+				$this->ctrl->getLinkTarget($this, 'create'));
 			$bar_content = $bar->getHTML();
 		}
 		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/'
-				. 'classes/class.ilRoomSharingFloorPlansTableGUI.php';
+			. 'classes/class.ilRoomSharingFloorPlansTableGUI.php';
 		$table = new ilRoomSharingFloorPlansTableGUI($this, 'render', $this->ref_id);
 		$this->tpl->setContent($bar_content . $table->getHTML());
 	}
@@ -106,7 +105,7 @@ class ilRoomSharingFloorPlansGUI
 
 	/**
 	 * Creates a form which is used for adding new floor plans.
-	 * 
+	 *
 	 * @return \ilPropertyFormGUI the creation form
 	 */
 	protected function initCreationForm()
@@ -154,7 +153,7 @@ class ilRoomSharingFloorPlansGUI
 
 		// look for floor plan infos and set the input entries accordingly
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing"
-				. "/classes/class.ilRoomSharingFloorPlans.php");
+			. "/classes/class.ilRoomSharingFloorPlans.php");
 		$fplan = new ilRoomSharingFloorPlans($this->pool_id);
 		$fplaninfo = $fplan->getFloorPlanInfo($a_file_id);
 		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
@@ -222,11 +221,11 @@ class ilRoomSharingFloorPlansGUI
 	protected function createRadioGroupInputFormItem()
 	{
 		$radg = new ilRadioGroupInputGUI($this->lng->txt(""), "file_mode");
-		$op1 = new ilRadioOption($this->lng->txt("rep_robj_xrs_floor_plans_keep"), "keep", 
-				$this->lng->txt("rep_robj_xrs_floor_plans_keep_info"));
+		$op1 = new ilRadioOption($this->lng->txt("rep_robj_xrs_floor_plans_keep"), "keep",
+			$this->lng->txt("rep_robj_xrs_floor_plans_keep_info"));
 		$radg->addOption($op1);
-		$op2 = new ilRadioOption($this->lng->txt("rep_robj_xrs_floor_plans_replace"), "replace", 
-				$this->lng->txt("rep_robj_xrs_floor_plans_replace_info"));
+		$op2 = new ilRadioOption($this->lng->txt("rep_robj_xrs_floor_plans_replace"), "replace",
+			$this->lng->txt("rep_robj_xrs_floor_plans_replace_info"));
 		$op2->addSubItem($this->createFileInputFormItem());
 		$radg->addOption($op2);
 		$radg->setValue("keep"); // the default option is to 'keep' a floor plan
@@ -241,14 +240,14 @@ class ilRoomSharingFloorPlansGUI
 	{
 		global $ilCtrl, $tpl, $lng, $ilTabs;
 		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($lng->txt('rep_robj_xrs_back_to_list'), 
-				$ilCtrl->getLinkTarget($this, 'render'));
+		$ilTabs->setBackTarget($lng->txt('rep_robj_xrs_back_to_list'),
+			$ilCtrl->getLinkTarget($this, 'render'));
 		$form = $this->initForm();
 		$tpl->setContent($form->getHTML());
 	}
 
 	/**
-	 * This function is called whenever a "save" for a new floor plan is 
+	 * This function is called whenever a "save" for a new floor plan is
 	 * initiated.
 	 */
 	public function saveObject()
@@ -257,7 +256,7 @@ class ilRoomSharingFloorPlansGUI
 		if ($form->checkInput()) // is everything fine with the inputs?
 		{
 			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject"
-					. "/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
+				. "/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
 			$fplan = new ilRoomSharingFloorPlans($this->pool_id);
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");
@@ -288,8 +287,8 @@ class ilRoomSharingFloorPlansGUI
 	{
 		global $ilTabs;
 		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'), 
-				$this->ctrl->getLinkTarget($this, 'render'));
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
+			$this->ctrl->getLinkTarget($this, 'render'));
 		include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
 		$cgui = new ilConfirmationGUI();
 		$cgui->setFormAction($this->ctrl->getFormAction($this));
@@ -315,7 +314,7 @@ class ilRoomSharingFloorPlansGUI
 	public function removeFloorplanObject()
 	{
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/"
-				. "classes/class.ilRoomSharingFloorPlans.php");
+			. "classes/class.ilRoomSharingFloorPlans.php");
 		$fplan = new ilRoomSharingFloorPlans($this->pool_id);
 		$result = $fplan->deleteFloorPlan((int) $_POST['file_id']);
 		if ($result)
@@ -333,7 +332,7 @@ class ilRoomSharingFloorPlansGUI
 	 * The editing of floor plan information (title, description, file) is
 	 * handled by this function. The user has the option of keeping the
 	 * existing floor plan or creating a new one.
-	 * 
+	 *
 	 * @global type $ilTabs the tab gui of ilias
 	 */
 	public function editFloorplanObject()
@@ -341,8 +340,8 @@ class ilRoomSharingFloorPlansGUI
 		global $ilTabs;
 
 		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'), 
-				$this->ctrl->getLinkTarget($this, 'render'));
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
+			$this->ctrl->getLinkTarget($this, 'render'));
 		$fid = (int) $_GET['file_id'];
 		$form = $this->initForm($a_mode = "edit", $fid);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $fid);
@@ -351,7 +350,7 @@ class ilRoomSharingFloorPlansGUI
 
 	/**
 	 * This function saves the updated information of a floorplan. In order for
-	 * this function to be called a user has to click the 'save' button in the 
+	 * this function to be called a user has to click the 'save' button in the
 	 * edit form.
 	 */
 	public function updateObject()
@@ -361,7 +360,7 @@ class ilRoomSharingFloorPlansGUI
 		if ($form->checkInput()) // make you sure the input is correctF
 		{
 			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/"
-					. "RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
+				. "RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
 			$fplan = new ilRoomSharingFloorPlans($this->pool_id);
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");
@@ -369,13 +368,21 @@ class ilRoomSharingFloorPlansGUI
 			if ($form->getInput("file_mode") === "keep")
 			{
 				$fplan->updateFpInfos($file_id, $title_new, $desc_new);
+				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_edited"), true);
 			}
 			else // create a new file, if the current floor plan shouldn't be kept
 			{
 				$file_new = $form->getInput("upload_file");
-				$fplan->updateFpInfosAndFile($file_id, $title_new, $desc_new, $file_new);
+				$result = $fplan->updateFpInfosAndFile($file_id, $title_new, $desc_new, $file_new);
+				if ($result)
+				{
+					ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_edited"), true);
+				}
+				else
+				{
+					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_floor_plans_upload_error'), true);
+				}
 			}
-			ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_edited"), true);
 			$this->renderObject();
 		}
 		else // if that's not the case, restore the old input values

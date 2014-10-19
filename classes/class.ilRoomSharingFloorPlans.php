@@ -155,6 +155,8 @@ class ilRoomSharingFloorPlans
 		$media_item->setLocation($file_name_mod);
 		$media_item->setLocationType("LocalFile");
 		$mediaObj->update();
+
+		return true;
 	}
 
 	/**
