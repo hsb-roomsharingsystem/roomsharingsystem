@@ -19,6 +19,11 @@ class ilRoomsharingDatabase
 		$this->pool_id = $a_pool_id;
 	}
 
+	public function setPoolId($a_poolId)
+	{
+		$this->pool_id = $a_poolId;
+	}
+
 	/**
 	 * Gets all attributes referenced by the rooms given by the ids.
 	 *
@@ -338,6 +343,47 @@ class ilRoomsharingDatabase
 		global $ilDB;
 		return $ilDB->query('SELECT firstname, lastname, login' . ' FROM usr_data' .
 				' WHERE usr_id = ' . $ilDB->quote($user_id, 'integer'));
+	}
+
+	public function getRoom($room_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT * FROM rep_robj_xrs_rooms WHERE id = ' .
+				$ilDB->quote($room_id, 'integer'));
+	}
+
+	public function getRoomAttribute($attribute_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT * FROM rep_robj_xrs_rattr WHERE id = ' .
+				$ilDB->quote($attribute_id, 'integer'));
+	}
+
+	public function getAttributesForRoom($room_id)
+	{
+		global $ilDB;
+		return $ilDB->query(
+				'SELECT id, att.name, count FROM rep_robj_xrs_room_attr ' .
+				' LEFT JOIN rep_robj_xrs_rattr as att' .
+				' ON att.id = rep_robj_xrs_room_attr.att_id' .
+				' WHERE room_id = ' . $ilDB->quote($room_id, 'integer') .
+				' ORDER BY att.name');
+	}
+
+	public function getBookingsForRoom($room_id)
+	{
+		global $ilDB;
+		return $ilDB->query(
+				'SELECT * FROM rep_robj_xrs_bookings WHERE room_id = ' .
+				$ilDB->quote($room_id, 'integer'));
+	}
+
+	public function deleteAttributesForRoom($room_id)
+	{
+		global $ilDB;
+		return $ilDB->manipulate(
+				'DELETE FROM rep_robj_xrs_room_attr WHERE room_id = ' .
+				$ilDB->quote($room_id, 'integer'));
 	}
 
 }

@@ -1,7 +1,7 @@
 ﻿<?php
 
 /**
- * Class ilRoomSharingRoomGUI. 
+ * Class ilRoomSharingRoomGUI.
  * The caller must have implemented method getPoolId().
  * Second argument of the constructor is a room id.
  *
@@ -9,7 +9,6 @@
  */
 class ilRoomSharingRoomGUI
 {
-
 	protected $room_id;
 	protected $ref_id;
 	protected $pool_id;
@@ -51,10 +50,10 @@ class ilRoomSharingRoomGUI
 		switch ($next_class)
 		{
 			default:
-			$cmd = $this->ctrl->getCmd('showRoom');
-			$cmd .= 'Object';
-			$this->$cmd();
-			break;
+				$cmd = $this->ctrl->getCmd('showRoom');
+				$cmd .= 'Object';
+				$this->$cmd();
+				break;
 		}
 		return true;
 	}
@@ -67,14 +66,16 @@ class ilRoomSharingRoomGUI
 		global $ilAccess;
 
 		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
-		$this->room_obj = new IlRoomSharingRoom($this->room_id);
+		$this->room_obj = new IlRoomSharingRoom($this->pool_id, $this->room_id);
 
 		if ($ilAccess->checkAccess('write', '', $this->ref_id))
 		{
 			include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
 			$toolbar = new ilToolbarGUI();
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_room_edit'), $this->ctrl->getLinkTarget($this, "editRoom"));
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'), $this->ctrl->getLinkTarget($this, "addRoom"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_room_edit'),
+				$this->ctrl->getLinkTarget($this, "editRoom"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'),
+				$this->ctrl->getLinkTarget($this, "addRoom"));
 		}
 		$this->form_gui = $this->initForm("show");
 
@@ -87,11 +88,12 @@ class ilRoomSharingRoomGUI
 	function addRoomObject()
 	{
 		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
-		$this->room_obj = new IlRoomSharingRoom("", true);
+		$this->room_obj = new IlRoomSharingRoom($this->pool_id, "", true);
 
 		include_once ('Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php');
 		$toolbar = new ilToolbarGUI();
-		$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 		$this->form_gui = $this->initForm("create", true);
 		$this->form_gui->clearCommandButtons();
 		$this->form_gui->addCommandButton("createRoom", $this->lng->txt("save"));
@@ -105,11 +107,12 @@ class ilRoomSharingRoomGUI
 	function editRoomObject()
 	{
 		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
-		$this->room_obj = new IlRoomSharingRoom((int) $_GET['room_id']);
+		$this->room_obj = new IlRoomSharingRoom($this->pool_id, (int) $_GET['room_id']);
 
 		include_once ('Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php');
 		$toolbar = new ilToolbarGUI();
-		$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 		ilUtil::sendInfo($this->lng->txt('rep_robj_xrs_not_yet_implemented'));
 		$this->tpl->setContent($toolbar->getHTML());
 	}
@@ -167,7 +170,7 @@ class ilRoomSharingRoomGUI
 			$this->lng->txt("rep_robj_xrs_room_file_id"), "file_id");
 		$file_id->setDisabled(true);
 		$form_gui->addItem($file_id);
-		
+
 		$building_id = new ilRoomSharingNumberInputGUI(
 			$this->lng->txt("rep_robj_xrs_room_floor_plans"), "building_id");
 		$building_id->setDisabled(true);
@@ -184,16 +187,15 @@ class ilRoomSharingRoomGUI
 			$max_alloc->setRequired(true);
 			$file_id->setDisabled(false);
 			$building_id->setDisabled(false);
-			
+
 			if ($a_mode == "create")
 			{
-				$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"), 
+				$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"),
 					$this->lng->txt("rep_robj_xrs_add_room"));
 			}
 			else
 			{
-				$form_gui->addCommandButton("saveRoom", 
-					$this->lng->txt("rep_robj_xrs_save_room"));
+				$form_gui->addCommandButton("saveRoom", $this->lng->txt("rep_robj_xrs_save_room"));
 			}
 		}
 		if ($a_mode == "edit" || $a_mode == "show")
@@ -211,15 +213,15 @@ class ilRoomSharingRoomGUI
 			$attributes = $this->room_obj->getAttributes();
 			foreach ($attributes as $attr)
 			{
-			$attrField = new ilRoomSharingNumberInputGUI($attr['name'], $attr['name']);
-			$attrField->setValue($attr['count']);
-			$attrField->setDisabled(true);
-			$form_gui->addItem($attrField);
+				$attrField = new ilRoomSharingNumberInputGUI($attr['name'], $attr['name']);
+				$attrField->setValue($attr['count']);
+				$attrField->setDisabled(true);
+				$form_gui->addItem($attrField);
 			}
 		}
-		
+
 		$form_gui->setFormAction($this->ctrl->getFormAction($this));
-		
+
 		return $form_gui;
 	}
 
@@ -235,7 +237,7 @@ class ilRoomSharingRoomGUI
 		if ($this->form_gui->checkInput())
 		{
 			include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
-			$this->room_obj = new ilRoomSharingRoom("", true);
+			$this->room_obj = new ilRoomSharingRoom($this->pool_id, "", true);
 			$this->room_obj->setPoolId($this->pool_id);
 			$this->room_obj->setName($this->form_gui->getInput("name"));
 			$this->room_obj->setType($this->form_gui->getInput("type"));
@@ -248,21 +250,22 @@ class ilRoomSharingRoomGUI
 			$newRoomId = $this->room_obj->create();
 			if (!empty($newRoomId) && is_numeric($newRoomId))
 			{
-			ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_room_added"));
-			$this->room_obj->setId($newRoomId);
-			$this->room_obj = new ilRoomSharingRoom($newRoomId);
-			include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
-			$toolbar = new ilToolbarGUI();
-			$toolbar->addButton(
-				$this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass(
-					'ilroomsharingroomsgui', "showRooms"));
-			$this->tpl->setContent($toolbar->getHTML());
+				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_room_added"));
+				$this->room_obj->setId($newRoomId);
+				$this->room_obj = new ilRoomSharingRoom($this->pool_id, $newRoomId);
+				include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
+				$toolbar = new ilToolbarGUI();
+				$toolbar->addButton(
+					$this->lng->txt('rep_robj_xrs_back_to_rooms'),
+					$this->ctrl->getLinkTargetByClass(
+						'ilroomsharingroomsgui', "showRooms"));
+				$this->tpl->setContent($toolbar->getHTML());
 			}
 			else
 			{
-			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_wrong_input"));
-			$this->form_gui->setValuesByPost();
-			$this->tpl->setContent($this->form_gui->getHTML());
+				ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_wrong_input"));
+				$this->form_gui->setValuesByPost();
+				$this->tpl->setContent($this->form_gui->getHTML());
 			}
 		}
 		else
@@ -317,5 +320,4 @@ class ilRoomSharingRoomGUI
 	}
 
 }
-
 ?>

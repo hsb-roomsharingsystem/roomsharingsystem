@@ -1,17 +1,17 @@
 ﻿<?php
+include_once 'Database/class.ilRoomSharingDatabase.php';
 
 /**
  * Class ilRoomSharingRoom.
- * Loads data for a room with the given room_id. 
+ * Loads data for a room with the given room_id.
  * Frequently the room properties can be edited and saved.
- * If the second argument of the constructor is true (bool), 
+ * If the second argument of the constructor is true (bool),
  * you can create an room.
  *
  * @author Thomas Matern
  */
 class ilRoomSharingRoom
 {
-
 	protected $id;
 	protected $name;
 	protected $type;
@@ -24,6 +24,7 @@ class ilRoomSharingRoom
 	protected $attributes = array();
 	// Associative. Contains arrays with id, date_from, date_to...
 	protected $booked_times = array();
+	protected $ilRoomsharingDatabase;
 
 	/**
 	 * Constructor for ilRoomSharingRoom.
@@ -31,12 +32,14 @@ class ilRoomSharingRoom
 	 * Can be used to create an room. After all informaton is set, call the
 	 * method create(). It returns the room id of the new room.
 	 *
-	 * @param int $a_room_id			
+	 * @param int $a_room_id
 	 * @param bool $a_create
 	 * 			Set true if you want to create an room.
 	 */
-	function __construct($a_room_id, $a_create = false)
+	function __construct($pool_id, $a_room_id, $a_create = false)
 	{
+		$this->pool_id = $pool_id;
+		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 		if ($a_create == false)
 		{
 			$this->id = $a_room_id;
@@ -54,9 +57,7 @@ class ilRoomSharingRoom
 
 		if ($this->checkId())
 		{
-			$set = $ilDB->query(
-				'SELECT * FROM rep_robj_xrs_rooms WHERE id = ' .
-				$ilDB->quote($this->id, 'integer'));
+			$set = $this->ilRoomsharingDatabase->getRoom($this->id);
 			$row = $ilDB->fetchAssoc($set);
 			$this->setName($row['name']);
 			$this->setType($row['type']);
@@ -97,42 +98,43 @@ class ilRoomSharingRoom
 				$this->max_alloc,
 				$this->pool_id
 		));
-		
+
 		if ($numsValid && !empty($this->name))
 		{
-			$ilDB->insert('rep_robj_xrs_rooms', array(
-			'id' => array(
-				'integer',
-				$ilDB->nextId('rep_robj_xrs_rooms')
-			),
-			'name' => array(
-				'text',
-				$this->name
-			),
-			'type' => array(
-				'text',
-				$this->type
-			),
-			'min_alloc' => array(
-				'integer',
-				$this->min_alloc
-			),
-			'max_alloc' => array(
-				'integer',
-				$this->max_alloc
-			),
-			'file_id' => array(
-				'integer',
-				$this->file_id
-			),
-			'building_id' => array(
-				'integer',
-				$this->building_id
-			),
-			'pool_id' => array(
-				'integer',
-				$this->pool_id
-			)
+			$ilDB->insert('rep_robj_xrs_rooms',
+				array(
+				'id' => array(
+					'integer',
+					$ilDB->nextId('rep_robj_xrs_rooms')
+				),
+				'name' => array(
+					'text',
+					$this->name
+				),
+				'type' => array(
+					'text',
+					$this->type
+				),
+				'min_alloc' => array(
+					'integer',
+					$this->min_alloc
+				),
+				'max_alloc' => array(
+					'integer',
+					$this->max_alloc
+				),
+				'file_id' => array(
+					'integer',
+					$this->file_id
+				),
+				'building_id' => array(
+					'integer',
+					$this->building_id
+				),
+				'pool_id' => array(
+					'integer',
+					$this->pool_id
+				)
 			));
 			return $ilDB->getLastInsertId();
 		}
@@ -146,8 +148,8 @@ class ilRoomSharingRoom
 	/**
 	 * Adds an attribute to the room.
 	 *
-	 * @param int $a_attr_id			
-	 * @param int $a_count			
+	 * @param int $a_attr_id
+	 * @param int $a_count
 	 * @return bool True if the attribute was added successful.
 	 */
 	public function addAttribute($a_attr_id, $a_count)
@@ -158,25 +160,19 @@ class ilRoomSharingRoom
 			is_numeric($a_count) && $a_count > 0)
 		{
 			// Check whether the attribute is real/exist.
-			$attrDB = $ilDB->fetchAssoc(
-				$ilDB->query(
-					'SELECT * FROM rep_robj_xrs_rattr WHERE id = ' .
-					$ilDB->quote($attr['id'], 'integer')));
+			$attrDB = $ilDB->fetchAssoc($this->ilRoomsharingDatabase->getRoomAttribute($a_attr_id));
+
 			if (array_count_values($attrDB) == 0)
 			{
-			ilUtil::sendFailure($lng->txt('add_wrong_attribute'), true);
-			return false;
+				ilUtil::sendFailure($lng->txt('add_wrong_attribute'), true);
+				return false;
 			}
 			// Attribute can be added
-			$result = $ilDB->fetchAssoc(
-				$ilDB->query(
-					'SELECT * FROM rep_robj_xrs_rattr WHERE id = ' .
-					$ilDB->quote($a_attr_id, 'integer')));
-			$attrName = $result['name'];
+			$attrName = $attrDB['name'];
 			$this->attributes[] = array(
-			'id' => $a_attr_id,
-			'name' => attrName,
-			'count' => $a_count
+				'id' => $a_attr_id,
+				'name' => $attrName,
+				'count' => $a_count
 			);
 		}
 		ilUtil::sendFailure($lng->txt('add_wrong_attribute'), true);
@@ -195,15 +191,10 @@ class ilRoomSharingRoom
 		$result = array();
 		if ($this->checkId())
 		{
-			$attributes = $ilDB->query(
-				'SELECT id, att.name, count FROM rep_robj_xrs_room_attr ' .
-				' LEFT JOIN rep_robj_xrs_rattr as att' .
-				' ON att.id = rep_robj_xrs_room_attr.att_id' .
-				' WHERE room_id = ' . $ilDB->quote($this->id, 'integer') .
-				' ORDER BY att.name');
+			$attributes = $this->ilRoomsharingDatabase->getAttributesForRoom($this->id);
 			while ($row = $ilDB->fetchAssoc($attributes))
 			{
-			$result[] = $row;
+				$result[] = $row;
 			}
 		}
 		return $result;
@@ -219,12 +210,10 @@ class ilRoomSharingRoom
 		$result = array();
 		if ($this->checkId())
 		{
-			$booked_times = $ilDB->query(
-				'SELECT * FROM rep_robj_xrs_bookings WHERE room_id = ' .
-				$ilDB->quote($this->id, 'integer'));
+			$booked_times = $this->ilRoomsharingDatabase->getBookingsForRoom($this->id);
 			while ($row = $ilDB->fetchAssoc($booked_times))
 			{
-			$result[] = $row;
+				$result[] = $row;
 			}
 		}
 		$this->booked_times = $result;
@@ -240,36 +229,36 @@ class ilRoomSharingRoom
 		{
 			$table = "rep_robj_xrs_rooms";
 			$fields = array(
-			"name" => array(
-				"text",
-				$this->getName()
-			),
-			"type" => array(
-				"text",
-				$this->getType()
-			),
-			"min_alloc" => array(
-				"integer",
-				$this->getMinAlloc()
-			),
-			"max_alloc" => array(
-				"integer",
-				$this->getMaxAlloc()
-			),
-			"file_id" => array(
-				"integer",
-				$this->getFileId()
-			),
-			"building_id" => array(
-				"integer",
-				$this->getBuildingId()
-			)
+				"name" => array(
+					"text",
+					$this->getName()
+				),
+				"type" => array(
+					"text",
+					$this->getType()
+				),
+				"min_alloc" => array(
+					"integer",
+					$this->getMinAlloc()
+				),
+				"max_alloc" => array(
+					"integer",
+					$this->getMaxAlloc()
+				),
+				"file_id" => array(
+					"integer",
+					$this->getFileId()
+				),
+				"building_id" => array(
+					"integer",
+					$this->getBuildingId()
+				)
 			);
 			$where = array(
-			"id" => array(
-				"integer",
-				$this->id
-			)
+				"id" => array(
+					"integer",
+					$this->id
+				)
 			);
 			$ilDB->update($table, $fields, $where);
 		}
@@ -280,15 +269,11 @@ class ilRoomSharingRoom
 	 */
 	protected function updateAttributes()
 	{
-		global $ilDB;
-
 		if ($this->checkId() && $this->compareAttributes() &&
 			$this->checkAttributes())
 		{
 			//Delete old attribute associations
-			$ilDB->query(
-				'DELETE FROM rep_robj_xrs_room_attr WHERE room_id = ' .
-				$ilDB->quote($this->id, 'integer'));
+			$this->ilRoomsharingDatabase->deleteAttributesForRoom($this->id);
 			//Insert the new associations
 			$this->insertAttributes();
 		}
@@ -299,24 +284,26 @@ class ilRoomSharingRoom
 	 */
 	protected function insertAttributes()
 	{
+		global $ilDB;
 		if ($this->checkId() && $this->checkAttributes())
 		{
 			foreach ($this->attributes as $row)
 			{
-			$ilDB->insert('rep_robj_xrs_room_attr', array(
-				'room_id' => array(
-				'integer',
-				$this->id
-				),
-				'att_id' => array(
-				'integer',
-				$row['id']
-				),
-				'count' => array(
-				'integer',
-				$row['count']
-				)
-			));
+				$ilDB->insert('rep_robj_xrs_room_attr',
+					array(
+					'room_id' => array(
+						'integer',
+						$this->id
+					),
+					'att_id' => array(
+						'integer',
+						$row['id']
+					),
+					'count' => array(
+						'integer',
+						$row['count']
+					)
+				));
 			}
 		}
 	}
@@ -334,22 +321,19 @@ class ilRoomSharingRoom
 		{
 			foreach ($this->attributes as $attr_value)
 			{
-			// Check whether the number values are numeric.
-			if (!is_numeric($attr_value['id']) || !is_numeric($attr_value['count']))
-			{
-				ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
-				return false;
-			}
-			// Check whether the attributes are real/exist.
-			$attrDB = $ilDB->fetchAssoc(
-				$ilDB->query(
-					'SELECT id FROM rep_robj_xrs_rattr WHERE id = ' .
-					$ilDB->quote($attr_value['id'], 'integer')));
-			if (array_count_values($attrDB) === 0)
-			{
-				ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
-				return false;
-			}
+				// Check whether the number values are numeric.
+				if (!is_numeric($attr_value['id']) || !is_numeric($attr_value['count']))
+				{
+					ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
+					return false;
+				}
+				// Check whether the attributes are real/exist.
+				$attrDB = $ilDB->fetchAssoc($this->ilRoomsharingDatabase->getRoomAttribute($attr_value['id']));
+				if (array_count_values($attrDB) === 0)
+				{
+					ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
+					return false;
+				}
 			}
 			// All attributes checked and they are fine.
 			return true;
@@ -384,13 +368,10 @@ class ilRoomSharingRoom
 		global $ilDB;
 		if (!empty($this->id) && is_numeric($this->id))
 		{
-			$room = $ilDB->fetchAssoc(
-				$ilDB->query('SELECT id FROM rep_robj_xrs_rooms' .
-					' WHERE id = ' .
-					$ilDB->quote($this->id, 'integer')));
+			$room = $ilDB->fetchAssoc($this->ilRoomsharingDatabase->getRoom($this->id));
 			if (count($room) > 0)
 			{
-			return true;
+				return true;
 			}
 		}
 		return false;
@@ -409,7 +390,7 @@ class ilRoomSharingRoom
 		{
 			if (empty($prop) || !is_numeric($prop))
 			{
-			return false;
+				return false;
 			}
 		}
 		return true;
@@ -417,7 +398,7 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get the id of the room.
-	 * 
+	 *
 	 * @return int RoomID
 	 */
 	public function getId()
@@ -428,7 +409,7 @@ class ilRoomSharingRoom
 	/**
 	 * Set the room-id
 	 *
-	 * @param int $a_id ID which should be set		  
+	 * @param int $a_id ID which should be set
 	 */
 	public function setId($a_id)
 	{
@@ -437,7 +418,7 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get the name of the room.
-	 * 
+	 *
 	 * @return string RoomName
 	 */
 	public function getName()
@@ -448,7 +429,7 @@ class ilRoomSharingRoom
 	/**
 	 * Set the name of the room
 	 *
-	 * @param int $a_name Room-Name	   
+	 * @param int $a_name Room-Name
 	 */
 	public function setName($a_name)
 	{
@@ -457,7 +438,7 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get the type of the room
-	 * 
+	 *
 	 * @return string Room-Type
 	 */
 	public function getType()
@@ -468,7 +449,7 @@ class ilRoomSharingRoom
 	/**
 	 * Set the type of the room
 	 *
-	 * @param string $a_type Room-Type  
+	 * @param string $a_type Room-Type
 	 */
 	public function setType($a_type)
 	{
@@ -477,7 +458,7 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get the mininmal allocation of the room.
-	 * 
+	 *
 	 * @return int Mininmal-Allocation
 	 */
 	public function getMinAlloc()
@@ -488,7 +469,7 @@ class ilRoomSharingRoom
 	/**
 	 * Set the minimal allocation of the room
 	 *
-	 * @param integer $a_min_alloc Minimal-Allocation	   
+	 * @param integer $a_min_alloc Minimal-Allocation
 	 */
 	public function setMinAlloc($a_min_alloc)
 	{
@@ -497,7 +478,7 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get the maximum allocation of the room
-	 * 
+	 *
 	 * @return integer Maximum-Allocation
 	 */
 	public function getMaxAlloc()
@@ -508,7 +489,7 @@ class ilRoomSharingRoom
 	/**
 	 * Set the maximal allocation of the room
 	 *
-	 * @param integer $a_max_alloc Maximal-Allocation   
+	 * @param integer $a_max_alloc Maximal-Allocation
 	 */
 	public function setMaxAlloc($a_max_alloc)
 	{
@@ -517,7 +498,7 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get the FileID of the room
-	 * 
+	 *
 	 * @return FileID
 	 */
 	public function getFileId()
@@ -528,7 +509,7 @@ class ilRoomSharingRoom
 	/**
 	 * Set the FileID of the room
 	 *
-	 * @param int $a_fileId FileID   
+	 * @param int $a_fileId FileID
 	 */
 	public function setFileId($a_fileId)
 	{
@@ -537,7 +518,7 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get the BuildingID of the room
-	 * 
+	 *
 	 * @return integer BuildingID
 	 */
 	public function getBuildingId()
@@ -548,7 +529,7 @@ class ilRoomSharingRoom
 	/**
 	 * Set the BuildingID of the room
 	 *
-	 * @param int $a_buildingId BuildingID  
+	 * @param int $a_buildingId BuildingID
 	 */
 	public function setBuildingId($a_buildingId)
 	{
@@ -557,7 +538,7 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get the PoolID of the room
-	 * 
+	 *
 	 * @return integer PoolID
 	 */
 	public function getPoolId()
@@ -568,17 +549,18 @@ class ilRoomSharingRoom
 	/**
 	 * Set the PoolID of the room
 	 *
-	 * @param integer $a_poolId PoolID		 
+	 * @param integer $a_poolId PoolID
 	 */
 	public function setPoolId($a_poolId)
 	{
 		$this->pool_id = $a_poolId;
+		$this->ilRoomsharingDatabase->setPoolId($a_poolId);
 	}
 
 	/**
 	 * Get attributes of the room
 	 * Contains an associative array with id, name, count.
-	 * 
+	 *
 	 * @return array Attributes as associative array
 	 */
 	public function getAttributes()
@@ -589,7 +571,7 @@ class ilRoomSharingRoom
 	/**
 	 * Set attributes of the room
 	 *
-	 * @param array $a_attributes Associative array with attributes  
+	 * @param array $a_attributes Associative array with attributes
 	 */
 	public function setAttributes($a_attributes)
 	{
@@ -599,7 +581,7 @@ class ilRoomSharingRoom
 	/**
 	 * Get booked times.
 	 * Contains an associative array with id, date_from, date_to...
-	 * 
+	 *
 	 * @return array Booked Times as associative array
 	 */
 	public function getBookedTimes()
@@ -611,7 +593,7 @@ class ilRoomSharingRoom
 	 * Set booked times.
 	 * Associative. Contains arrays with id, date_from, date_to...
 	 *
-	 * @param array $a_booked_times			
+	 * @param array $a_booked_times
 	 */
 	public function setBookedTimes($a_booked_times)
 	{
@@ -619,5 +601,4 @@ class ilRoomSharingRoom
 	}
 
 }
-
 ?>
