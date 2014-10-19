@@ -70,6 +70,7 @@ room_max_alloc#:#Max. Belegung
 room_file_id#:#Lageplan
 room_properties#:#Raumeigenschaften
 room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
+room_create_failed#:#Der Raum konnte nicht angelegt werden.
 wrong_input#:#Falsche Eingaben. Prüfen Sie diese bitte.
 room_added#:#Raum wurde hizugefügt.
 back_to_rooms#:#Zurück zu allen Räumen

@@ -140,7 +140,7 @@ class ilRoomSharingRoom
 		}
 		else
 		{
-			ilUtil::sendFailure($lng->txt('room_create_failed'), true);
+			ilUtil::sendFailure($lng->txt('rep_robj_xrs_room_create_failed'), true);
 			return '';
 		}
 	}
