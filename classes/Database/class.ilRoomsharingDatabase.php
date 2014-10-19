@@ -275,4 +275,34 @@ class ilRoomsharingDatabase
 				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
 	}
 
+	public function getAllFloorplans()
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT * FROM rep_robj_xrs_fplans WHERE pool_id = '
+				. $ilDB->quote($this->pool_id, 'integer') . ' order by file_id DESC');
+	}
+
+	public function getFloorplan($a_file_id)
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT * FROM rep_robj_xrs_fplans WHERE file_id = '
+				. $ilDB->quote($a_file_id, 'integer') . ' AND pool_id = '
+				. $ilDB->quote($this->pool_id, 'integer'));
+	}
+
+	public function insertFloorplan($a_file_id)
+	{
+		global $ilDB;
+		return $ilDB->manipulate('INSERT INTO rep_robj_xrs_fplans'
+				. ' (file_id, pool_id)' . ' VALUES (' . $ilDB->quote($a_file_id, 'integer') . ','
+				. $ilDB->quote($this->pool_id, 'integer') . ')');
+	}
+
+	public function deleteFloorplan($a_file_id)
+	{
+		global $ilDB;
+		return $ilDB->manipulate('DELETE FROM rep_robj_xrs_fplans' .
+				' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer'));
+	}
+
 }

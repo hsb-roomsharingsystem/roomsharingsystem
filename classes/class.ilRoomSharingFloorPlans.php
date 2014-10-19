@@ -1,5 +1,9 @@
 <?php
 
+include_once 'Database/class.ilRoomSharingDatabase.php';
+include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+
 /**
  * Class ilRoomSharingFloorPlans
  *
@@ -9,16 +13,17 @@
  */
 class ilRoomSharingFloorPlans
 {
-
 	protected $pool_id;
+	protected $ilRoomsharingDatabase;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlans.
 	 * @param type $a_pool_id the pool id of the plugin instance
 	 */
-	public function __construct($a_pool_id = NULL)
+	public function __construct($a_pool_id = 1)
 	{
 		$this->pool_id = $a_pool_id;
+		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 
 	/**
@@ -31,8 +36,7 @@ class ilRoomSharingFloorPlans
 	{
 		global $ilDB;
 
-		$set = $ilDB->query('SELECT * FROM rep_robj_xrs_fplans WHERE pool_id = '
-				. $ilDB->quote($this->pool_id, 'integer') . ' order by file_id DESC');
+		$set = $this->ilRoomsharingDatabase->getAllFloorplans();
 		$floorplans = array();
 		$row = $ilDB->fetchAssoc($set);
 		while ($row)
@@ -52,9 +56,7 @@ class ilRoomSharingFloorPlans
 	public function getFloorPlanInfo($a_file_id)
 	{
 		global $ilDB;
-		$set = $ilDB->query('SELECT * FROM rep_robj_xrs_fplans WHERE file_id = '
-				. $ilDB->quote($a_file_id, 'integer') . ' AND pool_id = '
-				. $ilDB->quote($this->pool_id, 'integer'));
+		$set = $this->ilRoomsharingDatabase->getFloorplan($a_file_id);
 		$floorplan = array();
 		$row = $ilDB->fetchAssoc($set);
 		while ($row)
@@ -73,12 +75,9 @@ class ilRoomSharingFloorPlans
 	 */
 	public function fileToDatabase($a_file_id)
 	{
-		global $ilDB;
 		if ($a_file_id)
 		{
-			return $ilDB->manipulate('INSERT INTO rep_robj_xrs_fplans'
-							. ' (file_id, pool_id)' . ' VALUES (' . $ilDB->quote($a_file_id, 'integer') . ','
-							. $ilDB->quote($this->pool_id, 'integer') . ')');
+			return $this->ilRoomsharingDatabase->insertFloorplan($a_file_id);
 		}
 	}
 
@@ -90,16 +89,13 @@ class ilRoomSharingFloorPlans
 	 */
 	public function deleteFloorPlan($a_file_id)
 	{
-		global $ilDB;
 		$res = null;
 		if ($a_file_id)
 		{
-			include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 			$mediaObj = new ilObjMediaObject($a_file_id);
 			$mediaObj->removeAllMediaItems();
 			$mediaObj->delete();
-			$res = $ilDB->manipulate('DELETE FROM rep_robj_xrs_fplans' .
-					' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer'));
+			$res = $this->ilRoomsharingDatabase->deleteFloorplan($a_file_id);
 		}
 		return $res;
 	}
@@ -115,7 +111,6 @@ class ilRoomSharingFloorPlans
 	 */
 	public function updateFpInfos($a_file_id, $a_title, $a_desc)
 	{
-		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 		$mediaObj = new ilObjMediaObject($a_file_id);
 		$mediaObj->setTitle($a_title);
 		$mediaObj->setDescription($a_desc);
@@ -134,8 +129,6 @@ class ilRoomSharingFloorPlans
 	 */
 	public function updateFpInfosAndFile($a_file_id, $a_title, $a_desc, $a_newfile = null)
 	{
-		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-		include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
 		$mediaObj = new ilObjMediaObject($a_file_id);
 		$mediaObj->setTitle($a_title);
 		$mediaObj->setDescription($a_desc);
@@ -169,8 +162,6 @@ class ilRoomSharingFloorPlans
 	 */
 	public function addFloorPlan($a_title, $a_desc, $a_newfile)
 	{
-		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-		include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
 		$mediaObj = new ilObjMediaObject();
 		$mediaObj->setTitle($a_title);
 		$mediaObj->setDescription($a_desc);
@@ -190,12 +181,12 @@ class ilRoomSharingFloorPlans
 		ilUtil::moveUploadedFile($a_newfile["tmp_name"], $file_name_mod, $file);
 		ilUtil::renameExecutables($mob_dir);
 		$format = ilObjMediaObject::getMimeType($file);
-                
-                if($this->checkImageType($format) == false)
-                {
-                    return false;
-                }
-                
+
+		if ($this->checkImageType($format) == false)
+		{
+			return false;
+		}
+
 		$media_item->setFormat($format);
 		$media_item->setLocation($file_name_mod);
 		$media_item->setLocationType("LocalFile");
@@ -204,46 +195,47 @@ class ilRoomSharingFloorPlans
 		$result = $this->fileToDatabase($mediaObj->getId());
 		return $result;
 	}
-        
-        public function checkImageType($a_mimeType) 
+
+	public function checkImageType($a_mimeType)
+	{
+		//Check for image format
+		switch ($a_mimeType)
 		{
-            //Check for image format
-            switch ($a_mimeType) 
-			{
-                //Formats for type ".bmp"
-                case "image/bmp":
-                case "image/x-bmp":
-                case "image/x-bitmap":
-                case "image/x-xbitmap":
-                case "image/x-win-bitmap":
-                case "image/x-windows-bmp":
-                case "image/x-ms-bmp":
-                case "application/bmp":
-                case "application/x-bmp":
-                case "application/x-win-bitmap":
-                //Formats for type ".png"
-                case "image/png":
-                case "application/png":
-                case "application/x-png":
-                //Formats for type ".jpg/.jpeg"
-                case "image/jpeg":
-                case "image/jpg":
-                case "image/jp_":
-                case "application/jpg":
-                case "application/x-jpg":
-                case "image/pjpeg":
-                case "image/pipeg":
-                case "image/vnd.swiftview-jpeg":
-                case "image/x-xbitmap":
-                //Formats for type ".gif"
-                case "image/gif":
-                case "image/x-xbitmap":
-                case "image/gi_":
-                    return true;
-                default:
-                    return false;
-            }
-        }
+			//Formats for type ".bmp"
+			case "image/bmp":
+			case "image/x-bmp":
+			case "image/x-bitmap":
+			case "image/x-xbitmap":
+			case "image/x-win-bitmap":
+			case "image/x-windows-bmp":
+			case "image/x-ms-bmp":
+			case "application/bmp":
+			case "application/x-bmp":
+			case "application/x-win-bitmap":
+			//Formats for type ".png"
+			case "image/png":
+			case "application/png":
+			case "application/x-png":
+			//Formats for type ".jpg/.jpeg"
+			case "image/jpeg":
+			case "image/jpg":
+			case "image/jp_":
+			case "application/jpg":
+			case "application/x-jpg":
+			case "image/pjpeg":
+			case "image/pipeg":
+			case "image/vnd.swiftview-jpeg":
+			case "image/x-xbitmap":
+			//Formats for type ".gif"
+			case "image/gif":
+			case "image/x-xbitmap":
+			case "image/gi_":
+				return true;
+			default:
+				return false;
+		}
+	}
+
 }
 
 ?>
