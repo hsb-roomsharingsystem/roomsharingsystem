@@ -49,11 +49,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		global $ilUser;
 		//Initialize the Calendar
 		include_once("./Services/Calendar/classes/class.ilMiniCalendarGUI.php");
-		// Set pool id
-		$this->pool_id = $this->object->getPoolID();
 		$this->initSeed();
 		$this->cal = new ilMiniCalendarGUI($this->seed, $this);
-		$this->initCalendar();
+		if ($this->object != null)
+		{
+			//Cannot initialize the user-calendar before the actual object is created because of missing poolID
+			$this->initCalendar();
+		}
 	}
 
 	/**
@@ -530,6 +532,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	private function initCalendar()
 	{
 		global $ilUser;
+		// Set pool id
+		$this->pool_id = $this->object->getPoolID();
 
 		include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
 		$cats = ilCalendarCategories::_getInstance($ilUser->getId());
