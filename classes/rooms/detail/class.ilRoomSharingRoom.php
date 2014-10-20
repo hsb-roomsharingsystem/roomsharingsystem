@@ -1,5 +1,5 @@
 ﻿<?php
-include_once '../../database/class.ilRoomSharingDatabase.php';
+include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
  * Class ilRoomSharingRoom.
