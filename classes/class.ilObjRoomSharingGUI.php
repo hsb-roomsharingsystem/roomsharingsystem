@@ -114,7 +114,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Appointments
 			case 'ilroomsharingappointmentsgui':
 				$this->tabs_gui->setTabActive('appointments');
-				$this->pl_obj->includeClass("class.ilRoomSharingAppointmentsGUI.php");
+				$this->pl_obj->includeClass("appointments/class.ilRoomSharingAppointmentsGUI.php");
 				$object_gui = & new ilRoomSharingAppointmentsGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
@@ -125,14 +125,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Search
 			case 'ilroomsharingsearchgui':
 				$this->tabs_gui->setTabActive('search');
-				$this->pl_obj->includeClass("class.ilRoomSharingSearchGUI.php");
+				$this->pl_obj->includeClass("search/class.ilRoomSharingSearchGUI.php");
 				$object_gui = & new ilRoomSharingSearchGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
 			// Rooms, Called for a list of rooms
 			case 'ilroomsharingroomsgui':
 				$this->tabs_gui->setTabActive('rooms');
-				$this->pl_obj->includeClass("class.ilRoomSharingRoomsGUI.php");
+				$this->pl_obj->includeClass("rooms/class.ilRoomSharingRoomsGUI.php");
 				$object_gui = & new ilRoomSharingRoomsGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
@@ -140,7 +140,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			case 'ilroomsharingroomgui':
 				$this->tabs_gui->setTabActive('rooms');
 				$room_id = (int) $_GET['room_id'];
-				$this->pl_obj->includeClass("class.ilRoomSharingRoomGUI.php");
+				$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 				$object_gui = & new ilRoomSharingRoomGUI($this, $room_id);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
@@ -150,14 +150,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$this->tabs_gui->setBackTarget(
 					$this->lng->txt('back'), $ilCtrl->getLinkTarget($this, "showSearchResults")
 				);
-				$this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
+				$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
 				$ret = & $this->ctrl->forwardCommand($book_gui);
 				break;
 			// Floorplans
 			case 'ilroomsharingfloorplansgui':
 				$this->tabs_gui->setTabActive('floor_plans');
-				$this->pl_obj->includeClass("class.ilRoomSharingFloorPlansGUI.php");
+				$this->pl_obj->includeClass("floorplans/class.ilRoomSharingFloorPlansGUI.php");
 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
 				break;
@@ -209,9 +209,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			case "ilcalendarblockgui":
 				$this->ctrl->forwardCommand($this->cal);
 				break;
-			case "ilcolumngui":
-				//$this->ctrl->forwardCommand($this->cal);
-				break;
 			// Standard cmd handling if cmd is none of the above. In that case, the next page is
 			// appointments.
 			default:
@@ -242,7 +239,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $ilTabs, $ilCtrl;
 		$ilTabs->setTabActive('appointments');
-		$this->pl_obj->includeClass("class.ilRoomSharingAppointmentsGUI.php");
+		$this->pl_obj->includeClass("appointments/class.ilRoomSharingAppointmentsGUI.php");
 		$object_gui = & new ilRoomSharingAppointmentsGUI($this);
 		$ilCtrl->forwardCommand($object_gui);
 		return true;
@@ -422,7 +419,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		$room_id = (int) $_GET['room_id'];
 		$this->tabs_gui->setTabActive('rooms');
-		$this->pl_obj->includeClass("class.ilRoomSharingRoomGUI.php");
+		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
 		$room_gui->showRoomObject();
 	}
@@ -435,7 +432,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		global $tpl, $ilCtrl, $lng;
 		$this->tabs_gui->clearTargets();
 		$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
-		$this->pl_obj->includeClass("class.ilRoomSharingBookGUI.php");
+		$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 		$book = new ilRoomSharingBookGUI(
 			$this, $_GET['room_id'], $_GET['date'] . " " . $_GET['time_from'],
 			$_GET['date'] . " " . $_GET['time_to']
@@ -520,6 +517,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->ctrl->saveParameter($this, array('seed'));
 	}
 
+        
+        
 	/**
 	 * init mini-calendar
 	 *
@@ -563,18 +562,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		//Erstellt zum Test einen Termin im Buchungskalender
 		//$this->addAppointment($category);
 	}
-
-	private function addAppointment($cat_id)
+        
+        /*
+         * 
+         * @param $cat_id $cat_id
+         */
+	private function addAppointment($cat_id, $title, $time_start, $time_end)
 	{
 		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
 		include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
 		$app = new ilCalendarEntry();
-		$app->setStart(new ilDateTime(time(), IL_CAL_UNIX));
-		$time = new ilDateTime(time(), IL_CAL_UNIX);
-		$time->increment(ilDate::HOUR);
-		$app->setEnd($time);
+		$app->setStart($time_start);
+		$app->setEnd($time_end);
 		$app->setFullday(false);
-		$app->setTitle("Testbuchung");
+		$app->setTitle($title);
 		$app->validate();
 		$app->save();
 
@@ -582,7 +583,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$ass = new ilCalendarCategoryAssignments($app->getEntryId());
 		$ass->addAssignment($cat_id);
 	}
-
 }
 
 ?>
