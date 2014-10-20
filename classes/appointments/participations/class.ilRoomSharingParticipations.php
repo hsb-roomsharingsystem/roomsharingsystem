@@ -1,6 +1,6 @@
 <?php
 
-include_once '/../../Database/class.ilRoomSharingDatabase.php';
+include_once '/../../database/class.ilRoomSharingDatabase.php';
 
 /**
  * Class ilRoomSharingParticipations
