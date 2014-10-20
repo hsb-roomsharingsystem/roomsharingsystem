@@ -72,7 +72,7 @@ class ilRoomSharingFloorPlansGUI
 			$bar_content = $bar->getHTML();
 		}
 		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/'
-			. 'classes/class.ilRoomSharingFloorPlansTableGUI.php';
+			. 'classes/floorplans/class.ilRoomSharingFloorPlansTableGUI.php';
 		$table = new ilRoomSharingFloorPlansTableGUI($this, 'render', $this->ref_id);
 		$this->tpl->setContent($bar_content . $table->getHTML());
 	}
@@ -153,7 +153,7 @@ class ilRoomSharingFloorPlansGUI
 
 		// look for floor plan infos and set the input entries accordingly
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing"
-			. "/classes/class.ilRoomSharingFloorPlans.php");
+			. "/classes/floorplans/class.ilRoomSharingFloorPlans.php");
 		$fplan = new ilRoomSharingFloorPlans($this->pool_id);
 		$fplaninfo = $fplan->getFloorPlanInfo($a_file_id);
 		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
@@ -256,7 +256,7 @@ class ilRoomSharingFloorPlansGUI
 		if ($form->checkInput()) // is everything fine with the inputs?
 		{
 			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject"
-				. "/RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
+				. "/RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlans.php");
 			$fplan = new ilRoomSharingFloorPlans($this->pool_id);
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");
@@ -314,7 +314,7 @@ class ilRoomSharingFloorPlansGUI
 	public function removeFloorplanObject()
 	{
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/"
-			. "classes/class.ilRoomSharingFloorPlans.php");
+			. "classes/floorplans/class.ilRoomSharingFloorPlans.php");
 		$fplan = new ilRoomSharingFloorPlans($this->pool_id);
 		$result = $fplan->deleteFloorPlan((int) $_POST['file_id']);
 		if ($result)
@@ -360,7 +360,7 @@ class ilRoomSharingFloorPlansGUI
 		if ($form->checkInput()) // make you sure the input is correctF
 		{
 			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/"
-				. "RoomSharing/classes/class.ilRoomSharingFloorPlans.php");
+				. "RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlans.php");
 			$fplan = new ilRoomSharingFloorPlans($this->pool_id);
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");

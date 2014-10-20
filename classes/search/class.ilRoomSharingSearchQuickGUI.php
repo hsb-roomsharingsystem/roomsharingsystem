@@ -1,7 +1,7 @@
 <?php
 
 include_once("./Customizing/global/plugins/Services/Repository/".
-		"RepositoryObject/RoomSharing/classes/class.ilRoomSharingRooms.php");
+		"RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php");
 
 /**
  * Class ilRoomSharingSearchQuickGUI
@@ -108,7 +108,7 @@ class ilRoomSharingSearchQuickGUI
 		$qsearch_form = $this->initForm();
 
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/".
-				"classes/class.ilRoomSharingRoomsTableGUI.php");
+				"classes/rooms/class.ilRoomSharingRoomsTableGUI.php");
 		$roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showSearchResults', $this->ref_id);
 		$roomsTable->setTitle($this->lng->txt("rep_robj_xrs_search_results"));
 		$roomsTable->getItems($this->getFormInput($qsearch_form));
@@ -172,11 +172,11 @@ class ilRoomSharingSearchQuickGUI
 	{
 		global $ilCtrl, $lng;
 		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/".
-				"RoomSharing/classes/class.ilRoomSharingTextInputGUI.php");
+				"RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
 		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/".
-				"RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+				"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/".
-				"RoomSharing/classes/class.ilRoomSharingSearchFormGUI.php");
+				"RoomSharing/classes/search/class.ilRoomSharingSearchFormGUI.php");
 		$qsearch_form = new ilRoomSharingSearchFormGUI();
 		$qsearch_form->setId("qsearchform");
 
@@ -229,7 +229,7 @@ class ilRoomSharingSearchQuickGUI
 		// Seats
 		include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		include_once("./Customizing/global/plugins/Services/Repository/".
-				"RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+				"RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		$room_seats_input = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_seats").
 				" (" . $this->lng->txt("rep_robj_xrs_amount") . ")", "room_seats");
 		$room_seats_input->setParent($a_qsearch_form);
@@ -269,7 +269,7 @@ class ilRoomSharingSearchQuickGUI
 		include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/".
-				"RoomSharing/classes/class.ilRoomSharingTimeInputGUI.php");
+				"RoomSharing/classes/utils/class.ilRoomSharingTimeInputGUI.php");
 		$time_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_time_range"), "time");
 		$time_from = new ilRoomSharingTimeInputGUI("", "time_from");
 		$time_from->setShowTime(true);
@@ -297,7 +297,7 @@ class ilRoomSharingSearchQuickGUI
 		// Room Attributes
 		include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/".
-				"RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+				"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		$room_attributes = $this->rooms->getAllAttributes();
 		foreach ($room_attributes as $room_attribute)
 		{

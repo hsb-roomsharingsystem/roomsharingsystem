@@ -1,7 +1,7 @@
 <?php
 include_once ('./Services/Table/classes/class.ilTable2GUI.php');
 include_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing' .
-		'/classes/class.ilRoomSharingRooms.php');
+		'/classes/rooms/class.ilRoomSharingRooms.php');
 
 /**
  * Class ilRoomSharingRoomsTableGUI
@@ -221,9 +221,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		include_once ("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-				"RoomSharing/classes/class.ilRoomSharingTextInputGUI.php");
+				"RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
 		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-				"RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+				"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		$room_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_room"), "room");
 		$room_name_input = new ilRoomSharingTextInputGUI("", "room_name");
 		$room_name_input->setMaxLength(14);
@@ -245,7 +245,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		include_once ("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-				"RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+				"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		$seats_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_seats"), "seats");
 		$room_seats_input = new ilRoomSharingNumberInputGUI("", "room_seats");
 		$room_seats_input->setMaxLength(8);
@@ -267,7 +267,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	{
 		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-				"RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
+				"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		$room_attributes = $this->rooms->getAllAttributes();
 		foreach ($room_attributes as $room_attribute)
 		{

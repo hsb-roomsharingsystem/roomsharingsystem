@@ -67,7 +67,7 @@ class ilRoomSharingBookingsGUI
 		include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
 		$toolbar = new ilToolbarGUI();
 		$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'), $this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookingsTableGUI.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
 		
 		include_once ('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
@@ -81,7 +81,7 @@ class ilRoomSharingBookingsGUI
 	 */
 	public function cancelBookingObject()
 	{
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 		$bookings = new ilRoomSharingBookings($this->pool_id);
 		// the canceling has to be confirmed via a form, which is why we get the id from POST
 		$bookings->removeBooking($_POST ["booking_id"]);
@@ -99,7 +99,7 @@ class ilRoomSharingBookingsGUI
 	{
 		global $tpl, $ilTabs;
 		include_once 'Services/Utilities/classes/class.ilConfirmationGUI.php';
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookings.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 		
 		$ilTabs->clearTargets();
 		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'), $this->ctrl->getLinkTarget($this, 'showBookings'));

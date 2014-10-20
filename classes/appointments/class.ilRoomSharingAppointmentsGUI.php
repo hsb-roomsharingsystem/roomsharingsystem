@@ -107,7 +107,7 @@ class ilRoomSharingAppointmentsGUI
 	function showBookings()
 	{
 		$this->setSubTabs('bookings');
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingBookingsGUI.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
 		$object_gui = & new ilRoomSharingBookingsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}
@@ -118,7 +118,7 @@ class ilRoomSharingAppointmentsGUI
 	function showParticipations()
 	{
 		$this->setSubTabs('participations');
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingParticipationsGUI.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
 		$object_gui = & new ilRoomSharingParticipationsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}

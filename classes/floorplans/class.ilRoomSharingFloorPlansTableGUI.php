@@ -53,7 +53,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	public function getItems()
 	{
 		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing'
-			. '/classes/class.ilRoomSharingFloorPlans.php';
+			. '/classes/floorplans/class.ilRoomSharingFloorPlans.php';
 		$floorplans = new ilRoomSharingFloorPlans($this->pool_id);
 		$data = $floorplans->getAllFloorPlans($this->pool_id);
 		$this->setMaxCount(count($data));

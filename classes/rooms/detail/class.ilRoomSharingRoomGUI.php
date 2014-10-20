@@ -65,7 +65,7 @@ class ilRoomSharingRoomGUI
 	{
 		global $ilAccess;
 
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 		$this->room_obj = new IlRoomSharingRoom($this->pool_id, $this->room_id);
 
 		if ($ilAccess->checkAccess('write', '', $this->ref_id))
@@ -87,7 +87,7 @@ class ilRoomSharingRoomGUI
 	 */
 	function addRoomObject()
 	{
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 		$this->room_obj = new IlRoomSharingRoom($this->pool_id, "", true);
 
 		include_once ('Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php');
@@ -106,7 +106,7 @@ class ilRoomSharingRoomGUI
 	 */
 	function editRoomObject()
 	{
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 		$this->room_obj = new IlRoomSharingRoom($this->pool_id, (int) $_GET['room_id']);
 
 		include_once ('Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php');
@@ -126,9 +126,9 @@ class ilRoomSharingRoomGUI
 	function initForm($a_mode = "show")
 	{
 		include_once ("Services/Form/classes/class.ilPropertyFormGUI.php");
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingTextInputGUI.php");
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingNumberInputGUI.php");
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 
 		$form_gui = new ilPropertyFormGUI();
 		$form_gui->setTitle($this->lng->txt("rep_robj_xrs_room_properties"));
@@ -236,7 +236,7 @@ class ilRoomSharingRoomGUI
 		$this->form_gui->setValuesByPost();
 		if ($this->form_gui->checkInput())
 		{
-			include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoom.php");
+			include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 			$this->room_obj = new ilRoomSharingRoom($this->pool_id, "", true);
 			$this->room_obj->setPoolId($this->pool_id);
 			$this->room_obj->setName($this->form_gui->getInput("name"));

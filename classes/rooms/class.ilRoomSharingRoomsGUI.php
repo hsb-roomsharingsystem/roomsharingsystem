@@ -58,7 +58,7 @@ class ilRoomSharingRoomsGUI
 	{
 		global $tpl, $ilAccess;
 
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomsTableGUI.php");
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRoomsTableGUI.php");
 		$roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
 		$roomsTable->initFilter();
 		$roomsTable->getItems($roomsTable->getCurrentFilter());
@@ -84,7 +84,7 @@ class ilRoomSharingRoomsGUI
 	*/
 	public function applyRoomFilterObject()
 	{
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomsTableGUI.php");
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRoomsTableGUI.php");
 		$roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
 		$roomsTable->initFilter();
 		$roomsTable->writeFilterToSession();	// writes filter to session
@@ -97,7 +97,7 @@ class ilRoomSharingRoomsGUI
 	*/
 	public function resetRoomFilterObject()
 	{
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingRoomsTableGUI.php");
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRoomsTableGUI.php");
 		$roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
 		$roomsTable->initFilter();
 		$roomsTable->resetFilter();

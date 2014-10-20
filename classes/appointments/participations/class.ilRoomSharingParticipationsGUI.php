@@ -46,7 +46,7 @@ class ilRoomSharingParticipationsGUI
 	{
 		global $tpl;
 		
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingParticipationsTableGUI.php");
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsTableGUI.php");
 		$participationsTable = new ilRoomSharingParticipationsTableGUI($this, 
 				'showParticipations', $this_ref_id);
 		

@@ -31,7 +31,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 		$this->ref_id = $a_ref_id;
 		$this->setId("roomobj");
 		
-		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilRoomSharingParticipations.php';
+		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipations.php';
 		$this->participations = new ilRoomSharingParticipations(
 				$a_parent_obj->getPoolId());
 		parent::__construct($a_parent_obj, $a_parent_cmd);

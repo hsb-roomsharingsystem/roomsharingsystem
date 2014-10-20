@@ -93,7 +93,7 @@ class ilRoomSharingSearchGUI
 	{
 		$this->setSubTabs('quick_search');
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/"
-				."RoomSharing/classes/class.ilRoomSharingSearchQuickGUI.php");
+				."RoomSharing/classes/search/class.ilRoomSharingSearchQuickGUI.php");
 		$object_gui = & new ilRoomSharingSearchQuickGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}
