@@ -193,6 +193,16 @@ class ilRoomsharingDatabase
 		return $res_room;
 	}
 
+	/**
+	 * Insert a bboking into the database.
+	 *
+	 * @param integer $room_id
+	 * @param integer $user_id
+	 * @param string $subject
+	 * @param timestamp $date_from
+	 * @param timestamp $date_to
+	 * @return integer next id or -1 if operation failed
+	 */
 	public function insertBooking($room_id, $user_id, $subject, $date_from, $date_to)
 	{
 		global $ilDB;
@@ -212,16 +222,29 @@ class ilRoomsharingDatabase
 		return $nextId;
 	}
 
+	/**
+	 * Insert a booking attribute into the database.
+	 *
+	 * @param integer $insertedId
+	 * @param integer $booking_attr_key
+	 * @param string $booking_attr_value
+	 * @return integer return value of $ilDB->manipulate
+	 */
 	public function insertBookingAttribute($insertedId, $booking_attr_key, $booking_attr_value)
 	{
 		global $ilDB;
-		$ilDB->manipulate(
-			"INSERT INTO rep_robj_xrs_book_attr" . " (booking_id, attr_id, value)" .
-			" VALUES (" . $ilDB->quote($insertedId, 'integer') . "," . " " .
-			$ilDB->quote($booking_attr_key, 'integer') . "," . " " .
-			$ilDB->quote($booking_attr_value, 'text') . ")");
+		return $ilDB->manipulate(
+				"INSERT INTO rep_robj_xrs_book_attr" . " (booking_id, attr_id, value)" .
+				" VALUES (" . $ilDB->quote($insertedId, 'integer') . "," . " " .
+				$ilDB->quote($booking_attr_key, 'integer') . "," . " " .
+				$ilDB->quote($booking_attr_value, 'text') . ")");
 	}
 
+	/**
+	 * Delete a booking from the database.
+	 *
+	 * @param integer $a_booking_id
+	 */
 	public function deleteBooking($a_booking_id)
 	{
 		global $ilDB;
@@ -231,6 +254,12 @@ class ilRoomsharingDatabase
 			' WHERE booking_id = ' . $ilDB->quote($a_booking_id, 'integer'));
 	}
 
+	/**
+	 * Get all bookings related to a given sequence.
+	 *
+	 * @param integer $seq_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getAllBookingIdsForSequence($seq_id)
 	{
 		global $ilDB;
@@ -239,6 +268,12 @@ class ilRoomsharingDatabase
 				' AND pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
 	}
 
+	/**
+	 * Gets User and Sequence for a booking.
+	 *
+	 * @param integer $a_booking_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getSequenceAndUserForBooking($a_booking_id)
 	{
 		global $ilDB;
@@ -246,6 +281,12 @@ class ilRoomsharingDatabase
 				' WHERE id = ' . $ilDB->quote($a_booking_id, 'integer'));
 	}
 
+	/**
+	 * Gets all bookings for a user.
+	 *
+	 * @param integer $user_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getBookingsForUser($user_id)
 	{
 		global $ilDB;
@@ -256,6 +297,12 @@ class ilRoomsharingDatabase
 				' OR date_to >= "' . date('Y-m-d H:i:s') . '")' . ' ORDER BY date_from ASC');
 	}
 
+	/**
+	 * Gets all Participants of a booking.
+	 *
+	 * @param integer $booking_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getParticipantsForBooking($booking_id)
 	{
 		global $ilDB;
@@ -267,6 +314,12 @@ class ilRoomsharingDatabase
 				' ORDER BY users.lastname, users.firstname ASC');
 	}
 
+	/**
+	 * Gets all attributes of a booking.
+	 *
+	 * @param integer $booking_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getAttributesForBooking($booking_id)
 	{
 		global $ilDB;
@@ -277,6 +330,11 @@ class ilRoomsharingDatabase
 				' WHERE booking_id = ' . $ilDB->quote($booking_id, 'integer'));
 	}
 
+	/**
+	 * Gets all booking attributes.
+	 *
+	 * @return type return of $ilDB->query
+	 */
 	public function getAllBookingAttributes()
 	{
 		global $ilDB;
@@ -284,6 +342,11 @@ class ilRoomsharingDatabase
 				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
 	}
 
+	/**
+	 * Gets all floorplans.
+	 *
+	 * @return type return of $ilDB->query
+	 */
 	public function getAllFloorplans()
 	{
 		global $ilDB;
@@ -291,6 +354,12 @@ class ilRoomsharingDatabase
 				. $ilDB->quote($this->pool_id, 'integer') . ' order by file_id DESC');
 	}
 
+	/**
+	 * Gets a floorplan.
+	 *
+	 * @param integer $a_file_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getFloorplan($a_file_id)
 	{
 		global $ilDB;
@@ -299,6 +368,12 @@ class ilRoomsharingDatabase
 				. $ilDB->quote($this->pool_id, 'integer'));
 	}
 
+	/**
+	 * Inserts a floorplan into the database.
+	 *
+	 * @param integer $a_file_id
+	 * @return type return of $ilDB->manipulate
+	 */
 	public function insertFloorplan($a_file_id)
 	{
 		global $ilDB;
@@ -307,6 +382,12 @@ class ilRoomsharingDatabase
 				. $ilDB->quote($this->pool_id, 'integer') . ')');
 	}
 
+	/**
+	 * Deletes a floorplan from the database.
+	 *
+	 * @param integer $a_file_id
+	 * @return type return of $ilDB->manipulate
+	 */
 	public function deleteFloorplan($a_file_id)
 	{
 		global $ilDB;
@@ -314,6 +395,13 @@ class ilRoomsharingDatabase
 				' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer'));
 	}
 
+	/**
+	 * Deletes a participation from the database.
+	 *
+	 * @param integer $user_id
+	 * @param integer $a_booking_id
+	 * @return type return of $ilDB->manipulate
+	 */
 	public function deleteParticipation($user_id, $a_booking_id)
 	{
 		global $ilDB;
@@ -323,6 +411,12 @@ class ilRoomsharingDatabase
 				' AND booking_id = ' . $ilDB->quote($a_booking_id, 'integer'));
 	}
 
+	/**
+	 * Gets participation for a user.
+	 *
+	 * @param integer $user_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getParticipationsForUser($user_id)
 	{
 		global $ilDB;
@@ -331,6 +425,12 @@ class ilRoomsharingDatabase
 				' WHERE user_id = ' . $ilDB->quote($user_id, 'integer'));
 	}
 
+	/**
+	 * Gets a booking.
+	 *
+	 * @param integer $booking_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getBooking($booking_id)
 	{
 		global $ilDB;
@@ -342,6 +442,12 @@ class ilRoomsharingDatabase
 				' ORDER BY date_from ASC');
 	}
 
+	/**
+	 * Gets a user.
+	 *
+	 * @param integer $user_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getUser($user_id)
 	{
 		global $ilDB;
@@ -349,6 +455,12 @@ class ilRoomsharingDatabase
 				' WHERE usr_id = ' . $ilDB->quote($user_id, 'integer'));
 	}
 
+	/**
+	 * Gets a room.
+	 *
+	 * @param integer $room_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getRoom($room_id)
 	{
 		global $ilDB;
@@ -356,6 +468,12 @@ class ilRoomsharingDatabase
 				$ilDB->quote($room_id, 'integer'));
 	}
 
+	/**
+	 * Get a room attribute.
+	 *
+	 * @param integer $attribute_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getRoomAttribute($attribute_id)
 	{
 		global $ilDB;
@@ -363,6 +481,12 @@ class ilRoomsharingDatabase
 				$ilDB->quote($attribute_id, 'integer'));
 	}
 
+	/**
+	 * Gets attributes for a room.
+	 *
+	 * @param integer $room_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getAttributesForRoom($room_id)
 	{
 		global $ilDB;
@@ -374,6 +498,12 @@ class ilRoomsharingDatabase
 				' ORDER BY att.name');
 	}
 
+	/**
+	 * Gets all bookings for a room.
+	 *
+	 * @param integer $room_id
+	 * @return type return of $ilDB->query
+	 */
 	public function getBookingsForRoom($room_id)
 	{
 		global $ilDB;
@@ -382,6 +512,12 @@ class ilRoomsharingDatabase
 				$ilDB->quote($room_id, 'integer'));
 	}
 
+	/**
+	 * Deletes attributes for a room.
+	 *
+	 * @param type $room_id
+	 * @return type
+	 */
 	public function deleteAttributesForRoom($room_id)
 	{
 		global $ilDB;
