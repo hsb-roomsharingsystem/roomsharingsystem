@@ -111,7 +111,7 @@ class ilRoomSharingBookGUI
 		$form->addCommandButton("save", $lng->txt("rep_robj_xrs_room_book"));
 
 		// List the booking-attributes
-		include_once ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookings.php');
+		include_once ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php');
 		$ilBookings = new ilRoomSharingBookings();
 		$ilBookings->setPoolId($this->pool_id);
 		foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value)
@@ -200,7 +200,7 @@ class ilRoomSharingBookGUI
 
 			// Build array with the booking-attribute-values for a booking
 			$booking_attr_values_array = array();
-			include_once ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookings.php');
+			include_once ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php');
 			$ilBookings = new ilRoomSharingBookings();
 			$ilBookings->setPoolId($this->pool_id);
 			foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value)
