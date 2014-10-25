@@ -99,50 +99,18 @@ class ilRoomSharingRoom
 				$this->pool_id
 		));
 
+		$rtrn = '';
 		if ($numsValid && !empty($this->name))
 		{
-			$ilDB->insert('rep_robj_xrs_rooms',
-				array(
-				'id' => array(
-					'integer',
-					$ilDB->nextId('rep_robj_xrs_rooms')
-				),
-				'name' => array(
-					'text',
-					$this->name
-				),
-				'type' => array(
-					'text',
-					$this->type
-				),
-				'min_alloc' => array(
-					'integer',
-					$this->min_alloc
-				),
-				'max_alloc' => array(
-					'integer',
-					$this->max_alloc
-				),
-				'file_id' => array(
-					'integer',
-					$this->file_id
-				),
-				'building_id' => array(
-					'integer',
-					$this->building_id
-				),
-				'pool_id' => array(
-					'integer',
-					$this->pool_id
-				)
-			));
-			return $ilDB->getLastInsertId();
+			$rtrn = $this->ilRoomsharingDatabase->insertRoom($this->name, $this->type, $this->min_alloc,
+				$this->max_alloc, $this->file_id, $this->building_id);
 		}
 		else
 		{
 			ilUtil::sendFailure($lng->txt('rep_robj_xrs_room_create_failed'), true);
-			return '';
 		}
+
+		return $rtrn;
 	}
 
 	/**
@@ -284,26 +252,11 @@ class ilRoomSharingRoom
 	 */
 	protected function insertAttributes()
 	{
-		global $ilDB;
 		if ($this->checkId() && $this->checkAttributes())
 		{
 			foreach ($this->attributes as $row)
 			{
-				$ilDB->insert('rep_robj_xrs_room_attr',
-					array(
-					'room_id' => array(
-						'integer',
-						$this->id
-					),
-					'att_id' => array(
-						'integer',
-						$row['id']
-					),
-					'count' => array(
-						'integer',
-						$row['count']
-					)
-				));
+				$this->ilRoomsharingDatabase->insertAttributeForRoom($this->id, $row['id'], $row['count']);
 			}
 		}
 	}
