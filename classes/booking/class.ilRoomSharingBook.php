@@ -26,6 +26,8 @@ class ilRoomSharingBook
 	 */
 	public function addBooking($booking_values, $booking_attr_values, $ilRoomSharingRooms)
 	{
+
+		//TODO: $booking_values ['book_public'] in irgendeiner Form verwenden
 		global $ilDB, $ilUser;
 		$ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 

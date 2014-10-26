@@ -23,7 +23,7 @@ class ilRoomSharingAcceptanceTestSuite extends PHPUnit_Framework_TestSuite
 		$host = 'http://localhost:4444/wd/hub'; // this is the default
 		$capabilities = DesiredCapabilities::firefox();
 		$webDriver = RemoteWebDriver::create($host, $capabilities, 5000);
-
+		
 		$this->driver = $webDriver;
 	}
 
@@ -39,6 +39,8 @@ class ilRoomSharingAcceptanceTestSuite extends PHPUnit_Framework_TestSuite
 		// To execute all tests use, as shown, addTestSuite-Method.
 		include_once 'ilRoomSharingAcceptanceSearchTest.php';
 		$suite->addTestSuite('ilRoomSharingAcceptanceSearchTest');
+		include_once 'ilRoomSharingAcceptanceGUITest.php';
+		$suite->addTestSuite('ilRoomSharingAcceptanceGUITest');
 
 		return $suite;
 	}

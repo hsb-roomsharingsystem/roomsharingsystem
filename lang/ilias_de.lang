@@ -73,8 +73,9 @@ room_properties#:#Raumeigenschaften
 room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
 room_create_failed#:#Der Raum konnte nicht angelegt werden.
 wrong_input#:#Falsche Eingaben. Prüfen Sie diese bitte.
-room_added#:#Raum wurde hizugefügt.
+room_added#:#Raum wurde hinzugefügt.
 back_to_rooms#:#Zurück zu allen Räumen
+room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
 room_user_agreement#:#Raumnutzungsvereinbarung akzeptieren  
 rooms#:#Räume
 roomsharing_plugin_configuration#:#RoomSharing Plugin Konfiguration
