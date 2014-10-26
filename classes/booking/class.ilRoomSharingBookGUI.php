@@ -148,6 +148,13 @@ class ilRoomSharingBookGUI
 		$dt_prop1->setShowTime(true);
 		$form->addItem($time_range);
 
+		// checkbox to make username public
+		$cb_pub = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_public_booking"), "book_public");
+		$cb_pub->setValue("1");
+		$cb_pub->setChecked(false);
+		$cb_pub->setRequired(false);
+		$form->addItem($cb_pub);
+
 		// checkbox to confirm the room use agreement
 		$cb_prop = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_user_agreement"),
 			"accept_room_rules");
@@ -195,6 +202,7 @@ class ilRoomSharingBookGUI
 			$booking_values_array ['subject'] = $form->getInput('subject');
 			$booking_values_array ['from'] = $form->getInput('from');
 			$booking_values_array ['to'] = $form->getInput('to');
+			$booking_values_array ['book_public'] = $form->getInput('book_public');
 			$booking_values_array ['accept_room_rules'] = $form->getInput('accept_room_rules');
 			$booking_values_array ['room'] = $this->room_id;
 

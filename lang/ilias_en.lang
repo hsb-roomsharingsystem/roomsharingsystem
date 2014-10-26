@@ -74,6 +74,7 @@ room_create_failed#:#The room could not be created.
 wrong_input#:#Wrong input. Check it please.
 room_added#:#Room was added.
 back_to_rooms#:#Back to all rooms
+room_public_booking#:#Username in booking visible in public
 room_user_agreement#:#Accept Room User Agreement
 rooms#:#Rooms
 roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
