@@ -233,6 +233,10 @@ class ilRoomSharingBookGUI
 				{
 					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_bigger_dateto'), true);
 				}
+				elseif ($result === - 4)
+				{
+					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_is_earlier_than_now'), true);
+				}
 				$form->setValuesByPost();
 				$tpl->setContent($form->getHTML());
 			}

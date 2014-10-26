@@ -23,6 +23,7 @@ content#:#Content
 course#:#Course
 date#:#Date
 datefrom_bigger_dateto#:#"of" is later or equal "to"
+datefrom_is_earlier_than_now#:#"of" is in the past
 description#:#Description
 edit#:#Edit
 edit_properties#:#Edit Properties

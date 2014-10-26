@@ -23,6 +23,7 @@ content#:#Inhalt
 course#:#Studiengang
 date#:#Termin
 datefrom_bigger_dateto#:#"von" ist später oder gleich "bis"
+datefrom_is_earlier_than_now#:#"von" liegt in der Vergangenheit
 description#:#Beschreibung
 edit#:#Bearbeiten
 edit_properties#:#Einstellungen bearbeiten
