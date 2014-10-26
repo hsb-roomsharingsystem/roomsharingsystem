@@ -38,8 +38,8 @@ class ilRoomsharingDatabase
 	{
 		global $ilDB;
 		$st = $ilDB->prepare('SELECT room_id, att.name, count FROM ' .
-			ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE . ' as rta LEFT JOIN ' .
-			ilRoomsharingDBConstants::ROOM_ATTRIBUTES . ' as att ON att.id = rta.att_id WHERE '
+			ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE . ' as rta LEFT JOIN ' .
+			ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id WHERE '
 			. $ilDB->in("room_id", $room_ids) . ' ORDER BY room_id, att.name');
 		$set = $ilDB->execute($st, $room_ids);
 		return $set;
@@ -55,7 +55,7 @@ class ilRoomsharingDatabase
 	{
 		global $ilDB;
 		$valueSet = $ilDB->query('SELECT MAX(max_alloc) AS value FROM ' .
-			ilRoomsharingDBConstants::ROOMS . ' WHERE pool_id = ' .
+			ilRoomsharingDBConstants::ROOMS_TABLE . ' WHERE pool_id = ' .
 			$ilDB->quote($this->pool_id, 'integer'));
 		$valueRow = $ilDB->fetchAssoc($valueSet);
 		$value = $valueRow ['value'];
@@ -65,8 +65,8 @@ class ilRoomsharingDatabase
 	public function getQueryStringForRoomsWithMathcingAttribute($attribute, $count)
 	{
 		global $ilDB;
-		return 'SELECT room_id FROM ' . ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE . ' ra ' .
-			'LEFT JOIN ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES .
+		return 'SELECT room_id FROM ' . ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE . ' ra ' .
+			'LEFT JOIN ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE .
 			' attr ON ra.att_id = attr.id WHERE name = ' . $ilDB->quote($attribute, 'text') .
 			' AND count >= ' . $ilDB->quote($count, 'integer') .
 			' AND pool_id = ' . $ilDB->quote($this->pool_id, 'integer') . ' ';
@@ -74,7 +74,7 @@ class ilRoomsharingDatabase
 
 	public function getAllRoomIds()
 	{
-		return 'SELECT id FROM ' . ilRoomsharingDBConstants::ROOMS;
+		return 'SELECT id FROM ' . ilRoomsharingDBConstants::ROOMS_TABLE;
 	}
 
 	public function getMatchingRooms($roomsToCheck, $room_name, $room_seats)
@@ -94,7 +94,7 @@ class ilRoomsharingDatabase
 		}
 
 		$st = $ilDB->prepare('SELECT room.id, name, max_alloc FROM ' .
-			ilRoomsharingDBConstants::ROOMS . ' room WHERE ' .
+			ilRoomsharingDBConstants::ROOMS_TABLE . ' room WHERE ' .
 			$ilDB->in("room.id", array_keys($roomsToCheck)) . $where_part .
 			' ORDER BY name');
 		return $ilDB->execute($st, array_keys($roomsToCheck));
@@ -103,7 +103,7 @@ class ilRoomsharingDatabase
 	public function getAllAttributeNames()
 	{
 		global $ilDB;
-		$set = $ilDB->query('SELECT name FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES .
+		$set = $ilDB->query('SELECT name FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE .
 			' ORDER BY name');
 		$attributes = array();
 		while ($row = $ilDB->fetchAssoc($set))
@@ -125,7 +125,7 @@ class ilRoomsharingDatabase
 	{
 		global $ilDB;
 		// get the id of the attribute in this pool
-		$attributIdSet = $ilDB->query('SELECT id FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES .
+		$attributIdSet = $ilDB->query('SELECT id FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE .
 			' WHERE name =' . $ilDB->quote($a_room_attribute, 'text') . ' AND pool_id = ' .
 			$ilDB->quote($this->pool_id, 'integer'));
 		$attributIdRow = $ilDB->fetchAssoc($attributIdSet);
@@ -133,8 +133,8 @@ class ilRoomsharingDatabase
 
 		// get the max value of the attribut in this pool
 		$valueSet = $ilDB->query('SELECT MAX(count) AS value FROM ' .
-			ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE . ' rta LEFT JOIN ' .
-			ilRoomsharingDBConstants::ROOMS . ' as room ON room.id = rta.room_id ' .
+			ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
+			ilRoomsharingDBConstants::ROOMS_TABLE . ' as room ON room.id = rta.room_id ' .
 			' WHERE att_id =' . $ilDB->quote($attributID, 'integer') .
 			' AND pool_id =' . $ilDB->quote($this->pool_id, 'integer'));
 		$valueRow = $ilDB->fetchAssoc($valueSet);
@@ -153,7 +153,7 @@ class ilRoomsharingDatabase
 	public function getRoomName($a_room_id)
 	{
 		global $ilDB;
-		$roomNameSet = $ilDB->query(' SELECT name FROM ' . ilRoomsharingDBConstants::ROOMS .
+		$roomNameSet = $ilDB->query(' SELECT name FROM ' . ilRoomsharingDBConstants::ROOMS_TABLE .
 			' WHERE id = ' . $ilDB->quote($a_room_id, 'integer'));
 		$roomNameRow = $ilDB->fetchAssoc($roomNameSet);
 		return $roomNameRow ['name'];
@@ -180,7 +180,7 @@ class ilRoomsharingDatabase
 				$ilDB->quote($room_id, 'text') . ' AND ';
 		}
 
-		$query = 'SELECT DISTINCT room_id FROM ' . ilRoomsharingDBConstants::BOOKINGS . ' WHERE ' .
+		$query = 'SELECT DISTINCT room_id FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE . ' WHERE ' .
 			$roomQuery . ' (' . $ilDB->quote($date_from, 'timestamp') .
 			' BETWEEN date_from AND date_to OR ' . $ilDB->quote($date_to, 'timestamp') .
 			' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
@@ -210,9 +210,9 @@ class ilRoomsharingDatabase
 	public function insertBooking($room_id, $user_id, $subject, $date_from, $date_to)
 	{
 		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::BOOKINGS,
+		$ilDB->insert(ilRoomsharingDBConstants::BOOKINGS_TABLE,
 			array(
-			'id' => array('integer', $ilDB->nextID(ilRoomsharingDBConstants::BOOKINGS)),
+			'id' => array('integer', $ilDB->nextID(ilRoomsharingDBConstants::BOOKINGS_TABLE)),
 			'date_from' => array('timestamp', $date_from),
 			'date_to' => array('timestamp', $date_to),
 			'room_id' => array('integer', $room_id),
@@ -236,7 +236,7 @@ class ilRoomsharingDatabase
 	public function insertBookingAttribute($insertedId, $booking_attr_key, $booking_attr_value)
 	{
 		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::BOOKING_TO_ATTRIBUTE,
+		$ilDB->insert(ilRoomsharingDBConstants::BOOKING_TO_ATTRIBUTE_TABLE,
 			array(
 			'booking_id' => array('integer', $insertedId),
 			'attr_id' => array('integer', $booking_attr_key),
@@ -255,9 +255,9 @@ class ilRoomsharingDatabase
 	public function deleteBooking($a_booking_id)
 	{
 		global $ilDB;
-		$ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::BOOKINGS .
+		$ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE .
 			' WHERE id = ' . $ilDB->quote($a_booking_id, 'integer'));
-		$ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::USER .
+		$ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::USER_TABLE .
 			' WHERE booking_id = ' . $ilDB->quote($a_booking_id, 'integer'));
 	}
 
@@ -270,7 +270,7 @@ class ilRoomsharingDatabase
 	public function getAllBookingIdsForSequence($seq_id)
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT id FROM ' . ilRoomsharingDBConstants::BOOKINGS .
+		return $ilDB->query('SELECT id FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE .
 				' WHERE seq = ' . $ilDB->quote($seq_id, 'integer') .
 				' AND pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
 	}
@@ -284,7 +284,7 @@ class ilRoomsharingDatabase
 	public function getSequenceAndUserForBooking($a_booking_id)
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT seq_id, user_id  FROM ' . ilRoomsharingDBConstants::BOOKINGS .
+		return $ilDB->query('SELECT seq_id, user_id  FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE .
 				' WHERE id = ' . $ilDB->quote($a_booking_id, 'integer'));
 	}
 
@@ -297,7 +297,7 @@ class ilRoomsharingDatabase
 	public function getBookingsForUser($user_id)
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKINGS .
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE .
 				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer') .
 				' AND user_id = ' . $ilDB->quote($user_id, 'integer') .
 				' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
@@ -315,7 +315,7 @@ class ilRoomsharingDatabase
 		global $ilDB;
 		return $ilDB->query('SELECT users.firstname AS firstname,' .
 				' users.lastname AS lastname, users.login AS login,' .
-				' users.usr_id AS id FROM ' . ilRoomsharingDBConstants::USER . ' user ' .
+				' users.usr_id AS id FROM ' . ilRoomsharingDBConstants::USER_TABLE . ' user ' .
 				' LEFT JOIN usr_data AS users ON users.usr_id = user.user_id' .
 				' WHERE booking_id = ' . $ilDB->quote($booking_id, 'integer') .
 				' ORDER BY users.lastname, users.firstname ASC');
@@ -331,8 +331,8 @@ class ilRoomsharingDatabase
 	{
 		global $ilDB;
 		return $ilDB->query('SELECT value, attr.name AS name' .
-				' FROM ' . ilRoomsharingDBConstants::BOOKING_TO_ATTRIBUTE . ' bta ' .
-				' LEFT JOIN ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES . ' attr ' .
+				' FROM ' . ilRoomsharingDBConstants::BOOKING_TO_ATTRIBUTE_TABLE . ' bta ' .
+				' LEFT JOIN ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES_TABLE . ' attr ' .
 				' ON attr.id = bta.attr_id' . ' WHERE booking_id = ' .
 				$ilDB->quote($booking_id, 'integer'));
 	}
@@ -345,7 +345,7 @@ class ilRoomsharingDatabase
 	public function getAllBookingAttributes()
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES .
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES_TABLE .
 				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
 	}
 
@@ -357,7 +357,7 @@ class ilRoomsharingDatabase
 	public function getAllFloorplans()
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::FLOORPLANS .
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::FLOORPLANS_TABLE .
 				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer') .
 				' order by file_id DESC');
 	}
@@ -371,7 +371,7 @@ class ilRoomsharingDatabase
 	public function getFloorplan($a_file_id)
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::FLOORPLANS .
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::FLOORPLANS_TABLE .
 				' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer') . ' AND pool_id = '
 				. $ilDB->quote($this->pool_id, 'integer'));
 	}
@@ -385,7 +385,7 @@ class ilRoomsharingDatabase
 	public function insertFloorplan($a_file_id)
 	{
 		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::FLOORPLANS,
+		$ilDB->insert(ilRoomsharingDBConstants::FLOORPLANS_TABLE,
 			array(
 			'file_id' => array('integer', $a_file_id),
 			'pool_id' => array('integer', $this->pool_id)
@@ -404,7 +404,7 @@ class ilRoomsharingDatabase
 	public function deleteFloorplan($a_file_id)
 	{
 		global $ilDB;
-		return $ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::FLOORPLANS .
+		return $ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::FLOORPLANS_TABLE .
 				' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer'));
 	}
 
@@ -419,7 +419,7 @@ class ilRoomsharingDatabase
 	{
 		global $ilDB;
 		return $ilDB->manipulate(
-				'DELETE FROM ' . ilRoomsharingDBConstants::USER . ' WHERE user_id = ' .
+				'DELETE FROM ' . ilRoomsharingDBConstants::USER_TABLE . ' WHERE user_id = ' .
 				$ilDB->quote($user_id(), 'integer') .
 				' AND booking_id = ' . $ilDB->quote($a_booking_id, 'integer'));
 	}
@@ -434,7 +434,7 @@ class ilRoomsharingDatabase
 	{
 		global $ilDB;
 		return $ilDB->query(
-				'SELECT booking_id FROM ' . ilRoomsharingDBConstants::USER .
+				'SELECT booking_id FROM ' . ilRoomsharingDBConstants::USER_TABLE .
 				' WHERE user_id = ' . $ilDB->quote($user_id, 'integer'));
 	}
 
@@ -448,7 +448,7 @@ class ilRoomsharingDatabase
 	{
 		global $ilDB;
 		return $ilDB->query(
-				'SELECT *' . ' FROM ' . ilRoomsharingDBConstants::BOOKINGS . ' WHERE id = ' .
+				'SELECT *' . ' FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE . ' WHERE id = ' .
 				$ilDB->quote($booking_id, 'integer') .
 				' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
 				' OR date_to >= "' . date('Y-m-d H:i:s') . '")' .
@@ -477,7 +477,7 @@ class ilRoomsharingDatabase
 	public function getRoom($room_id)
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::ROOMS . ' WHERE id = ' .
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::ROOMS_TABLE . ' WHERE id = ' .
 				$ilDB->quote($room_id, 'integer'));
 	}
 
@@ -490,7 +490,7 @@ class ilRoomsharingDatabase
 	public function getRoomAttribute($attribute_id)
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES .
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE .
 				' WHERE id = ' . $ilDB->quote($attribute_id, 'integer'));
 	}
 
@@ -504,8 +504,8 @@ class ilRoomsharingDatabase
 	{
 		global $ilDB;
 		return $ilDB->query('SELECT id, att.name, count FROM ' .
-				ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE . ' rta LEFT JOIN ' .
-				ilRoomsharingDBConstants::ROOM_ATTRIBUTES . ' as att ON att.id = rta.att_id' .
+				ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
+				ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id' .
 				' WHERE room_id = ' . $ilDB->quote($room_id, 'integer') . ' ORDER BY att.name');
 	}
 
@@ -518,7 +518,7 @@ class ilRoomsharingDatabase
 	public function getBookingsForRoom($room_id)
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants:: BOOKINGS .
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants:: BOOKINGS_TABLE .
 				' WHERE room_id = ' . $ilDB->quote($room_id, 'integer'));
 	}
 
@@ -531,7 +531,7 @@ class ilRoomsharingDatabase
 	public function deleteAttributesForRoom($room_id)
 	{
 		global $ilDB;
-		return $ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE .
+		return $ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE .
 				' WHERE room_id = ' . $ilDB->quote($room_id, 'integer'));
 	}
 
@@ -549,9 +549,9 @@ class ilRoomsharingDatabase
 	public function insertRoom($name, $type, $min_alloc, $max_alloc, $file_id, $building_id)
 	{
 		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::ROOMS,
+		$ilDB->insert(ilRoomsharingDBConstants::ROOMS_TABLE,
 			array(
-			'id' => array('integer', $ilDB->nextId(ilRoomsharingDBConstants::ROOMS)),
+			'id' => array('integer', $ilDB->nextId(ilRoomsharingDBConstants::ROOMS_TABLE)),
 			'name' => array('text', $name),
 			'type' => array('text', $type),
 			'min_alloc' => array('integer', $min_alloc),
@@ -573,7 +573,7 @@ class ilRoomsharingDatabase
 	public function insertAttributeForRoom($room_id, $attribute_id, $count)
 	{
 		global $ilDB;
-		$ilDB->insert(ilRoomSharingDBConstants::ROOM_TO_ATTRIBUTE,
+		$ilDB->insert(ilRoomSharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE,
 			array(
 			'room_id' => array('integer', $room_id),
 			'att_id' => array('integer', $attribute_id),
