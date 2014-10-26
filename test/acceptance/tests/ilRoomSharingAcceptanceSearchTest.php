@@ -5,7 +5,7 @@ include_once './acceptance/php-webdriver/__init__.php';
 /**
  * Example of an PHPUnit-Test with Selenium. Produces simple search test.
  *
- * @author tmatern
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
  *
  * @property WebDriver $driver
  */
