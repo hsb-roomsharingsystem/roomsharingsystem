@@ -9,75 +9,86 @@ include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 class ilRoomSharingBook
 {
 	protected $pool_id;
+	private $ilRoomsharingDatabase;
+	private $date_from;
+	private $date_to;
+	private $room_id;
+
+	const BOOKING_IN_THE_PAST = - 4;
+	const INVALID_DATE_CONDITION = - 3;
+	const ROOM_ALREADY_BOOKED = - 2;
 
 	/**
 	 * Method to add a new booking into the database
 	 *
-	 * @global type $ilDB
-	 * @global type $ilUser
-	 * @global type $pool_id
 	 * @param array $booking_values
 	 *        	Array with the values of the booking
 	 * @param array $booking_attr_values
 	 *        	Array with the values of the booking-attributes
-	 * @param
-	 *        	ilRoomSharingRooms Object of ilRoomSharingRooms
+	 * @param $ilRoomSharingRooms Object of ilRoomSharingRooms
 	 * @return type
 	 */
 	public function addBooking($booking_values, $booking_attr_values, $ilRoomSharingRooms)
 	{
+		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+		$this->date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
+		$this->date_to = $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time'];
+		$this->room_id = $booking_values ['room'];
 
-		//TODO: $booking_values ['book_public'] in irgendeiner Form verwenden
-		global $ilDB, $ilUser;
-		$ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
-
-		$subject = $booking_values ['subject'];
-		$date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
-		$date_to = $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time'];
-
-		// Check whether the date_from is earlier than now
-		if (strtotime($date_from) <= time())
+		if ($this->isBookingInPast())
 		{
-			return - 4;
+			return self::BOOKING_IN_THE_PAST;
 		}
-
-		// Check whether the date_to is earlier or equal than the date_from
-		if ($date_from >= $date_to)
+		if ($this->checkForInvalidDateConditions())
 		{
-			return - 3;
+			return self::INVALID_DATE_CONDITION;
 		}
-
-		$room_id = $booking_values ['room'];
-		$user_id = $ilUser->getId();
-
-		// Check if the selected room is already booked in the given time range
-		if ($ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($date_from, $date_to, $room_id) !==
-			array())
+		if ($this->isAlreadyBooked())
 		{
-			return - 2;
+			return self::ROOM_ALREADY_BOOKED;
 		}
+		return $this->insertBooking($booking_attr_values, $booking_values);
+	}
 
-		// Insert the booking
-		$insertedId = $ilRoomsharingDatabase->insertBooking($room_id, $user_id, $subject, $date_from,
-			$date_to);
+	/**
+	 * Method to check whether the booking date is in the past
+	 */
+	private function isBookingInPast()
+	{
+		return (strtotime($this->date_from) <= time());
+	}
 
-		// Check whether the insert failed
-		if ($insertedId === - 1)
-		{
-			return - 1;
-		}
+	/**
+	 * Method to check whether the date is valid
+	 * date_to must be higher or equal than the date_from
+	 */
+	private function checkForInvalidDateConditions()
+	{
+		return ($this->date_from >= $this->date_to);
+	}
 
-		// Insert the attributes for the booking in the conjunction table
-		foreach ($booking_attr_values as $booking_attr_key => $booking_attr_value)
-		{
-			// Only insert the attribute value, if a value was submitted by the user
-			if ($booking_attr_value !== "")
-			{
-				$ilRoomsharingDatabase->insertBookingAttribute($insertedId, $booking_attr_key,
-					$booking_attr_value);
-			}
-		}
-		return 1;
+	/**
+	 * Method to check if the selected room is already booked in the given time range
+	 *
+	 * @param $ilRoomSharingRooms Object of ilRoomSharingRooms
+	 */
+	private function isAlreadyBooked()
+	{
+		$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($this->date_from,
+			$this->date_to, $this->room_id);
+		return ($temp !== array());
+	}
+
+	/**
+	 * Method to insert the booking
+	 *
+	 * @param array $booking_attr_values
+	 *        	Array with the values of the booking-attributes
+	 * @return type -1 failed insert, 1 successful insert
+	 */
+	private function insertBooking($booking_attr_values, $booking_values)
+	{
+		return $this->ilRoomsharingDatabase->insertBooking($booking_attr_values, $booking_values);
 	}
 
 	/**

@@ -200,51 +200,80 @@ class ilRoomsharingDatabase
 	/**
 	 * Insert a bboking into the database.
 	 *
-	 * @param integer $room_id
-	 * @param integer $user_id
-	 * @param string $subject
-	 * @param timestamp $date_from
-	 * @param timestamp $date_to
-	 * @return integer id of inserted booking
+	 * @global type $ilDB
+	 * @global type $ilUser
+	 * @param array $booking_values
+	 *        	Array with the values of the booking
+	 * @param array $booking_attr_values
+	 *        	Array with the values of the booking-attributes
+	 * @return integer 1 = successful, -1 not successful
 	 */
-	public function insertBooking($room_id, $user_id, $subject, $date_from, $date_to)
+	public function insertBooking($booking_attr_values, $booking_values)
 	{
 		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::BOOKINGS_TABLE,
+		global $ilUser;
+
+		$ilDB->insert(ilRoomsharingDBConstants::BOOKINGS,
 			array(
-			'id' => array('integer', $ilDB->nextID(ilRoomsharingDBConstants::BOOKINGS_TABLE)),
-			'date_from' => array('timestamp', $date_from),
-			'date_to' => array('timestamp', $date_to),
-			'room_id' => array('integer', $room_id),
+			'id' => array('integer', $ilDB->nextID(ilRoomsharingDBConstants::BOOKINGS)),
+			'date_from' => array('timestamp', $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time']),
+			'date_to' => array('timestamp', $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time']),
+			'room_id' => array('integer', $booking_values ['room']),
 			'pool_id' => array('integer', $this->pool_id),
-			'user_id' => array('integer', $user_id),
-			'subject' => array('text', $subject)
+			'user_id' => array('integer', $ilUser->getId()),
+			'subject' => array('text', $booking_values ['subject'])
 			)
 		);
 
-		return $ilDB->getLastInsertId();
+		$insertedId = $ilDB->getLastInsertId();
+
+		if ($insertedId == - 1)
+		{
+			return - 1;
+		}
+
+		$this->insertBookingAttributes($insertedId, $booking_attr_values);
+
+		return 1;
 	}
 
 	/**
-	 * Insert a booking attribute into the database.
+	 * Method to insert booking attributes into the database.
+	 *
+	 * @param integer $insertedId
+	 * @param array $booking_attr_values
+	 *        	Array with the values of the booking-attributes
+	 */
+	private function insertBookingAttributes($insertedId, $booking_attr_values)
+	{
+		// Insert the attributes for the booking in the conjunction table
+		foreach ($booking_attr_values as $booking_attr_key => $booking_attr_value)
+		{
+			// Only insert the attribute value, if a value was submitted by the user
+			if ($booking_attr_value !== "")
+			{
+				$this->insertBookingAttribute($insertedId, $booking_attr_key, $booking_attr_value);
+			}
+		}
+	}
+
+	/**
+	 * Inserts a booking attribute into the database.
 	 *
 	 * @param integer $insertedId
 	 * @param integer $booking_attr_key
 	 * @param string $booking_attr_value
-	 * @return integer id of inserted booking attribute
 	 */
 	public function insertBookingAttribute($insertedId, $booking_attr_key, $booking_attr_value)
 	{
 		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::BOOKING_TO_ATTRIBUTE_TABLE,
+		$ilDB->insert(ilRoomsharingDBConstants::BOOKING_TO_ATTRIBUTE,
 			array(
 			'booking_id' => array('integer', $insertedId),
 			'attr_id' => array('integer', $booking_attr_key),
 			'value' => array('text', $booking_attr_value)
 			)
 		);
-
-		return $ilDB->getLastInsertId();
 	}
 
 	/**
