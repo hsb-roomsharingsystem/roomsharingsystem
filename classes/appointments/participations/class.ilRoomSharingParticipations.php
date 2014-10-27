@@ -69,7 +69,11 @@ class ilRoomSharingParticipations
 
 				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_from']);
 				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_to']);
-				$date = $date_from->format('d') . '.' . ' ' . $lng->txt(
+
+				//Add week day
+				$date = $lng->txt(substr($date_from->format('D'), 0, 2) . '_short') . '., ';
+
+				$date .= $date_from->format('d') . '.' . ' ' . $lng->txt(
 						'month_' . $date_from->format('m') . '_short') . ' ' .
 					$date_from->format('Y') . ',' . ' ' .
 					$date_from->format('H:i');
@@ -78,7 +82,13 @@ class ilRoomSharingParticipations
 				// Check whether the date_from differs from the date_to
 				if ($date_from->format('dmY') !== $date_to->format('dmY'))
 				{
-					$date .= '<br>' . $date_to->format('d') . '.' . ' ' . $lng->txt(
+					//Display the date_to in the next line
+					$date .= '<br>';
+
+					//Add week day
+					$date .= $lng->txt(substr($date_to->format('D'), 0, 2) . '_short') . '., ';
+
+					$date .= $date_to->format('d') . '.' . ' ' . $lng->txt(
 							'month_' . $date_to->format('m') . '_short') . ' ' .
 						$date_to->format('Y') . ', ';
 				}
