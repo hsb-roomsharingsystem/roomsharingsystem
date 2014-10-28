@@ -150,7 +150,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			case 'ilroomsharingbookgui':
 				$this->tabs_gui->clearTargets();
 				$this->tabs_gui->setBackTarget(
-					$this->lng->txt('back'), $ilCtrl->getLinkTarget($this, "showSearchResults")
+					$this->lng->txt("rep_robj_xrs_search_back"), $ilCtrl->getLinkTarget($this, "showSearchResults")
 				);
 				$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
@@ -431,7 +431,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	public function book()
 	{
-		global $tpl, $ilCtrl, $lng;
 		$this->tabs_gui->clearTargets();
 		$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
 		$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
@@ -439,10 +438,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$this, $_GET['room_id'], $_GET['date'] . " " . $_GET['time_from'],
 			$_GET['date'] . " " . $_GET['time_to']
 		);
-		$book->renderObject();
+		$book->renderBookingForm();
 		// the back button which links to where the user came from
 		$this->tabs_gui->setBackTarget(
-			$lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this, $last_cmd)
+			$this->lng->txt("rep_robj_xrs_search_back"), $this->ctrl->getLinkTarget($this, $last_cmd)
 		);
 	}
 
@@ -519,8 +518,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->ctrl->saveParameter($this, array('seed'));
 	}
 
-        
-        
 	/**
 	 * init mini-calendar
 	 *
@@ -566,11 +563,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		//Erstellt zum Test einen Termin im Buchungskalender
 		//$this->addAppointment($category);
 	}
-        
-        /*
-         * 
-         * @param $cat_id $cat_id
-         */
+
+	/*
+	 *
+	 * @param $cat_id $cat_id
+	 */
 	private function addAppointment($cat_id, $title, $time_start, $time_end)
 	{
 		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
@@ -587,6 +584,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$ass = new ilCalendarCategoryAssignments($app->getEntryId());
 		$ass->addAssignment($cat_id);
 	}
+
 }
 
 ?>
