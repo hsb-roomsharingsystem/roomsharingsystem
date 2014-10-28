@@ -246,6 +246,7 @@ class ilRoomSharingBookGUI
 					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_is_earlier_than_now'), true);
 				}
 				$form->setValuesByPost();
+				$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
 				$tpl->setContent($form->getHTML());
 			}
 		}
@@ -254,6 +255,7 @@ class ilRoomSharingBookGUI
 			$this->room_id = $form->getInput('room_id');
 			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
 			$form->setValuesByPost();
+			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
 			$tpl->setContent($form->getHTML());
 		}
 	}
