@@ -10,16 +10,15 @@ include_once './acceptance/php-webdriver/__init__.php';
  * @group acceptance
  * @property WebDriver $webDriver
  */
-class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
-{
-	private static $webDriver;
-	private $url = 'http://localhost/roomsharingsystem'; // URL to local RoomSharing
-	private static $rssObjectName; // name of RoomSharing pool
-	private $login_user = 'root';
-	private $login_pass = 'homer';
+class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase {
 
-	public static function setUpBeforeClass()
-	{
+	private static $webDriver;
+	private static $url = 'http://localhost/roomsharingsystem'; // URL to local RoomSharing
+	private static $rssObjectName; // name of RoomSharing pool
+	private static $login_user = 'root';
+	private static $login_pass = 'homer';
+
+	public static function setUpBeforeClass() {
 		global $rssObjectName;
 		self::$rssObjectName = $rssObjectName;
 		$host = 'http://localhost:4444/wd/hub'; // this is the default
@@ -27,6 +26,12 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 		self::$webDriver = RemoteWebDriver::create($host, $capabilities, 5000);
 		self::$webDriver->manage()->timeouts()->implicitlyWait(3); // implicitly wait time => 3 sec.
 		self::$webDriver->manage()->window()->maximize();  // maxize browser window
+		self::$webDriver->get(self::$url); // go to RoomSharing System
+	}
+
+	public function setUp() {
+		$this->login(self::$login_user, self::$login_pass);  // login
+		$this->toRSS();
 	}
 
 	/**
@@ -34,19 +39,16 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 	 *
 	 * @test
 	 */
-	public function testUserStory4()
-	{
-		self::$webDriver->get($this->url); // go to RoomSharing System
-		$this->login($this->login_user, $this->login_pass);  // login
-		$this->toRSS();
+	public function testUserStory4() {
+
+
 		/**
 		 *  TC#2
 		 * 	Search for room "123". Verify result.
 		 */
 		$this->searchForRoomByName("123");
 		$this->assertEquals("1", $this->getNoOfResults());
-		if ($this->getNoOfResults() == 1)
-		{
+		if ($this->getNoOfResults() == 1) {
 			$this->assertEquals("123", $this->getFirstResult());
 		}
 		/**
@@ -54,8 +56,7 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 		 * 	Search for room "032a". Verify result.
 		 */
 		$this->searchForRoomByName("032a");
-		if ($this->getNoOfResults() == 1)
-		{
+		if ($this->getNoOfResults() == 1) {
 			$this->assertEquals("032A", $this->getFirstResult());
 		}
 		/**
@@ -69,23 +70,19 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 		 *  TC#5
 		 * 	Search for room "123" with date (today).
 		 */
-		$this->searchForRoomByAll("123", "", date("d"), $this->getCurrentMonth(), date("Y"), date("H"),
-			(date("i") + (60 * 5)), "23", "55", "", "", "", "");
-		if ($this->getNoOfResults() == 1)
-		{
+		$this->searchForRoomByAll("123", "", date("d"), $this->getCurrentMonth(), date("Y"), date("H"), (date("i") + (60 * 5)), "23", "55", "", "", "", "");
+		if ($this->getNoOfResults() == 1) {
 			$this->assertEquals("123", $this->getFirstResult());
 		}
 		/**
 		 *  TC#6
 		 *
 		 */
-		$this->searchForRoomByAll("123", "", date("d") - 1, $this->getCurrentMonth(), date("Y"), "00",
-			"00", date("H"), date("i"), "", "", "", "");
+		$this->searchForRoomByAll("123", "", date("d") - 1, $this->getCurrentMonth(), date("Y"), "00", "00", date("H"), date("i"), "", "", "", "");
 		// TC#7 ==> Buchen in Vergangenheit funktioniert
 		// TC#8 ==> evtl. nur mit erweiterer Suche möglich
 		// TC#9 ==> TC nicht mehr gültig, da Buchen nun möglich ist
-
-		self::$webDriver->quit();
+		//self::$webDriver->quit();
 	}
 
 	/**
@@ -123,6 +120,7 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 	  //self::$webDriver->quit();
 	  }
 	 */
+
 	/**
 	 * GUI tests for floorplans.
 	 *
@@ -130,20 +128,19 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 	 * the tests from user story use functionality which is not yet implemented.
 	 * @test
 	 */
-	public function testGebaeudePlaeneExplorativ()
-	{
-		self::$webDriver->get($this->url);   // go to RoomSharing System
-		$this->login($this->login_user, $this->login_pass);  // login
-		$this->toRSS();  // navigate to RoomSharing Pool
+	public function testGebaeudePlaeneExplorativ() {
+		//self::$webDriver->get($this->url);   // go to RoomSharing System
+		//$this->login($this->login_user, $this->login_pass);  // login
+		//$this->toRSS();  // navigate to RoomSharing Pool
 		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
 		/**
 		 *  Check editing of an existing floorplan
 		 */
-		if ($this->getNoOfResults() >= 1)
-		{
+		if ($this->getNoOfResults() >= 1) {
 			$desc = self::$webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[3]"))->getText();
 			$menu = self::$webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
-			$menu->findElement(WebDriverBy::cssSelector("#ilAdvSelListAnchorElement_263 > a > img"))->click();
+			//$menu->findElement(WebDriverBy::cssSelector("#ilAdvSelListAnchorElement_263 > a > img"))->click();
+			$menu->findElement(WebDriverBy::linkText('Aktionen'))->click();
 			$menu->findElement(WebDriverBy::linkText('Bearbeiten'))->click();
 			$desc1 = self::$webDriver->findElement(WebDriverBy::id("description"));
 			$desc1->clear();
@@ -163,9 +160,8 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 		self::$webDriver->findElement(WebDriverBy::name("cmd[save]"))->click();
 		$error_mess = self::$webDriver->findElement(WebDriverBy::cssSelector("div.ilFailureMessage"))->getText();
 		// assert error message
-		$this->assertEquals("Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.",
-			$error_mess);
-		self::$webDriver->quit();
+		$this->assertEquals("Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.", $error_mess);
+		//self::$webDriver->quit();
 	}
 
 	//public function testUserStory5(){
@@ -180,8 +176,7 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 	 * Search for room by room name.
 	 * @param type $roomName Room name
 	 */
-	private function searchForRoomByName($roomName)
-	{
+	private function searchForRoomByName($roomName) {
 		self::$webDriver->findElement(WebDriverBy::linkText('Suche'))->click();
 		self::$webDriver->findElement(WebDriverBy::id('room_name'))->clear();
 		self::$webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($roomName);
@@ -204,9 +199,7 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 	 * @param type $proj		Amount of projectors
 	 * @param type $white		Amount of whiteboards
 	 */
-	private function searchForRoomByAll($roomName, $seats, $day, $month, $year, $h_from, $m_from,
-		$h_to, $m_to, $beamer, $sound, $proj, $white)
-	{
+	private function searchForRoomByAll($roomName, $seats, $day, $month, $year, $h_from, $m_from, $h_to, $m_to, $beamer, $sound, $proj, $white) {
 		self::$webDriver->findElement(WebDriverBy::linkText('Suche'))->click();
 		self::$webDriver->findElement(WebDriverBy::id('room_name'))->clear();
 		self::$webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($roomName);
@@ -244,9 +237,7 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 	 * @param type $t_m
 	 * @param type $acc
 	 */
-	private function doABooking($subject, $mod, $cour, $sem, $f_d, $f_m, $f_y, $f_h, $f_m, $t_d, $t_m,
-		$t_y, $t_h, $t_m, $acc)
-	{
+	private function doABooking($subject, $mod, $cour, $sem, $f_d, $f_m, $f_y, $f_h, $f_m, $t_d, $t_m, $t_y, $t_h, $t_m, $acc) {
 		self::$webDriver->findElement(WebDriverBy::id('subject'))->sendKeys($subject);
 		self::$webDriver->findElement(WebDriverBy::id('1'))->sendKeys($mod);
 		self::$webDriver->findElement(WebDriverBy::id('2'))->sendKeys($cour);
@@ -261,14 +252,12 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 		self::$webDriver->findElement(WebDriverBy::id('to[date]_y'))->sendKeys($t_y);
 		self::$webDriver->findElement(WebDriverBy::id('to[time]_h'))->sendKeys($t_h);
 		self::$webDriver->findElement(WebDriverBy::id('to[time]_m'))->sendKeys($t_m);
-		if ($acc == true)
-		{
+		if ($acc == true) {
 			self::$webDriver->findElement(WebDriverBy::id('accept_room_rules'))->click();
 		}
 	}
 
-	private function getCurrentMonth()
-	{
+	private function getCurrentMonth() {
 		$monate = array(1 => "Januar",
 			2 => "Februar",
 			3 => "M&auml;rz",
@@ -285,54 +274,49 @@ class ilRoomSharingAcceptanceGUITest extends PHPUnit_Framework_TestCase
 		return $monate[$monat];
 	}
 
-	private function login($user, $pass)
-	{
+	public function login($user, $pass) {
 		self::$webDriver->findElement(WebDriverBy::id('username'))->sendKeys($user);
 		self::$webDriver->findElement(WebDriverBy::id('password'))->sendKeys($pass)->submit();
 		self::$webDriver->findElement(WebDriverBy::id('mm_rep_tr'))->click();
 	}
 
-	private function toRSS()
-	{
+	public function toRSS() {
 		self::$webDriver->findElement(WebDriverBy::linkText('Magazin - Einstiegsseite'))->click();
 		self::$webDriver->findElement(WebDriverBy::xpath("(//a[contains(text(),'" . self::$rssObjectName . "')])[2]"))->click();
 		$this->assertContains(self::$rssObjectName, self::$webDriver->getTitle());
 	}
 
-	private function getCurrentDay()
-	{
+	private function getCurrentDay() {
 		return date("d");
 	}
 
-	private function getCurrentYear()
-	{
+	private function getCurrentYear() {
 		return date("y");
 	}
 
-	private function getNoOfResults()
-	{
-		try
-		{
+	private function getNoOfResults() {
+		try {
 			$result = self::$webDriver->findElement(WebDriverBy::cssSelector('span.ilTableFootLight'))->getText();
 			return substr($result, strripos($result, " ") + 1, -1);
-		}
-		catch (WebDriverException $exception)
-		{
+		} catch (WebDriverException $exception) {
 			return 0;
 		}
 	}
 
-	private function getFirstResult()
-	{
+	private function getFirstResult() {
 		return self::$webDriver->findElement(WebDriverBy::cssSelector('td.std'))->getText();
 	}
 
 	/**
 	 * Closes web browser.
 	 */
-	public static function tearDownAfterClass()
-	{
+	public static function tearDownAfterClass() {
 		self::$webDriver->quit();
+	}
+
+	public function tearDown() {
+		self::$webDriver->findElement(WebDriverBy::linkText('Abmelden'))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('Bei ILIAS anmelden'))->click();
 	}
 
 }

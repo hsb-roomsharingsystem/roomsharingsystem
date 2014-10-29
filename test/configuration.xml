@@ -22,6 +22,6 @@
     </groups> -->
     <php>
         <!-- Name of the RoomSharing Object -->
-        <var name="rssObjectName" value="Dev"/>
+        <var name="rssObjectName" value="MeinRoomsharingPool"/>
     </php>
 </phpunit>
