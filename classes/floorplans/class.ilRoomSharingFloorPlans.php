@@ -35,14 +35,17 @@ class ilRoomSharingFloorPlans
 	public function getAllFloorPlans()
 	{
 		global $ilDB;
-
+		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+		
 		$set = $this->ilRoomsharingDatabase->getAllFloorplans();
 		$floorplans = array();
 		$row = $ilDB->fetchAssoc($set);
 		while ($row)
-		{
+		{				
+			$mobj = new ilObjMediaObject($row['file_id']);
+			$row["title"] = $mobj->getTitle();
 			$floorplans [] = $row;
-			$row = $ilDB->fetchAssoc($set);
+            $row = $ilDB->fetchAssoc($set);
 		}
 		return $floorplans;
 	}

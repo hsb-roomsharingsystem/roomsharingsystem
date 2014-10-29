@@ -66,7 +66,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	private function addColumns()
 	{
 		$this->addColumn($this->lng->txt("rep_robj_xrs_plan"));
-		$this->addColumn($this->lng->txt("title"));
+		$this->addColumn($this->lng->txt("title"), "title");
 		$this->addColumn($this->lng->txt("desc"));
 		$this->addColumn($this->lng->txt("actions"));
 	}
@@ -99,8 +99,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 		$this->tpl->setVariable("LINK_VIEW", $mobj->getDataDirectory() . "/" . $med->getLocation());
 
 		// Title
-		$this->tpl->setVariable('TXT_TITLE', $mobj->getTitle());
-
+		$this->tpl->setVariable('TXT_TITLE', $a_set['title']);
 		// Description
 		$this->tpl->setVariable('TXT_DESCRIPTION', $mobj->getDescription());
 
