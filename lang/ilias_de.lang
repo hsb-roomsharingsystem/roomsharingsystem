@@ -41,6 +41,9 @@ floor_plans_deleted_error#:#Fehler beim Löschen des Gebäudeplans
 floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_upload_error#:#Fehler beim Hochladen des Geäudeplans. Die Mögliche Ursache ist die verwendung eines nicht unterstütztes Datei Formats
 leave#:#Austreten
+mail_booking_creator_subject#:#Du hast eine Buchung erstellt.
+mail_booking_creator_body#:#Du hast erfolgreich eine Buchung eingetragen. Du findest deine Buchung unter folgendem Link:
+mail_booking_participant_subject#:#Jemand hat für dich einen Raum gebucht.
 manage#:#Verwalten
 missing_required_entries#:#Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.
 module#:#Modul

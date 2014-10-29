@@ -1,6 +1,7 @@
 <?php
 
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+include_inde("./Services/Notification/classes/class.ilSystemNotification.php");
 
 /**
  * Backend-Class for booking-mask
@@ -101,5 +102,20 @@ class ilRoomSharingBook
 	{
 		$this->pool_id = $pool_id;
 	}
+        
+        
+        /**
+         * Generate a booking acknowledgement via mail.
+         * 
+         * @return type -1 failed to send mail, 1 success
+         * 
+         *
+         */
+        private function sendAcknowledment(){
+            $ack = new ilSystemNotification();
+            $ack->setLangModules(array("exc"));
+            $ack->setSubjectLangId("mail_booking_creator_subject");
+            $ack->setIntroductionLangId("exc_feedback_notification_body");
+        }
 
 }
