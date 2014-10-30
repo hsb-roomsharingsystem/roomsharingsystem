@@ -195,9 +195,12 @@ class ilRoomSharingBookGUI
 				$booking_attr_values_array[$attr_value['id']] = $form->getInput($attr_value['id']);
 			}
 
+			//Build array with the participant usernames for a booking
+			$booking_participants_array = $form->getInput('participants');
+
 			// Execute the database operations and check for return value
 			$result = $book->addBooking($booking_values_array, $booking_attr_values_array,
-				$this->ilRoomSharingRooms);
+				$booking_participants_array, $this->ilRoomSharingRooms);
 			if ($result === 1)
 			{
 				$ilTabs->clearTargets();

@@ -28,7 +28,8 @@ class ilRoomSharingBook
 	 * @param $ilRoomSharingRooms Object of ilRoomSharingRooms
 	 * @return type
 	 */
-	public function addBooking($booking_values, $booking_attr_values, $ilRoomSharingRooms)
+	public function addBooking($booking_values, $booking_attr_values, $booking_participants,
+		$ilRoomSharingRooms)
 	{
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 		$this->date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
@@ -47,7 +48,7 @@ class ilRoomSharingBook
 		{
 			return self::ROOM_ALREADY_BOOKED;
 		}
-		return $this->insertBooking($booking_attr_values, $booking_values);
+		return $this->insertBooking($booking_attr_values, $booking_values, $booking_participants);
 	}
 
 	/**
@@ -86,9 +87,10 @@ class ilRoomSharingBook
 	 *        	Array with the values of the booking-attributes
 	 * @return type -1 failed insert, 1 successful insert
 	 */
-	private function insertBooking($booking_attr_values, $booking_values)
+	private function insertBooking($booking_attr_values, $booking_values, $booking_participants)
 	{
-		return $this->ilRoomsharingDatabase->insertBooking($booking_attr_values, $booking_values);
+		return $this->ilRoomsharingDatabase->insertBooking($booking_attr_values, $booking_values,
+				$booking_participants);
 	}
 
 	/**

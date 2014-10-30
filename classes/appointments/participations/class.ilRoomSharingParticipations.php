@@ -103,7 +103,7 @@ class ilRoomSharingParticipations
 
 				$one_booking['subject'] = $bookingRow['subject'];
 
-				$userSet = $this->ilRoomsharingDatabase->getUser($bookingRow['user_id']);
+				$userSet = $this->ilRoomsharingDatabase->getUserById($bookingRow['user_id']);
 				$userRow = $ilDB->fetchAssoc($userSet);
 
 				// Check whether the user has a firstname and a lastname
