@@ -2,8 +2,8 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
-require_once ("Services/Form/classes/class.ilCombinationInputGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
+require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
 require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 
 /**
@@ -17,12 +17,14 @@ require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
  */
 class ilRoomSharingBookGUI
 {
-	protected $parent_obj;
-	protected $pool_id;
-	protected $room_id;
-	protected $ilRoomSharingRooms;
-	protected $date_from;
-	protected $date_to;
+	private $parent_obj;
+	private $pool_id;
+	private $room_id;
+	private $ilRoomSharingRooms;
+	private $date_from;
+	private $date_to;
+
+	CONST BOOK_CMD = "book";
 
 	/**
 	 * Constructur for ilRoomSharingBookGUI
@@ -59,11 +61,12 @@ class ilRoomSharingBookGUI
 	}
 
 	/**
-	 * Renders the booking form including all of its properties.
+	 * Renders the booking form as HTML.
 	 */
 	public function renderBookingForm()
 	{
-		$this->tpl->setContent($this->createForm()->getHTML());
+		$booking_form = $this->createForm();
+		$this->tpl->setContent($booking_form->getHTML());
 	}
 
 	/**
@@ -71,158 +74,246 @@ class ilRoomSharingBookGUI
 	 *
 	 * @return the form
 	 */
-	protected function createForm()
+	private function createForm()
 	{
-
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
+		$form->setTitle($this->getFormTitle());
+		$form->addCommandButton(self::BOOK_CMD, $this->lng->txt("rep_robj_xrs_room_book"));
 
-		// Set form frame title
-		$form->setTitle($this->lng->txt('rep_robj_xrs_room_book') . ': ' . $this->lng->txt('rep_robj_xrs_room')
-			. ' ' . $this->ilRoomSharingRooms->getRoomName((empty($this->room_id)) ? $_POST ['room_id'] : $this->room_id));
-
-		// Input for the subject of the booking
-		$subject = new ilTextInputGUI($this->lng->txt("subject"), "subject");
-		$subject->setRequired(true);
-		$subject->setSize(40);
-		$subject->setMaxLength(120);
-		$form->addItem($subject);
-
-		$form->addCommandButton("book", $this->lng->txt("rep_robj_xrs_room_book"));
-
-		// List the booking-attributes
-		$ilBookings = new ilRoomSharingBookings();
-		$ilBookings->setPoolId($this->pool_id);
-		foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value)
+		$form_items = $this->createFormItems();
+		foreach ($form_items as $item)
 		{
-			$formattr = new ilTextInputGUI($attr_value ['txt'], $attr_value ['id']);
-			$formattr->setSize(40);
-			$formattr->setMaxLength(120);
-			$form->addItem($formattr);
+			$form->addItem($item);
 		}
-
-
-		$time_range = new ilCombinationInputGUI($this->lng->txt("assessment_log_datetime"), "time_range");
-
-		// Datetime Input for "Of"
-		$dt_prop = new ilDateTimeInputGUI($this->lng->txt("of"), "from");
-		if (!empty($this->date_from))
-		{
-			$dt_prop->setDate(new ilDateTime($this->date_from, IL_CAL_DATETIME));
-			$this->date_from = "";
-		}
-		$dt_prop->setMinuteStepSize(5);
-		$time_range->addCombinationItem("of", $dt_prop, $this->lng->txt("of"));
-		$dt_prop->setShowTime(true);
-
-		// Datetime Input for "To"
-		$dt_prop1 = new ilDateTimeInputGUI($this->lng->txt("to"), "to");
-		if (!empty($this->date_to))
-		{
-			$dt_prop1->setDate(new ilDateTime($this->date_to, IL_CAL_DATETIME));
-			$this->date_to = "";
-		}
-		$dt_prop1->setMinuteStepSize(5);
-		$time_range->addCombinationItem("to", $dt_prop1, $this->lng->txt("to"));
-		$dt_prop1->setShowTime(true);
-		$form->addItem($time_range);
-
-		// checkbox to make username public
-		$cb_pub = new ilCheckboxInputGUI($this->lng->txt("rep_robj_xrs_room_public_booking"),
-			"book_public");
-		$cb_pub->setValue("1");
-		$cb_pub->setChecked(false);
-		$cb_pub->setRequired(false);
-		$form->addItem($cb_pub);
-
-		// checkbox to confirm the room use agreement
-		$cb_prop = new ilCheckboxInputGUI($this->lng->txt("rep_robj_xrs_room_user_agreement"),
-			"accept_room_rules");
-		$cb_prop->setValue("1");
-		$cb_prop->setChecked(false);
-		$cb_prop->setRequired(true);
-		$form->addItem($cb_prop);
-
-		// input for
-		$participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_room_participants"),
-			"participants");
-		$participants_input->setMulti(true);
-		$form->addItem($participants_input);
-
-		// Save room-id in a hidden input field
-		$room_id_prop = new ilHiddenInputGUI("room_id");
-		$room_id_prop->setValue($this->room_id);
-		$room_id_prop->setRequired(true);
-		$form->addItem($room_id_prop);
 
 		return $form;
 	}
 
+	private function getFormTitle()
+	{
+		$title = $this->lng->txt('rep_robj_xrs_room_book') . ': ' . $this->lng->txt('rep_robj_xrs_room');
+		$title = $title . " " . $this->getRoomFromId();
+
+		return $title;
+	}
+
+	private function getRoomFromId()
+	{
+		$room_id = empty($this->room_id) ? $_POST['room_id'] : $this->room_id;
+		return $this->ilRoomSharingRooms->getRoomName($room_id);
+	}
+
+	private function createFormItems()
+	{
+		$form_items = array();
+		$form_items[] = $this->createSubjectTextInput();
+		$booking_attributes = $this->createBookingAttributeTextInputs();
+		$form_items = array_merge($form_items, $booking_attributes);
+		$form_items[] = $this->createTimeRangeInput();
+		$form_items[] = $this->createPublicBookingCheckBox();
+		$form_items[] = $this->createUserAgreementCheckBox();
+		$form_items[] = $this->createParticipantsMultiTextInput();
+		$form_items[] = $this->createRoomIdHiddenInputField();
+
+		return $form_items;
+	}
+
+	private function createSubjectTextInput()
+	{
+		$subject = new ilTextInputGUI($this->lng->txt("subject"), "subject");
+		$subject->setRequired(true);
+		$subject->setSize(40);
+		$subject->setMaxLength(120);
+
+		return $subject;
+	}
+
+	private function createBookingAttributeTextInputs()
+	{
+		$text_input_items = array();
+		$booking_attributes = $this->getBookingAttributes();
+		foreach ($booking_attributes as $attr)
+		{
+			$text_input_items[] = $this->createSingleBookingAttributeTextInput($attr);
+		}
+		return $text_input_items;
+	}
+
+	private function getBookingAttributes()
+	{
+		$ilBookings = new ilRoomSharingBookings();
+		$ilBookings->setPoolId($this->pool_id);
+		return $ilBookings->getAdditionalBookingInfos();
+	}
+
+	private function createSingleBookingAttributeTextInput($a_attribute)
+	{
+		$attr = new ilTextInputGUI($a_attribute['txt'], $a_attribute['id']);
+		$attr->setSize(40);
+		$attr->setMaxLength(120);
+
+		return $attr;
+	}
+
+	private function createTimeRangeInput()
+	{
+		$time_range = new ilCombinationInputGUI($this->lng->txt("assessment_log_datetime"), "time_range");
+
+		$from_id = "from";
+		$to_id = "to";
+		$from_transl = $this->lng->txt($from_id);
+		$to_transl = $this->lng->txt($to_id);
+
+		$time_input_from = $this->createDateTimeInput($from_transl, $from_id, $this->date_from);
+		$time_input_to = $this->createDateTimeInput($to_transl, $to_id, $this->date_to);
+
+		$time_range->addCombinationItem($from_id, $time_input_from, $from_transl);
+		$time_range->addCombinationItem($to_id, $time_input_to, $to_transl);
+
+		return $time_range;
+	}
+
+	private function createDateTimeInput($a_title, $a_postvar, $a_date)
+	{
+		$date_time_input = new ilDateTimeInputGUI($a_title, $a_postvar);
+		if (isset($a_date))
+		{
+			$date_time_input->setDate(new ilDateTime($a_date, IL_CAL_DATETIME));
+		}
+		$date_time_input->setMinuteStepSize(5);
+		$date_time_input->setShowTime(true);
+
+		return $date_time_input;
+	}
+
+	private function createPublicBookingCheckBox()
+	{
+		$checkbox_public = new ilCheckboxInputGUI($this->lng->txt("rep_robj_xrs_room_public_booking"),
+			"book_public");
+
+		return $checkbox_public;
+	}
+
+	private function createUserAgreementCheckBox()
+	{
+		$checkbox_agreement = new ilCheckboxInputGUI($this->lng->txt("rep_robj_xrs_room_user_agreement"),
+			"accept_room_rules");
+		$checkbox_agreement->setRequired(true);
+
+		return $checkbox_agreement;
+	}
+
+	private function createParticipantsMultiTextInput()
+	{
+		$participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_participants"),
+			"participants");
+		$participants_input->setMulti(true);
+
+		return $participants_input;
+	}
+
+	private function createRoomIdHiddenInputField()
+	{
+		$hidden_room_id = new ilHiddenInputGUI("room_id");
+		$hidden_room_id->setValue($this->room_id);
+		$hidden_room_id->setRequired(true);
+
+		return $hidden_room_id;
+	}
+
 	/**
-	 * Function to the validate and save the form data
+	 * Function for validating and saving the form data.
 	 *
 	 * @global type $ilTabs
 	 */
-	protected function book()
+	private function book()
 	{
-		global $ilTabs;
 		$form = $this->createForm();
-
-		// Check if the form is valid
-		if ($form->checkInput() && $form->getInput('accept_room_rules') == 1)
+		if ($this->isFormValid($form))
 		{
-			// Save the room_id in case of error for the next form
-			$this->room_id = $form->getInput('room_id');
-
-
-			// Build array with the standard-values for a booking
-			$book = new ilRoomSharingBook();
-			$book->setPoolId($this->getPoolId());
-			$booking_values_array = array();
-			$booking_values_array ['subject'] = $form->getInput('subject');
-			$booking_values_array ['from'] = $form->getInput('from');
-			$booking_values_array ['to'] = $form->getInput('to');
-			$booking_values_array ['book_public'] = $form->getInput('book_public');
-			$booking_values_array ['accept_room_rules'] = $form->getInput('accept_room_rules');
-			$booking_values_array ['room'] = $this->room_id;
-
-			// Build array with the booking-attribute-values for a booking
-			$booking_attr_values_array = array();
-			$ilBookings = new ilRoomSharingBookings();
-			$ilBookings->setPoolId($this->pool_id);
-			foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value)
-			{
-				$booking_attr_values_array[$attr_value['id']] = $form->getInput($attr_value['id']);
-			}
-
-			//Build array with the participant usernames for a booking
-			$booking_participants_array = $form->getInput('participants');
-
-			// Execute the database operations and check for return value
-			$result = $book->addBooking($booking_values_array, $booking_attr_values_array,
-				$booking_participants_array, $this->ilRoomSharingRooms);
-			if ($result === 1)
-			{
-				$ilTabs->clearTargets();
-				$this->parent_obj->setTabs();
-				$this->ctrl->setCmd("render");
-				$this->parent_obj->performCommand("");
-				ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
-			}
-			elseif ($result < 0)
-			{
-				$this->displayErrorMessage($result);
-				$form->setValuesByPost();
-				$this->tpl->setContent($form->getHTML());
-			}
+			$this->evaluateFormEntries($form);
 		}
 		else
 		{
-			$this->room_id = $form->getInput('room_id');
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
-			$form->setValuesByPost();
-			$this->tpl->setContent($form->getHTML());
+			$this->displayErrorMessage(-5);
+			$this->resetErroneousForm($form);
 		}
+	}
+
+	private function isFormValid($a_form)
+	{
+		return $a_form->checkInput() && $a_form->getInput('accept_room_rules') == 1;
+	}
+
+	private function evaluateFormEntries($a_form)
+	{
+		$common_entries = $this->fetchCommonEntriesFromForm($a_form);
+		$attribute_entries = $this->fetchAttributeEntriesFromForm($a_form);
+		$participant_entries = $a_form->getInput('participants');
+
+		$this->saveEntriesFromForm($a_form, $common_entries, $attribute_entries, $participant_entries);
+	}
+
+	private function fetchCommonEntriesFromForm($a_form)
+	{
+		$common_entries = array();
+		$common_entries['subject'] = $a_form->getInput('subject');
+		$common_entries['from'] = $a_form->getInput('from');
+		$common_entries['to'] = $a_form->getInput('to');
+		$common_entries['book_public'] = $a_form->getInput('book_public');
+		$common_entries['accept_room_rules'] = $a_form->getInput('accept_room_rules');
+		$common_entries['room'] = $a_form->getInput('room_id');
+
+		return $common_entries;
+	}
+
+	private function fetchAttributeEntriesFromForm($a_form)
+	{
+		$attribute_entries = array();
+		$ilBookings = new ilRoomSharingBookings();
+		$ilBookings->setPoolId($this->pool_id);
+		foreach ($ilBookings->getAdditionalBookingInfos() as $attr)
+		{
+			$attribute_entries[$attr['id']] = $a_form->getInput($attr['id']);
+		}
+
+		return $attribute_entries;
+	}
+
+	private function saveEntriesFromForm($a_form, $a_common_entries, $a_attribute_entries,
+		$a_participant_entries)
+	{
+		$book = new ilRoomSharingBook();
+		$book->setPoolId($this->getPoolId());
+
+		$result = $book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
+		if ($result == 1)
+		{
+			$this->cleanUpAfterSuccessfulSave();
+		}
+		elseif ($result < 0)
+		{
+			$this->displayErrorMessage($result);
+			$this->resetErroneousForm($a_form);
+		}
+	}
+
+	private function cleanUpAfterSuccessfulSave()
+	{
+		global $ilTabs;
+
+		$ilTabs->clearTargets();
+		$this->parent_obj->setTabs();
+		$this->ctrl->setCmd("render");
+		$this->parent_obj->performCommand("");
+		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
+	}
+
+	private function resetErroneousForm($a_form)
+	{
+		$a_form->setValuesByPost();
+		$this->tpl->setContent($a_form->getHTML());
 	}
 
 	private function displayErrorMessage($a_error_code)
@@ -242,6 +333,10 @@ class ilRoomSharingBookGUI
 		elseif ($a_error_code == - 4)
 		{
 			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_is_earlier_than_now'), true);
+		}
+		elseif ($a_error_code == - 5)
+		{
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
 		}
 	}
 

@@ -13,7 +13,9 @@ between#:#Zwischen
 booking_add#:#Buchung hinzufügen
 booking_added#:#Buchung hinzugefügt
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
+booking_back#:#Zurück zu den Buchungen
 booking_cancel#:#Stornieren
+booking_confirm#:#Wollen Sie wirklich die nachfolgende Buchung stornieren?
 booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
 booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
@@ -22,8 +24,8 @@ cancel#:#Abbrechen
 content#:#Inhalt
 course#:#Studiengang
 date#:#Termin
-datefrom_bigger_dateto#:#"von" ist später oder gleich "bis"
-datefrom_is_earlier_than_now#:#"von" liegt in der Vergangenheit
+datefrom_bigger_dateto#:#"Von" ist später oder gleich "bis"
+datefrom_is_earlier_than_now#:#"Von" liegt in der Vergangenheit
 description#:#Beschreibung
 edit#:#Bearbeiten
 edit_properties#:#Einstellungen bearbeiten

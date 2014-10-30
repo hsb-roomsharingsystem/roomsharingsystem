@@ -13,7 +13,9 @@ between#:#Between
 booking_add#:#Add Booking
 booking_added#:#Booking added
 booking_add_error#:#Booking couldn't been added
+booking_back#:#Back to bookings
 booking_cancel#:#Cancel
+booking_confirm#:#Are you sure you want to cancel the following booking?
 booking_deleted#:#Booking deleted! (following sequence bookings are not affected)
 booking_doesnt_exists#:#This booking doesn't exist any more!
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
@@ -22,8 +24,8 @@ cancel#:#Cancel
 content#:#Content
 course#:#Course
 date#:#Date
-datefrom_bigger_dateto#:#"of" is later or equal "to"
-datefrom_is_earlier_than_now#:#"of" is in the past
+datefrom_bigger_dateto#:#"from" is later or equal "to"
+datefrom_is_earlier_than_now#:#"from" lies in the past
 description#:#Description
 edit#:#Edit
 edit_properties#:#Edit Properties

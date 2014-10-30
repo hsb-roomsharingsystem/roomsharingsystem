@@ -25,11 +25,9 @@ class ilRoomSharingBook
 	 *        	Array with the values of the booking
 	 * @param array $booking_attr_values
 	 *        	Array with the values of the booking-attributes
-	 * @param $ilRoomSharingRooms Object of ilRoomSharingRooms
 	 * @return type
 	 */
-	public function addBooking($booking_values, $booking_attr_values, $booking_participants,
-		$ilRoomSharingRooms)
+	public function addBooking($booking_values, $booking_attr_values, $booking_participants)
 	{
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 		$this->date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
