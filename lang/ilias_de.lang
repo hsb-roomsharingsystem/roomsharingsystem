@@ -52,6 +52,7 @@ not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
 obj_xrs#:#RoomSharing
 on#:#Am
 participants#:#Teilnehmer
+participants_list#:#Teilnehmerliste
 participations#:#Teilnahmen
 person_responsible#:#Verantwortlicher
 plan#:#Plan

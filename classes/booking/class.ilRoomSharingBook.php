@@ -1,10 +1,13 @@
 <?php
 
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookException.php");
 
 /**
  * Backend-Class for booking-mask
- * @author Robert Heimsoth
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Christopher Marks <deamp_marks@yahoo.d>
+ * @author Alexander Keller <a.k3ll3r@gmail.com>
  */
 class ilRoomSharingBook
 {
@@ -14,18 +17,19 @@ class ilRoomSharingBook
 	private $date_to;
 	private $room_id;
 
-	const BOOKING_IN_THE_PAST = - 4;
-	const INVALID_DATE_CONDITION = - 3;
-	const ROOM_ALREADY_BOOKED = - 2;
+	public function __construct()
+	{
+		global $lng;
+		$this->lng = $lng;
+	}
 
 	/**
 	 * Method to add a new booking into the database
 	 *
-	 * @param array $booking_values
-	 *        	Array with the values of the booking
-	 * @param array $booking_attr_values
-	 *        	Array with the values of the booking-attributes
-	 * @return type
+	 * @param type $booking_values Array with the values of the booking
+	 * @param type $booking_attr_values Array with the values of the booking-attributes
+	 * @param type $booking_participants Array with the values of the participants
+	 * @throws ilRoomSharingBookException
 	 */
 	public function addBooking($booking_values, $booking_attr_values, $booking_participants)
 	{
@@ -34,19 +38,34 @@ class ilRoomSharingBook
 		$this->date_to = $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time'];
 		$this->room_id = $booking_values ['room'];
 
+		$this->checkForBookingPreconditions();
+		$success = $this->insertBooking($booking_attr_values, $booking_values, $booking_participants);
+
+		if (!$success)
+		{
+			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
+		}
+	}
+
+	/**
+	 * Checks if certain conditions for the booking are met.
+	 *
+	 * @throws ilRoomSharingBookException
+	 */
+	private function checkForBookingPreconditions()
+	{
 		if ($this->isBookingInPast())
 		{
-			return self::BOOKING_IN_THE_PAST;
+			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_datefrom_is_earlier_than_now'));
 		}
 		if ($this->checkForInvalidDateConditions())
 		{
-			return self::INVALID_DATE_CONDITION;
+			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_datefrom_bigger_dateto'));
 		}
 		if ($this->isAlreadyBooked())
 		{
-			return self::ROOM_ALREADY_BOOKED;
+			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_room_already_booked'));
 		}
-		return $this->insertBooking($booking_attr_values, $booking_values, $booking_participants);
 	}
 
 	/**
@@ -103,3 +122,5 @@ class ilRoomSharingBook
 	}
 
 }
+
+?>

@@ -3,8 +3,10 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookException.php");
 require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
 require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once("Services/User/classes/class.ilUserAutoComplete.php");
 
 /**
  * Class ilRoomSharingBookGUI
@@ -113,8 +115,9 @@ class ilRoomSharingBookGUI
 		$form_items[] = $this->createTimeRangeInput();
 		$form_items[] = $this->createPublicBookingCheckBox();
 		$form_items[] = $this->createUserAgreementCheckBox();
-		$form_items[] = $this->createParticipantsMultiTextInput();
 		$form_items[] = $this->createRoomIdHiddenInputField();
+		$form_items[] = $this->createParticipantsSection();
+		$form_items[] = $this->createParticipantsMultiTextInput();
 
 		return $form_items;
 	}
@@ -204,15 +207,6 @@ class ilRoomSharingBookGUI
 		return $checkbox_agreement;
 	}
 
-	private function createParticipantsMultiTextInput()
-	{
-		$participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_participants"),
-			"participants");
-		$participants_input->setMulti(true);
-
-		return $participants_input;
-	}
-
 	private function createRoomIdHiddenInputField()
 	{
 		$hidden_room_id = new ilHiddenInputGUI("room_id");
@@ -222,8 +216,42 @@ class ilRoomSharingBookGUI
 		return $hidden_room_id;
 	}
 
+	private function createParticipantsMultiTextInput()
+	{
+		$participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_participants_list"),
+			"participants");
+		$participants_input->setMulti(true);
+		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
+		$participants_input->setDataSource($ajax_datasource);
+
+		return $participants_input;
+	}
+
 	/**
-	 * Function for validating and saving the form data.
+	 * Method that realizes the auto-completion for the participants list.
+	 */
+	private function doUserAutoComplete()
+	{
+		$search_fields = array("login", "firstname", "lastname", "email");
+		$result_field = "login";
+
+		$auto = new ilUserAutoComplete();
+		$auto->setSearchFields($search_fields);
+		$auto->setResultField($result_field);
+		echo $auto->getList($_REQUEST['term']);
+		exit();
+	}
+
+	private function createParticipantsSection()
+	{
+		$participant_section = new ilFormSectionHeaderGUI();
+		$participant_section->setTitle($this->lng->txt("rep_robj_xrs_participants"));
+
+		return $participant_section;
+	}
+
+	/**
+	 * Function that performs the booking procedure.
 	 *
 	 * @global type $ilTabs
 	 */
@@ -236,8 +264,7 @@ class ilRoomSharingBookGUI
 		}
 		else
 		{
-			$this->displayErrorMessage(-5);
-			$this->resetErroneousForm($form);
+			$this->handleInvalidForm($form);
 		}
 	}
 
@@ -248,14 +275,14 @@ class ilRoomSharingBookGUI
 
 	private function evaluateFormEntries($a_form)
 	{
-		$common_entries = $this->fetchCommonEntriesFromForm($a_form);
-		$attribute_entries = $this->fetchAttributeEntriesFromForm($a_form);
+		$common_entries = $this->fetchCommonFormEntries($a_form);
+		$attribute_entries = $this->fetchAttributeFormEntries($a_form);
 		$participant_entries = $a_form->getInput('participants');
 
-		$this->saveEntriesFromForm($a_form, $common_entries, $attribute_entries, $participant_entries);
+		$this->saveFormEntries($a_form, $common_entries, $attribute_entries, $participant_entries);
 	}
 
-	private function fetchCommonEntriesFromForm($a_form)
+	private function fetchCommonFormEntries($a_form)
 	{
 		$common_entries = array();
 		$common_entries['subject'] = $a_form->getInput('subject');
@@ -268,12 +295,13 @@ class ilRoomSharingBookGUI
 		return $common_entries;
 	}
 
-	private function fetchAttributeEntriesFromForm($a_form)
+	private function fetchAttributeFormEntries($a_form)
 	{
 		$attribute_entries = array();
 		$ilBookings = new ilRoomSharingBookings();
 		$ilBookings->setPoolId($this->pool_id);
-		foreach ($ilBookings->getAdditionalBookingInfos() as $attr)
+		$booking_attributes = $this->getBookingAttributes();
+		foreach ($booking_attributes as $attr)
 		{
 			$attribute_entries[$attr['id']] = $a_form->getInput($attr['id']);
 		}
@@ -281,22 +309,31 @@ class ilRoomSharingBookGUI
 		return $attribute_entries;
 	}
 
-	private function saveEntriesFromForm($a_form, $a_common_entries, $a_attribute_entries,
+	private function saveFormEntries($a_form, $a_common_entries, $a_attribute_entries,
 		$a_participant_entries)
+	{
+		try
+		{
+			$this->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
+		}
+		catch (ilRoomSharingBookException $ex)
+		{
+			$this->handleException($a_form, $ex);
+		}
+	}
+
+	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
 	{
 		$book = new ilRoomSharingBook();
 		$book->setPoolId($this->getPoolId());
+		$book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
+		$this->cleanUpAfterSuccessfulSave();
+	}
 
-		$result = $book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
-		if ($result == 1)
-		{
-			$this->cleanUpAfterSuccessfulSave();
-		}
-		elseif ($result < 0)
-		{
-			$this->displayErrorMessage($result);
-			$this->resetErroneousForm($a_form);
-		}
+	private function handleException($a_form, $a_exception)
+	{
+		ilUtil::sendFailure($a_exception->getMessage(), true);
+		$this->resetInvalidForm($a_form);
 	}
 
 	private function cleanUpAfterSuccessfulSave()
@@ -310,34 +347,16 @@ class ilRoomSharingBookGUI
 		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
 	}
 
-	private function resetErroneousForm($a_form)
+	private function handleInvalidForm($a_form)
+	{
+		ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
+		$this->resetInvalidForm($a_form);
+	}
+
+	private function resetInvalidForm($a_form)
 	{
 		$a_form->setValuesByPost();
 		$this->tpl->setContent($a_form->getHTML());
-	}
-
-	private function displayErrorMessage($a_error_code)
-	{
-		if ($a_error_code == - 1)
-		{
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_booking_add_error'), true);
-		}
-		elseif ($a_error_code == - 2)
-		{
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_already_booked'), true);
-		}
-		elseif ($a_error_code == - 3)
-		{
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_bigger_dateto'), true);
-		}
-		elseif ($a_error_code == - 4)
-		{
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_is_earlier_than_now'), true);
-		}
-		elseif ($a_error_code == - 5)
-		{
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
-		}
 	}
 
 	/**
