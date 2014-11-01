@@ -1,7 +1,7 @@
 <?php
 
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/util/class.ilRoomSharingMailer.php");
+include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 
 
 /**
