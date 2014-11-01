@@ -125,7 +125,6 @@ class ilRoomSharingBook
             $ack = new ilSystemNotification();
             $ack->setSubjectLangId(trim($lng->txt("rep_robj_xrs_mail_booking_creator_subject"),'-'));
             $ack->setIntroductionLangId(trim($lng->txt("rep_robj_xrs_mail_booking_creator_body"),'-'));
-            $ack->set
             //return $ack->sendMail($ilUser->getId());
             return $ack->sendMail(array(6));
             
