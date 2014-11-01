@@ -122,8 +122,8 @@ class ilRoomSharingBook
             global $lng, $ilUser;
             
             $mailer = new ilRoomSharingMailer();
-            $mailer->setRawSubject($this->lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
-	    $mailer->setRawMessage($this->lng->txt('rep_robj_xrs_mail_booking_creator_message'));
+            $mailer->setRawSubject($lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
+	    $mailer->setRawMessage($lng->txt('rep_robj_xrs_mail_booking_creator_message'));
             $mailer->sendMail(array($ilUser->getId()));
             
         }
