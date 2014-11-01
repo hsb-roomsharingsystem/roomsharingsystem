@@ -42,7 +42,8 @@ floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
 leave#:#Leave
 mail_booking_creator_subject#:#You created a booking.
-mail_booking_creator_body#:#You have successfully created a booking.\nYou can see your booking via the following link:\n
+mail_booking_creator_message#:#You have successfully created a booking.
+mail_booking_creator_linktext#:#You can see your booking via the following link:
 mail_booking_participant_subject#:#Someone booked a room for you.
 manage#:#Manage
 missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.
