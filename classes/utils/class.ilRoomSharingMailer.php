@@ -16,6 +16,10 @@ class ilRoomSharingMailer extends ilMailNotification
 {
     protected $subjectraw; // string
     
+    public function setRawSubject($s_subject)
+    {
+        $this->subjectraw = (string)$s_subject;
+    }
 
     /**
      * Compose notification to single recipient

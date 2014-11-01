@@ -118,11 +118,11 @@ class ilRoomSharingBook
          */
         private function sendAcknowledment()
         {
-            include_once("./Services/Notification/classes/class.ilSystemNotification.php");
-            
+
             global $lng, $ilUser;
             
             $mailer = new ilRoomSharingMailer();
+            $mailer->setRawSubject("Testi");
             $mailer->sendMail(array($ilUser->getId()));
             
         }
