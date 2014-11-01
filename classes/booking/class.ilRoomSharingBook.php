@@ -1,5 +1,4 @@
 <?php
-
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 
@@ -124,8 +123,6 @@ class ilRoomSharingBook
             global $lng, $ilUser;
             
             $mailer = new ilRoomSharingMailer();
-            $mailer->setSubject($lng->txt("rep_robj_xrs_mail_booking_creator_subject"));
-            $mailer->setBody("Hallo!");
             $mailer->sendMail(array($ilUser->getId()));
             
         }
