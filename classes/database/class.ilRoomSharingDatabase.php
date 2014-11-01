@@ -2,14 +2,17 @@
 
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
 
+use ilRoomSharingDBConstants as dcb;
+
 /**
- * Class for database uqeries.
+ * Class for database queries.
  *
  * @author Malte Ahlering
  */
 class ilRoomsharingDatabase
 {
 	protected $pool_id;
+	protected $ilDB;
 
 	/**
 	 * constructor ilRoomsharingDatabase
@@ -18,11 +21,12 @@ class ilRoomsharingDatabase
 	 */
 	public function __construct($a_pool_id)
 	{
+		global $ilDB;
+		$this->ilDB = $ilDB;
 		$this->pool_id = $a_pool_id;
 	}
 
-	public function setPoolId(
-	$a_poolId)
+	public function setPoolId($a_poolId)
 	{
 		$this->pool_id = $a_poolId;
 	}
@@ -36,12 +40,11 @@ class ilRoomsharingDatabase
 	 */
 	public function getAttributesForRooms(array $room_ids)
 	{
-		global $ilDB;
-		$st = $ilDB->prepare('SELECT room_id, att.name, count FROM ' .
-			ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE . ' as rta LEFT JOIN ' .
-			ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id WHERE '
-			. $ilDB->in("room_id", $room_ids) . ' ORDER BY room_id, att.name');
-		$set = $ilDB->execute($st, $room_ids);
+		$st = $this->ilDB->prepare('SELECT room_id, att.name, count FROM ' .
+			dcb::ROOM_TO_ATTRIBUTE_TABLE . ' as rta LEFT JOIN ' .
+			dcb::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id WHERE '
+			. $this->ilDB->in("room_id", $room_ids) . ' ORDER BY room_id, att.name');
+		$set = $this->ilDB->execute($st, $room_ids);
 		return $set;
 	}
 
@@ -53,60 +56,56 @@ class ilRoomsharingDatabase
 	 */
 	public function getMaxSeatCount()
 	{
-		global $ilDB;
-		$valueSet = $ilDB->query('SELECT MAX(max_alloc) AS value FROM ' .
-			ilRoomsharingDBConstants::ROOMS_TABLE . ' WHERE pool_id = ' .
-			$ilDB->quote($this->pool_id, 'integer'));
-		$valueRow = $ilDB->fetchAssoc($valueSet);
+		$valueSet = $this->ilDB->query('SELECT MAX(max_alloc) AS value FROM ' .
+			dcb::ROOMS_TABLE . ' WHERE pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer'));
+		$valueRow = $this->ilDB->fetchAssoc($valueSet);
 		$value = $valueRow ['value'];
 		return $value;
 	}
 
 	public function getQueryStringForRoomsWithMathcingAttribute($attribute, $count)
 	{
-		global $ilDB;
-		return 'SELECT room_id FROM ' . ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE . ' ra ' .
-			'LEFT JOIN ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE .
-			' attr ON ra.att_id = attr.id WHERE name = ' . $ilDB->quote($attribute, 'text') .
-			' AND count >= ' . $ilDB->quote($count, 'integer') .
-			' AND pool_id = ' . $ilDB->quote($this->pool_id, 'integer') . ' ';
+		return 'SELECT room_id FROM ' . dcb::ROOM_TO_ATTRIBUTE_TABLE . ' ra ' .
+			'LEFT JOIN ' . dcb::ROOM_ATTRIBUTES_TABLE .
+			' attr ON ra.att_id = attr.id WHERE name = ' . $this->ilDB->quote($attribute, 'text') .
+			' AND count >= ' . $this->ilDB->quote($count, 'integer') .
+			' AND pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' ';
 	}
 
 	public function getAllRoomIds()
 	{
-		return 'SELECT id FROM ' . ilRoomsharingDBConstants::ROOMS_TABLE;
+		return 'SELECT id FROM ' . dcb::ROOMS_TABLE;
 	}
 
 	public function getMatchingRooms($roomsToCheck, $room_name, $room_seats)
 	{
-		global $ilDB;
-		$where_part = ' AND room.pool_id = ' . $ilDB->quote($this->pool_id, 'integer') . ' ';
+		$where_part = ' AND room.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' ';
 
 		if ($room_name || $room_name === "0")
 		{
 			$where_part = $where_part . ' AND name LIKE ' .
-				$ilDB->quote('%' . $room_name . '%', 'text') . ' ';
+				$this->ilDB->quote('%' . $room_name . '%', 'text') . ' ';
 		}
 		if ($room_seats || $room_seats === 0.0)
 		{
 			$where_part = $where_part . ' AND max_alloc >= ' .
-				$ilDB->quote($room_seats, 'integer') . ' ';
+				$this->ilDB->quote($room_seats, 'integer') . ' ';
 		}
 
-		$st = $ilDB->prepare('SELECT room.id, name, max_alloc FROM ' .
-			ilRoomsharingDBConstants::ROOMS_TABLE . ' room WHERE ' .
-			$ilDB->in("room.id", array_keys($roomsToCheck)) . $where_part .
+		$st = $this->ilDB->prepare('SELECT room.id, name, max_alloc FROM ' .
+			dcb::ROOMS_TABLE . ' room WHERE ' .
+			$this->ilDB->in("room.id", array_keys($roomsToCheck)) . $where_part .
 			' ORDER BY name');
-		return $ilDB->execute($st, array_keys($roomsToCheck));
+		return $this->ilDB->execute($st, array_keys($roomsToCheck));
 	}
 
 	public function getAllAttributeNames()
 	{
-		global $ilDB;
-		$set = $ilDB->query('SELECT name FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE .
+		$set = $this->ilDB->query('SELECT name FROM ' . dcb::ROOM_ATTRIBUTES_TABLE .
 			' ORDER BY name');
 		$attributes = array();
-		while ($row = $ilDB->fetchAssoc($set))
+		while ($row = $this->ilDB->fetchAssoc($set))
 		{
 			$attributes [] = $row ['name'];
 		}
@@ -123,21 +122,20 @@ class ilRoomsharingDatabase
 	 */
 	public function getMaxCountForAttribute($a_room_attribute)
 	{
-		global $ilDB;
-		// get the id of the attribute in this pool
-		$attributIdSet = $ilDB->query('SELECT id FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE .
-			' WHERE name =' . $ilDB->quote($a_room_attribute, 'text') . ' AND pool_id = ' .
-			$ilDB->quote($this->pool_id, 'integer'));
-		$attributIdRow = $ilDB->fetchAssoc($attributIdSet);
+// get the id of the attribute in this pool
+		$attributIdSet = $this->ilDB->query('SELECT id FROM ' . dcb::ROOM_ATTRIBUTES_TABLE .
+			' WHERE name =' . $this->ilDB->quote($a_room_attribute, 'text') . ' AND pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer'));
+		$attributIdRow = $this->ilDB->fetchAssoc($attributIdSet);
 		$attributID = $attributIdRow ['id'];
 
 		// get the max value of the attribut in this pool
-		$valueSet = $ilDB->query('SELECT MAX(count) AS value FROM ' .
-			ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
-			ilRoomsharingDBConstants::ROOMS_TABLE . ' as room ON room.id = rta.room_id ' .
-			' WHERE att_id =' . $ilDB->quote($attributID, 'integer') .
-			' AND pool_id =' . $ilDB->quote($this->pool_id, 'integer'));
-		$valueRow = $ilDB->fetchAssoc($valueSet);
+		$valueSet = $this->ilDB->query('SELECT MAX(count) AS value FROM ' .
+			dcb::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
+			dcb::ROOMS_TABLE . ' as room ON room.id = rta.room_id ' .
+			' WHERE att_id =' . $this->ilDB->quote($attributID, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
+		$valueRow = $this->ilDB->fetchAssoc($valueSet);
 		$value = $valueRow ['value'];
 		return $value;
 	}
@@ -152,10 +150,9 @@ class ilRoomsharingDatabase
 	 */
 	public function getRoomName($a_room_id)
 	{
-		global $ilDB;
-		$roomNameSet = $ilDB->query(' SELECT name FROM ' . ilRoomsharingDBConstants::ROOMS_TABLE .
-			' WHERE id = ' . $ilDB->quote($a_room_id, 'integer'));
-		$roomNameRow = $ilDB->fetchAssoc($roomNameSet);
+		$roomNameSet = $this->ilDB->query(' SELECT name FROM ' . dcb::ROOMS_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($a_room_id, 'integer'));
+		$roomNameRow = $this->ilDB->fetchAssoc($roomNameSet);
 		return $roomNameRow ['name'];
 	}
 
@@ -171,26 +168,24 @@ class ilRoomsharingDatabase
 	 */
 	public function getRoomsBookedInDateTimeRange($date_from, $date_to, $room_id = null)
 	{
-		global $ilDB;
-
 		$roomQuery = '';
 		if ($room_id)
 		{
 			$roomQuery = ' room_id = ' .
-				$ilDB->quote($room_id, 'text') . ' AND ';
+				$this->ilDB->quote($room_id, 'text') . ' AND ';
 		}
 
-		$query = 'SELECT DISTINCT room_id FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE . ' WHERE ' .
-			$roomQuery . ' (' . $ilDB->quote($date_from, 'timestamp') .
-			' BETWEEN date_from AND date_to OR ' . $ilDB->quote($date_to, 'timestamp') .
+		$query = 'SELECT DISTINCT room_id FROM ' . dcb::BOOKINGS_TABLE . ' WHERE ' .
+			$roomQuery . ' (' . $this->ilDB->quote($date_from, 'timestamp') .
+			' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($date_to, 'timestamp') .
 			' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
-			$ilDB->quote($date_from, 'timestamp') . ' AND ' . $ilDB->quote($date_to, 'timestamp') .
-			' OR date_to BETWEEN ' . $ilDB->quote($date_from, 'timestamp') .
-			' AND ' . $ilDB->quote($date_to, 'timestamp') . ')';
+			$this->ilDB->quote($date_from, 'timestamp') . ' AND ' . $this->ilDB->quote($date_to, 'timestamp') .
+			' OR date_to BETWEEN ' . $this->ilDB->quote($date_from, 'timestamp') .
+			' AND ' . $this->ilDB->quote($date_to, 'timestamp') . ')';
 
-		$set = $ilDB->query($query);
+		$set = $this->ilDB->query($query);
 		$res_room = array();
-		while ($row = $ilDB->fetchAssoc($set))
+		while ($row = $this->ilDB->fetchAssoc($set))
 		{
 			$res_room [] = $row ['room_id'];
 		}
@@ -200,7 +195,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Insert a bboking into the database.
 	 *
-	 * @global type $ilDB
+	 * @global type $this->ilDB
 	 * @global type $ilUser
 	 * @param array $booking_values
 	 *        	Array with the values of the booking
@@ -210,12 +205,11 @@ class ilRoomsharingDatabase
 	 */
 	public function insertBooking($booking_attr_values, $booking_values)
 	{
-		global $ilDB;
 		global $ilUser;
 
-		$ilDB->insert(ilRoomsharingDBConstants::BOOKINGS,
+		$this->ilDB->insert(dcb::BOOKINGS_TABLE,
 			array(
-			'id' => array('integer', $ilDB->nextID(ilRoomsharingDBConstants::BOOKINGS)),
+			'id' => array('integer', $this->ilDB->nextID(dcb::BOOKINGS_TABLE)),
 			'date_from' => array('timestamp', $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time']),
 			'date_to' => array('timestamp', $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time']),
 			'room_id' => array('integer', $booking_values ['room']),
@@ -225,7 +219,7 @@ class ilRoomsharingDatabase
 			)
 		);
 
-		$insertedId = $ilDB->getLastInsertId();
+		$insertedId = $this->ilDB->getLastInsertId();
 
 		if ($insertedId == - 1)
 		{
@@ -266,8 +260,7 @@ class ilRoomsharingDatabase
 	 */
 	public function insertBookingAttribute($insertedId, $booking_attr_key, $booking_attr_value)
 	{
-		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::BOOKING_TO_ATTRIBUTE,
+		$this->ilDB->insert(dcb::BOOKING_TO_ATTRIBUTE_TABLE,
 			array(
 			'booking_id' => array('integer', $insertedId),
 			'attr_id' => array('integer', $booking_attr_key),
@@ -283,52 +276,48 @@ class ilRoomsharingDatabase
 	 */
 	public function deleteBooking($a_booking_id)
 	{
-		global $ilDB;
-		$ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE .
-			' WHERE id = ' . $ilDB->quote($a_booking_id, 'integer'));
-		$ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::USER_TABLE .
-			' WHERE booking_id = ' . $ilDB->quote($a_booking_id, 'integer'));
+		$this->ilDB->manipulate('DELETE FROM ' . dcb::BOOKINGS_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
+		$this->ilDB->manipulate('DELETE FROM ' . dcb::USER_TABLE .
+			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
 
 	/**
 	 * Get all bookings related to a given sequence.
 	 *
 	 * @param integer $seq_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getAllBookingIdsForSequence($seq_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT id FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE .
-				' WHERE seq = ' . $ilDB->quote($seq_id, 'integer') .
-				' AND pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
+		return $this->ilDB->query('SELECT id FROM ' . dcb::BOOKINGS_TABLE .
+				' WHERE seq = ' . $this->ilDB->quote($seq_id, 'integer') .
+				' AND pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	/**
 	 * Gets User and Sequence for a booking.
 	 *
 	 * @param integer $a_booking_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getSequenceAndUserForBooking($a_booking_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT seq_id, user_id  FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE .
-				' WHERE id = ' . $ilDB->quote($a_booking_id, 'integer'));
+		return $this->ilDB->query('SELECT seq_id, user_id  FROM ' . dcb::BOOKINGS_TABLE .
+				' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
 
 	/**
 	 * Gets all bookings for a user.
 	 *
 	 * @param integer $user_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getBookingsForUser($user_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE .
-				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer') .
-				' AND user_id = ' . $ilDB->quote($user_id, 'integer') .
+		return $this->ilDB->query('SELECT * FROM ' . dcb::BOOKINGS_TABLE .
+				' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
+				' AND user_id = ' . $this->ilDB->quote($user_id, 'integer') .
 				' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
 				' OR date_to >= "' . date('Y-m-d H:i:s') . '")' . ' ORDER BY date_from ASC');
 	}
@@ -337,16 +326,15 @@ class ilRoomsharingDatabase
 	 * Gets all Participants of a booking.
 	 *
 	 * @param integer $booking_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getParticipantsForBooking($booking_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT users.firstname AS firstname,' .
+		return $this->ilDB->query('SELECT users.firstname AS firstname,' .
 				' users.lastname AS lastname, users.login AS login,' .
-				' users.usr_id AS id FROM ' . ilRoomsharingDBConstants::USER_TABLE . ' user ' .
+				' users.usr_id AS id FROM ' . dcb::USER_TABLE . ' user ' .
 				' LEFT JOIN usr_data AS users ON users.usr_id = user.user_id' .
-				' WHERE booking_id = ' . $ilDB->quote($booking_id, 'integer') .
+				' WHERE booking_id = ' . $this->ilDB->quote($booking_id, 'integer') .
 				' ORDER BY users.lastname, users.firstname ASC');
 	}
 
@@ -354,40 +342,37 @@ class ilRoomsharingDatabase
 	 * Gets all attributes of a booking.
 	 *
 	 * @param integer $booking_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getAttributesForBooking($booking_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT value, attr.name AS name' .
-				' FROM ' . ilRoomsharingDBConstants::BOOKING_TO_ATTRIBUTE_TABLE . ' bta ' .
-				' LEFT JOIN ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES_TABLE . ' attr ' .
+		return $this->ilDB->query('SELECT value, attr.name AS name' .
+				' FROM ' . dcb::BOOKING_TO_ATTRIBUTE_TABLE . ' bta ' .
+				' LEFT JOIN ' . dcb::BOOKING_ATTRIBUTES_TABLE . ' attr ' .
 				' ON attr.id = bta.attr_id' . ' WHERE booking_id = ' .
-				$ilDB->quote($booking_id, 'integer'));
+				$this->ilDB->quote($booking_id, 'integer'));
 	}
 
 	/**
 	 * Gets all booking attributes.
 	 *
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getAllBookingAttributes()
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES_TABLE .
-				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer'));
+		return $this->ilDB->query('SELECT * FROM ' . dcb::BOOKING_ATTRIBUTES_TABLE .
+				' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	/**
 	 * Gets all floorplans.
 	 *
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getAllFloorplans()
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::FLOORPLANS_TABLE .
-				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer') .
+		return $this->ilDB->query('SELECT * FROM ' . dcb::FLOORPLANS_TABLE .
+				' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
 				' order by file_id DESC');
 	}
 
@@ -395,46 +380,43 @@ class ilRoomsharingDatabase
 	 * Gets a floorplan.
 	 *
 	 * @param integer $a_file_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getFloorplan($a_file_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::FLOORPLANS_TABLE .
-				' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer') . ' AND pool_id = '
-				. $ilDB->quote($this->pool_id, 'integer'));
+		return $this->ilDB->query('SELECT * FROM ' . dcb::FLOORPLANS_TABLE .
+				' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer') . ' AND pool_id = '
+				. $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	/**
 	 * Inserts a floorplan into the database.
 	 *
 	 * @param integer $a_file_id
-	 * @return type return of $ilDB->manipulate
+	 * @return type return of $this->ilDB->manipulate
 	 */
 	public function insertFloorplan($a_file_id)
 	{
-		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::FLOORPLANS_TABLE,
+		$this->ilDB->insert(dcb::FLOORPLANS_TABLE,
 			array(
 			'file_id' => array('integer', $a_file_id),
 			'pool_id' => array('integer', $this->pool_id)
 			)
 		);
 
-		return $ilDB->getLastInsertId();
+		return $this->ilDB->getLastInsertId();
 	}
 
 	/**
 	 * Deletes a floorplan from the database.
 	 *
 	 * @param integer $a_file_id
-	 * @return type return of $ilDB->manipulate
+	 * @return type return of $this->ilDB->manipulate
 	 */
 	public function deleteFloorplan($a_file_id)
 	{
-		global $ilDB;
-		return $ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::FLOORPLANS_TABLE .
-				' WHERE file_id = ' . $ilDB->quote($a_file_id, 'integer'));
+		return $this->ilDB->manipulate('DELETE FROM ' . dcb::FLOORPLANS_TABLE .
+				' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer'));
 	}
 
 	/**
@@ -442,43 +424,40 @@ class ilRoomsharingDatabase
 	 *
 	 * @param integer $user_id
 	 * @param integer $a_booking_id
-	 * @return type return of $ilDB->manipulate
+	 * @return type return of $this->ilDB->manipulate
 	 */
 	public function deleteParticipation($user_id, $a_booking_id)
 	{
-		global $ilDB;
-		return $ilDB->manipulate(
-				'DELETE FROM ' . ilRoomsharingDBConstants::USER_TABLE . ' WHERE user_id = ' .
-				$ilDB->quote($user_id(), 'integer') .
-				' AND booking_id = ' . $ilDB->quote($a_booking_id, 'integer'));
+		return $this->ilDB->manipulate(
+				'DELETE FROM ' . dcb::USER_TABLE . ' WHERE user_id = ' .
+				$this->ilDB->quote($user_id(), 'integer') .
+				' AND booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
 
 	/**
 	 * Gets participation for a user.
 	 *
 	 * @param integer $user_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getParticipationsForUser($user_id)
 	{
-		global $ilDB;
-		return $ilDB->query(
-				'SELECT booking_id FROM ' . ilRoomsharingDBConstants::USER_TABLE .
-				' WHERE user_id = ' . $ilDB->quote($user_id, 'integer'));
+		return $this->ilDB->query(
+				'SELECT booking_id FROM ' . dcb::USER_TABLE .
+				' WHERE user_id = ' . $this->ilDB->quote($user_id, 'integer'));
 	}
 
 	/**
 	 * Gets a booking.
 	 *
 	 * @param integer $booking_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getBooking($booking_id)
 	{
-		global $ilDB;
-		return $ilDB->query(
-				'SELECT *' . ' FROM ' . ilRoomsharingDBConstants::BOOKINGS_TABLE . ' WHERE id = ' .
-				$ilDB->quote($booking_id, 'integer') .
+		return $this->ilDB->query(
+				'SELECT *' . ' FROM ' . dcb::BOOKINGS_TABLE . ' WHERE id = ' .
+				$this->ilDB->quote($booking_id, 'integer') .
 				' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
 				' OR date_to >= "' . date('Y-m-d H:i:s') . '")' .
 				' ORDER BY date_from ASC');
@@ -488,67 +467,62 @@ class ilRoomsharingDatabase
 	 * Gets a user.
 	 *
 	 * @param integer $user_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getUser($user_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT firstname, lastname, login' . ' FROM usr_data' .
-				' WHERE usr_id = ' . $ilDB->quote($user_id, 'integer'));
+		return $this->ilDB->query('SELECT firstname, lastname, login' . ' FROM usr_data' .
+				' WHERE usr_id = ' . $this->ilDB->quote($user_id, 'integer'));
 	}
 
 	/**
 	 * Gets a room.
 	 *
 	 * @param integer $room_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getRoom($room_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::ROOMS_TABLE . ' WHERE id = ' .
-				$ilDB->quote($room_id, 'integer'));
+		return $this->ilDB->query('SELECT * FROM ' . dcb::ROOMS_TABLE . ' WHERE id = ' .
+				$this->ilDB->quote($room_id, 'integer'));
 	}
 
 	/**
 	 * Get a room attribute.
 	 *
 	 * @param integer $attribute_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getRoomAttribute($attribute_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE .
-				' WHERE id = ' . $ilDB->quote($attribute_id, 'integer'));
+		return $this->ilDB->query('SELECT * FROM ' . dcb::ROOM_ATTRIBUTES_TABLE .
+				' WHERE id = ' . $this->ilDB->quote($attribute_id, 'integer'));
 	}
 
 	/**
 	 * Gets attributes for a room.
 	 *
 	 * @param integer $room_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getAttributesForRoom($room_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT id, att.name, count FROM ' .
-				ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
-				ilRoomsharingDBConstants::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id' .
-				' WHERE room_id = ' . $ilDB->quote($room_id, 'integer') . ' ORDER BY att.name');
+		return $this->ilDB->query('SELECT id, att.name, count FROM ' .
+				dcb::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
+				dcb::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id' .
+				' WHERE room_id = ' . $this->ilDB->quote($room_id, 'integer') . ' ORDER BY att.name');
 	}
 
 	/**
 	 * Gets all bookings for a room.
 	 *
 	 * @param integer $room_id
-	 * @return type return of $ilDB->query
+	 * @return type return of $this->ilDB->query
 	 */
 	public function getBookingsForRoom($room_id)
 	{
-		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants:: BOOKINGS_TABLE .
-				' WHERE room_id = ' . $ilDB->quote($room_id, 'integer'));
+		return $this->ilDB->query('SELECT * FROM ' . dcb:: BOOKINGS_TABLE .
+				' WHERE room_id = ' . $this->ilDB->quote($room_id, 'integer'));
 	}
 
 	/**
@@ -559,9 +533,8 @@ class ilRoomsharingDatabase
 	 */
 	public function deleteAttributesForRoom($room_id)
 	{
-		global $ilDB;
-		return $ilDB->manipulate('DELETE FROM ' . ilRoomsharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE .
-				' WHERE room_id = ' . $ilDB->quote($room_id, 'integer'));
+		return $this->ilDB->manipulate('DELETE FROM ' . dcb::ROOM_TO_ATTRIBUTE_TABLE .
+				' WHERE room_id = ' . $this->ilDB->quote($room_id, 'integer'));
 	}
 
 	/**
@@ -577,10 +550,9 @@ class ilRoomsharingDatabase
 	 */
 	public function insertRoom($name, $type, $min_alloc, $max_alloc, $file_id, $building_id)
 	{
-		global $ilDB;
-		$ilDB->insert(ilRoomsharingDBConstants::ROOMS_TABLE,
+		$this->ilDB->insert(dcb::ROOMS_TABLE,
 			array(
-			'id' => array('integer', $ilDB->nextId(ilRoomsharingDBConstants::ROOMS_TABLE)),
+			'id' => array('integer', $this->ilDB->nextId(dcb::ROOMS_TABLE)),
 			'name' => array('text', $name),
 			'type' => array('text', $type),
 			'min_alloc' => array('integer', $min_alloc),
@@ -589,7 +561,7 @@ class ilRoomsharingDatabase
 			'building_id' => array('integer', $building_id),
 			'pool_id' => array('integer', $this->pool_id)
 		));
-		return $ilDB->getLastInsertId();
+		return $this->ilDB->getLastInsertId();
 	}
 
 	/**
@@ -601,8 +573,7 @@ class ilRoomsharingDatabase
 	 */
 	public function insertAttributeForRoom($room_id, $attribute_id, $count)
 	{
-		global $ilDB;
-		$ilDB->insert(ilRoomSharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE,
+		$this->ilDB->insert(ilRoomSharingDBConstants::ROOM_TO_ATTRIBUTE_TABLE,
 			array(
 			'room_id' => array('integer', $room_id),
 			'att_id' => array('integer', $attribute_id),

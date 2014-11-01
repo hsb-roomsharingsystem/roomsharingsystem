@@ -12,109 +12,110 @@ require_once("Services/Database/classes/class.ilDBMySQL.php");
  */
 class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase
 {
-	private $rooms;
+    private static $rooms;
 
-	protected function setUp()
-	{
-		global $ilDB;
-		$ilDB = $this->getMockBuilder("ilDBMySQL")
-			->setMethods(array("quote", "query", "fetchAssoc"))
-			->getMock();
-		$ilDB->method("query")->willReturn("1");
-		$ilDB->method("quote")->willReturn("1");
+    public static function setUpBeforeClass()
+    {
+        global $ilDB;
 
-		$this->rooms = new ilRoomSharingRooms();
-	}
+        $test = new ilRoomSharingRoomsTest();
+        $ilDB = $test->getMockBuilder("ilDBMySQL")
+            ->setMethods(array("quote", "query", "fetchAssoc"))
+            ->getMock();
+        $ilDB->method("query")->willReturn("1");
+        $ilDB->method("quote")->willReturn("1");
 
-	public function testGetRoomName()
-	{
-		global $ilDB;
-		$expected = "012";
-		$key = "name";
-		$array = array($key => $expected);
-		$ilDB->method("fetchAssoc")->willReturn($array);
+        self::$rooms = new ilRoomSharingRooms();
+    }
 
-		$actual = $this->rooms->getRoomName($key);
-		$this->assertEquals($expected, $actual);
-	}
+    public function testGetRoomName()
+    {
+        global $ilDB;
+        $expected = "012";
+        $key = "name";
+        $array = array($key => $expected);
+        $ilDB->method("fetchAssoc")->willReturn($array);
 
-	public function testGetRoomsBookedInDateTimeRange()
-	{
-		global $ilDB;
-		$key = "room_id";
-		$value = "1";
-		$expected[] = $value;
-		$array = array($key => $value);
-		$a_date_from = "2014-10-27 09:00:00";
-		$a_date_to = "2014-10-27 10:20:00";
-		$ilDB->method("fetchAssoc")->will($this->onConsecutiveCalls($array, null));
+        $actual = self::$rooms->getRoomName($key);
+        $this->assertEquals($expected, $actual);
+    }
 
-		$actual = $this->rooms->getRoomsBookedInDateTimeRange($a_date_from, $a_date_to);
-		$this->assertEquals($expected, $actual);
-	}
+    public function testGetRoomsBookedInDateTimeRange()
+    {
+        global $ilDB;
+        $key = "room_id";
+        $value = "1";
+        $expected[] = $value;
+        $array = array($key => $value);
+        $a_date_from = "2014-10-27 09:00:00";
+        $a_date_to = "2014-10-27 10:20:00";
+        $ilDB->method("fetchAssoc")->will($this->onConsecutiveCalls($array, null));
 
-	public function testGetRoomsBookedInDateTimeRangeWithRoomId()
-	{
-		global $ilDB;
-		$key = "room_id";
-		$value = "1";
-		$expected[] = $value;
-		$array = array($key => $value);
-		$a_date_from = "2014-10-27 09:00:00";
-		$a_date_to = "2014-10-27 10:20:00";
-		$a_room_id = "1";
-		$ilDB->method("fetchAssoc")->will($this->onConsecutiveCalls($array, null));
+        $actual = self::$rooms->getRoomsBookedInDateTimeRange($a_date_from, $a_date_to);
+        $this->assertEquals($expected, $actual);
+    }
 
-		$actual = $this->rooms->getRoomsBookedInDateTimeRange($a_date_from, $a_date_to, $a_room_id);
-		$this->assertEquals($expected, $actual);
-	}
+    public function testGetRoomsBookedInDateTimeRangeWithRoomId()
+    {
+        global $ilDB;
+        $key = "room_id";
+        $value = "1";
+        $expected[] = $value;
+        $array = array($key => $value);
+        $a_date_from = "2014-10-27 09:00:00";
+        $a_date_to = "2014-10-27 10:20:00";
+        $a_room_id = "1";
+        $ilDB->method("fetchAssoc")->will($this->onConsecutiveCalls($array, null));
 
-	public function testGetMaxCountForAttribute()
-	{
-		global $ilDB;
-		$key = "value";
-		$expected = 1;
-		$array = array($key => $expected);
-		$a_attribute = "Beamer";
-		$ilDB->method("fetchAssoc")->will($this->onConsecutiveCalls(null, $array));
+        $actual = self::$rooms->getRoomsBookedInDateTimeRange($a_date_from, $a_date_to, $a_room_id);
+        $this->assertEquals($expected, $actual);
+    }
 
-		$actual = $this->rooms->getMaxCountForAttribute($a_attribute);
-		$this->assertEquals($expected, $actual);
-	}
+    public function testGetMaxCountForAttribute()
+    {
+        global $ilDB;
+        $key = "value";
+        $expected = 1;
+        $array = array($key => $expected);
+        $a_attribute = "Beamer";
+        $ilDB->method("fetchAssoc")->will($this->onConsecutiveCalls(null, $array));
 
-	public function testGetMaxSeatCount()
-	{
-		global $ilDB;
-		$key = "value";
-		$expected = 100;
-		$array = array($key => $expected);
-		$ilDB->method("fetchAssoc")->willReturn($array);
+        $actual = self::$rooms->getMaxCountForAttribute($a_attribute);
+        $this->assertEquals($expected, $actual);
+    }
 
-		$actual = $this->rooms->getMaxSeatCount();
-		$this->assertEquals($expected, $actual);
-	}
+    public function testGetMaxSeatCount()
+    {
+        global $ilDB;
+        $key = "value";
+        $expected = 100;
+        $array = array($key => $expected);
+        $ilDB->method("fetchAssoc")->willReturn($array);
 
-	public function testGetAllAttributes()
-	{
-		global $ilDB;
-		$name = "name";
-		$beamer = "Beamer";
-		$whiteboard = "Whiteboard";
-		$assoc_beamer = array($name => $beamer);
-		$assoc_whiteboard = array($name => $whiteboard);
-		$expected = array($beamer, $whiteboard);
-		$ilDB->method("fetchAssoc")
-			->will($this->onConsecutiveCalls($assoc_beamer, $assoc_whiteboard, null));
+        $actual = self::$rooms->getMaxSeatCount();
+        $this->assertEquals($expected, $actual);
+    }
 
-		$actual = $this->rooms->getAllAttributes();
-		$this->assertEquals($expected, $actual);
-	}
+    public function testGetAllAttributes()
+    {
+        global $ilDB;
+        $name = "name";
+        $beamer = "Beamer";
+        $whiteboard = "Whiteboard";
+        $assoc_beamer = array($name => $beamer);
+        $assoc_whiteboard = array($name => $whiteboard);
+        $expected = array($beamer, $whiteboard);
+        $ilDB->method("fetchAssoc")
+            ->will($this->onConsecutiveCalls($assoc_beamer, $assoc_whiteboard, null));
 
-	public function testGetList()
-	{
-		$this->markTestIncomplete();
-	}
+        $actual = self::$rooms->getAllAttributes();
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testGetList()
+    {
+        $this->markTestIncomplete();
+    }
 
 }
-
 ?>
