@@ -1,7 +1,7 @@
 <?php
 
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-include_inde("./Services/Notification/classes/class.ilSystemNotification.php");
+include_once("./Services/Notification/classes/class.ilSystemNotification.php");
 
 /**
  * Backend-Class for booking-mask
