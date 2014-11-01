@@ -34,7 +34,7 @@ class ilRoomSharingMailer extends ilMailNotification
      */    
     public function setRawMessage($s_message)
     {
-        $this->textraw = (string)$s_message;
+        $this->messageraw = (string)$s_message;
     }
 
     /**
