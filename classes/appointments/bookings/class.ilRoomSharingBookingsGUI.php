@@ -115,7 +115,7 @@ class ilRoomSharingBookingsGUI
 		$booking_subject = $_GET ["booking_subject"];
 
 		$confirmation->addItem('booking_id', $booking_id, $booking_subject);
-		$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_booking_cancel'), 'cancelBooking'); // cancel the booking
+		$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_booking_confirm_cancel'), 'cancelBooking'); // cancel the booking
 		$confirmation->setCancel($this->lng->txt('cancel'), 'showBookings'); // cancel the confirmation dialog
 
 		$tpl->setContent($confirmation->getHTML()); // display

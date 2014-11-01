@@ -2,6 +2,7 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookException.php");
 require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
@@ -22,11 +23,11 @@ class ilRoomSharingBookGUI
 	private $parent_obj;
 	private $pool_id;
 	private $room_id;
-	private $ilRoomSharingRooms;
 	private $date_from;
 	private $date_to;
 
-	CONST BOOK_CMD = "book";
+	const NUM_PERSON_RESPONSIBLE = 1;
+	const BOOK_CMD = "book";
 
 	/**
 	 * Constructur for ilRoomSharingBookGUI
@@ -49,8 +50,6 @@ class ilRoomSharingBookGUI
 		$this->room_id = $a_room_id;
 		$this->date_from = $a_date_from;
 		$this->date_to = $a_date_to;
-
-		$this->ilRoomSharingRooms = new ilRoomSharingRooms();
 	}
 
 	/**
@@ -74,7 +73,7 @@ class ilRoomSharingBookGUI
 	/**
 	 * Creates a booking form.
 	 *
-	 * @return the form
+	 * @return ilform
 	 */
 	private function createForm()
 	{
@@ -103,7 +102,10 @@ class ilRoomSharingBookGUI
 	private function getRoomFromId()
 	{
 		$room_id = empty($this->room_id) ? $_POST['room_id'] : $this->room_id;
-		return $this->ilRoomSharingRooms->getRoomName($room_id);
+		$this->room_id = $room_id;
+
+		$rooms = new ilRoomSharingRooms();
+		return $rooms->getRoomName($room_id);
 	}
 
 	private function createFormItems()
@@ -223,6 +225,7 @@ class ilRoomSharingBookGUI
 		$participants_input->setMulti(true);
 		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
 		$participants_input->setDataSource($ajax_datasource);
+		$participants_input->setInfo($this->getMaxRoomAllocationInfo());
 
 		return $participants_input;
 	}
@@ -238,8 +241,17 @@ class ilRoomSharingBookGUI
 		$auto = new ilUserAutoComplete();
 		$auto->setSearchFields($search_fields);
 		$auto->setResultField($result_field);
+
 		echo $auto->getList($_REQUEST['term']);
 		exit();
+	}
+
+	private function getMaxRoomAllocationInfo()
+	{
+		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
+		$max_alloc = $this->lng->txt("rep_robj_xrs_at_most") . ": " . ($room->getMaxAlloc() - self::NUM_PERSON_RESPONSIBLE);
+
+		return $max_alloc;
 	}
 
 	private function createParticipantsSection()
@@ -298,8 +310,6 @@ class ilRoomSharingBookGUI
 	private function fetchAttributeFormEntries($a_form)
 	{
 		$attribute_entries = array();
-		$ilBookings = new ilRoomSharingBookings();
-		$ilBookings->setPoolId($this->pool_id);
 		$booking_attributes = $this->getBookingAttributes();
 		foreach ($booking_attributes as $attr)
 		{

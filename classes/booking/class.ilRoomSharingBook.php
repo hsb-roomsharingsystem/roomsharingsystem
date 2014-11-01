@@ -4,7 +4,8 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookException.php");
 
 /**
- * Backend-Class for booking-mask
+ * Backend-Class for the booking form.
+ *
  * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  * @author Christopher Marks <deamp_marks@yahoo.d>
  * @author Alexander Keller <a.k3ll3r@gmail.com>
@@ -16,6 +17,7 @@ class ilRoomSharingBook
 	private $date_from;
 	private $date_to;
 	private $room_id;
+	private $participants;
 
 	public function __construct()
 	{
@@ -37,8 +39,9 @@ class ilRoomSharingBook
 		$this->date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
 		$this->date_to = $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time'];
 		$this->room_id = $booking_values ['room'];
+		$this->participants = $booking_participants;
 
-		$this->checkForBookingPreconditions();
+		$this->validateBookingInput();
 		$success = $this->insertBooking($booking_attr_values, $booking_values, $booking_participants);
 
 		if (!$success)
@@ -48,23 +51,27 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Checks if certain conditions for the booking are met.
+	 * Checks if the given booking input is valid (e.g. valid dates, already booked rooms, ...)
 	 *
 	 * @throws ilRoomSharingBookException
 	 */
-	private function checkForBookingPreconditions()
+	private function validateBookingInput()
 	{
 		if ($this->isBookingInPast())
 		{
-			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_datefrom_is_earlier_than_now'));
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_is_earlier_than_now"));
 		}
 		if ($this->checkForInvalidDateConditions())
 		{
-			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_datefrom_bigger_dateto'));
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_bigger_dateto"));
 		}
 		if ($this->isAlreadyBooked())
 		{
-			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_room_already_booked'));
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_already_booked"));
+		}
+		if ($this->isRoomOverbooked())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_max_allocation_exceeded"));
 		}
 	}
 
@@ -88,13 +95,35 @@ class ilRoomSharingBook
 	/**
 	 * Method to check if the selected room is already booked in the given time range
 	 *
-	 * @param $ilRoomSharingRooms Object of ilRoomSharingRooms
 	 */
 	private function isAlreadyBooked()
 	{
 		$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($this->date_from,
 			$this->date_to, $this->room_id);
 		return ($temp !== array());
+	}
+
+	/**
+	 * Method that checks if the max allocation of a room is exceeded.
+	 */
+	private function isRoomOverbooked()
+	{
+		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
+		$max_alloc = $room->getMaxAlloc();
+		$filtered_participants = array_filter($this->participants, array($this, "filterValidParticipants"));
+		$overbooked = count($filtered_participants) >= $max_alloc;
+
+		return $overbooked;
+	}
+
+	/**
+	 * Callback function which is used for existing and therefore valid participants.
+	 * @param string $a_participant
+	 * @return boolean true, if participant exists; false otherwise
+	 */
+	private function filterValidParticipants($a_participant)
+	{
+		return empty($a_participant) ? false : ilObjUser::_lookupId($a_participant);
 	}
 
 	/**
