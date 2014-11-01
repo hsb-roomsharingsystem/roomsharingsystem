@@ -123,8 +123,8 @@ class ilRoomSharingBook
             global $lng, $ilUser;
             
             $ack = new ilSystemNotification();
-            $ack->setLangModules(array('mail'));
-            $ack->setSubjectLangId("rep_robj_xrs_mail_booking_creator_subject");
+            $ack->setLangModules(array('rep_robj_xrs'));
+            $ack->setSubjectLangId("mail_booking_creator_subject");
             $ack->setIntroductionDirect("\n");
             return $ack->sendMail(array($ilUser->getId()));
             
