@@ -40,6 +40,7 @@ floor_plans_deleted#:#Gebäudeplan erfolgreich gelöscht
 floor_plans_deleted_error#:#Fehler beim Löschen des Gebäudeplans
 floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_upload_error#:#Fehler beim Hochladen des Geäudeplans. Die Mögliche Ursache ist die verwendung eines nicht unterstütztes Datei Formats
+from#:#von
 leave#:#Austreten
 mail_booking_creator_subject#:#Du hast eine Buchung erstellt.
 mail_booking_creator_message#:#Du hast erfolgreich eine Buchung eingetragen. Du hast folgendes gebucht:
@@ -98,6 +99,7 @@ subject#:#Betreff
 time_range#:#Zeitbereich
 time_range#:#Zeitbereich
 title#:#Titel
+to#:#bis
 view#:#Ansicht
 warning_missing_rooms#:#Es sind momentan keine Räume vorhanden. Um den Roomsharingpool nutzen zu können, müssen zuerst Räume angelegt werden.
 xrs_add#:#RoomSharing hinzufügen

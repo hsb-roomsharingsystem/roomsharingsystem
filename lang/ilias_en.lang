@@ -40,6 +40,7 @@ floor_plans_deleted#:#Error while deleting floorplan
 floor_plans_deleted#:#Floorplan deleted
 floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
+from#:#from
 leave#:#Leave
 mail_booking_creator_subject#:#You created a booking.
 mail_booking_creator_message#:#You have successfully created a booking. This is what you've booked:
@@ -98,6 +99,7 @@ subject#:#Subject
 time_range#:#Time Range
 time_range#:#Time Range
 title#:#Title
+to#:#to
 view#:#View
 warning_missing_rooms#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
 xrs_add#:#Add RoomSharing
