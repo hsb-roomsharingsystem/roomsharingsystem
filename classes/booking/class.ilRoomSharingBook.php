@@ -48,7 +48,12 @@ class ilRoomSharingBook
 		{
 			return self::ROOM_ALREADY_BOOKED;
 		}
-		return $this->insertBooking($booking_attr_values, $booking_values);
+                $status = $this->insertBooking($booking_attr_values, $booking_values);
+                if ($status)
+                {
+                    $this->sendAcknowledment();
+                }
+		return $status;
 	}
 
 	/**
@@ -111,11 +116,17 @@ class ilRoomSharingBook
          * 
          *
          */
-        private function sendAcknowledment(){
+        private function sendAcknowledment()
+        {
+            
+            global $ilUser;
+            
             $ack = new ilSystemNotification();
-            $ack->setLangModules(array("exc"));
+            $ack->setLangModules(array("rep_robj_xrs"));
             $ack->setSubjectLangId("mail_booking_creator_subject");
-            $ack->setIntroductionLangId("exc_feedback_notification_body");
+            $ack->setIntroductionLangId("mail_booking_creator_subject");
+            return $ack->sendMail($ilUser->getId());
+            
         }
 
 }
