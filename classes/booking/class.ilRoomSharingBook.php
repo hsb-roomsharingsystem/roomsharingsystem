@@ -126,10 +126,10 @@ class ilRoomSharingBook
 	    $message =  $lng->txt('rep_robj_xrs_mail_booking_creator_message')."\n";
 	    $message .= "----------------------\n";
 	    $message .= $roomname." ";
-	    $message .= $lng->txt('rep_robj_xrs_from');
-	    $message .= $this->date_from;
-	    $message .= $lng->txt('rep_robj_xrs_to');
-	    $message .= $this->date_to."";
+	    $message .= $lng->txt('rep_robj_xrs_from')." ";
+	    $message .= $this->date_from." ";
+	    $message .= $lng->txt('rep_robj_xrs_to')." ";
+	    $message .= $this->date_to;
             
             $mailer = new ilRoomSharingMailer();
             $mailer->setRawSubject($lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
