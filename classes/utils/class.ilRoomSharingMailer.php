@@ -26,11 +26,12 @@ class ilRoomSharingMailer extends ilMailNotification
      * 
      * @return bool
      */
-    public function compose()
+    public function compose($a_user_id)
     {
+        $this->initLanguage($a_user_id);
         $this->initMail();
         $this->setSubject($this->subjectraw);
-        $this->setBody("Hallo!");
+        $this->setBody(ilMail::getSalutation($a_user_id, $this->getLanguage()));
         $this->appendBody("\n\n");
         $this->appendBody("Du hast nen Raum gebucht.");
         
@@ -45,7 +46,7 @@ class ilRoomSharingMailer extends ilMailNotification
      */
     protected function composeAndSendMail($a_user_id)
     {						
-            if($this->compose())
+            if($this->compose($a_user_id))
             {
                     parent::sendMail(array($a_user_id), array('system'), is_numeric($a_user_id));								
                     return true;
