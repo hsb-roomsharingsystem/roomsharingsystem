@@ -51,7 +51,7 @@ class ilRoomSharingBook
                 $status = $this->insertBooking($booking_attr_values, $booking_values);
                 if ($status)
                 {
-                    $this->sendAcknowledment();
+                    $this->sendBookingNotification();
                 }
 		return $status;
 	}
@@ -116,14 +116,23 @@ class ilRoomSharingBook
          * 
          *
          */
-        private function sendAcknowledment()
+        private function sendBookingNotification()
         {
 
             global $lng, $ilUser;
+	    
+	    $roomname = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
+	    
+	    $message =  $lng->txt('rep_robj_xrs_mail_booking_creator_message')."\n";
+	    $message .= $roomname." ";
+	    $message .= "von ";
+	    $message .= $this->date_from;
+	    $message .= "bis ";
+	    $message .= $this->date_to."\n";
             
             $mailer = new ilRoomSharingMailer();
             $mailer->setRawSubject($lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
-	    $mailer->setRawMessage($lng->txt('rep_robj_xrs_mail_booking_creator_message'));
+	    $mailer->setRawMessage($message);
             $mailer->sendMail(array($ilUser->getId()));
             
         }
