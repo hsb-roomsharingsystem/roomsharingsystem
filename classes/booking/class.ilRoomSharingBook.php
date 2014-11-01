@@ -1,7 +1,7 @@
 <?php
 
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-include_once("./Services/Notification/classes/class.ilSystemNotification.php");
+
 
 /**
  * Backend-Class for booking-mask
@@ -118,12 +118,13 @@ class ilRoomSharingBook
          */
         private function sendAcknowledment()
         {
+            include_once("./Services/Notification/classes/class.ilSystemNotification.php");
             
-            global $ilUser;
+            global $lng, $ilUser;
             
             $ack = new ilSystemNotification();
-            $ack->setSubjectLangId("rep_robj_xrs_mail_booking_creator_subject");
-            $ack->setIntroductionLangId("mail_booking_creator_subject");
+            $ack->setSubjectLangId($lng->txt("rep_robj_xrs_mail_booking_creator_subject"));
+            $ack->setIntroductionLangId($lng->txt("rep_robj_xrs_mail_booking_creator_subject"));
             //return $ack->sendMail($ilUser->getId());
             return $ack->sendMail(array(6));
             
