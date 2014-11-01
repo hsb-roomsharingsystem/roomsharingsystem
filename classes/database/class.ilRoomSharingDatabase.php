@@ -3,7 +3,7 @@
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
 
 /**
- * Class for database uqeries.
+ * Class for database queries.
  *
  * @author Malte Ahlering
  */
