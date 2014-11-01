@@ -1,6 +1,7 @@
 <?php
 
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/util/class.ilRoomSharingMailer.php");
 
 
 /**
@@ -122,11 +123,10 @@ class ilRoomSharingBook
             
             global $lng, $ilUser;
             
-            $ack = new ilSystemNotification();
-            $ack->setLangModules(array('rep_robj_xrs'));
-            $ack->setSubjectLangId("mail_booking_creator_subject");
-            $ack->setIntroductionDirect("\n");
-            return $ack->sendMail(array($ilUser->getId()));
+            $mailer = new ilRoomSharingMailer();
+            $mailer->setSubject($lng->txt("rep_robj_xrs_mail_booking_creator_subject"));
+            $mailer->setBody("Hallo!");
+            $mailer->sendMail(array($ilUser->getId()));
             
         }
 
