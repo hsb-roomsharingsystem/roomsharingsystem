@@ -108,14 +108,6 @@ class ilRoomSharingBookings
 				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_from']);
 				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_to']);
 
-				//Add week day
-				/* $date = $lng->txt(substr($date_from->format('D'), 0, 2) . '_short') . '., ';
-
-				  $date .= $date_from->format('d') . '. ' . $lng->txt('month_' .
-				  $date_from->format('m') . '_short') . ' ' .
-				  $date_from->format('Y') . ', ' .
-				  $date_from->format('H:i'); */
-
 				$date = $this->ilRoomSharingUtils->getPrintedDateTime($date_from);
 
 				$date .= " - ";
