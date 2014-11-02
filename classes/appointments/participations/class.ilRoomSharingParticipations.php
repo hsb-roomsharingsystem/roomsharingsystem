@@ -1,6 +1,7 @@
 <?php
 
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
  * Class ilRoomSharingParticipations
@@ -12,6 +13,7 @@ class ilRoomSharingParticipations
 {
 	private $pool_id;
 	protected $ilRoomsharingDatabase;
+	protected $ilRoomSharingUtils;
 
 	/**
 	 * Construct of ilRoomSharingParticipations.
@@ -22,6 +24,7 @@ class ilRoomSharingParticipations
 	{
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+		$this->ilRoomSharingUtils = new ilRoomSharingUtils();
 	}
 
 	/**
@@ -70,30 +73,21 @@ class ilRoomSharingParticipations
 				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_from']);
 				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_to']);
 
-				//Add week day
-				$date = $lng->txt(substr($date_from->format('D'), 0, 2) . '_short') . '., ';
+				$date = $this->ilRoomSharingUtils->getPrintedDateTime($date_from);
 
-				$date .= $date_from->format('d') . '.' . ' ' . $lng->txt(
-						'month_' . $date_from->format('m') . '_short') . ' ' .
-					$date_from->format('Y') . ',' . ' ' .
-					$date_from->format('H:i');
 				$date .= " - ";
 
 				// Check whether the date_from differs from the date_to
-				if ($date_from->format('dmY') !== $date_to->format('dmY'))
+				if ($this->ilRoomSharingUtils->checkEqualDay($date_from, $date_to))
 				{
 					//Display the date_to in the next line
 					$date .= '<br>';
 
-					//Add week day
-					$date .= $lng->txt(substr($date_to->format('D'), 0, 2) . '_short') . '., ';
+					$date .= $this->ilRoomSharingUtils->getPrintedDate($date_to);
 
-					$date .= $date_to->format('d') . '.' . ' ' . $lng->txt(
-							'month_' . $date_to->format('m') . '_short') . ' ' .
-						$date_to->format('Y') . ', ';
+					$date .= ', ';
 				}
-
-				$date .= $date_to->format('H:i');
+				$date .= $this->ilRoomSharingUtils->getPrintedTime($date_to);
 
 				$one_booking['date'] = $date;
 
