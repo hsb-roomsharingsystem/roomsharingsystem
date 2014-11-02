@@ -1,6 +1,6 @@
 <?php
 
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingDateUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
@@ -14,7 +14,6 @@ class ilRoomSharingBookings
 {
 	protected $pool_id;
 	protected $ilRoomsharingDatabase;
-	protected $ilRoomSharingUtils;
 
 	/**
 	 * constructor ilRoomSharingBookings
@@ -25,7 +24,6 @@ class ilRoomSharingBookings
 	{
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
-		$this->ilRoomSharingUtils = new ilRoomSharingUtils();
 	}
 
 	/**
@@ -108,21 +106,21 @@ class ilRoomSharingBookings
 				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_from']);
 				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_to']);
 
-				$date = $this->ilRoomSharingUtils->getPrintedDateTime($date_from);
+				$date = ilRoomSharingDateUtils::getPrintedDateTime($date_from);
 
 				$date .= " - ";
 
 				// Check whether the date_from differs from the date_to
-				if ($this->ilRoomSharingUtils->checkEqualDay($date_from, $date_to))
+				if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
 				{
 					//Display the date_to in the next line
 					$date .= '<br>';
 
-					$date .= $this->ilRoomSharingUtils->getPrintedDate($date_to);
+					$date .= ilRoomSharingDateUtils::getPrintedDate($date_to);
 
 					$date .= ', ';
 				}
-				$date .= $this->ilRoomSharingUtils->getPrintedTime($date_to);
+				$date .= ilRoomSharingDateUtils::getPrintedTime($date_to);
 			}
 			$one_booking ['date'] = $date;
 

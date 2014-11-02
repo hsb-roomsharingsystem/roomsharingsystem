@@ -1,23 +1,25 @@
 <?php
 
 /**
- * Class ilRoomSharingTimeInputGUI
+ * Class for the Date-Utils of the Plugin
  *
  * @author Robert Heimsoth
  * @version $Id$
  *
  */
-class ilRoomSharingUtils
+class ilRoomSharingDateUtils
 {
 	/**
-	 * Converts a given DateTime to a printed version.
+	 * Converts a given DateTime to a printable version.
 	 * Example: 2014-10-10 12:20:30 -> Fr., 07. Apr 2014, 12:20
-	 * @global type $lng
-	 * @param type $a_datetime
+	 *
+	 * @param DateTime $a_datetime DateTime which should be converted
+	 * @return String DateTime in the format of the description
 	 */
-	public function getPrintedDateTime($a_datetime)
+	public static function getPrintedDateTime($a_datetime)
 	{
-		return ($this->getPrintedDate($a_datetime) . ', ' . $this->getPrintedTime($a_datetime));
+		return (ilRoomSharingDateUtils::getPrintedDate($a_datetime) . ', ' .
+			ilRoomSharingDateUtils::getPrintedTime($a_datetime));
 	}
 
 	/**
@@ -26,7 +28,7 @@ class ilRoomSharingUtils
 	 * @param DateTime $a_datetime DateTime of the searched date
 	 * @return String Date of the given DateTime
 	 */
-	public function getPrintedDate($a_datetime)
+	public static function getPrintedDate($a_datetime)
 	{
 		global $lng;
 		//Dayname (e.g. Mo)
@@ -47,7 +49,7 @@ class ilRoomSharingUtils
 	 * @param DateTime $a_datetime DateTime of the searched time
 	 * @return String Time of the given DateTime
 	 */
-	public function getPrintedTime($a_datetime)
+	public static function getPrintedTime($a_datetime)
 	{
 		return $a_datetime->format("H:i");
 	}
@@ -59,7 +61,7 @@ class ilRoomSharingUtils
 	 * @param DateTime $a_datetime2 DateTime with Date 2 which should be compared with Date 1
 	 * @return boolean true if equal, else false
 	 */
-	public function checkEqualDay($a_datetime1, $a_datetime2)
+	public static function isEqualDay($a_datetime1, $a_datetime2)
 	{
 		return ($a_datetime1->format('dmY') !== $a_datetime2->format('dmY'));
 	}
