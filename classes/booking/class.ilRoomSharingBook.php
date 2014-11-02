@@ -1,7 +1,7 @@
 <?php
+
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
-
 
 /**
  * Backend-Class for booking-mask
@@ -49,11 +49,11 @@ class ilRoomSharingBook
 		{
 			return self::ROOM_ALREADY_BOOKED;
 		}
-                $status = $this->insertBooking($booking_attr_values, $booking_values);
-                if ($status)
-                {
-                    $this->sendBookingNotification();
-                }
+		$status = $this->insertBooking($booking_attr_values, $booking_values);
+		if ($status)
+		{
+			$this->sendBookingNotification();
+		}
 		return $status;
 	}
 
@@ -108,35 +108,35 @@ class ilRoomSharingBook
 	{
 		$this->pool_id = $pool_id;
 	}
-        
-        
+
 	/**
 	 * Generate a booking acknowledgement via mail.
-	 * 
+	 *
 	 * @return array $recipient_ids;
 	 * 	List of reciepients
-	 * 
+	 *
 	 *
 	 */
-	private function sendBookingNotification() {
+	private function sendBookingNotification()
+	{
 
-	    global $lng, $ilUser;
+		global $lng, $ilUser;
 
-	    $roomname = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
+		$roomname = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
 
-	    $message = $lng->txt('rep_robj_xrs_mail_booking_creator_message') . "\n";
-	    $message .= "----------------------\n";
-	    $message .= $roomname . " ";
-	    $message .= $lng->txt('rep_robj_xrs_from') . " ";
-	    $message .= $this->date_from . " ";
-	    $message .= $lng->txt('rep_robj_xrs_to') . " ";
-	    $message .= $this->date_to;
+		$message = $lng->txt('rep_robj_xrs_mail_booking_creator_message') . "\n";
+		$message .= "----------------------\n";
+		$message .= $roomname . " ";
+		$message .= $lng->txt('rep_robj_xrs_from') . " ";
+		$message .= $this->date_from . " ";
+		$message .= $lng->txt('rep_robj_xrs_to') . " ";
+		$message .= $this->date_to;
 
-	    $mailer = new ilRoomSharingMailer();
-	    $mailer->setRawSubject($lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
-	    $mailer->setRawMessage($message);
+		$mailer = new ilRoomSharingMailer();
+		$mailer->setRawSubject($lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
+		$mailer->setRawMessage($message);
 
-	    return $mailer->sendMail(array($ilUser->getId()));
+		return $mailer->sendMail(array($ilUser->getId()));
 	}
 
 	/**
@@ -152,7 +152,6 @@ class ilRoomSharingBook
 		$row = $ilDB->fetchAssoc($set);
 		$RoomAgreement = array();
 		$mobj = new ilObjMediaObject($row['file_id']);
-		$row["title"] = $mobj->getTitle();
 		$RoomAgreement = $row;
 		return $RoomAgreement;
 	}

@@ -162,7 +162,7 @@ class ilRoomSharingBookGUI
 		$RoomAgreement = new ilRoomSharingBook();
 		$RoomAgreement->setPoolId($this->getPoolId());
 		$RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
-		if ($RoomAgreementInfo !== array())
+		if ($RoomAgreementInfo !== null)
 		{
 			//$cb_prop = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_user_agreement"),"accept_room_rules");
 			$path = $this->getPfad($RoomAgreementInfo);
@@ -210,7 +210,8 @@ class ilRoomSharingBookGUI
 		$form = $this->initForm();
 
 		// Check if the form is valid
-		if ($form->checkInput() && $form->getInput('accept_room_rules') == 1)
+		$isRoomAgreementNotAvailable = !$this->isRoomAgreementAvailable();
+		if ($form->checkInput() && ($isRoomAgreementNotAvailable || $form->getInput('accept_room_rules') == 1))
 		{
 			// Save the room_id in case of error for the next form
 			$this->room_id = $form->getInput('room_id');
@@ -282,6 +283,24 @@ class ilRoomSharingBookGUI
 				$ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
 			$tpl->setContent($form->getHTML());
 		}
+	}
+
+	/**
+	 * Checks if a Roomagreement exists.
+	 * Return true if one exists, otherwise false
+	 *
+	 * @return boolean
+	 */
+	private function isRoomAgreementAvailable()
+	{
+		$RoomAgreement = new ilRoomSharingBook();
+		$RoomAgreement->setPoolId($this->getPoolId());
+		$RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
+		if ($RoomAgreementInfo !== null)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	/**
