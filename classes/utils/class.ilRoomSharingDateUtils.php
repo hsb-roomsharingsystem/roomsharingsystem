@@ -18,8 +18,7 @@ class ilRoomSharingDateUtils
 	 */
 	public static function getPrintedDateTime($a_datetime)
 	{
-		return (ilRoomSharingDateUtils::getPrintedDate($a_datetime) . ', ' .
-			ilRoomSharingDateUtils::getPrintedTime($a_datetime));
+		return (self::getPrintedDate($a_datetime) . ', ' . self::getPrintedTime($a_datetime));
 	}
 
 	/**
