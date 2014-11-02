@@ -2,6 +2,8 @@
 
 include_once("./Services/Repository/classes/class.ilObjectPluginGUI.php");
 include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
+include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+	"RoomSharing/classes/utils/class.ilRoomSharingTimeInputGUI.php");
 
 /**
  * User Interface class for RoomSharing repository object.
@@ -33,9 +35,14 @@ include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
  * @ilCtrl_IsCalledBy ilObjRoomSharingGUI: ilColumnGUI
  *
+ * @property ilObjRoomSharing $object
+ * @property ilPropertyFormGUI $settingsForm
+ * @property ilLanguage $lng
  */
 class ilObjRoomSharingGUI extends ilObjectPluginGUI
 {
+	var $object;
+	var $lng;
 	protected $settingsForm;
 	protected $pool_id;
 	protected $pl_obj;
@@ -46,7 +53,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function afterConstructor()
 	{
-		global $ilUser;
 		//Initialize the Calendar
 		include_once("./Services/Calendar/classes/class.ilMiniCalendarGUI.php");
 		$this->initSeed();
@@ -340,9 +346,28 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 		if ($this->settingsForm->checkInput())
 		{
+			// Title and description (Standard)
 			$this->object->setTitle($this->settingsForm->getInput('title'));
 			$this->object->setDescription($this->settingsForm->getInput('desc'));
+
+			// Online flag
 			$this->object->setOnline($this->settingsForm->getInput('online'));
+
+			// Max book time
+			$date = $this->settingsForm->getInput('max_book_time')['date'];
+			$time = $this->settingsForm->getInput('max_book_time')['time'];
+			$this->object->setMaxBookTime($date . " " . $time);
+
+			// Rooms agreement
+			$agreementFile = $this->settingsForm->getInput('rooms_agreement');
+			if ($agreementFile['size'] != 0)
+			{
+				$uploadFileId = $this->object->uploadRoomsAgreement($agreementFile,
+					$this->object->getRoomsAgreementFileId());
+				$this->object->setRoomsAgreementFileId($uploadFileId);
+			}
+
+			// Start update
 			$this->object->update();
 			ilUtil::sendSuccess($this->lng->txt('msg_obj_modified'), true);
 			$this->ctrl->redirect($this, 'editSettings');
@@ -360,18 +385,32 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		$this->settingsForm = new ilPropertyFormGUI();
 
-		// Title
-		$field = new ilTextInputGUI($this->lng->txt('title'), 'title');
-		$field->setRequired(true);
-		$this->settingsForm->addItem($field);
+		// Title and description (Standard)
+		$titleField = new ilTextInputGUI($this->lng->txt('title'), 'title');
+		$titleField->setRequired(true);
+		$this->settingsForm->addItem($titleField);
+		$descField = new ilTextAreaInputGUI($this->lng->txt('description'), 'desc');
+		$this->settingsForm->addItem($descField);
 
-		// Description
-		$field = new ilTextAreaInputGUI($this->lng->txt('description'), 'desc');
-		$this->settingsForm->addItem($field);
+		// Online flag
+		$onlineField = new ilCheckboxInputGUI($this->lng->txt('online'), 'online');
+		$this->settingsForm->addItem($onlineField);
 
-		// Online
-		$field = new ilCheckboxInputGUI($this->lng->txt('online'), 'online');
-		$this->settingsForm->addItem($field);
+		// Max booking time
+		$maxtimeField = new ilRoomSharingTimeInputGUI(
+			$this->lng->txt('rep_robj_xrs_max_book_time'), 'max_book_time');
+		$maxtimeField->setShowTime(true);
+		$maxtimeField->setMinuteStepSize(5);
+		$maxtimeField->setShowDate(false);
+		$this->settingsForm->addItem($maxtimeField);
+
+		// Rooms agreement
+		$roomsAgrField = new ilFileInputGUI($this->lng->txt('rep_robj_xrs_rooms_useagreement'),
+			"rooms_agreement");
+		$roomsAgrField->setSize(50);
+		$roomsAgrField->setRequired(false);
+		$this->settingsForm->addItem($roomsAgrField);
+
 		$this->settingsForm->addCommandButton('updateSettings', $this->lng->txt('save'));
 		$this->settingsForm->setTitle($this->lng->txt('edit_properties'));
 		$this->settingsForm->setFormAction($this->ctrl->getFormAction($this));
@@ -382,9 +421,32 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function getSettingsValues()
 	{
+		// Title and description (Standard)
 		$values ['title'] = $this->object->getTitle();
 		$values ['desc'] = $this->object->getDescription();
+
+		// Online flag
 		$values ['online'] = $this->object->isOnline();
+
+		// Max book time
+		$timestamp = strtotime($this->object->getMaxBookTime());
+		$maxDate = date("Y-m-d", $timestamp);
+		$maxTime = date("H:i:s", $timestamp);
+		$values ['max_book_time'] = array('date' => $maxDate, 'time' => $maxTime);
+
+		/* Rooms agreement */
+		$fileId = $this->object->getRoomsAgreementFileId();
+		if (!empty($fileId) && $fileId != "0")
+		{
+			$agreementFile = new ilObjMediaObject($this->object->getRoomsAgreementFileId());
+			$media = $agreementFile->getMediaItem("Agreement");
+			$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
+
+			$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
+				$this->lng->txt('rep_robj_xrs_actual_rooms_useagreement') . "</a></p>";
+			$values ['rooms_agreement'] = $linkPresentation;
+		}
+
 		$this->settingsForm->setValuesByArray($values);
 	}
 
@@ -519,8 +581,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->ctrl->saveParameter($this, array('seed'));
 	}
 
-        
-        
 	/**
 	 * init mini-calendar
 	 *
@@ -566,11 +626,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		//Erstellt zum Test einen Termin im Buchungskalender
 		//$this->addAppointment($category);
 	}
-        
-        /*
-         * 
-         * @param $cat_id $cat_id
-         */
+
+	/*
+	 *
+	 * @param $cat_id $cat_id
+	 */
 	private function addAppointment($cat_id, $title, $time_start, $time_end)
 	{
 		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
@@ -587,6 +647,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$ass = new ilCalendarCategoryAssignments($app->getEntryId());
 		$ass->addAssignment($cat_id);
 	}
+
 }
 
 ?>

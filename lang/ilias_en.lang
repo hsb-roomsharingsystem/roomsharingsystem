@@ -1,4 +1,4 @@
-// 
+//
 // English Language File for RoomSharingObject Plugin
 //
 
@@ -109,3 +109,6 @@ xrs_new#:#Add New RoomSharing
 xrs_read#:#Read access to RoomSharing
 xrs_visible#:#RoomSharing is visible
 xrs_write#:#Edit RoomSharing
+max_book_time#:#Maximal time of an booking
+actual_rooms_useagreement#:#Actual rooms use agreement
+rooms_useagreement#:#Rooms use agreement
