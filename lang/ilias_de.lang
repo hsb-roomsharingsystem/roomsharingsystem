@@ -83,6 +83,7 @@ back_to_rooms#:#Zurück zu allen Räumen
 room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
 rooms#:#Räume
 roomsharing_plugin_configuration#:#RoomSharing Plugin Konfiguration
+roomsharing_plugin_config_not_required#:#Es wird keine Konfiguration benötigt
 save#:#Speichern
 saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
 search#:#Suchen

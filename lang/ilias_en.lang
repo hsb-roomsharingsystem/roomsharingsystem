@@ -84,6 +84,7 @@ room_public_booking#:#Username in booking visible in public
 room_user_agreement#:#Accept Room User Agreement
 rooms#:#Rooms
 roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
+roomsharing_plugin_config_not_required#:#There is no configuration required
 save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
 search#:#Search
