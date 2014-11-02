@@ -4,6 +4,8 @@ include_once("./Services/Repository/classes/class.ilObjectPluginGUI.php");
 include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
 include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/utils/class.ilRoomSharingTimeInputGUI.php");
+include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+	"RoomSharing/classes/utils/class.ilRoomSharingCalendar.php");
 
 /**
  * User Interface class for RoomSharing repository object.
@@ -46,17 +48,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	protected $settingsForm;
 	protected $pool_id;
 	protected $pl_obj;
-	protected $cal, $seed;
+	protected $cal;
+	protected $seed;
 
 	/**
 	 * Initialization.
 	 */
 	protected function afterConstructor()
 	{
-		//Initialize the Calendar
-		include_once("./Services/Calendar/classes/class.ilMiniCalendarGUI.php");
-		$this->initSeed();
-		$this->cal = new ilMiniCalendarGUI($this->seed, $this);
 		if ($this->object != null)
 		{
 			//Cannot initialize the user-calendar before the actual object is created because of missing poolID
@@ -71,6 +70,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	final function getType()
 	{
 		return "xrs";
+	}
+
+	/**
+	 * Get title.
+	 *
+	 * @return string title of RoomSharing-Object
+	 */
+	public function getTitle()
+	{
+		return $this->object->getTitle();
 	}
 
 	/**
@@ -546,33 +555,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * Create a new bookings calendar category.
-	 *
-	 * The name includes the poolId
-	 *
-	 * @access protected
-	 * @return
-	 */
-	protected function createBookingsCalendarCategory()
-	{
-		global $ilUser, $lng;
-
-		$cat = new ilCalendarCategory();
-		$cat->setColor('#ff8000');
-		$cat->setType(ilCalendarCategory::TYPE_USR);
-		$title = "RoomSharing Buchungen " . $this->pool_id;
-		$cat->setTitle($title);
-		$cat->setObjId($ilUser->getId());
-		return $cat->add();
-	}
-
-	/**
 	 * Initializes the date-seed for the calendar.
 	 *
-	 * @access protected
+	 * @access private
 	 * @return
 	 */
-	public function initSeed()
+	private function initSeed()
 	{
 		include_once('Services/Calendar/classes/class.ilDate.php');
 		$this->seed = $_REQUEST['seed'] ? new ilDate($_REQUEST['seed'], IL_CAL_DATE) : new ilDate(date('Y-m-d',
@@ -582,70 +570,35 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * init mini-calendar
+	 * Initializes the calendar.
 	 *
-	 * Used to display personal appointments and bookings in the minicalendar
-	 * copied from ilPDBlockCalendar
-	 *
-	 * @access protected
+	 * @access private
+	 * @return
 	 */
 	private function initCalendar()
 	{
-		global $ilUser;
-		// Set pool id
-		$this->pool_id = $this->object->getPoolID();
+		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+			"RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+		$ilDB = new ilRoomsharingDatabase($this->object->getPoolId());
 
-		include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
-		$cats = ilCalendarCategories::_getInstance($ilUser->getId());
-
-		include_once './Services/Calendar/classes/class.ilCalendarUserSettings.php';
-		if (ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
+		//Initialize the Calendar
+		$this->initSeed();
+		$cal_id = $ilDB->getCalendarIdFromDatabase();
+		$this->cal = new ilRoomSharingCalendar($this->seed, $cal_id, $this);
+		if ($cal_id == 0 || $cal_id != $this->cal->getCalendarId())
 		{
-			$cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP);
+			//if calendar is new, save id in pools-table
+			$cal_id = $this->cal->getCalendarId();
+			$ilDB->setCalendarId($cal_id);
 		}
-		else
-		{
-			$cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_ITEMS);
-		}
-
-		$category = null;
-		foreach ($cats->getCategories() as $value)
-		{
-			if (ilCalendarCategory::getInstanceByCategoryId($value)->getTitle() == ("RoomSharing Buchungen " . $this->pool_id))
-			{
-				$category = ilCalendarCategory::getInstanceByCategoryId($value)->getCategoryID();
-				break;
-			}
-		}
-
-		if ($category == null)
-		{
-			$category = $this->createBookingsCalendarCategory();
-		}
-
-		//Erstellt zum Test einen Termin im Buchungskalender
-		//$this->addAppointment($category);
 	}
 
-	/*
-	 *
-	 * @param $cat_id $cat_id
+	/**
+	 *  Creates an appointment in the calendar based on an confirmed booking
 	 */
-	private function addAppointment($cat_id, $title, $time_start, $time_end)
+	public function addBookingAppointment($booking_values_array)
 	{
-		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
-		include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
-		$app = new ilCalendarEntry();
-		$app->setStart($time_start);
-		$app->setEnd($time_end);
-		$app->setFullday(false);
-		$app->setTitle($title);
-		$app->validate();
-		$app->save();
-
-		include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
-		$ass = new ilCalendarCategoryAssignments($app->getEntryId());
-		$ass->addAssignment($cat_id);
+		$this->cal->addAppointment($booking_values_array);
 	}
 
 }

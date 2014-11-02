@@ -216,7 +216,8 @@ class ilRoomsharingDatabase
 			'room_id' => array('integer', $booking_values ['room']),
 			'pool_id' => array('integer', $this->pool_id),
 			'user_id' => array('integer', $ilUser->getId()),
-			'subject' => array('text', $booking_values ['subject'])
+			'subject' => array('text', $booking_values ['subject']),
+			'public' => array('boolean', $booking_values ['public'] == 1)
 			)
 		);
 
@@ -583,7 +584,7 @@ class ilRoomsharingDatabase
 	}
 
 	/**
-	 * Gett all Room Agrements from the Database
+	 * Gets all Room Agrements from the Database
 	 *
 	 * @global type $ilDB
 	 * @return type return of $ilDB->query
@@ -593,6 +594,38 @@ class ilRoomsharingDatabase
 		global $ilDB;
 		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES_TABLE .
 				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer')); // . ' order by file_id DESC');
+	}
+
+	/**
+	 * Gets the calendar-id of the current RoomSharing-Pool
+	 *
+	 * @global type $ilDB
+	 * @return integer calendar-id
+	 */
+	public function getCalendarIdFromDatabase()
+	{
+		global $ilDB;
+		$set = $ilDB->query('SELECT calendar_id FROM ' . ilRoomsharingDBConstants::POOLS_TABLE .
+			' WHERE id = ' . $ilDB->quote($this->pool_id, 'integer'));
+		$row = $ilDB->fetchAssoc($set);
+		return $row["calendar_id"];
+	}
+
+	/**
+	 * Updates rep_robj_xrs_pools with an new calendar-id.
+	 *
+	 * Typically only called once per pool.
+	 *
+	 * @global type $ilDB
+	 * @param type $cal_id
+	 * @return type
+	 */
+	public function setCalendarId($cal_id)
+	{
+		global $ilDB;
+		return $this->ilDB->manipulate('UPDATE ' . ilRoomsharingDBConstants::POOLS_TABLE .
+				' SET calendar_id = ' . $ilDB->quote($cal_id, 'integer') .
+				' WHERE id = ' . $ilDB->quote($this->pool_id, 'integer'));
 	}
 
 }

@@ -227,7 +227,9 @@ class ilRoomSharingBookGUI
 			$booking_values_array ['to'] = $form->getInput('to');
 			$booking_values_array ['book_public'] = $form->getInput('book_public');
 			$booking_values_array ['accept_room_rules'] = $form->getInput('accept_room_rules');
+			$booking_values_array ['public'] = $form->getInput('book_public');
 			$booking_values_array ['room'] = $this->room_id;
+			$booking_values_array ['room_name'] = $this->ilRoomSharingRooms->getRoomName($this->room_id);
 
 			// Build array with the booking-attribute-values for a booking
 			$booking_attr_values_array = array();
@@ -244,6 +246,7 @@ class ilRoomSharingBookGUI
 				$this->ilRoomSharingRooms);
 			if ($result === 1)
 			{
+				$this->parent_obj->addBookingAppointment($booking_values_array);
 				$ilTabs->clearTargets();
 				$this->parent_obj->setTabs();
 				$ilCtrl->setCmd("render");
