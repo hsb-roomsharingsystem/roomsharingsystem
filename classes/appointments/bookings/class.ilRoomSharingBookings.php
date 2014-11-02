@@ -1,6 +1,7 @@
 <?php
 
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 
 /**
  * Class ilRoomSharingBookings
@@ -38,7 +39,7 @@ class ilRoomSharingBookings
 	{
 		global $ilDB, $ilUser, $lng;
 
-		if (!empty($a_booking_id) && is_numeric($a_booking_id))
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
 		{
 			$set = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
 			$row = $ilDB->fetchAssoc($set);
@@ -96,7 +97,7 @@ class ilRoomSharingBookings
 		while ($row = $ilDB->fetchAssoc($set))
 		{
 			$one_booking = array();
-			if (is_numeric($row ['seq_id'])) // Is it a recurring appointment?
+			if (ilRoomSharingNumericUtils::isPositiveNumber($row ['seq_id'])) // Is it a recurring appointment?
 			{
 				$one_booking ['recurrence'] = true;
 			}
