@@ -19,11 +19,11 @@ class ilRoomSharingNumericUtils
 	{
 		if ($with_zero)
 		{
-			return (is_numeric($booking_participant_id) && $booking_participant_id >= 0);
+			return (is_numeric($a_number) && $a_number >= 0);
 		}
 		else
 		{
-			return (is_numeric($booking_participant_id) && $booking_participant_id > 0);
+			return (is_numeric($a_number) && $a_number > 0);
 		}
 	}
 
