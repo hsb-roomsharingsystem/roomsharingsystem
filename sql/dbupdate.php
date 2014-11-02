@@ -611,7 +611,7 @@ $bookTimeAttributes = array(
 $ilDB->addTableColumn($table, $bookTimeColumn, $bookTimeAttributes);
 ?>
 
-<#7>
+<#8>
 <?php
 // Additional main setting: calendar-id to create one calender per poolId.
 // Additional attribute in bookings: public to clarify if username is visible (used later).
@@ -627,10 +627,8 @@ $calendarAttributes = array(
 $ilDB->addTableColumn($tablePools, $calendarColumn, $calendarAttributes);
 
 $tableBookings = 'rep_robj_xrs_bookings';
-$bookPublicColumn = 'public';
+$bookPublicColumn = 'public_booking';
 $bookPublicAttributes = array(
-	'type' => 'boolean',
-	"default" => "false",
-	'notnull' => true);
+	'type' => 'boolean');
 $ilDB->addTableColumn($tableBookings, $bookPublicColumn, $bookPublicAttributes);
 ?>

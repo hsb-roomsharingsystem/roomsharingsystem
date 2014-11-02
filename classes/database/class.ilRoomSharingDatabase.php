@@ -217,7 +217,7 @@ class ilRoomsharingDatabase
 			'pool_id' => array('integer', $this->pool_id),
 			'user_id' => array('integer', $ilUser->getId()),
 			'subject' => array('text', $booking_values ['subject']),
-			'public' => array('boolean', $booking_values ['public'] == 1)
+			'public_booking' => array('boolean', $booking_values ['public'] == 1)
 			)
 		);
 
