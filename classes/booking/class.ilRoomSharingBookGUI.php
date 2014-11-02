@@ -4,6 +4,7 @@
  * Class ilRoomSharingBookGUI
  * @author Michael Dazjuk
  * @author Robert Heimsoth
+ * @author Bernd Hitzelberger
  * @version $Id$
  */
 class ilRoomSharingBookGUI
@@ -111,7 +112,8 @@ class ilRoomSharingBookGUI
 		$form->addCommandButton("save", $lng->txt("rep_robj_xrs_room_book"));
 
 		// List the booking-attributes
-		include_once ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php');
+		include_once ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/'
+			. 'classes/appointments/bookings/class.ilRoomSharingBookings.php');
 		$ilBookings = new ilRoomSharingBookings();
 		$ilBookings->setPoolId($this->pool_id);
 		foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value)
@@ -156,12 +158,22 @@ class ilRoomSharingBookGUI
 		$form->addItem($cb_pub);
 
 		// checkbox to confirm the room use agreement
-		$cb_prop = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_user_agreement"),
-			"accept_room_rules");
-		$cb_prop->setValue("1");
-		$cb_prop->setChecked(false);
-		$cb_prop->setRequired(true);
-		$form->addItem($cb_prop);
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
+		$RoomAgreement = new ilRoomSharingBook();
+		$RoomAgreement->setPoolId($this->getPoolId());
+		$RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
+		if ($RoomAgreementInfo !== array())
+		{
+			//$cb_prop = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_user_agreement"),"accept_room_rules");
+			$path = $this->getPfad($RoomAgreementInfo);
+			$msg = $lng->txt("rep_robj_xrs_room_user_agreement");
+			$cb_prop = new ilCheckboxInputGUI($msg, "accept_room_rules");
+
+			$cb_prop->setValue("1");
+			$cb_prop->setChecked(false);
+			$cb_prop->setRequired(true);
+			$form->addItem($cb_prop);
+		}
 
 		// Save room-id in a hidden input field
 		$room_id_prop = new ilHiddenInputGUI("room_id");
@@ -173,6 +185,16 @@ class ilRoomSharingBookGUI
 		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookInputGUI.php';
 
 		return $form;
+	}
+
+	private function getPfad($a_set)
+	{
+		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+		$mobj = new ilObjMediaObject($a_set['file_id']);
+		$med = $mobj->getMediaItem("Standard");
+		$title = $med->getLocation();
+		$Pfad = ilUtil::getWebspaceDir() . "/mobs/mm_" . $mobj->getId() . "/" . $title;
+		return $Pfad;
 	}
 
 	/**
@@ -246,7 +268,8 @@ class ilRoomSharingBookGUI
 					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_is_earlier_than_now'), true);
 				}
 				$form->setValuesByPost();
-				$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
+				$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'),
+					$ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
 				$tpl->setContent($form->getHTML());
 			}
 		}
@@ -255,7 +278,8 @@ class ilRoomSharingBookGUI
 			$this->room_id = $form->getInput('room_id');
 			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
 			$form->setValuesByPost();
-			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'), $ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
+			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'),
+				$ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
 			$tpl->setContent($form->getHTML());
 		}
 	}

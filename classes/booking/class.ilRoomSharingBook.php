@@ -5,6 +5,7 @@ include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 /**
  * Backend-Class for booking-mask
  * @author Robert Heimsoth
+ * @author Bernd Hitzelberger
  */
 class ilRoomSharingBook
 {
@@ -100,6 +101,24 @@ class ilRoomSharingBook
 	public function setPoolId($pool_id)
 	{
 		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the Room Agreement if one exist
+	 *
+	 * @global type $ilDB
+	 */
+	public function getRoomAgreement()
+	{
+		global $ilDB;
+		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+		$set = $this->ilRoomsharingDatabase->getRoomAgrementFromDatabase();
+		$row = $ilDB->fetchAssoc($set);
+		$RoomAgreement = array();
+		$mobj = new ilObjMediaObject($row['file_id']);
+		$row["title"] = $mobj->getTitle();
+		$RoomAgreement = $row;
+		return $RoomAgreement;
 	}
 
 }

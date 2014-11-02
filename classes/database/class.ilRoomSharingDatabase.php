@@ -1,6 +1,7 @@
 <?php
 
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
+include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 
 /**
  * Class for database uqeries.
@@ -608,6 +609,19 @@ class ilRoomsharingDatabase
 			'att_id' => array('integer', $attribute_id),
 			'count' => array('integer', $count)
 		));
+	}
+
+	/**
+	 * Gett all Room Agrements from the Database
+	 *
+	 * @global type $ilDB
+	 * @return type return of $ilDB->query
+	 */
+	public function getRoomAgrementFromDatabase()
+	{
+		global $ilDB;
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES_TABLE .
+				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer')); // . ' order by file_id DESC');
 	}
 
 }
