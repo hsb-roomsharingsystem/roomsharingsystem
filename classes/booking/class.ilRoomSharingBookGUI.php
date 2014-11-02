@@ -192,7 +192,7 @@ class ilRoomSharingBookGUI
 		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 		$mobj = new ilObjMediaObject($a_set['file_id']);
 		$med = $mobj->getMediaItem("Standard");
-		$title = $med->getLocation();
+		//$title = $med->getLocation();
 		$Pfad = ilUtil::getWebspaceDir() . "/mobs/mm_" . $mobj->getId() . "/" . $title;
 		return $Pfad;
 	}
