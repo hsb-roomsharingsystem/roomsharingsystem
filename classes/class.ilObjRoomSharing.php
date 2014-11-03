@@ -72,6 +72,8 @@ class ilObjRoomSharing extends ilObjectPlugin
 		$this->pool_id = $this->getId();
 		$fields = $this->getDBFields();
 		$fields["id"] = array("integer", $this->pool_id);
+		$fields["max_book_time"] = array("timestamp", "1970-01-01 03:00:00");
+		$fields["rooms_agreement"] = array("integer", "0");
 		$this->ilDB->insert("rep_robj_xrs_pools", $fields);
 		return parent::getId();
 	}
