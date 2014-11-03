@@ -1,4 +1,6 @@
-﻿<?php
+<?php
+
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 
 /**
  * Class ilRoomSharingRoomGUI.
@@ -248,7 +250,7 @@ class ilRoomSharingRoomGUI
 				$this->form_gui->getInput("building_id"));
 
 			$newRoomId = $this->room_obj->create();
-			if (!empty($newRoomId) && is_numeric($newRoomId))
+			if (ilRoomSharingNumericUtils::isPositiveNumber($newRoomId))
 			{
 				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_room_added"));
 				$this->room_obj->setId($newRoomId);
@@ -320,4 +322,5 @@ class ilRoomSharingRoomGUI
 	}
 
 }
+
 ?>

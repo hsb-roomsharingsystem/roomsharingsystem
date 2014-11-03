@@ -1,372 +1,444 @@
 <?php
 
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookException.php");
+require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
+require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once("Services/User/classes/class.ilUserAutoComplete.php");
+
 /**
  * Class ilRoomSharingBookGUI
- * @author Michael Dazjuk
- * @author Robert Heimsoth
- * @author Bernd Hitzelberger
+ *
+ * @author Michael Dazjuk <mdazjuk@stud.hs-bremen.de>
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Alexander Keller <a.k3ll3r@gmail.com>
+ *
  * @version $Id$
  */
 class ilRoomSharingBookGUI
 {
-	protected $parent_obj;
-	protected $ref_id;
-	protected $pool_id;
-	protected $room_id;
-	protected $ilRoomSharingRooms;
-	protected $date_from;
-	protected $date_to;
+    private $parent_obj;
+    private $pool_id;
+    private $room_id;
+    private $date_from;
+    private $date_to;
+    private $book;
 
-	/**
-	 * Constructur for ilRoomSharingBookGUI
-	 *
-	 * @param object $a_parent_obj
-	 * @param coded values	$a_room_id, $a_date_from, $a_date_to
-	 */
-	function __construct(ilObjRoomSharingGUI $a_parent_obj, $a_room_id = null, $a_date_from = "",
-		$a_date_to = "")
-	{
-		global $ilCtrl, $lng, $tpl;
+    const NUM_PERSON_RESPONSIBLE = 1;
+    const BOOK_CMD = "book";
 
-		$this->parent_obj = $a_parent_obj;
-		$this->pool_id = $a_parent_obj->getPoolId();
-		$this->ref_id = $a_parent_obj->ref_id;
-		$this->room_id = $a_room_id;
-		$this->date_from = $a_date_from;
-		$this->date_to = $a_date_to;
-		$this->ctrl = $ilCtrl;
-		$this->lng = $lng;
-		$this->tpl = $tpl;
+    /**
+     * Constructur for ilRoomSharingBookGUI
+     *
+     * @param ilObjRoomSharingGUI $a_parent_obj
+     * @param string $a_room_id
+     * @param string $a_date_from
+     * @param string $a_date_to
+     */
+    public function __construct(ilObjRoomSharingGUI $a_parent_obj, $a_room_id = null, $a_date_from = "", $a_date_to = "")
+    {
+        global $ilCtrl, $lng, $tpl;
 
-		// Get an instance of ilRoomSharingRooms which is used in more than 1 function
-		include ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php');
-		$this->ilRoomSharingRooms = new ilRoomSharingRooms();
-	}
+        $this->ctrl = $ilCtrl;
+        $this->lng = $lng;
+        $this->tpl = $tpl;
+        $this->parent_obj = $a_parent_obj;
+        $this->pool_id = $a_parent_obj->getPoolId();
+        $this->room_id = $a_room_id;
+        $this->date_from = $a_date_from;
+        $this->date_to = $a_date_to;
 
-	/**
-	 * Main switch for command execution.
-	 *
-	 * @return Returns always true.
-	 */
-	function executeCommand()
-	{
-		global $ilCtrl;
+        $this->book = new ilRoomSharingBook();
+        $this->book->setPoolId($this->pool_id);
+    }
 
-		$next_class = $ilCtrl->getNextClass($this);
-		$cmd = $ilCtrl->getCmd("render");
+    /**
+     * Executes the command given by ilCtrl.
+     */
+    public function executeCommand()
+    {
+        $cmd = $this->ctrl->getCmd("renderBookingForm");
+        $this->$cmd();
+    }
 
-		switch ($next_class)
-		{
-			default :
-				$cmd .= 'Object';
-				$this->$cmd();
-				break;
-		}
-		return true;
-	}
+    /**
+     * Renders the booking form as HTML.
+     */
+    public function renderBookingForm()
+    {
+        $booking_form = $this->createForm();
+        $this->tpl->setContent($booking_form->getHTML());
+    }
 
-	/**
-	 * Render list of booking objects
-	 *
-	 * uses ilBookingObjectsTableGUI
-	 */
-	function renderObject()
-	{
-		global $tpl, $ilAccess;
+    /**
+     * Creates a booking form.
+     *
+     * @return ilform
+     */
+    private function createForm()
+    {
+        $form = new ilPropertyFormGUI();
+        $form->setFormAction($this->ctrl->getFormAction($this));
+        $form->setTitle($this->getFormTitle());
+        $form->addCommandButton(self::BOOK_CMD, $this->lng->txt("rep_robj_xrs_room_book"));
 
-		if ($ilAccess->checkAccess('write', '', $this->ref_id))
-		{
-			include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
-		}
+        $form_items = $this->createFormItems();
+        foreach ($form_items as $item)
+        {
+            $form->addItem($item);
+        }
 
-		include_once ('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
-		$plink = new ilPermanentLinkGUI('book', $this->ref_id);
+        return $form;
+    }
 
-		$tpl->setContent($this->initForm()->getHTML() . $plink->getHTML());
-	}
+    private function getFormTitle()
+    {
+        $title = $this->lng->txt('rep_robj_xrs_room_book') . ': ' . $this->lng->txt('rep_robj_xrs_room');
+        $title = $title . " " . $this->getRoomFromId();
 
-	/**
-	 * Form for booking
-	 *
-	 * @return Returns the GUI
-	 */
-	function initForm()
-	{
-		global $lng, $ilCtrl;
+        return $title;
+    }
 
-		include_once ("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormAction($this));
+    private function getRoomFromId()
+    {
+        $room_id = empty($this->room_id) ? $_POST['room_id'] : $this->room_id;
+        $this->room_id = $room_id;
 
-		// Set form frame title
-		$form->setTitle($lng->txt('rep_robj_xrs_room_book') . ': ' . $lng->txt('rep_robj_xrs_room')
-			. ' ' . $this->ilRoomSharingRooms->getRoomName((empty($this->room_id)) ? $_POST ['room_id'] : $this->room_id));
+        $rooms = new ilRoomSharingRooms();
+        return $rooms->getRoomName($room_id);
+    }
 
-		// Input for the subject of the booking
-		$subject = new ilTextInputGUI($lng->txt("subject"), "subject");
-		$subject->setRequired(true);
-		$subject->setSize(40);
-		$subject->setMaxLength(120);
-		$form->addItem($subject);
+    private function createFormItems()
+    {
+        $form_items = array();
+        $form_items[] = $this->createSubjectTextInput();
+        $booking_attributes = $this->createBookingAttributeTextInputs();
+        $form_items = array_merge($form_items, $booking_attributes);
+        $form_items[] = $this->createTimeRangeInput();
+        $form_items[] = $this->createPublicBookingCheckBox();
+        $form_items[] = $this->createUserAgreementCheckBox();
+        $form_items[] = $this->createRoomIdHiddenInputField();
+        $form_items[] = $this->createParticipantsSection();
+        $form_items[] = $this->createParticipantsMultiTextInput();
 
-		$form->addCommandButton("save", $lng->txt("rep_robj_xrs_room_book"));
+        $form_items = array_filter($form_items);
 
-		// List the booking-attributes
-		include_once ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/'
-			. 'classes/appointments/bookings/class.ilRoomSharingBookings.php');
-		$ilBookings = new ilRoomSharingBookings();
-		$ilBookings->setPoolId($this->pool_id);
-		foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value)
-		{
-			$formattr = new ilTextInputGUI($attr_value ['txt'], $attr_value ['id']);
-			$formattr->setSize(40);
-			$formattr->setMaxLength(120);
-			$form->addItem($formattr);
-		}
+        return $form_items;
+    }
 
-		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
-		$time_range = new ilCombinationInputGUI($this->lng->txt("assessment_log_datetime"), "time_range");
+    private function createSubjectTextInput()
+    {
+        $subject = new ilTextInputGUI($this->lng->txt("subject"), "subject");
+        $subject->setRequired(true);
+        $subject->setSize(40);
+        $subject->setMaxLength(120);
 
-		// Datetime Input for "Of"
-		$dt_prop = new ilDateTimeInputGUI($lng->txt("of"), "from");
-		if (!empty($this->date_from))
-		{
-			$dt_prop->setDate(new ilDateTime($this->date_from, IL_CAL_DATETIME));
-			$this->date_from = "";
-		}
-		$dt_prop->setMinuteStepSize(5);
-		$time_range->addCombinationItem("of", $dt_prop, $lng->txt("of"));
-		$dt_prop->setShowTime(true);
+        return $subject;
+    }
 
-		// Datetime Input for "To"
-		$dt_prop1 = new ilDateTimeInputGUI($lng->txt("to"), "to");
-		if (!empty($this->date_to))
-		{
-			$dt_prop1->setDate(new ilDateTime($this->date_to, IL_CAL_DATETIME));
-			$this->date_to = "";
-		}
-		$dt_prop1->setMinuteStepSize(5);
-		$time_range->addCombinationItem("to", $dt_prop1, $lng->txt("to"));
-		$dt_prop1->setShowTime(true);
-		$form->addItem($time_range);
+    private function createBookingAttributeTextInputs()
+    {
+        $text_input_items = array();
+        $booking_attributes = $this->getBookingAttributes();
+        foreach ($booking_attributes as $attr)
+        {
+            $text_input_items[] = $this->createSingleBookingAttributeTextInput($attr);
+        }
+        return $text_input_items;
+    }
 
-		// checkbox to make username public
-		$cb_pub = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_public_booking"), "book_public");
-		$cb_pub->setValue("1");
-		$cb_pub->setChecked(false);
-		$cb_pub->setRequired(false);
-		$form->addItem($cb_pub);
+    private function getBookingAttributes()
+    {
+        $ilBookings = new ilRoomSharingBookings();
+        $ilBookings->setPoolId($this->pool_id);
+        return $ilBookings->getAdditionalBookingInfos();
+    }
 
-		// checkbox to confirm the room use agreement
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
-		$RoomAgreement = new ilRoomSharingBook();
-		$RoomAgreement->setPoolId($this->getPoolId());
-		$RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
-		if ($RoomAgreementInfo['rooms_agreement'] !== '0')
-		{
-			$link = $this->getlink($RoomAgreementInfo['rooms_agreement']);
-			$title = $lng->txt("rep_robj_xrs_room_user_agreement");
-			$cb_prop = new ilCheckboxInputGUI($title, "accept_room_rules");
-			$cb_prop->setValue("1");
-			$cb_prop->setInfo($link);
-			$cb_prop->setChecked(false);
-			$cb_prop->setRequired(true);
-			$form->addItem($cb_prop);
-		}
+    private function createSingleBookingAttributeTextInput($a_attribute)
+    {
+        $attr = new ilTextInputGUI($a_attribute['txt'], $a_attribute['id']);
+        $attr->setSize(40);
+        $attr->setMaxLength(120);
 
-		// Save room-id in a hidden input field
-		$room_id_prop = new ilHiddenInputGUI("room_id");
-		$room_id_prop->setValue($this->room_id);
-		$room_id_prop->setRequired(true);
-		$form->addItem($room_id_prop);
+        return $attr;
+    }
 
-		// checkbox to confirm the room use agreement
-		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookInputGUI.php';
+    private function createTimeRangeInput()
+    {
+        $time_range = new ilCombinationInputGUI($this->lng->txt("assessment_log_datetime"), "time_range");
 
-		return $form;
-	}
+        $from_id = "from";
+        $to_id = "to";
+        $from_transl = $this->lng->txt($from_id);
+        $to_transl = $this->lng->txt($to_id);
 
-	/**
-	 * Create a Link to the Room Agreement
-	 *
-	 * @param type $a_fileID fileId of the Room Agreement
-	 * @return string generated Link
-	 */
-	private function getLink($a_fileID)
-	{
-		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharing.php';
-		$agreementFile = new ilObjMediaObject($a_fileID);
-		$media = $agreementFile->getMediaItem("Agreement");
-		$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
+        $time_input_from = $this->createDateTimeInput($from_transl, $from_id, $this->date_from);
+        $time_input_to = $this->createDateTimeInput($to_transl, $to_id, $this->date_to);
 
-		$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
-			$this->lng->txt('rep_robj_xrs_actual_rooms_useagreement') . "</a></p>";
-		return $linkPresentation;
-	}
+        $time_range->addCombinationItem($from_id, $time_input_from, $from_transl);
+        $time_range->addCombinationItem($to_id, $time_input_to, $to_transl);
 
-	/**
-	 * Function to the validate and save the form data
-	 *
-	 * @global type $tpl
-	 * @global type $ilCtrl
-	 * @global type $ilTabs
-	 */
-	function saveObject()
-	{
-		global $tpl, $ilCtrl, $ilTabs;
-		$form = $this->initForm();
+        return $time_range;
+    }
 
-		// Check if the form is valid
-		$isInputOkay = $form->checkInput();
-		$isRoomAgreementCheckboxChecked = $form->getInput('accept_room_rules') == 1;
-		$isRoomAgreementAvailable = $this->isRoomAgreementAvailable();
-		$roomAgreement = !$isRoomAgreementAvailable || $isRoomAgreementCheckboxChecked;
-		if ($isInputOkay && ($roomAgreement))
-		{
-			// Save the room_id in case of error for the next form
-			$this->room_id = $form->getInput('room_id');
+    private function createDateTimeInput($a_title, $a_postvar, $a_date)
+    {
+        $date_time_input = new ilDateTimeInputGUI($a_title, $a_postvar);
+        if (isset($a_date))
+        {
+            $date_time_input->setDate(new ilDateTime($a_date, IL_CAL_DATETIME));
+        }
+        $date_time_input->setMinuteStepSize(5);
+        $date_time_input->setShowTime(true);
 
-			include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
+        return $date_time_input;
+    }
 
-			// Build array with the standard-values for a booking
-			$book = new ilRoomSharingBook();
-			$book->setPoolId($this->getPoolId());
-			$booking_values_array = array();
-			$booking_values_array ['subject'] = $form->getInput('subject');
-			$booking_values_array ['from'] = $form->getInput('from');
-			$booking_values_array ['to'] = $form->getInput('to');
-			$booking_values_array ['book_public'] = $form->getInput('book_public');
-			if ($isRoomAgreementAvailable)
-			{
-				$booking_values_array ['accept_room_rules'] = $form->getInput('accept_room_rules');
-			}
-			$booking_values_array ['public'] = $form->getInput('book_public');
-			$booking_values_array ['room'] = $this->room_id;
-			$booking_values_array ['room_name'] = $this->ilRoomSharingRooms->getRoomName($this->room_id);
+    private function createPublicBookingCheckBox()
+    {
+        $checkbox_public = new ilCheckboxInputGUI($this->lng->txt("rep_robj_xrs_room_public_booking"), "book_public");
 
-			// Build array with the booking-attribute-values for a booking
-			$booking_attr_values_array = array();
-			include_once ('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php');
-			$ilBookings = new ilRoomSharingBookings();
-			$ilBookings->setPoolId($this->pool_id);
-			foreach ($ilBookings->getAdditionalBookingInfos() as $attr_key => $attr_value)
-			{
-				$booking_attr_values_array[$attr_value['id']] = $form->getInput($attr_value['id']);
-			}
+        return $checkbox_public;
+    }
 
-			// Execute the database operations and check for return value
-			$result = $book->addBooking($booking_values_array, $booking_attr_values_array,
-				$this->ilRoomSharingRooms);
-			if ($result === 1)
-			{
-				$this->parent_obj->addBookingAppointment($booking_values_array);
-				$ilTabs->clearTargets();
-				$this->parent_obj->setTabs();
-				$ilCtrl->setCmd("render");
-				$this->parent_obj->performCommand("");
-				ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
-			}
-			elseif ($result < 0)
-			{
-				if ($result === - 1)
-				{
-					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_booking_add_error'), true);
-				}
-				elseif ($result === - 2)
-				{
-					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_already_booked'), true);
-				}
-				elseif ($result === - 3)
-				{
-					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_bigger_dateto'), true);
-				}
-				elseif ($result === - 4)
-				{
-					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_datefrom_is_earlier_than_now'), true);
-				}
-				$form->setValuesByPost();
-				$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'),
-					$ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
-				$tpl->setContent($form->getHTML());
-			}
-		}
-		else
-		{
-			$this->room_id = $form->getInput('room_id');
-			if (!$isRoomAgreementCheckboxChecked && $isRoomAgreementAvailable)
-			{
-				ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_agreement_entries'), true);
-			}
-			else
-			{
-				ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
-			}
-			$form->setValuesByPost();
-			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'),
-				$ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));
-			$tpl->setContent($form->getHTML());
-		}
-	}
+    private function createUserAgreementCheckBox()
+    {
+        if ($this->roomAgreementExists())
+        {
+            $agreement = $this->book->getRoomAgreement();
+            $link = $this->getlink($agreement['rooms_agreement']);
+            $title = $this->lng->txt("rep_robj_xrs_room_user_agreement");
+            $cb_prop = new ilCheckboxInputGUI($title, "accept_room_rules");
+            $cb_prop->setRequired(true);
+            $cb_prop->setInfo($link);
+            return $cb_prop;
+        }
+    }
 
-	/**
-	 * Checks if a Roomagreement exists.
-	 * Return true if one exists, otherwise false
-	 *
-	 * @return boolean
-	 */
-	private function isRoomAgreementAvailable()
-	{
-		$RoomAgreement = new ilRoomSharingBook();
-		$RoomAgreement->setPoolId($this->getPoolId());
-		$RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
-		if ($RoomAgreementInfo['rooms_agreement'] !== '0')
-		{
-			return true;
-		}
-		return false;
-	}
+    private function roomAgreementExists()
+    {
+        $agreement = $this->book->getRoomAgreement();
 
-	/**
-	 * Returns roomsharing pool id.
-	 *
-	 * @return integer Pool-ID
-	 */
-	public function getPoolId()
-	{
-		return $this->pool_id;
-	}
+        return ($agreement['rooms_agreement'] !== '0');
+    }
 
-	/**
-	 * Sets roomsharing pool id.
-	 *
-	 * @param integer Pool-ID
-	 */
-	public function setPoolId($a_pool_id)
-	{
-		$this->pool_id = $a_pool_id;
-	}
+    private function createRoomIdHiddenInputField()
+    {
+        $hidden_room_id = new ilHiddenInputGUI("room_id");
+        $hidden_room_id->setValue($this->room_id);
+        $hidden_room_id->setRequired(true);
 
-	/**
-	 * Room-IDReturns the room id
-	 *
-	 * @return integer Room-ID
-	 */
-	public function getRoomId()
-	{
-		return $this->room_id;
-	}
+        return $hidden_room_id;
+    }
 
-	/**
-	 * Sets the room ID
-	 *
-	 * @param integer $a_room_id
-	 *        	Room Id which should be set
-	 */
-	public function setRoomId($a_room_id)
-	{
-		$this->room_id = $a_room_id;
-	}
+    private function createParticipantsMultiTextInput()
+    {
+        $participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_participants_list"), "participants");
+        $participants_input->setMulti(true);
+        $ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
+        $participants_input->setDataSource($ajax_datasource);
+        $participants_input->setInfo($this->getMaxRoomAllocationInfo());
+
+        return $participants_input;
+    }
+
+    /**
+     * Method that realizes the auto-completion for the participants list.
+     */
+    private function doUserAutoComplete()
+    {
+        $search_fields = array("login", "firstname", "lastname", "email");
+        $result_field = "login";
+
+        $auto = new ilUserAutoComplete();
+        $auto->setSearchFields($search_fields);
+        $auto->setResultField($result_field);
+
+        echo $auto->getList($_REQUEST['term']);
+        exit();
+    }
+
+    private function getMaxRoomAllocationInfo()
+    {
+        $room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
+        $max_alloc = $this->lng->txt("rep_robj_xrs_at_most") . ": " . ($room->getMaxAlloc() - self::NUM_PERSON_RESPONSIBLE);
+
+        return $max_alloc;
+    }
+
+    private function createParticipantsSection()
+    {
+        $participant_section = new ilFormSectionHeaderGUI();
+        $participant_section->setTitle($this->lng->txt("rep_robj_xrs_participants"));
+
+        return $participant_section;
+    }
+
+    /**
+     * Create a Link to the Room Agreement
+     *
+     * @param type $a_fileID fileId of the Room Agreement
+     * @return string generated Link
+     */
+    private function getLink($a_fileID)
+    {
+        include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharing.php';
+        $agreementFile = new ilObjMediaObject($a_fileID);
+        $media = $agreementFile->getMediaItem("Agreement");
+//        $source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
+
+        $linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
+            $this->lng->txt('rep_robj_xrs_actual_rooms_useagreement') . "</a></p>";
+        return $linkPresentation;
+    }
+
+    /**
+     * Function to the validate and save the form data
+     *
+     * @global type $ilTabs
+     */
+    private function book()
+    {
+        $form = $this->createForm();
+        if ($this->isFormValid($form))
+        {
+            $this->evaluateFormEntries($form);
+        }
+        else
+        {
+            $this->handleInvalidForm($form);
+        }
+    }
+
+    private function isFormValid($a_form)
+    {
+        return $a_form->checkInput() && (!$this->roomAgreementExists() || $a_form->getInput('accept_room_rules') == 1);
+    }
+
+    private function evaluateFormEntries($a_form)
+    {
+        $common_entries = $this->fetchCommonFormEntries($a_form);
+        $attribute_entries = $this->fetchAttributeFormEntries($a_form);
+        $participant_entries = $a_form->getInput('participants');
+
+        $this->saveFormEntries($a_form, $common_entries, $attribute_entries, $participant_entries);
+    }
+
+    private function fetchCommonFormEntries($a_form)
+    {
+        $common_entries = array();
+        $common_entries['subject'] = $a_form->getInput('subject');
+        $common_entries['from'] = $a_form->getInput('from');
+        $common_entries['to'] = $a_form->getInput('to');
+        $common_entries['book_public'] = $a_form->getInput('book_public');
+        $common_entries['accept_room_rules'] = $a_form->getInput('accept_room_rules');
+        $common_entries['room'] = $a_form->getInput('room_id');
+
+        return $common_entries;
+    }
+
+    private function fetchAttributeFormEntries($a_form)
+    {
+        $attribute_entries = array();
+        $booking_attributes = $this->getBookingAttributes();
+        foreach ($booking_attributes as $attr)
+        {
+            $attribute_entries[$attr['id']] = $a_form->getInput($attr['id']);
+        }
+
+        return $attribute_entries;
+    }
+
+    private function saveFormEntries($a_form, $a_common_entries, $a_attribute_entries, $a_participant_entries)
+    {
+        try
+        {
+            $this->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
+        }
+        catch (ilRoomSharingBookException $ex)
+        {
+            $this->handleException($a_form, $ex);
+        }
+    }
+
+    private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
+    {
+        $book = new ilRoomSharingBook();
+        $book->setPoolId($this->getPoolId());
+        $book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
+        $this->parent_obj->addBookingAppointment($a_common_entries);
+        $this->cleanUpAfterSuccessfulSave();
+    }
+
+    private function handleException($a_form, $a_exception)
+    {
+        ilUtil::sendFailure($a_exception->getMessage(), true);
+        $this->resetInvalidForm($a_form);
+    }
+
+    private function cleanUpAfterSuccessfulSave()
+    {
+        global $ilTabs;
+
+        $ilTabs->clearTargets();
+        $this->parent_obj->setTabs();
+        $this->ctrl->setCmd("render");
+        $this->parent_obj->performCommand("");
+        ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
+    }
+
+    private function handleInvalidForm($a_form)
+    {
+        ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
+        $this->resetInvalidForm($a_form);
+    }
+
+    private function resetInvalidForm($a_form)
+    {
+        $a_form->setValuesByPost();
+        $this->tpl->setContent($a_form->getHTML());
+    }
+
+    /**
+     * Checks if a Roomagreement exists.
+     * Return true if one exists, otherwise false
+     *
+     * @return boolean
+     */
+    private function isRoomAgreementAvailable()
+    {
+        $RoomAgreement = new ilRoomSharingBook();
+        $RoomAgreement->setPoolId($this->getPoolId());
+        $RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
+        if ($RoomAgreementInfo['rooms_agreement'] !== '0')
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns roomsharing pool id.
+     *
+     * @return integer Pool-ID
+     */
+    public function getPoolId()
+    {
+        return $this->pool_id;
+    }
+
+    /**
+     * Sets roomsharing pool id.
+     *
+     * @param integer Pool-ID
+     */
+    public function setPoolId($a_pool_id)
+    {
+        $this->pool_id = $a_pool_id;
+    }
 
 }
-
 ?>

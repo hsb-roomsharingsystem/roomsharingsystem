@@ -1,5 +1,7 @@
-﻿<?php
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+<?php
+
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 
 /**
  * Class ilRoomSharingRoom.
@@ -124,8 +126,8 @@ class ilRoomSharingRoom
 	{
 		global $ilDB;
 		// Check arguments
-		if (!empty($a_attr_id) && is_numeric($a_attr_id) && !empty($a_count) &&
-			is_numeric($a_count) && $a_count > 0)
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_attr_id) &&
+			ilRoomSharingNumericUtils::isPositiveNumber($a_count))
 		{
 			// Check whether the attribute is real/exist.
 			$attrDB = $ilDB->fetchAssoc($this->ilRoomsharingDatabase->getRoomAttribute($a_attr_id));
@@ -275,7 +277,8 @@ class ilRoomSharingRoom
 			foreach ($this->attributes as $attr_value)
 			{
 				// Check whether the number values are numeric.
-				if (!is_numeric($attr_value['id']) || !is_numeric($attr_value['count']))
+				if (!ilRoomSharingNumericUtils::isPositiveNumber($attr_value['id']) ||
+					!ilRoomSharingNumericUtils::isPositiveNumber($attr_value['count'], true))
 				{
 					ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
 					return false;
@@ -319,7 +322,7 @@ class ilRoomSharingRoom
 	protected function checkId()
 	{
 		global $ilDB;
-		if (!empty($this->id) && is_numeric($this->id))
+		if (ilRoomSharingNumericUtils::isPositiveNumber($this->id))
 		{
 			$room = $ilDB->fetchAssoc($this->ilRoomsharingDatabase->getRoom($this->id));
 			if (count($room) > 0)
@@ -554,4 +557,5 @@ class ilRoomSharingRoom
 	}
 
 }
+
 ?>

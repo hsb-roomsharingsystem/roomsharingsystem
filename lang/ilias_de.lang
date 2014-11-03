@@ -13,9 +13,10 @@ between#:#Zwischen
 booking_add#:#Buchung hinzufügen
 booking_added#:#Buchung hinzugefügt
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
+booking_back#:#Zurück zu den Buchungen
 booking_cancel#:#Stornieren
-booking_cancel_booking#:#Buchung stornieren
 booking_confirm#:#Möchten Sie wirklich die ausgewählte Buchung stornieren?
+booking_confirm_cancel#:#Stornieren
 booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
 booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
@@ -24,8 +25,8 @@ cancel#:#Abbrechen
 content#:#Inhalt
 course#:#Studiengang
 date#:#Termin
-datefrom_bigger_dateto#:#"von" ist später oder gleich "bis"
-datefrom_is_earlier_than_now#:#"von" liegt in der Vergangenheit
+datefrom_bigger_dateto#:#"Von" ist später oder gleich "bis"
+datefrom_is_earlier_than_now#:#"Von" liegt in der Vergangenheit
 description#:#Beschreibung
 edit#:#Bearbeiten
 edit_properties#:#Einstellungen bearbeiten
@@ -58,6 +59,7 @@ not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
 obj_xrs#:#RoomSharing
 on#:#Am
 participants#:#Teilnehmer
+participants_list#:#Teilnehmerliste
 participations#:#Teilnahmen
 person_responsible#:#Verantwortlicher
 plan#:#Plan
@@ -67,6 +69,7 @@ quick_search#:#Schnellsuche
 room#:#Raum
 room_add#:#Raum hinzufügen
 room_already_booked#:#Der Raum ist in dem Zeitraum bereits gebucht
+room_max_allocation_exceeded#:#Maximale Raumbelegung überschritten
 room_attributes#:#Raumattribute
 room_book#:#Buchen
 room_date_recurrence#:#Serientermin
