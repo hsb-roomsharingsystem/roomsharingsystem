@@ -414,7 +414,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->settingsForm->addItem($maxtimeField);
 
 		// Rooms agreement
-		$roomsAgrField = new ilFileInputGUI($this->lng->txt('rep_robj_xrs_rooms_useagreement'),
+		$roomsAgrField = new ilFileInputGUI($this->lng->txt('rep_robj_xrs_rooms_user_agreement'),
 			"rooms_agreement");
 		$roomsAgrField->setSize(50);
 		$roomsAgrField->setRequired(false);
@@ -452,7 +452,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
 
 			$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
-				$this->lng->txt('rep_robj_xrs_actual_rooms_useagreement') . "</a></p>";
+				$this->lng->txt('rep_robj_xrs_current_rooms_user_agreement') . "</a></p>";
 			$values ['rooms_agreement'] = $linkPresentation;
 		}
 

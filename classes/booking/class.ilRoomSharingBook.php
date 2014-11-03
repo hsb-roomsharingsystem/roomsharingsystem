@@ -20,10 +20,14 @@ class ilRoomSharingBook
 	private $room_id;
 	private $participants;
 
-	public function __construct()
+	public function __construct($a_pool_id)
 	{
-		global $lng;
+		global $lng, $ilUser;
+
 		$this->lng = $lng;
+		$this->user = $ilUser;
+		$this->pool_id = $a_pool_id;
+		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 
 	/**
@@ -36,7 +40,6 @@ class ilRoomSharingBook
 	 */
 	public function addBooking($booking_values, $booking_attr_values, $booking_participants)
 	{
-		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 		$this->date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
 		$this->date_to = $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time'];
 		$this->room_id = $booking_values ['room'];
@@ -45,13 +48,13 @@ class ilRoomSharingBook
 		$this->validateBookingInput();
 		$success = $this->insertBooking($booking_attr_values, $booking_values, $booking_participants);
 
-		if (!$success)
+		if ($success)
 		{
-			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
+			$this->sendBookingNotification();
 		}
 		else
 		{
-			$this->sendBookingNotification();
+			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
 		}
 	}
 
@@ -123,17 +126,12 @@ class ilRoomSharingBook
 
 	/**
 	 * Callback function which is used for existing and therefore valid participants.
-	 * Also it filters out the booker itself, if he is in the list of participants.
-	 *
-	 * @global ilUser $ilUser
 	 * @param string $a_participant
-	 * @return boolean/integer id of the participant if participant exists; false otherwise
+	 * @return boolean true, if participant exists; false otherwise
 	 */
 	private function filterValidParticipants($a_participant)
 	{
-		global $ilUser;
-		return (($ilUser->getLogin() == $a_participant || empty($a_participant)) ?
-				false : ilObjUser::_lookupId($a_participant));
+		return (empty($a_participant) || $this->user->getLogin() == $a_participant) ? false : ilObjUser::_lookupId($a_participant);
 	}
 
 	/**
@@ -163,48 +161,40 @@ class ilRoomSharingBook
 	/**
 	 * Generate a booking acknowledgement via mail.
 	 *
-	 * @return array $recipient_ids;
-	 * 	List of reciepients
-	 *
-	 *
+	 * @return array $recipient_ids List of recipients.
 	 */
 	private function sendBookingNotification()
 	{
+		$mail_message = $this->createMailMessage();
+		$mailer = new ilRoomSharingMailer();
+		$mailer->setRawSubject($this->lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
+		$mailer->setRawMessage($mail_message);
 
-		global $lng, $ilUser;
+		$mailer->sendMail(array($this->user->getId()));
+	}
 
-		$roomname = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
-
-		$message = $lng->txt('rep_robj_xrs_mail_booking_creator_message') . "\n";
+	private function createMailMessage()
+	{
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
+		$message = $this->lng->txt('rep_robj_xrs_mail_booking_creator_message') . "\n";
 		$message .= "----------------------\n";
-		$message .= $roomname . " ";
-		$message .= $lng->txt('rep_robj_xrs_from') . " ";
+		$message .= $room_name . " ";
+		$message .= $this->lng->txt('rep_robj_xrs_from') . " ";
 		$message .= $this->date_from . " ";
-		$message .= $lng->txt('rep_robj_xrs_to') . " ";
+		$message .= $this->lng->txt('rep_robj_xrs_to') . " ";
 		$message .= $this->date_to;
 
-		$mailer = new ilRoomSharingMailer();
-		$mailer->setRawSubject($lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
-		$mailer->setRawMessage($message);
-
-		return $mailer->sendMail(array($ilUser->getId()));
+		return $message;
 	}
 
 	/**
-	 * Get the Room Agreement if one exist
-	 *
-	 * @global type $ilDB
+	 * Returns the room user agreement file id.
 	 */
-	public function getRoomAgreement()
+	public function getRoomAgreementFileId()
 	{
-		global $ilDB;
-		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
-		$set = $this->ilRoomsharingDatabase->getRoomAgreementFromDatabase();
-		$row = $ilDB->fetchAssoc($set);
-		$RoomAgreement = array();
-		$mobj = new ilObjMediaObject($row['rooms_agreement']);
-		$RoomAgreement = $row;
-		return $RoomAgreement;
+		$agreement_file_id = $this->ilRoomsharingDatabase->getRoomAgreementIdFromDatabase();
+
+		return $agreement_file_id;
 	}
 
 }

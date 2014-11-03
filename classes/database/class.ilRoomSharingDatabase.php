@@ -659,14 +659,17 @@ class ilRoomsharingDatabase
 	}
 
 	/**
-	 * Gets all Room Agrements from the Database
+	 * Returns the file id for the room agreement of a certain pool.
 	 *
 	 * @return type return of $ilDB->query
 	 */
-	public function getRoomAgreementFromDatabase()
+	public function getRoomAgreementIdFromDatabase()
 	{
-		return $this->ilDB->query('SELECT * FROM ' . dbc::POOLS_TABLE .
-				' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' order by rooms_agreement DESC');
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::POOLS_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' order by rooms_agreement DESC');
+
+		$row = $this->ilDB->fetchAssoc($set);
+		return $row["rooms_agreement"];
 	}
 
 	/**

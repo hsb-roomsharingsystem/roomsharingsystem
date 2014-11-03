@@ -9,10 +9,11 @@ amount#:#Amount
 appointments#:#Appointments
 at_most#:#At most
 back_to_list#:#Back to floorplans
+back_to_rooms#:#Back to all rooms
 between#:#Between
 booking_add#:#Add Booking
-booking_added#:#Booking added
 booking_add_error#:#Booking couldn't been added
+booking_added#:#Booking added
 booking_back#:#Back to bookings
 booking_cancel#:#Cancel
 booking_confirm#:#Are you sure you want to cancel the following booking?
@@ -24,6 +25,7 @@ bookings#:#Bookings
 cancel#:#Cancel
 content#:#Content
 course#:#Course
+current_rooms_user_agreement#:#Current rooms user agreement
 date#:#Date
 datefrom_bigger_dateto#:#"From" is later or equal "to"
 datefrom_is_earlier_than_now#:#"From" lies in the past
@@ -32,26 +34,27 @@ edit#:#Edit
 edit_properties#:#Edit Properties
 floor_plans_add#:#Add floorplan
 floor_plans_added#:#Floorplan added
+floor_plans_delete#:#Delete floorplan
+floor_plans_deleted#:#Error while deleting floorplan
+floor_plans_deleted#:#Floorplan deleted
 floor_plans_edit#:#Edit floorplan
 floor_plans_edited#:#Floorplan updated
 floor_plans_keep#:#Keep floorplan
 floor_plans_keep_info#:#The existing floorplan will be kept
 floor_plans_replace#:#Replace floorplan
 floor_plans_replace_info#:#The existing floorplan will be replaced
-floor_plans_delete#:#Delete floorplan
-floor_plans_deleted#:#Error while deleting floorplan
-floor_plans_deleted#:#Floorplan deleted
 floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
 from#:#from
 leave#:#Leave
-mail_booking_creator_subject#:#You created a booking.
-mail_booking_creator_message#:#You have successfully created a booking. This is what you've booked:
 mail_booking_creator_linktext#:#You can see your booking via the following link:
+mail_booking_creator_message#:#You have successfully created a booking. This is what you've booked:
+mail_booking_creator_subject#:#You created a booking.
 mail_booking_participant_subject#:#Someone booked a room for you.
 manage#:#Manage
-missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.
+max_book_time#:#Maximal time of a booking
 missing_agreement_entries#:#The Rooms use agreement is not accepted.
+missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.
 module#:#Module
 no_delete_permission#:#No permission, to delete this booking
 no_id_submitted#:#None or not a numeric ID submitted
@@ -68,34 +71,33 @@ pools#:#RoomSharing Pools
 quick_search#:#Quick Search
 room#:#Room
 room_add#:#Add Room
+room_added#:#Room was added.
 room_already_booked#:#Room is already booked
-room_max_allocation_exceeded#:#Maximum room allocation exceeded
 room_attributes#:#Room Attributes
 room_book#:#Book
+room_create_failed#:#The room could not be created.
 room_date_recurrence#:#Date Recurrence
 room_edit#:#Edit Room
-room_floor_plans#:#Floor Plans
-room_name#:#Room Name
-room_type#:#Room type
-room_min_alloc#:#Min. allocation
-room_max_alloc#:#Max. allocation
 room_file_id#:#Map
-room_properties#:#Room properties
+room_floor_plans#:#Floor Plans
+room_max_alloc#:#Max. allocation
+room_max_allocation_exceeded#:#Maximum room allocation exceeded
+room_min_alloc#:#Min. allocation
+room_name#:#Room Name
 room_prop_description#:#The choosen room has following properties -
-room_create_failed#:#The room could not be created.
-wrong_input#:#Wrong input. Check it please.
-room_added#:#Room was added.
-back_to_rooms#:#Back to all rooms
+room_properties#:#Room properties
 room_public_booking#:#Display username publicly in booking
-room_user_agreement#:#Accept Room User Agreement
+room_type#:#Room type
+rooms_user_agreement_accept#:#Accept Room User Agreement
 rooms#:#Rooms
-roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
+rooms_user_agreement#:#Rooms user agreement
 roomsharing_plugin_config_not_required#:#There is no configuration required
+roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
 save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
 search#:#Search
-search_results#:#Search Results
 search_back#:#Back to search results
+search_results#:#Search Results
 seats#:#Seats
 semester#:#Semester
 setting_1#:#Setting 1
@@ -109,6 +111,7 @@ title#:#Title
 to#:#to
 view#:#View
 warning_missing_rooms#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
+wrong_input#:#Wrong input. Check it please.
 xrs_add#:#Add RoomSharing
 xrs_delete#:#Delete RoomSharing
 xrs_edit_permission#:#Change permission settings
@@ -116,6 +119,3 @@ xrs_new#:#Add New RoomSharing
 xrs_read#:#Read access to RoomSharing
 xrs_visible#:#RoomSharing is visible
 xrs_write#:#Edit RoomSharing
-max_book_time#:#Maximal time of an booking
-actual_rooms_useagreement#:#Actual rooms use agreement
-rooms_useagreement#:#Rooms use agreement
