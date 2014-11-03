@@ -50,6 +50,7 @@ mail_booking_creator_linktext#:#Du findest deine Buchung unter folgendem Link:
 mail_booking_participant_subject#:#Jemand hat für dich einen Raum gebucht.
 manage#:#Verwalten
 missing_required_entries#:#Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.
+missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.
 module#:#Modul
 no_delete_permission#:#Keine Berechtigung, diese Buchung zu löschen
 no_id_submitted#:#Keine oder nicht numerische ID übergeben

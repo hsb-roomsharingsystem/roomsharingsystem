@@ -589,7 +589,7 @@ class ilRoomsharingDatabase
 	 * @global type $ilDB
 	 * @return type return of $ilDB->query
 	 */
-	public function getRoomAgrementFromDatabase()
+	public function getRoomAgreementFromDatabase()
 	{
 		global $ilDB;
 		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::POOLS_TABLE .

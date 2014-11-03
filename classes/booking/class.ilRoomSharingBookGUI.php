@@ -164,11 +164,11 @@ class ilRoomSharingBookGUI
 		$RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
 		if ($RoomAgreementInfo['rooms_agreement'] !== '0')
 		{
-			$path = $this->getPfad($RoomAgreementInfo);
-			$msg = $lng->txt("rep_robj_xrs_room_user_agreement");
-			$cb_prop = new ilCheckboxInputGUI($msg, "accept_room_rules");
-
+			$link = $this->getlink($RoomAgreementInfo['rooms_agreement']);
+			$title = $lng->txt("rep_robj_xrs_room_user_agreement");
+			$cb_prop = new ilCheckboxInputGUI($title, "accept_room_rules");
 			$cb_prop->setValue("1");
+			$cb_prop->setInfo($link);
 			$cb_prop->setChecked(false);
 			$cb_prop->setRequired(true);
 			$form->addItem($cb_prop);
@@ -186,14 +186,22 @@ class ilRoomSharingBookGUI
 		return $form;
 	}
 
-	private function getPfad($a_set)
+	/**
+	 * Create a Link to the Room Agreement
+	 *
+	 * @param type $a_fileID fileId of the Room Agreement
+	 * @return string generated Link
+	 */
+	private function getLink($a_fileID)
 	{
-		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-		$mobj = new ilObjMediaObject($a_set['file_id']);
-		$med = $mobj->getMediaItem("Standard");
-		//$title = $med->getLocation();
-		$Pfad = ilUtil::getWebspaceDir() . "/mobs/mm_" . $mobj->getId() . "/" . $title;
-		return $Pfad;
+		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharing.php';
+		$agreementFile = new ilObjMediaObject($a_fileID);
+		$media = $agreementFile->getMediaItem("Agreement");
+		$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
+
+		$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
+			$this->lng->txt('rep_robj_xrs_actual_rooms_useagreement') . "</a></p>";
+		return $linkPresentation;
 	}
 
 	/**
@@ -285,7 +293,14 @@ class ilRoomSharingBookGUI
 		else
 		{
 			$this->room_id = $form->getInput('room_id');
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
+			if (!$isRoomAgreementCheckboxChecked && $isRoomAgreementAvailable)
+			{
+				ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_agreement_entries'), true);
+			}
+			else
+			{
+				ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_missing_required_entries'), true);
+			}
 			$form->setValuesByPost();
 			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_search_back'),
 				$ilCtrl->getLinkTarget($this->parent_obj, 'showSearchResults'));

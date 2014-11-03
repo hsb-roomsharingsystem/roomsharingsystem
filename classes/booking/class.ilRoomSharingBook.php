@@ -148,7 +148,7 @@ class ilRoomSharingBook
 	{
 		global $ilDB;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
-		$set = $this->ilRoomsharingDatabase->getRoomAgrementFromDatabase();
+		$set = $this->ilRoomsharingDatabase->getRoomAgreementFromDatabase();
 		$row = $ilDB->fetchAssoc($set);
 		$RoomAgreement = array();
 		$mobj = new ilObjMediaObject($row['rooms_agreement']);

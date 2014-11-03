@@ -48,6 +48,7 @@ mail_booking_creator_linktext#:#You can see your booking via the following link:
 mail_booking_participant_subject#:#Someone booked a room for you.
 manage#:#Manage
 missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.
+missing_agreement_entries#:#The Rooms use agreement is not accepted.
 module#:#Module
 no_delete_permission#:#No permission, to delete this booking
 no_id_submitted#:#None or not a numeric ID submitted
