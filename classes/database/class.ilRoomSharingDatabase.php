@@ -162,9 +162,9 @@ class ilRoomsharingDatabase
 	 * Get the room-ids from all rooms that are booked in the given timerange.
 	 * A specific room_id can be given if a single room should be queried (used for bookings).
 	 *
-	 * @param string $date_from
-	 * @param string $date_to
-	 * @param string $room_id
+	 * @param string $a_date_from
+	 * @param string $a_date_to
+	 * @param string $a_room_id
 	 *        	(optional)
 	 * @return array values = room ids booked in given range
 	 */
@@ -200,9 +200,9 @@ class ilRoomsharingDatabase
 	 *
 	 * @global type $this->ilDB
 	 * @global type $ilUser
-	 * @param array $booking_values
+	 * @param array $a_booking_values
 	 *        	Array with the values of the booking
-	 * @param array $booking_attr_values
+	 * @param array $a_booking_attr_values
 	 *        	Array with the values of the booking-attributes
 	 * @return integer 1 = successful, -1 not successful
 	 */
@@ -240,8 +240,8 @@ class ilRoomsharingDatabase
 	/**
 	 * Method to insert booking attributes into the database.
 	 *
-	 * @param integer $insertedId
-	 * @param array $booking_attr_values
+	 * @param integer $a_insertedId
+	 * @param array $a_booking_attr_values
 	 *        	Array with the values of the booking-attributes
 	 */
 	private function insertBookingAttributes($a_insertedId, $a_booking_attr_values)
@@ -260,6 +260,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Method to insert booking participants into the database.
 	 *
+	 * @global ilUser $ilUser
 	 * @param integer $a_insertedId
 	 * @param array $a_booking_participants
 	 *        	Array with the values of the booking-participants
@@ -301,8 +302,8 @@ class ilRoomsharingDatabase
 	/**
 	 * Inserts a booking participant into the database.
 	 *
-	 * @param integer $insertedId
-	 * @param integer $participantId
+	 * @param integer $a_insertedId
+	 * @param integer $a_participantId
 	 */
 	public function insertBookingParticipant($a_insertedId, $a_participantId)
 	{
@@ -349,7 +350,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Get all bookings related to a given sequence.
 	 *
-	 * @param integer $seq_id
+	 * @param integer $a_seq_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getAllBookingIdsForSequence($a_seq_id)
@@ -374,7 +375,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Gets all bookings for a user.
 	 *
-	 * @param integer $user_id
+	 * @param integer $a_user_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getBookingsForUser($a_user_id)
@@ -389,7 +390,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Gets all Participants of a booking.
 	 *
-	 * @param integer $booking_id
+	 * @param integer $a_booking_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getParticipantsForBooking($a_booking_id)
@@ -405,7 +406,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Gets all attributes of a booking.
 	 *
-	 * @param integer $booking_id
+	 * @param integer $a_booking_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getAttributesForBooking($a_booking_id)
@@ -486,7 +487,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Deletes a participation from the database.
 	 *
-	 * @param integer $user_id
+	 * @param integer $a_user_id
 	 * @param integer $a_booking_id
 	 * @return type return of $this->ilDB->manipulate
 	 */
@@ -501,7 +502,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Gets participation for a user.
 	 *
-	 * @param integer $user_id
+	 * @param integer $a_user_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getParticipationsForUser($a_user_id)
@@ -514,7 +515,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Gets a booking.
 	 *
-	 * @param integer $booking_id
+	 * @param integer $a_booking_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getBooking($a_booking_id)
@@ -554,7 +555,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Gets a room.
 	 *
-	 * @param integer $room_id
+	 * @param integer $a_room_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getRoom($a_room_id)
@@ -566,7 +567,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Get a room attribute.
 	 *
-	 * @param integer $attribute_id
+	 * @param integer $a_attribute_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getRoomAttribute($a_attribute_id)
@@ -578,7 +579,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Gets attributes for a room.
 	 *
-	 * @param integer $room_id
+	 * @param integer $a_room_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getAttributesForRoom($a_room_id)
@@ -592,7 +593,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Gets all bookings for a room.
 	 *
-	 * @param integer $room_id
+	 * @param integer $a_room_id
 	 * @return type return of $this->ilDB->query
 	 */
 	public function getBookingsForRoom($a_room_id)
@@ -604,7 +605,7 @@ class ilRoomsharingDatabase
 	/**
 	 * Deletes attributes for a room.
 	 *
-	 * @param type $room_id
+	 * @param type $a_room_id
 	 * @return type
 	 */
 	public function deleteAttributesForRoom($a_room_id)
@@ -616,12 +617,12 @@ class ilRoomsharingDatabase
 	/**
 	 * Inserts a room into the database.
 	 *
-	 * @param string $name
-	 * @param string $type
-	 * @param integer $min_alloc
-	 * @param integer $max_alloc
-	 * @param integer $file_id
-	 * @param integer $building_id
+	 * @param string $a_name
+	 * @param string $a_type
+	 * @param integer $a_min_alloc
+	 * @param integer $a_max_alloc
+	 * @param integer $a_file_id
+	 * @param integer $a_building_id
 	 * @return integer id of the room
 	 */
 	public function insertRoom($a_name, $a_type, $a_min_alloc, $a_max_alloc, $a_file_id, $a_building_id)
@@ -643,9 +644,9 @@ class ilRoomsharingDatabase
 	/**
 	 * Inserts an attribute to room relation into the database.
 	 *
-	 * @param integer $room_id
-	 * @param integer $attribute_id
-	 * @param integer $count
+	 * @param integer $a_room_id
+	 * @param integer $a_attribute_id
+	 * @param integer $a_count
 	 */
 	public function insertAttributeForRoom($a_room_id, $a_attribute_id, $a_count)
 	{
@@ -686,7 +687,7 @@ class ilRoomsharingDatabase
 	 *
 	 * Typically only called once per pool.
 	 *
-	 * @param type $cal_id
+	 * @param type $a_cal_id
 	 * @return type
 	 */
 	public function setCalendarId($a_cal_id)
