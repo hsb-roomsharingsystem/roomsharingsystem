@@ -162,9 +162,8 @@ class ilRoomSharingBookGUI
 		$RoomAgreement = new ilRoomSharingBook();
 		$RoomAgreement->setPoolId($this->getPoolId());
 		$RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
-		if ($RoomAgreementInfo !== null)
+		if ($RoomAgreementInfo['rooms_agreement'] !== '0')
 		{
-			//$cb_prop = new ilCheckboxInputGUI($lng->txt("rep_robj_xrs_room_user_agreement"),"accept_room_rules");
 			$path = $this->getPfad($RoomAgreementInfo);
 			$msg = $lng->txt("rep_robj_xrs_room_user_agreement");
 			$cb_prop = new ilCheckboxInputGUI($msg, "accept_room_rules");
@@ -210,8 +209,11 @@ class ilRoomSharingBookGUI
 		$form = $this->initForm();
 
 		// Check if the form is valid
-		$isRoomAgreementNotAvailable = !$this->isRoomAgreementAvailable();
-		if ($form->checkInput() && ($isRoomAgreementNotAvailable || $form->getInput('accept_room_rules') == 1))
+		$isInputOkay = $form->checkInput();
+		$isRoomAgreementCheckboxChecked = $form->getInput('accept_room_rules') == 1;
+		$isRoomAgreementAvailable = $this->isRoomAgreementAvailable();
+		$roomAgreement = !$isRoomAgreementAvailable || $isRoomAgreementCheckboxChecked;
+		if ($isInputOkay && ($roomAgreement))
 		{
 			// Save the room_id in case of error for the next form
 			$this->room_id = $form->getInput('room_id');
@@ -226,7 +228,10 @@ class ilRoomSharingBookGUI
 			$booking_values_array ['from'] = $form->getInput('from');
 			$booking_values_array ['to'] = $form->getInput('to');
 			$booking_values_array ['book_public'] = $form->getInput('book_public');
-			$booking_values_array ['accept_room_rules'] = $form->getInput('accept_room_rules');
+			if ($isRoomAgreementAvailable)
+			{
+				$booking_values_array ['accept_room_rules'] = $form->getInput('accept_room_rules');
+			}
 			$booking_values_array ['public'] = $form->getInput('book_public');
 			$booking_values_array ['room'] = $this->room_id;
 			$booking_values_array ['room_name'] = $this->ilRoomSharingRooms->getRoomName($this->room_id);
@@ -299,7 +304,7 @@ class ilRoomSharingBookGUI
 		$RoomAgreement = new ilRoomSharingBook();
 		$RoomAgreement->setPoolId($this->getPoolId());
 		$RoomAgreementInfo = $RoomAgreement->getRoomAgreement();
-		if ($RoomAgreementInfo !== null)
+		if ($RoomAgreementInfo['rooms_agreement'] !== '0')
 		{
 			return true;
 		}

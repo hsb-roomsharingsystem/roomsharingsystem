@@ -151,7 +151,7 @@ class ilRoomSharingBook
 		$set = $this->ilRoomsharingDatabase->getRoomAgrementFromDatabase();
 		$row = $ilDB->fetchAssoc($set);
 		$RoomAgreement = array();
-		$mobj = new ilObjMediaObject($row['file_id']);
+		$mobj = new ilObjMediaObject($row['rooms_agreement']);
 		$RoomAgreement = $row;
 		return $RoomAgreement;
 	}

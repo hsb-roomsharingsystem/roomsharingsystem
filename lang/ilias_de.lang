@@ -83,6 +83,7 @@ wrong_input#:#Falsche Eingaben. Prüfen Sie diese bitte.
 room_added#:#Raum wurde hinzugefügt.
 back_to_rooms#:#Zurück zu allen Räumen
 room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
+room_user_agreement#:#Raumnutzungsvereinbarung akzeptieren
 rooms#:#Räume
 roomsharing_plugin_configuration#:#RoomSharing Plugin Konfiguration
 roomsharing_plugin_config_not_required#:#Es wird keine Konfiguration benötigt

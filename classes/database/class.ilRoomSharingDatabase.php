@@ -592,8 +592,8 @@ class ilRoomsharingDatabase
 	public function getRoomAgrementFromDatabase()
 	{
 		global $ilDB;
-		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::BOOKING_ATTRIBUTES_TABLE .
-				' WHERE pool_id = ' . $ilDB->quote($this->pool_id, 'integer')); // . ' order by file_id DESC');
+		return $ilDB->query('SELECT * FROM ' . ilRoomsharingDBConstants::POOLS_TABLE .
+				' WHERE id = ' . $ilDB->quote($this->pool_id, 'integer') . ' order by rooms_agreement DESC');
 	}
 
 	/**
