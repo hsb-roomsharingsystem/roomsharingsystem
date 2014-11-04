@@ -126,12 +126,14 @@ class ilRoomSharingBook
 
 	/**
 	 * Callback function which is used for existing and therefore valid participants.
+	 * Also it filters out the booker itself, if he is in the list of participants.
+	 *
 	 * @param string $a_participant
-	 * @return boolean true, if participant exists; false otherwise
+	 * return boolean/integer id of the participant if participant exists; false otherwise
 	 */
 	private function filterValidParticipants($a_participant)
 	{
-		return (empty($a_participant) || $this->user->getLogin() == $a_participant) ? false : ilObjUser::_lookupId($a_participant);
+		return (empty($a_participant) || $this->user->getLogin() === $a_participant) ? false : ilObjUser::_lookupId($a_participant);
 	}
 
 	/**
