@@ -29,7 +29,6 @@ class ilRoomSharingRooms
 	/**
 	 * Get the rooms for a given pool_id from database
 	 *
-	 * @global type $ilDB
 	 * @param array $filter optional room-filter
 	 * @return array Rooms and Attributes in the following format:
 	 *         array (
@@ -45,20 +44,6 @@ class ilRoomSharingRooms
 	 */
 	public function getList(array $filter = null)
 	{
-		global $ilDB;
-
-		// $debug = true;
-		$debug = false;
-
-		if ($debug)
-		{
-			echo "<br />";
-			echo "Entered getList() with filter-array:";
-			echo "<br />";
-			print_r($filter);
-			echo "<br />";
-		}
-
 		/*
 		 * Get all room ids where attributes match the filter (if any).
 		 */
@@ -67,61 +52,27 @@ class ilRoomSharingRooms
 		$roomsMatchingAttributeFilters = array();
 		if ($filter ['attributes'])
 		{
-			foreach ($filter ['attributes'] as $key => $value)
+			foreach ($filter ['attributes'] as $attribute => $attribute_count)
 			{
 				$count = $count + 1;
-				$attributeQueryString = $this->ilRoomsharingDatabase->getQueryStringForRoomsWithMathcingAttribute($key,
-					$value);
-				if ($debug)
-				{
-					echo "<br />";
-					echo $attributeQueryString;
-					echo "<br />";
-				}
-				$resAttr = $ilDB->query($attributeQueryString);
-				while ($row = $ilDB->fetchAssoc($resAttr))
-				{
-					if (!array_key_exists($row ['room_id'], $roomsWithAttrib))
-					{
-						$roomsWithAttrib [$row ['room_id']] = 1;
-					}
-					else
-					{
-						$roomsWithAttrib [$row ['room_id']] = $roomsWithAttrib [$row ['room_id']] + 1;
-					}
-				}
+				$roomsWithAttrib = $this->getMatchingRoomsForAttributeAndAddToArray($attribute,
+					$attribute_count, $roomsWithAttrib);
 			}
-			if ($debug)
+			foreach ($roomsWithAttrib as $room_id => $match_count)
 			{
-				echo "<br />";
-				echo "count: " . $count;
-				echo "<br />";
-			}
-			foreach ($roomsWithAttrib as $key => $value)
-			{
-				if ($value == $count)
+				if ($match_count == $count)
 				{
-					$roomsMatchingAttributeFilters [$key] = $value;
+					$roomsMatchingAttributeFilters [$room_id] = $match_count;
 				}
 			}
 		}
 		else
 		{ // when no filter set, get all
-			$query = $this->ilRoomsharingDatabase->getAllRoomIds();
-			$resRoomIds = $ilDB->query($query);
-			while ($row = $ilDB->fetchAssoc($resRoomIds))
+			$room_ids = $this->ilRoomsharingDatabase->getAllRoomIds();
+			foreach ($room_ids as $room_id => $value)
 			{
-				$roomsMatchingAttributeFilters [$row ['id']] = 1;
+				$roomsMatchingAttributeFilters [$room_id] = 1;
 			}
-		}
-
-		if ($debug)
-		{
-			echo "<br />";
-			print_r($roomsMatchingAttributeFilters);
-			echo "<br />";
-			print_r(array_keys($roomsMatchingAttributeFilters));
-			echo "<br />";
 		}
 
 		/*
@@ -147,19 +98,13 @@ class ilRoomSharingRooms
 			}
 		}
 
-		/*
-		 * Add remaining filters to query string
-		 */
-		$set = $this->ilRoomsharingDatabase->getMatchingRooms($roomsMatchingAttributeFilters,
+		$res_room = $this->ilRoomsharingDatabase->getMatchingRooms($roomsMatchingAttributeFilters,
 			$filter ["room_name"], $filter ["room_seats"]);
 
-		$res_room = array();
-		$room_ids = array();
-		while ($row = $ilDB->fetchAssoc($set))
+		foreach ($res_room as $key => $value)
 		{
-			$res_room [] = $row;
 			// Remember the ids in order to filter for room attributes within the number of room ids
-			$room_ids [] = $row ['id'];
+			$room_ids [] = $value ['id'];
 		}
 
 		/*
@@ -190,16 +135,7 @@ class ilRoomSharingRooms
 	 */
 	protected function getAttributes(array $room_ids)
 	{
-		global $ilDB;
-
-		$set = $this->ilRoomsharingDatabase->getAttributesForRooms($room_ids);
-
-		$res_attribute = array();
-		while ($row = $ilDB->fetchAssoc($set))
-		{
-			$res_attribute [] = $row;
-		}
-
+		$res_attribute = $this->ilRoomsharingDatabase->getAttributesForRooms($room_ids);
 		return $res_attribute;
 	}
 
@@ -299,6 +235,25 @@ class ilRoomSharingRooms
 	{
 		return $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($date_from, $date_to,
 				$room_id = null);
+	}
+
+	private function getMatchingRoomsForAttributeAndAddToArray($a_attribute, $a_count, $roomsWithAttrib)
+	{
+		$matching = $this->ilRoomsharingDatabase->
+			getRoomIdsWithMatchingAttribute($a_attribute, $a_count);
+		foreach ($matching as $key => $room_id)
+		{
+			if (!array_key_exists($room_id, $roomsWithAttrib))
+			{
+				$roomsWithAttrib [$room_id] = 1;
+			}
+			else
+			{
+				$roomsWithAttrib [$room_id] = $roomsWithAttrib [$room_id] + 1;
+			}
+		}
+
+		return $roomsWithAttrib;
 	}
 
 }
