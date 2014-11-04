@@ -160,7 +160,7 @@ class ilRoomSharingRooms
 	{
 		$rooms = array();
 		$room_ids = $this->ilRoomsharingDatabase->getAllRoomIds();
-
+		$rooms [] = 0;
 		foreach ($room_ids as $room_id)
 		{
 			$rooms [] = $room_id;
@@ -197,9 +197,9 @@ class ilRoomSharingRooms
 		$res_room = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
 			$this->filter ["room_name"], $this->filter ["room_seats"]);
 
-		foreach ($res_room as $id)
+		foreach ($res_room as $key => $value)
 		{
-			$room_ids [] = $id ['id'];
+			$room_ids [] = $value ['id'];
 		}
 
 		return array(
@@ -226,7 +226,7 @@ class ilRoomSharingRooms
 	 *        	ids of the rooms
 	 * @return array room_id, att.name, count
 	 */
-	protected function getAttributes(array $room_ids)
+	protected function getAttributes(array $room_ids = null)
 	{
 		$res_attribute = $this->ilRoomsharingDatabase->getAttributesForRooms($room_ids);
 		return $res_attribute;
