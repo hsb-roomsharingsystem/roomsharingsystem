@@ -12,7 +12,7 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/"
  * @author Thomas Matern <tmatern@stud.hs-bremen.de>
  *
  * @version $Id$
- * 
+ *
  * @property ilLanguage $lng
  * @property ilCtrl $ctrl
  * @property ilRoomSharingBookings $bookings
@@ -238,6 +238,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		{
 			$this->tpl->setCurrentBlock("additional");
 			$this->tpl->setVariable("TXT_ADDITIONAL", $a_rowData [$c] === null ? "" : $a_rowData [$c]);
+			$this->tpl->parseCurrentBlock();
 		}
 	}
 
