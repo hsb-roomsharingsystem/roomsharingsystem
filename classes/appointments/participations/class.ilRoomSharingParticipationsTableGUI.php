@@ -208,9 +208,9 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 		// Populate the selected additional table cells
 		foreach ($this->getSelectedColumns() as $c)
 		{
-			$c = strtolower($c);
 			$this->tpl->setCurrentBlock("additional");
-			$this->tpl->setVariable("TXT_ADDITIONAL", $a_rowData[$c] == null ? "" : $a_rowData[$c]);
+			$this->tpl->setVariable("TXT_ADDITIONAL", $a_rowData[$c] === null ? "" : $a_rowData[$c]);
+			$this->tpl->parseCurrentBlock();
 		}
 	}
 

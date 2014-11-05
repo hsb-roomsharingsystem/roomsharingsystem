@@ -14,8 +14,8 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  *
  * @property ilUser $ilUser
  */
-class ilRoomSharingParticipations {
-
+class ilRoomSharingParticipations
+{
 	private $pool_id;
 	protected $ilRoomsharingDatabase;
 	private $ilUser;
@@ -133,8 +133,17 @@ class ilRoomSharingParticipations {
 	 */
 	public function getAdditionalBookingInfos()
 	{
-		// Yet only booking attributes
-		return $this->ilRoomsharingDatabase->getAllBookingAttributes();
+		$attributes = array();
+		$attributesRows = $this->ilRoomsharingDatabase->getAllBookingAttributes();
+
+		foreach ($attributesRows as $attributesRow)
+		{
+			$attributes [$attributesRow ['name']] = array(
+				"txt" => $attributesRow ['name'],
+				"id" => $attributesRow ['id']
+			);
+		}
+		return $attributes;
 	}
 
 	/**
@@ -142,7 +151,8 @@ class ilRoomSharingParticipations {
 	 *
 	 * @return int pool id
 	 */
-	function getPoolId() {
+	function getPoolId()
+	{
 		return $this->pool_id;
 	}
 
@@ -151,7 +161,8 @@ class ilRoomSharingParticipations {
 	 *
 	 * @param integer $a_pool_id current pool id.
 	 */
-	function setPoolId($a_pool_id) {
+	function setPoolId($a_pool_id)
+	{
 		$this->pool_id = $a_pool_id;
 	}
 
