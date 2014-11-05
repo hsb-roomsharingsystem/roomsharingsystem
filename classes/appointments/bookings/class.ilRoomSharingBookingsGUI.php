@@ -1,16 +1,26 @@
 <?php
 
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
+
 /**
  * Class ilRoomSharingBookingsGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
- * @version $Id$
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
  *
+ * @version $Id$
+ * @property ilCtrl $ilCtrl
+ * @property ilLanguage $lng
+ * @property ilTemplate $tpl
  */
 class ilRoomSharingBookingsGUI
 {
 	protected $ref_id;
 	protected $pool_id;
+	private $ctrl;
+	private $lng;
+	private $tpl;
 
 	/**
 	 * Constructor of ilRoomSharingBookingsGUI
@@ -62,8 +72,6 @@ class ilRoomSharingBookingsGUI
 	 */
 	function showBookingsObject()
 	{
-		global $tpl;
-
 		include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
 		$toolbar = new ilToolbarGUI();
 		$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
@@ -74,7 +82,7 @@ class ilRoomSharingBookingsGUI
 		include_once ('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
 		$plink = new ilPermanentLinkGUI('room', $this->ref_id);
 
-		$tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
+		$this->tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
 	}
 
 	/**
@@ -85,7 +93,15 @@ class ilRoomSharingBookingsGUI
 		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 		$bookings = new ilRoomSharingBookings($this->pool_id);
 		// the canceling has to be confirmed via a form, which is why we get the id from POST
-		$bookings->removeBooking($_POST ["booking_id"]);
+		try
+		{
+			$bookings->removeBooking($_POST ["booking_id"]);
+		}
+		catch (ilRoomSharingBookingsException $exc)
+		{
+			ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+			$this->showBookingsObject();
+		}
 		$this->showBookingsObject();
 	}
 

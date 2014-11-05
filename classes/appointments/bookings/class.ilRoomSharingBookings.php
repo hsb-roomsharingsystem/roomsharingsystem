@@ -3,239 +3,291 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingDateUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
 
 /**
  * Class ilRoomSharingBookings
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ * 
  * @version $Id$
+ * @property ilRoomsharingDatabase $ilRoomsharingDatabase
+ * @property ilDB $ilDB
+ * @property ilUser $ilUser
+ * @property ilLanguage $lng
  */
 class ilRoomSharingBookings
 {
-    protected $pool_id;
-    protected $ilRoomsharingDatabase;
+	protected $pool_id;
+	protected $ilRoomsharingDatabase;
+	private $ilDB;
+	private $ilUser;
+	private $lng;
 
-    /**
-     * constructor ilRoomSharingBookings
-     *
-     * @param integer $pool_id
-     */
-    function __construct($pool_id = 1)
-    {
-        $this->pool_id = $pool_id;
-        $this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
-    }
+	/**
+	 * constructor ilRoomSharingBookings
+	 *
+	 * @param integer $pool_id
+	 */
+	function __construct($pool_id = 1)
+	{
+		global $ilDB, $ilUser, $lng;
+		$this->ilDB = $ilDB;
+		$this->ilUser = $ilUser;
+		$this->lng = $lng;
+		$this->pool_id = $pool_id;
+		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+	}
 
-    /**
-     * Remove a booking
-     *
-     * @param int $booking_id
-     *        	The id of the booking
-     * @param bool $seq
-     *        	True if the all sequence bookings should be deleted
-     * @global type $ilDB, $ilUser
-     */
-    public function removeBooking($a_booking_id, $a_seq = false)
-    {
-        global $ilDB, $ilUser, $lng;
+	/**
+	 * Remove a booking
+	 *
+	 * @param int $a_booking_id
+	 *        	The id of the booking
+	 * @param bool $a_seq
+	 *        	True if the all sequence bookings should be deleted
+	 * @global ilLanguage $lng
+	 */
+	public function removeBooking($a_booking_id, $a_seq = false)
+	{
+		$this->checkBookingId($a_booking_id);
+		$set = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
+		$row = $this->ilDB->fetchAssoc($set);
 
-        if (ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
-        {
-            $set = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
-            $row = $ilDB->fetchAssoc($set);
+		$this->checkResultNotEmpty($set);
+		$this->checkDeletePermission($row ['user_id']);
 
-            // Check if there is a result (so the booking with the ID exists)
-            if ($ilDB->numRows($set) > 0)
-            {
-                // Check if the current user is the author of the booking
-                if ($row ['user_id'] == $ilUser->getId())
-                {
-                    // Check whether only the specific booking should be deleted
-                    if (!$a_seq || $row ['seq_id'] == NULL || !is_numeric($row ['seq_id']))
-                    {
-                        $this->ilRoomsharingDatabase->deleteBooking($a_booking_id);
-                        ilUtil::sendSuccess($lng->txt('rep_robj_xrs_booking_deleted'), true);
-                    }
-                    else //delete every booking in the sequence
-                    {
-                        // Get every booking which is in the specific sequence
-                        $seq_set = $this->ilRoomsharingDatabase->getAllBookingIdsForSequence($row ['seq']);
-                        while ($seq_row = $ilDB->fetchAssoc($seq_set))
-                        {
-                            $this->ilRoomsharingDatabase->deleteBooking($a_booking_id);
-                            ilUtil::sendSuccess($lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
-                        }
-                    }
-                }
-                else
-                {
-                    ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_delete_permission"), true);
-                }
-            }
-            else
-            {
-                ilUtil::sendFailure($lng->txt("rep_robj_xrs_booking_doesnt_exist"), true);
-            }
-        }
-        else
-        {
-            ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
-        }
-    }
+		// Check whether only the specific booking should be deleted
+		if (!$a_seq || ilRoomSharingNumericUtils::isPositiveNumber($row ['seq_id']))
+		{
+			$this->ilRoomsharingDatabase->deleteBooking($a_booking_id);
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
+		}
+		else //delete every booking in the sequence
+		{
+			$this->deleteBookingSequence($row['seq']);
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
+		}
+	}
 
-    /**
-     * Get's the bookings from the database
-     *
-     * @global type $ilDB, $ilUser, $lng
-     * @return type
-     */
-    public function getList()
-    {
-        global $ilDB, $ilUser, $lng;
-        $set = $this->ilRoomsharingDatabase->getBookingsForUser($ilUser->getId());
-        $res = array();
-        while ($row = $ilDB->fetchAssoc($set))
-        {
-            $one_booking = array();
-            if (ilRoomSharingNumericUtils::isPositiveNumber($row ['seq_id'])) // Is it a recurring appointment?
-            {
-                $one_booking ['recurrence'] = true;
-            }
-            else
-            {
-                $date_from = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_from']);
-                $date_to = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_to']);
+	/**
+	 * Checks the permission of this user to delete this booking
+	 *
+	 * @param integer $a_userId
+	 * @throws ilRoomSharingBookingsException
+	 */
+	private function checkDeletePermission($a_userId)
+	{
+		if ($a_userId != $this->ilUser->getId())
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
+		}
+	}
 
-                $date = ilRoomSharingDateUtils::getPrintedDateTime($date_from);
+	/**
+	 * Checks if a resultset has results
+	 *
+	 * @param array $a_set
+	 * @throws ilRoomSharingBookingsException
+	 */
+	private function checkResultNotEmpty($a_set)
+	{
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($this->ilDB->numRows($a_set)))
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_booking_doesnt_exist");
+		}
+	}
 
-                $date .= " - ";
+	/**
+	 * Checks if the booking id is valid
+	 *
+	 * @param integer $a_booking_id
+	 * @throws ilRoomSharingBookingsException
+	 */
+	private function checkBookingId($a_booking_id)
+	{
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_id_submitted");
+		}
+	}
 
-                // Check whether the date_from differs from the date_to
-                if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
-                {
-                    //Display the date_to in the next line
-                    $date .= '<br>';
+	/**
+	 * Deletes all bookings of the given sequence-id
+	 *
+	 * @param integer $a_seq_id
+	 */
+	private function deleteBookingSequence($a_seq_id)
+	{
+		$seq_set = $this->ilRoomsharingDatabase->getAllBookingIdsForSequence($a_seq_id);
+		while ($seq_row = $this->ilDB->fetchAssoc($seq_set))
+		{
+			$this->ilRoomsharingDatabase->deleteBooking($seq_row['id']);
+		}
+	}
 
-                    $date .= ilRoomSharingDateUtils::getPrintedDate($date_to);
+	/**
+	 * Get's the bookings from the database.
+	 *
+	 * @return array with bookings
+	 */
+	public function getList()
+	{
+		$set = $this->ilRoomsharingDatabase->getBookingsForUser($this->ilUser->getId());
+		$allBookings = array();
+		while ($bookingData = $this->ilDB->fetchAssoc($set))
+		{
+			$allBookings [] = $this->readBooking($bookingData);
+		}
+		return $allBookings;
+	}
 
-                    $date .= ', ';
-                }
-                $date .= ilRoomSharingDateUtils::getPrintedTime($date_to);
-            }
-            $one_booking ['date'] = $date;
+	/**
+	 * Reads an booking
+	 *
+	 * @param array $a_bookingData
+	 * @return array booking
+	 */
+	private function readBooking($a_bookingData)
+	{
+		$one_booking = array();
 
-            // Get the name of the booked room
-            $one_booking ['room'] = $this->ilRoomsharingDatabase->getRoomName($row ['room_id']);
-            $one_booking ['room_id'] = $row ['room_id'];
-            $participants = array();
-            $participants_ids = array();
+		$one_booking ['recurrence'] = ilRoomSharingNumericUtils::isPositiveNumber($a_bookingData ['seq_id']);
+		$one_booking ['date'] = $this->readBookingDate($a_bookingData);
 
-            // Get the participants
-            $participantSet = $this->ilRoomsharingDatabase->getParticipantsForBooking($row ['id']);
-            while ($participantRow = $ilDB->fetchAssoc($participantSet))
-            {// Check if the user has a firstname and lastname
-                if (empty($userRow ['firstname']) || empty($userRow ['lastname']))
-                {
-                    $participants [] = $participantRow ['firstname'] . ' ' . $participantRow ['lastname'];
-                }
-                else // ...if not, use the username
-                {
-                    $participants [] = $participantRow ['login'];
-                }
-                $participants_ids [] = $participantRow ['id'];
-            }
-            $one_booking ['participants'] = $participants;
-            $one_booking ['participants_ids'] = $participants_ids;
-            $one_booking ['subject'] = $row ['subject'];
+		$one_booking ['room'] = $this->ilRoomsharingDatabase->getRoomName($a_bookingData ['room_id']);
+		$one_booking ['room_id'] = $a_bookingData ['room_id'];
 
-            // Get variable attributes of a booking
-            $attributesSet = $this->ilRoomsharingDatabase->getAttributesForBooking($row ['id']);
-            while ($attributesRow = $ilDB->fetchAssoc($attributesSet))
-            {
-                $one_booking [$attributesRow ['name']] = $attributesRow ['value'];
-            }
+		$participants = $this->readBookingParticipants($a_bookingData);
 
-            // The booking id
-            $one_booking ['id'] = $row ['id'];
-            $res [] = $one_booking;
-        }
+		$one_booking ['participants'] = $participants['names'];
+		$one_booking ['participants_ids'] = $participants['ids'];
 
-        // Dummy-Data
-        $res [] = array(
-            'recurrence' => true, 'date' => "7. März 2014, 9:00 - 13:00",
-            'id' => 1, 'room' => "117", 'room_id' => 3,
-            'subject' => "HARDKODIERT Tutorium",
-            'participants' => array("Tim Lehr", "Philipp Hörmann"),
-            'participants_ids' => array("6"),
-            'Modul' => "MATHE2",
-            'Kurs' => "Technische Informatik (TI Bsc.)"
-        );
+		$one_booking ['subject'] = $a_bookingData ['subject'];
 
-        $res [] = array(
-            'recurrence' => false, 'date' => "3. April 2014, 15:00 - 17:00",
-            'id' => 2, 'room' => "118", 'room_id' => 4,
-            'subject' => "HARDKODIERT Vorbereitung Präsentation",
-            'Semester' => "6"
-        );
-        return $res;
-    }
+		$attributes = $this->readBookingAttributes($a_bookingData);
+		foreach ($attributes as $attribute_name => $attribute_value)
+		{
+			$one_booking[$attribute_name] = $attribute_value;
+		}
 
-    /**
-     * Returns all the additional information that can be displayed in the
-     * bookings table.
-     *
-     * @return array $cols
-     */
-    public function getAdditionalBookingInfos()
-    {
-        global $ilDB;
-        $cols = array();
-        $attributesSet = $this->ilRoomsharingDatabase->getAllBookingAttributes();
-        while ($attributesRow = $ilDB->fetchAssoc($attributesSet))
-        {
-            $cols [$attributesRow ['name']] = array(
-                "txt" => $attributesRow ['name'],
-                "id" => $attributesRow ['id']
-            );
-        }
+		$one_booking ['id'] = $a_bookingData ['id'];
+		return $one_booking;
+	}
 
-        // Dummy-Data
-        $cols ["Modul"] = array(
-            "txt" => "Modul",
-            "id" => 1
-        );
-        $cols ["Kurs"] = array(
-            "txt" => "Kurs",
-            "id" => 2
-        );
-        $cols ["Semester"] = array(
-            "txt" => "Semester",
-            "id" => 3
-        );
+	/**
+	 * Reads attributes of a booking
+	 *
+	 * @param array $a_bookingData
+	 * @return array with attributes
+	 */
+	private function readBookingAttributes($a_bookingData)
+	{
+		$attributes = array();
 
-        return $cols;
-    }
+		$attributesSet = $this->ilRoomsharingDatabase->getAttributesForBooking($a_bookingData ['id']);
+		while ($attributesRow = $this->ilDB->fetchAssoc($attributesSet))
+		{
+			$attributes [$attributesRow ['name']] = $attributesRow ['value'];
+		}
 
-    /**
-     * Set the poolID of bookings
-     *
-     * @param integer $pool_id
-     *        	poolID
-     */
-    public function setPoolId($pool_id)
-    {
-        $this->pool_id = $pool_id;
-    }
+		return $attributes;
+	}
 
-    /**
-     * Get the PoolID of bookings
-     *
-     * @return integer PoolID
-     */
-    public function getPoolId()
-    {
-        return (int) $this->pool_id;
-    }
+	/**
+	 * 	Reads the participants (names and ids) for a booking
+	 *
+	 * @param array $a_bookingData
+	 * @return array with names and ids
+	 */
+	private function readBookingParticipants($a_bookingData)
+	{
+		$participantsData = array();
+
+		$participantSet = $this->ilRoomsharingDatabase->getParticipantsForBooking($a_bookingData ['id']);
+		while ($participantRow = $this->ilDB->fetchAssoc($participantSet))
+		{// Check if the user has a firstname and lastname
+			if (!empty($participantRow ['firstname']) && !empty($participantRow ['lastname']))
+			{
+				$participants [] = $participantRow ['firstname'] . ' ' . $participantRow ['lastname'];
+			}
+			else // ...if not, use the username
+			{
+				$participants [] = $participantRow ['login'];
+			}
+			$participants_ids [] = $participantRow ['id'];
+		}
+		$participantsData ['names'] = $participants;
+		$participantsData ['ids'] = $participants_ids;
+		return $participantsData;
+	}
+
+	/**
+	 * Reads the date of the booking and converts it into a printed version.
+	 *
+	 * @param array $a_bookingData
+	 * @return string Date
+	 */
+	private function readBookingDate($a_bookingData)
+	{
+		$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $a_bookingData ['date_from']);
+		$date = ilRoomSharingDateUtils::getPrintedDateTime($date_from);
+		$date .= " - ";
+
+		$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $a_bookingData ['date_to']);
+		// Check whether the date_from differs from the date_to
+		if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
+		{
+			//Display the date_to in the next line
+			$date .= '<br>';
+			$date .= ilRoomSharingDateUtils::getPrintedDate($date_to);
+			$date .= ', ';
+		}
+		$date .= ilRoomSharingDateUtils::getPrintedTime($date_to);
+		return $date;
+	}
+
+	/**
+	 * Returns all the additional information that can be displayed in the
+	 * bookings table.
+	 *
+	 * @return array $cols
+	 */
+	public function getAdditionalBookingInfos()
+	{
+		$cols = array();
+		$attributesSet = $this->ilRoomsharingDatabase->getAllBookingAttributes();
+		while ($attributesRow = $this->ilDB->fetchAssoc($attributesSet))
+		{
+			$cols [$attributesRow ['name']] = array(
+				"txt" => $attributesRow ['name'],
+				"id" => $attributesRow ['id']
+			);
+		}
+		return $cols;
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
+	}
 
 }
