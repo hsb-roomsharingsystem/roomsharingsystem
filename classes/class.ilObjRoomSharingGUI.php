@@ -578,17 +578,17 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 			"RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-		$ilDB = new ilRoomsharingDatabase($this->object->getPoolId());
+		$db = new ilRoomsharingDatabase($this->object->getPoolId());
 
 		//Initialize the Calendar
 		$this->initSeed();
-		$cal_id = $ilDB->getCalendarIdFromDatabase();
+		$cal_id = $db->getCalendarIdFromDatabase();
 		$this->cal = new ilRoomSharingCalendar($this->seed, $cal_id, $this);
 		if ($cal_id == 0 || $cal_id != $this->cal->getCalendarId())
 		{
 			//if calendar is new, save id in pools-table
 			$cal_id = $this->cal->getCalendarId();
-			$ilDB->setCalendarId($cal_id);
+			$db->setCalendarId($cal_id);
 		}
 	}
 

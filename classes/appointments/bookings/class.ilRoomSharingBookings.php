@@ -11,7 +11,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  * @author Thomas Matern <tmatern@stud.hs-bremen.de>
- * 
+ *
  * @version $Id$
  * @property ilRoomsharingDatabase $ilRoomsharingDatabase
  * @property ilDB $ilDB
@@ -53,10 +53,9 @@ class ilRoomSharingBookings
 	public function removeBooking($a_booking_id, $a_seq = false)
 	{
 		$this->checkBookingId($a_booking_id);
-		$set = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
-		$row = $this->ilDB->fetchAssoc($set);
+		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
 
-		$this->checkResultNotEmpty($set);
+		$this->checkResultNotEmpty($row);
 		$this->checkDeletePermission($row ['user_id']);
 
 		// Check whether only the specific booking should be deleted
@@ -89,12 +88,12 @@ class ilRoomSharingBookings
 	/**
 	 * Checks if a resultset has results
 	 *
-	 * @param array $a_set
+	 * @param array $a_row
 	 * @throws ilRoomSharingBookingsException
 	 */
-	private function checkResultNotEmpty($a_set)
+	private function checkResultNotEmpty($a_row)
 	{
-		if (!ilRoomSharingNumericUtils::isPositiveNumber($this->ilDB->numRows($a_set)))
+		if (!ilRoomSharingNumericUtils::isPositiveNumber(count($a_row)))
 		{
 			throw new ilRoomSharingBookingsException("rep_robj_xrs_booking_doesnt_exist");
 		}
@@ -121,8 +120,8 @@ class ilRoomSharingBookings
 	 */
 	private function deleteBookingSequence($a_seq_id)
 	{
-		$seq_set = $this->ilRoomsharingDatabase->getAllBookingIdsForSequence($a_seq_id);
-		while ($seq_row = $this->ilDB->fetchAssoc($seq_set))
+		$seq_rows = $this->ilRoomsharingDatabase->getAllBookingIdsForSequence($a_seq_id);
+		foreach ($seq_rows as $seq_row)
 		{
 			$this->ilRoomsharingDatabase->deleteBooking($seq_row['id']);
 		}
@@ -135,9 +134,9 @@ class ilRoomSharingBookings
 	 */
 	public function getList()
 	{
-		$set = $this->ilRoomsharingDatabase->getBookingsForUser($this->ilUser->getId());
+		$bookingDatas = $this->ilRoomsharingDatabase->getBookingsForUser($this->ilUser->getId());
 		$allBookings = array();
-		while ($bookingData = $this->ilDB->fetchAssoc($set))
+		foreach ($bookingDatas as $bookingData)
 		{
 			$allBookings [] = $this->readBooking($bookingData);
 		}
@@ -187,10 +186,10 @@ class ilRoomSharingBookings
 	{
 		$attributes = array();
 
-		$attributesSet = $this->ilRoomsharingDatabase->getAttributesForBooking($a_bookingData ['id']);
-		while ($attributesRow = $this->ilDB->fetchAssoc($attributesSet))
+		$attributesRows = $this->ilRoomsharingDatabase->getAttributesForBooking($a_bookingData ['id']);
+		foreach ($attributesRows as $attributeRow)
 		{
-			$attributes [$attributesRow ['name']] = $attributesRow ['value'];
+			$attributes [$attributeRow ['name']] = $attributeRow ['value'];
 		}
 
 		return $attributes;
@@ -206,9 +205,10 @@ class ilRoomSharingBookings
 	{
 		$participantsData = array();
 
-		$participantSet = $this->ilRoomsharingDatabase->getParticipantsForBooking($a_bookingData ['id']);
-		while ($participantRow = $this->ilDB->fetchAssoc($participantSet))
-		{// Check if the user has a firstname and lastname
+		$participantRows = $this->ilRoomsharingDatabase->getParticipantsForBooking($a_bookingData ['id']);
+		foreach ($participantRows as $participantRow)
+		{
+			// Check if the user has a firstname and lastname
 			if (!empty($participantRow ['firstname']) && !empty($participantRow ['lastname']))
 			{
 				$participants [] = $participantRow ['firstname'] . ' ' . $participantRow ['lastname'];
@@ -219,6 +219,7 @@ class ilRoomSharingBookings
 			}
 			$participants_ids [] = $participantRow ['id'];
 		}
+
 		$participantsData ['names'] = $participants;
 		$participantsData ['ids'] = $participants_ids;
 		return $participantsData;
@@ -257,16 +258,17 @@ class ilRoomSharingBookings
 	 */
 	public function getAdditionalBookingInfos()
 	{
-		$cols = array();
-		$attributesSet = $this->ilRoomsharingDatabase->getAllBookingAttributes();
-		while ($attributesRow = $this->ilDB->fetchAssoc($attributesSet))
+		$attributes = array();
+		$attributesRows = $this->ilRoomsharingDatabase->getAllBookingAttributes();
+
+		foreach ($attributesRows as $attributesRow)
 		{
-			$cols [$attributesRow ['name']] = array(
+			$attributes [$attributesRow ['name']] = array(
 				"txt" => $attributesRow ['name'],
 				"id" => $attributesRow ['id']
 			);
 		}
-		return $cols;
+		return $attributes;
 	}
 
 	/**

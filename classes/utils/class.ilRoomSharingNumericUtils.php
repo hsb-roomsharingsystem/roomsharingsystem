@@ -19,12 +19,13 @@ class ilRoomSharingNumericUtils
 	{
 		if ($with_zero)
 		{
-			return (is_numeric($a_number) && $a_number >= 0);
+			$rVal = (is_numeric($a_number) && $a_number >= 0);
 		}
 		else
 		{
-			return (is_numeric($a_number) && $a_number > 0);
+			$rVal = (is_numeric($a_number) && $a_number > 0);
 		}
+		return $rVal;
 	}
 
 }
