@@ -4,6 +4,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingDateUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
 
 /**
  * Class ilRoomSharingBookings
@@ -138,23 +139,23 @@ class ilRoomSharingBookings
 		$allBookings = array();
 		foreach ($bookingDatas as $bookingData)
 		{
-			$allBookings [] = $this->readBooking($bookingData);
+			$allBookings [] = $this->readBookingData($bookingData);
 		}
 		return $allBookings;
 	}
 
 	/**
-	 * Reads an booking
+	 * Reads a booking
 	 *
 	 * @param array $a_bookingData
-	 * @return array booking
+	 * @return array Booking-Information
 	 */
-	private function readBooking($a_bookingData)
+	private function readBookingData($a_bookingData)
 	{
 		$one_booking = array();
 
 		$one_booking ['recurrence'] = ilRoomSharingNumericUtils::isPositiveNumber($a_bookingData ['seq_id']);
-		$one_booking ['date'] = $this->readBookingDate($a_bookingData);
+		$one_booking ['date'] = ilRoomSharingBookingUtils::readBookingDate($a_bookingData);
 
 		$one_booking ['room'] = $this->ilRoomsharingDatabase->getRoomName($a_bookingData ['room_id']);
 		$one_booking ['room_id'] = $a_bookingData ['room_id'];
@@ -223,31 +224,6 @@ class ilRoomSharingBookings
 		$participantsData ['names'] = $participants;
 		$participantsData ['ids'] = $participants_ids;
 		return $participantsData;
-	}
-
-	/**
-	 * Reads the date of the booking and converts it into a printed version.
-	 *
-	 * @param array $a_bookingData
-	 * @return string Date
-	 */
-	private function readBookingDate($a_bookingData)
-	{
-		$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $a_bookingData ['date_from']);
-		$date = ilRoomSharingDateUtils::getPrintedDateTime($date_from);
-		$date .= " - ";
-
-		$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $a_bookingData ['date_to']);
-		// Check whether the date_from differs from the date_to
-		if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
-		{
-			//Display the date_to in the next line
-			$date .= '<br>';
-			$date .= ilRoomSharingDateUtils::getPrintedDate($date_to);
-			$date .= ', ';
-		}
-		$date .= ilRoomSharingDateUtils::getPrintedTime($date_to);
-		return $date;
 	}
 
 	/**
