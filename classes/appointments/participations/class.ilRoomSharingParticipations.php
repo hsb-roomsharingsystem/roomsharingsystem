@@ -10,8 +10,8 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  */
-class ilRoomSharingParticipations
-{
+class ilRoomSharingParticipations {
+
 	private $pool_id;
 	protected $ilRoomsharingDatabase;
 
@@ -20,8 +20,7 @@ class ilRoomSharingParticipations
 	 *
 	 * @param integer $pool_id
 	 */
-	function __construct($pool_id = 1)
-	{
+	function __construct($pool_id = 1) {
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
@@ -32,16 +31,12 @@ class ilRoomSharingParticipations
 	 * @param integer $booking_id The booking id of the participation.
 	 * @global type $lng, $ilUser
 	 */
-	public function removeParticipation($a_booking_id)
-	{
+	public function removeParticipation($a_booking_id) {
 		global $ilUser, $lng;
 
-		if (ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
-		{
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id)) {
 			$this->ilRoomsharingDatabase->deleteParticipation($ilUser->getId(), $a_booking_id);
-		}
-		else
-		{
+		} else {
 			ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
 		}
 	}
@@ -52,20 +47,16 @@ class ilRoomSharingParticipations
 	 * @global type $ilUser
 	 * @return array with the participation details.
 	 */
-	public function getList()
-	{
+	public function getList() {
 		global $ilUser;
 
 		$participations = $this->ilRoomsharingDatabase->getParticipationsForUser($ilUser->getId());
 		$res = array();
-		foreach ($participations as $row)
-		{
+		foreach ($participations as $row) {
 			$one_booking = array();
 			$booking = $this->ilRoomsharingDatabase->getBooking($row['booking_id']);
-			foreach ($booking as $bookingRow)
-			{
-				if (ilRoomSharingNumericUtils::isPositiveNumber($bookingRow['seq_id']))
-				{
+			foreach ($booking as $bookingRow) {
+				if (ilRoomSharingNumericUtils::isPositiveNumber($bookingRow['seq_id'])) {
 					$one_booking['recurrence'] = true;
 				}
 
@@ -77,8 +68,7 @@ class ilRoomSharingParticipations
 				$date .= " - ";
 
 				// Check whether the date_from differs from the date_to
-				if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
-				{
+				if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to)) {
 					//Display the date_to in the next line
 					$date .= '<br>';
 
@@ -100,13 +90,11 @@ class ilRoomSharingParticipations
 
 
 				// Check whether the user has a firstname and a lastname
-				if (empty($userRow['firstname']) && empty($userRow['lastname']))
-				{
+				if (empty($userRow['firstname']) && empty($userRow['lastname'])) {
 					$one_booking['person_responsible'] = $userRow['firstname'] .
-						' ' . $userRow['lastname'];
+							' ' . $userRow['lastname'];
 				} // ...if not, use the username
-				else
-				{
+				else {
 					$one_booking['person_responsible'] = $userRow['login'];
 				}
 				$one_booking['person_responsible_id'] = $bookingRow['user_id'];
@@ -117,19 +105,6 @@ class ilRoomSharingParticipations
 				$res[] = $one_booking;
 			}
 		}
-
-		// Dummy-Daten
-		$res[] = array(
-			'recurrence' => true,
-			'date' => "3. März 2014, 11:30 - 15:00",
-			'modul' => "COMARCH",
-			'subject' => "HARDKODIERT Vorlesung",
-			'kurs' => "Technische Informatik (TI Bsc.)",
-			'semester' => "4, 6",
-			'room' => "116",
-			'person_responsible' => "Prof. Dr. Thomas Risse"
-		);
-
 		return $res;
 	}
 
@@ -139,8 +114,7 @@ class ilRoomSharingParticipations
 	 *
 	 * @return array (associative) with additional information.
 	 */
-	public function getAdditionalBookingInfos()
-	{
+	public function getAdditionalBookingInfos() {
 		$cols = $this->ilRoomsharingDatabase->getAllBookingAttributes();
 
 		// Dummy-Data
@@ -162,8 +136,7 @@ class ilRoomSharingParticipations
 	 *
 	 * @return int pool id
 	 */
-	function getPoolId()
-	{
+	function getPoolId() {
 		return $this->pool_id;
 	}
 
@@ -172,8 +145,7 @@ class ilRoomSharingParticipations
 	 *
 	 * @param integer $a_pool_id current pool id.
 	 */
-	function setPoolId($a_pool_id)
-	{
+	function setPoolId($a_pool_id) {
 		$this->pool_id = $a_pool_id;
 	}
 

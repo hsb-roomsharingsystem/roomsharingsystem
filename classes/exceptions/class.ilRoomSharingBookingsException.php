@@ -8,7 +8,7 @@ require_once ("Services/Exceptions/classes/class.ilException.php");
  * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  * @author Thomas Matern <tmatern@stud.hs-bremen.de>
  */
-class ilRoomSharingBookingsException extends ilException
+class ilRoomSharingBookingsException extends Exception
 {
 	/**
 	 * Constructor
