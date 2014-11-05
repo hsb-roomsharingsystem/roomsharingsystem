@@ -3,17 +3,22 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingDateUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
 
 /**
  * Class ilRoomSharingParticipations
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
+ * @property ilUser $ilUser
  */
 class ilRoomSharingParticipations
 {
 	private $pool_id;
 	protected $ilRoomsharingDatabase;
+	private $ilUser;
 
 	/**
 	 * Construct of ilRoomSharingParticipations.
@@ -22,6 +27,8 @@ class ilRoomSharingParticipations
 	 */
 	function __construct($pool_id = 1)
 	{
+		global $ilUser;
+		$this->ilUser = $ilUser;
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
@@ -34,11 +41,11 @@ class ilRoomSharingParticipations
 	 */
 	public function removeParticipation($a_booking_id)
 	{
-		global $ilUser, $lng;
+		global $lng;
 
 		if (ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
 		{
-			$this->ilRoomsharingDatabase->deleteParticipation($ilUser->getId(), $a_booking_id);
+			$this->ilRoomsharingDatabase->deleteParticipation($this->ilUser->getId(), $a_booking_id);
 		}
 		else
 		{
@@ -54,83 +61,68 @@ class ilRoomSharingParticipations
 	 */
 	public function getList()
 	{
-		global $ilUser;
-
-		$participations = $this->ilRoomsharingDatabase->getParticipationsForUser($ilUser->getId());
-		$res = array();
-		foreach ($participations as $row)
+		$participations = $this->ilRoomsharingDatabase->getParticipationsForUser($this->ilUser->getId());
+		$result = array();
+		foreach ($participations as $participation)
 		{
-			$one_booking = array();
-			$booking = $this->ilRoomsharingDatabase->getBooking($row['booking_id']);
-			foreach ($booking as $bookingRow)
+			$bookingDatas = $this->ilRoomsharingDatabase->getBooking($participation['booking_id']);
+			foreach ($bookingDatas as $bookingData)
 			{
-				if (ilRoomSharingNumericUtils::isPositiveNumber($bookingRow['seq_id']))
-				{
-					$one_booking['recurrence'] = true;
-				}
-
-				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_from']);
-				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $bookingRow['date_to']);
-
-				$date = ilRoomSharingDateUtils::getPrintedDateTime($date_from);
-
-				$date .= " - ";
-
-				// Check whether the date_from differs from the date_to
-				if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
-				{
-					//Display the date_to in the next line
-					$date .= '<br>';
-
-					$date .= ilRoomSharingDateUtils::getPrintedDate($date_to);
-
-					$date .= ', ';
-				}
-				$date .= ilRoomSharingDateUtils::getPrintedTime($date_to);
-
-				$one_booking['date'] = $date;
-
-				// Get the name of the booked room
-				$one_booking['room'] = $this->ilRoomsharingDatabase->getRoomName($bookingRow['room_id']);
-				$one_booking['room_id'] = $bookingRow['room_id'];
-
-				$one_booking['subject'] = $bookingRow['subject'];
-
-				$userRow = $this->ilRoomsharingDatabase->getUserById($bookingRow['user_id']);
-
-
-				// Check whether the user has a firstname and a lastname
-				if (empty($userRow['firstname']) && empty($userRow['lastname']))
-				{
-					$one_booking['person_responsible'] = $userRow['firstname'] .
-						' ' . $userRow['lastname'];
-				} // ...if not, use the username
-				else
-				{
-					$one_booking['person_responsible'] = $userRow['login'];
-				}
-				$one_booking['person_responsible_id'] = $bookingRow['user_id'];
-
-				// The booking id
-				$one_booking['id'] = $row['id'];
-
-				$res[] = $one_booking;
+				$result[] = $this->readBookingData($bookingData, $participation['id']);
 			}
 		}
+		return $result;
+	}
 
-		// Dummy-Daten
-		$res[] = array(
-			'recurrence' => true,
-			'date' => "3. März 2014, 11:30 - 15:00",
-			'modul' => "COMARCH",
-			'subject' => "HARDKODIERT Vorlesung",
-			'kurs' => "Technische Informatik (TI Bsc.)",
-			'semester' => "4, 6",
-			'room' => "116",
-			'person_responsible' => "Prof. Dr. Thomas Risse"
-		);
+	/**
+	 * Reads a booking
+	 *
+	 * @param array $a_bookingData
+	 * @param integer $a_participation_id
+	 * @return array Booking-Information
+	 */
+	private function readBookingData($a_bookingData, $a_participation_id)
+	{
+		$one_booking = array();
+		$one_booking['recurrence'] = ilRoomSharingNumericUtils::isPositiveNumber($a_bookingData['seq_id']);
 
-		return $res;
+		$one_booking['date'] = ilRoomSharingBookingUtils::readBookingDate($a_bookingData);
+
+		// Get the name of the booked room
+		$one_booking['room'] = $this->ilRoomsharingDatabase->getRoomName($a_bookingData['room_id']);
+		$one_booking['room_id'] = $a_bookingData['room_id'];
+
+		$one_booking['subject'] = $a_bookingData['subject'];
+
+		$one_booking['person_responsible'] = $this->readBookingResponsiblePerson($a_bookingData['user_id']);
+		$one_booking['person_responsible_id'] = $a_bookingData['user_id'];
+
+		// The booking id
+		$one_booking['id'] = $a_participation_id;
+		return $one_booking;
+	}
+
+	/**
+	 * Reads the data of the responsible person
+	 *
+	 * @param integer $a_user_id
+	 * @return string Login-Name or Fullname (if exists)
+	 */
+	private function readBookingResponsiblePerson($a_user_id)
+	{
+		$userData = $this->ilRoomsharingDatabase->getUserById($a_user_id);
+
+		// Check whether the user has a firstname and a lastname
+		if (!empty($userData['firstname']) && !empty($userData['lastname']))
+		{
+			$result = $userData['firstname'] .
+				' ' . $userData['lastname'];
+		} // ...if not, use the username
+		else
+		{
+			$result = $userData['login'];
+		}
+		return $result;
 	}
 
 	/**
@@ -141,20 +133,8 @@ class ilRoomSharingParticipations
 	 */
 	public function getAdditionalBookingInfos()
 	{
-		$cols = $this->ilRoomsharingDatabase->getAllBookingAttributes();
-
-		// Dummy-Data
-		$cols["Modul"] = array(
-			"txt" => "Modul"
-		);
-		$cols["Kurs"] = array(
-			"txt" => "Kurs"
-		);
-		$cols["Semester"] = array(
-			"txt" => "Semester"
-		);
-
-		return $cols;
+		// Yet only booking attributes
+		return $this->ilRoomsharingDatabase->getAllBookingAttributes();
 	}
 
 	/**

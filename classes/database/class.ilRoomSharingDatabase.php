@@ -640,8 +640,8 @@ class ilRoomsharingDatabase
 	public function getUserById($a_user_id)
 	{
 		$set = $this->ilDB->query('SELECT firstname, lastname, login' . ' FROM usr_data' .
-			' WHERE usr_id = ' . $ilDB->quote($a_user_id, 'integer'));
-		return $ilDB->fetchAssoc($set);
+			' WHERE usr_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
+		return $this->ilDB->fetchAssoc($set);
 	}
 
 	/**
