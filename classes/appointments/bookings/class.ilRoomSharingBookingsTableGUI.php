@@ -12,8 +12,11 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/"
  * @author Thomas Matern <tmatern@stud.hs-bremen.de>
  *
  * @version $Id$
+ * 
  * @property ilLanguage $lng
  * @property ilCtrl $ctrl
+ * @property ilRoomSharingBookings $bookings
+ * @property ilRoomSharingAppointmentsGUI $parent_obj
  */
 class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 {
@@ -136,9 +139,14 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		return $this->bookings->getAdditionalBookingInfos();
 	}
 
-	private function setRecurrence($a_set)
+	/**
+	 * Sets recurrence value in the table row.
+	 *
+	 * @param array $a_rowData
+	 */
+	private function setRecurrence($a_rowData)
 	{
-		if ($a_set ['recurrence'])
+		if ($a_rowData ['recurrence'])
 		{
 			// icon for the recurrence date
 			$this->tpl->setVariable('IMG_RECURRENCE_PATH', ilUtil::getImagePath("cmd_move_s.png"));
@@ -147,6 +155,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 			$this->lng->txt("rep_robj_xrs_room_date_recurrence"));
 	}
 
+	/**
+	 * Sets appointment value in the table row.
+	 *
+	 * @param array $a_rowData
+	 */
 	private function setAppointment($a_rowData)
 	{
 		// ### Appointment ###
@@ -158,6 +171,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		// $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', '');
 	}
 
+	/**
+	 * Sets room values in the table row.
+	 *
+	 * @param array $a_rowData
+	 */
 	private function setRoom($a_rowData)
 	{
 		// ### Room ###
@@ -168,15 +186,24 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
 	}
 
+	/**
+	 * Sets subject value in the table row.
+	 *
+	 * @param array $a_rowData
+	 */
 	private function setSubject($a_rowData)
 	{
 		$this->tpl->setVariable('TXT_SUBJECT',
 			($a_rowData ['subject'] === null ? '' : $a_rowData ['subject']));
 	}
 
+	/**
+	 * Sets participants value in the table row.
+	 *
+	 * @param array $a_rowData
+	 */
 	private function setParticipants($a_rowData)
 	{
-		// ### Participants ###
 		$participant_count = count($a_rowData ['participants']);
 		for ($i = 0; $i < $participant_count; ++$i)
 		{
@@ -199,6 +226,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		}
 	}
 
+	/**
+	 * Sets additional values in the table row.
+	 *
+	 * @param array $a_rowData
+	 */
 	private function setAdditionalItems($a_rowData)
 	{
 		// Populate the selected additional table cells
@@ -206,13 +238,16 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		{
 			$this->tpl->setCurrentBlock("additional");
 			$this->tpl->setVariable("TXT_ADDITIONAL", $a_rowData [$c] === null ? "" : $a_rowData [$c]);
-			$this->tpl->parseCurrentBlock();
 		}
 	}
 
+	/**
+	 * Sets action parameters in the table row.
+	 *
+	 * @param array $a_rowData
+	 */
 	private function setActions($a_rowData)
 	{
-		// actions
 		$this->tpl->setCurrentBlock("actions");
 		$this->tpl->setVariable('LINK_ACTION',
 			$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
@@ -226,8 +261,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('LINK_ACTION',
 			$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'confirmCancel'));
 		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_cancel'));
-		// is double s needed in this context???
-		$this->ctrl->setParameterByClass('ilroomsharingbookingssgui', 'booking_id', '');
+		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', '');
 		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', '');
 	}
 

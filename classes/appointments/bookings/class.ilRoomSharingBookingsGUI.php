@@ -1,6 +1,6 @@
 <?php
 
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
 require_once ("Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
 require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
 require_once ("Services/PermanentLink/classes/class.ilPermanentLinkGUI.php");

@@ -1,16 +1,26 @@
 <?php
 
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsTableGUI.php");
+
 /**
  * Class ilRoomSharingParticipationsGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
  * @version $Id$
- * 
+ * @property ilLanguage $lng
+ * @property ilCtrl $ctrl
+ * @property ilTemplate $tpl
  */
 class ilRoomSharingParticipationsGUI
 {
 	protected $ref_id;
 	protected $pool_id;
+	private $ctrl;
+	private $lng;
+	private $tpl;
 
 	/**
 	 * Constructor of ilRoomSharingParticipationsGUI.
@@ -20,12 +30,11 @@ class ilRoomSharingParticipationsGUI
 	function __construct(ilRoomSharingAppointmentsGUI $a_parent_obj)
 	{
 		global $ilCtrl, $lng, $tpl;
-		
-		$this->ref_id = $a_parent_obj->ref_id;
-		$this->pool_id = $a_parent_obj->getPoolId();
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
+		$this->ref_id = $a_parent_obj->ref_id;
+		$this->pool_id = $a_parent_obj->getPoolId();
 	}
 
 	/**
@@ -44,13 +53,9 @@ class ilRoomSharingParticipationsGUI
 	 */
 	function showParticipations()
 	{
-		global $tpl;
-		
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsTableGUI.php");
-		$participationsTable = new ilRoomSharingParticipationsTableGUI($this, 
-				'showParticipations', $this_ref_id);
-		
-		$tpl->setContent($participationsTable->getHTML());
+		$participationsTable = new ilRoomSharingParticipationsTableGUI($this, 'showParticipations',
+			$this->ref_id);
+		$this->tpl->setContent($participationsTable->getHTML());
 	}
 
 	/**
@@ -72,6 +77,7 @@ class ilRoomSharingParticipationsGUI
 	{
 		$this->pool_id = $a_pool_id;
 	}
+
 }
 
 ?>
