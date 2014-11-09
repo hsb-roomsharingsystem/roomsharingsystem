@@ -1,12 +1,15 @@
 <?php
 
 include_once './acceptance/php-webdriver/__init__.php';
+include_once './acceptance/tests/SeleniumHelper.php';
 
 /**
  * This class represents the gui-testing for the RoomSharing System
  *
- * @group floorplans
+ * @group selenium-floorplans
  * @property WebDriver $webDriver
+ *
+ * created by: Thomas Wolscht
  */
 class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 
@@ -15,6 +18,7 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 	private static $rssObjectName; // name of RoomSharing pool
 	private static $login_user = 'root';
 	private static $login_pass = 'homer';
+	private static $helper;
 
 	public static function setUpBeforeClass() {
 		global $rssObjectName;
@@ -25,11 +29,12 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 		self::$webDriver->manage()->timeouts()->implicitlyWait(3); // implicitly wait time => 3 sec.
 		self::$webDriver->manage()->window()->maximize();  // maxize browser window
 		self::$webDriver->get(self::$url); // go to RoomSharing System
+		self::$helper = new SeleniumHelper(self::$webDriver, self::$rssObjectName);
 	}
 
 	public function setUp() {
-		$this->login(self::$login_user, self::$login_pass);  // login
-		$this->toRSS();
+		self::$helper->login(self::$login_user, self::$login_pass);  // login
+		self::$helper->toRSS();
 	}
 
 	/**
@@ -40,17 +45,13 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 	 * @test
 	 */
 	public function testGebaeudePlaeneExplorativ() {
-		//self::$webDriver->get($this->url);   // go to RoomSharing System
-		//$this->login($this->login_user, $this->login_pass);  // login
-		//$this->toRSS();  // navigate to RoomSharing Pool
 		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
 		/**
 		 *  Check editing of an existing floorplan
 		 */
-		if ($this->getNoOfResults() >= 1) {
+		if (self::$helper->getNoOfResults() >= 1) {
 			$desc = self::$webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[3]"))->getText();
 			$menu = self::$webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
-			//$menu->findElement(WebDriverBy::cssSelector("#ilAdvSelListAnchorElement_263 > a > img"))->click();
 			$menu->findElement(WebDriverBy::linkText('Aktionen'))->click();
 			$menu->findElement(WebDriverBy::linkText('Bearbeiten'))->click();
 			$desc1 = self::$webDriver->findElement(WebDriverBy::id("description"));
@@ -63,6 +64,15 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 			$this->assertEquals("Gebäudeplan erfolgreich aktualisiert", $succ_mess);
 			// assert that new description is correct
 			$this->assertEquals($desc . "test", $new_desc);
+			// undo changes
+			$menu2 = self::$webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
+			$menu2->findElement(WebDriverBy::linkText('Aktionen'))->click();
+			$menu2->findElement(WebDriverBy::linkText('Bearbeiten'))->click();
+			$desc2 = self::$webDriver->findElement(WebDriverBy::id("description"));
+			$desc2->clear();
+			$desc2->sendKeys($desc);
+			self::$webDriver->findElement(WebDriverBy::name("cmd[update]"))->click();
+			$succ_mess = self::$webDriver->findElement(WebDriverBy::cssSelector("div.ilSuccessMessage"))->getText();
 		}
 		// check adding floorplan with insufficient informations
 		self::$webDriver->findElement(WebDriverBy::linkText(" Gebäudeplan hinzufügen "))->click();
@@ -73,31 +83,6 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 		// assert error message
 		$this->assertEquals("Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.", $error_mess);
 		//self::$webDriver->quit();
-	}
-
-	public function login($user, $pass) {
-		self::$webDriver->findElement(WebDriverBy::id('username'))->sendKeys($user);
-		self::$webDriver->findElement(WebDriverBy::id('password'))->sendKeys($pass)->submit();
-		self::$webDriver->findElement(WebDriverBy::id('mm_rep_tr'))->click();
-	}
-
-	public function toRSS() {
-		self::$webDriver->findElement(WebDriverBy::linkText('Magazin - Einstiegsseite'))->click();
-		self::$webDriver->findElement(WebDriverBy::xpath("(//a[contains(text(),'" . self::$rssObjectName . "')])[2]"))->click();
-		$this->assertContains(self::$rssObjectName, self::$webDriver->getTitle());
-	}
-
-	private function getNoOfResults() {
-		try {
-			$result = self::$webDriver->findElement(WebDriverBy::cssSelector('span.ilTableFootLight'))->getText();
-			return substr($result, strripos($result, " ") + 1, -1);
-		} catch (WebDriverException $exception) {
-			return 0;
-		}
-	}
-
-	private function getFirstResult() {
-		return self::$webDriver->findElement(WebDriverBy::cssSelector('td.std'))->getText();
 	}
 
 	/**
