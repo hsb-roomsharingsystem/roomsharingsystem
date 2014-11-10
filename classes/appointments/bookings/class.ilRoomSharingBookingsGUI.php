@@ -44,7 +44,10 @@ class ilRoomSharingBookingsGUI
 		{
 			$cmd = 'showBookings';
 		}
-
+		if ($cmd == 'exportbookingobject')
+		{
+			exportBookingObject();
+		}
 		switch ($next_class)
 		{
 			default :
@@ -68,12 +71,36 @@ class ilRoomSharingBookingsGUI
 		$toolbar = new ilToolbarGUI();
 		$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
 			$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
+		$toolbar->addButton($this->lng->txt('rep_robj_xrs_exportPDF'),
+			$this->ctrl->getLinkTarget($this, "showBookingsWithExport"));
+
 		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
 
 		include_once ('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
 		$plink = new ilPermanentLinkGUI('room', $this->ref_id);
+		$tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
+	}
 
+	function showBookingsWithExportObject()
+	{
+		global $tpl;
+		$exportTable;
+		include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
+		$toolbar = new ilToolbarGUI();
+		$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
+			$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
+		$toolbar->addButton($this->lng->txt('rep_robj_xrs_exportPDF'),
+			$this->ctrl->getLinkTarget($this, "showBookingsWithExport"));
+
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
+		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
+
+		//Build Table in html to export pdf
+		include_once ('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
+		$plink = new ilPermanentLinkGUI('room', $this->ref_id);
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsExportTableGUI.php");
+		$exportTable = new ilRoomSharingBookingsExportTableGUI($this, 'showBookings', $this->ref_id);
 		$tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
 	}
 
@@ -140,6 +167,12 @@ class ilRoomSharingBookingsGUI
 	function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
+	}
+
+	public function exportBookingObject()
+	{
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsExportTableGUI.php");
+		$bookingsTable = new ilRoomSharingBookingsExportTableGUI($this, 'showBookings', $this->ref_id);
 	}
 
 }

@@ -26,7 +26,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI, ilRoomSharingBookingsExport
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
@@ -121,7 +121,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		{
 			$next_class = ilroomsharingroomgui;
 		}
-
 		// Extend list of last visited objects by this pool.
 		$ilNavigationHistory->addItem($this->ref_id, "./goto.php?target=xrs_" . $this->ref_id, "xrs");
 

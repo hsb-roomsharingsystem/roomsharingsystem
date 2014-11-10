@@ -32,6 +32,7 @@ datefrom_is_earlier_than_now#:#"Von" liegt in der Vergangenheit
 description#:#Beschreibung
 edit#:#Bearbeiten
 edit_properties#:#Einstellungen bearbeiten
+exportPDF#:#Exportieren
 floor_plans_add#:#Gebäudeplan hinzufügen
 floor_plans_added#:#Gebäudeplan hinzugefügt
 floor_plans_delete#:#Gebäudeplan löschen

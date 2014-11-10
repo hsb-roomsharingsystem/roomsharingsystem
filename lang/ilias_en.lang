@@ -32,6 +32,7 @@ datefrom_is_earlier_than_now#:#"From" lies in the past
 description#:#Description
 edit#:#Edit
 edit_properties#:#Edit Properties
+exportPDF#:#Export
 floor_plans_add#:#Add floorplan
 floor_plans_added#:#Floorplan added
 floor_plans_delete#:#Delete floorplan
