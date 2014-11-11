@@ -115,6 +115,7 @@ class ilRoomSharingBookGUI
 	{
 		$form_items = array();
 		$form_items[] = $this->createSubjectTextInput();
+		$form_items[] = $this->createCommentTextInput();
 		$booking_attributes = $this->createBookingAttributeTextInputs();
 		$form_items = array_merge($form_items, $booking_attributes);
 		$form_items[] = $this->createTimeRangeInput();
@@ -123,18 +124,8 @@ class ilRoomSharingBookGUI
 		$form_items[] = $this->createRoomIdHiddenInputField();
 		$form_items[] = $this->createParticipantsSection();
 		$form_items[] = $this->createParticipantsMultiTextInput();
-		$form_items[] = $this->createCommentSection();
-		$form_items[] = $this->createCommentTextInput();
 
 		return array_filter($form_items);
-	}
-
-	private function createCommentSection()
-	{
-		$comment_section = new ilFormSectionHeaderGUI();
-		$comment_section->setTitle($this->lng->txt("comment"));
-
-		return $comment_section;
 	}
 
 	private function createCommentTextInput()
