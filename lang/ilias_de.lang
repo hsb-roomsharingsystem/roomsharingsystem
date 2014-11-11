@@ -119,3 +119,4 @@ xrs_new#:#Neues RoomSharing
 xrs_read#:#Lesezugriff auf RoomSharing
 xrs_visible#:#RoomSharing ist sichtbar
 xrs_write#:#RoomSharing bearbeiten
+comment#:#Kommentar

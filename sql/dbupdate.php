@@ -27,7 +27,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("id"));
@@ -82,7 +82,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("id"));
@@ -117,7 +117,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("id"));
@@ -144,7 +144,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("booking_id", "user_id"));
@@ -172,7 +172,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("id"));
@@ -204,7 +204,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("id"));
@@ -258,7 +258,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("id"));
@@ -290,7 +290,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("room_id", "att_id"));
@@ -324,7 +324,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("id"));
@@ -357,7 +357,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("booking_id"));
@@ -386,7 +386,7 @@ $fields = array(
 if ($ilDB->tableExists($table_name))
 {
 	$ilDB->dropTable($table_name);
-};
+}
 $ilDB->createTable($table_name, $fields);
 // add primary key
 $ilDB->addPrimaryKey($table_name, array("file_id"));
@@ -631,4 +631,17 @@ $bookPublicColumn = 'public_booking';
 $bookPublicAttributes = array(
 	'type' => 'boolean');
 $ilDB->addTableColumn($tableBookings, $bookPublicColumn, $bookPublicAttributes);
+?>
+
+<#9>
+<?php
+// Add comment to booking table.
+/* @var $ilDB ilDB */
+$tableBookings = 'rep_robj_xrs_bookings';
+$commentColumn = 'bookingcomment';
+
+$commentAttributes = array(
+	'type' => 'text',
+	'length' => 4000);
+$ilDB->addTableColumn($tableBookings, $commentColumn, $commentAttributes);
 ?>

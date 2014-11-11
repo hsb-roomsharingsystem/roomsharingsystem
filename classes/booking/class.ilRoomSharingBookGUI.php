@@ -123,8 +123,28 @@ class ilRoomSharingBookGUI
 		$form_items[] = $this->createRoomIdHiddenInputField();
 		$form_items[] = $this->createParticipantsSection();
 		$form_items[] = $this->createParticipantsMultiTextInput();
+		$form_items[] = $this->createCommentSection();
+		$form_items[] = $this->createCommentTextInput();
 
 		return array_filter($form_items);
+	}
+
+	private function createCommentSection()
+	{
+		$comment_section = new ilFormSectionHeaderGUI();
+		$comment_section->setTitle($this->lng->txt("comment"));
+
+		return $comment_section;
+	}
+
+	private function createCommentTextInput()
+	{
+		$comment = new ilTextInputGUI($this->lng->txt("comment"), "comment");
+		$comment->setRequired(false);
+		$comment->setSize(40);
+		$comment->setMaxLength(4000);
+
+		return $comment;
 	}
 
 	private function createSubjectTextInput()
@@ -337,6 +357,7 @@ class ilRoomSharingBookGUI
 		$common_entries['book_public'] = $a_form->getInput('book_public');
 		$common_entries['accept_room_rules'] = $a_form->getInput('accept_room_rules');
 		$common_entries['room'] = $a_form->getInput('room_id');
+		$common_entries['comment'] = $a_form->getInput('comment');
 
 		return $common_entries;
 	}

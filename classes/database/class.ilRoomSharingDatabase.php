@@ -246,7 +246,8 @@ class ilRoomsharingDatabase
 			'pool_id' => array('integer', $this->pool_id),
 			'user_id' => array('integer', $ilUser->getId()),
 			'subject' => array('text', $a_booking_values ['subject']),
-			'public_booking' => array('boolean', $a_booking_values ['book_public'] == '1')
+			'public_booking' => array('boolean', $a_booking_values ['book_public'] == '1'),
+			'bookingcomment' => array('text', $a_booking_values ['comment'])
 			)
 		);
 

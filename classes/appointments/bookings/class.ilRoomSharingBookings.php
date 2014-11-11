@@ -166,6 +166,7 @@ class ilRoomSharingBookings
 		$one_booking ['participants_ids'] = $participants['ids'];
 
 		$one_booking ['subject'] = $a_bookingData ['subject'];
+		$one_booking ['comment'] = $a_bookingData ['bookingcomment'];
 
 		$attributes = $this->readBookingAttributes($a_bookingData);
 		foreach ($attributes as $attribute_name => $attribute_value)

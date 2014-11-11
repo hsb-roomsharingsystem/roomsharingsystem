@@ -87,6 +87,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->addColumn($this->lng->txt("rep_robj_xrs_room"), "room");
 		$this->addColumn($this->lng->txt("rep_robj_xrs_subject"), "subject");
 		$this->addColumn($this->lng->txt("rep_robj_xrs_participants"), "participants");
+		$this->addColumn($this->lng->txt("comment"), "comment");
 
 		// Add the selected optional columns to the table
 		foreach ($this->getSelectedColumns() as $c)
@@ -119,6 +120,8 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->setSubject($a_rowData);
 
 		$this->setParticipants($a_rowData);
+
+		$this->setComment($a_rowData);
 
 		$this->setAdditionalItems($a_rowData);
 
@@ -184,6 +187,17 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('HREF_ROOM',
 			$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
+	}
+
+	/**
+	 * Sets comment value in the table row.
+	 *
+	 * @param array $a_rowData
+	 */
+	private function setComment($a_rowData)
+	{
+		$this->tpl->setVariable('TXT_COMMENT',
+			($a_rowData ['comment'] === null ? '' : $a_rowData ['comment']));
 	}
 
 	/**
