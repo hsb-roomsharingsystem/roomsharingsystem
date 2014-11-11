@@ -68,6 +68,8 @@ person_responsible#:#Person Responsible
 plan#:#Plan
 pool#:#RoomSharing Pool
 pools#:#RoomSharing Pools
+privileges#:#Privileges
+privileges_settings#:#Privilege settings
 quick_search#:#Quick Search
 room#:#Room
 room_add#:#Add Room

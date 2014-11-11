@@ -27,7 +27,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingPrivilegesGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
@@ -185,6 +185,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$perm_gui = & new ilPermissionGUI($this);
 				$ret = & $this->ctrl->forwardCommand($perm_gui);
 				break;
+			// Privileges
+			case 'ilroomsharingprivilegesgui':
+				$this->tabs_gui->setTabActive('privileges');
+				$this->pl_obj->includeClass("privileges/class.ilRoomSharingPrivilegesGUI.php");
+				$privileges_gui = & new ilRoomSharingPrivilegesGUI($this);
+				$ret = & $this->ctrl->forwardCommand($privileges_gui);
+				break;
 			// Userprofile GUI
 			case 'ilpublicuserprofilegui':
 				$ilTabs->clearTargets();
@@ -309,7 +316,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			"floor_plans", $this->txt("room_floor_plans"),
 			$this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render")
 		);
-		// Show permissions and settings tabs if the user has write permissions.
+		// Show permissions, privileges and settings tabs if the user has write permissions.
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
 		{
 			// Settings
@@ -318,6 +325,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			);
 			// Permission
 			$this->addPermissionTab();
+
+			// Privileges
+			$this->tabs_gui->addTab(
+				"privileges", $this->txt("privileges"),
+				$this->ctrl->getLinkTargetByClass("ilroomsharingprivilegesgui", "showPrivileges")
+			);
 		}
 		//show first tab per default
 		$this->tabs_gui->activateTab('appointments');
