@@ -151,14 +151,14 @@ class ilRoomsharingDatabase
 	 */
 	public function getMaxCountForAttribute($a_room_attribute)
 	{
-// get the id of the attribute in this pool
+		// get the id of the attribute in this pool
 		$attributIdSet = $this->ilDB->query('SELECT id FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
 			' WHERE name =' . $this->ilDB->quote($a_room_attribute, 'text') . ' AND pool_id = ' .
 			$this->ilDB->quote($this->pool_id, 'integer'));
 		$attributIdRow = $this->ilDB->fetchAssoc($attributIdSet);
 		$attributID = $attributIdRow ['id'];
 
-// get the max value of the attribut in this pool
+		// get the max value of the attribut in this pool
 		$valueSet = $this->ilDB->query('SELECT MAX(count) AS value FROM ' .
 			dbc::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
 			dbc::ROOMS_TABLE . ' as room ON room.id = rta.room_id ' .
@@ -370,6 +370,21 @@ class ilRoomsharingDatabase
 			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 		$this->ilDB->manipulate('DELETE FROM ' . dbc::USER_TABLE .
 			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
+	}
+
+	/**
+	 * Delete bookings from the database.
+	 *
+	 * @param array $booking_ids
+	 */
+	public function deleteBookings($booking_ids)
+	{
+		$st = $this->ilDB->prepareManip('DELETE FROM ' . dbc::BOOKINGS_TABLE .
+			' WHERE ' . $this->ilDB->in("id", $booking_ids));
+		$this->ilDB->execute($st, $booking_ids);
+		$st2 = $this->ilDB->manipulate('DELETE FROM ' . dbc::USER_TABLE .
+			' WHERE ' . $$this->ilDB->in("booking_id", $booking_ids));
+		$this->ilDB->execute($st2, $booking_ids);
 	}
 
 	/**
