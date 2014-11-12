@@ -13,66 +13,68 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  */
 class ilRoomSharingRolePrivilegesTableGUI extends ilTable2GUI
 {
-	private $ctrl;
-	private $privileges;
+    private $ctrl;
+    private $privileges;
 
-	/**
-	 * Constructor
-	 * @return
-	 */
-	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
-	{
-		global $ilCtrl, $lng;
+    /**
+     * Constructor
+     * @return
+     */
+    public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
+    {
+        global $ilCtrl, $lng;
 
-		$this->lng = $lng;
-		$this->ctrl = $ilCtrl;
+        $this->lng = $lng;
+        $this->ctrl = $ilCtrl;
 
-		$this->privileges = new ilRoomSharingPrivileges($a_parent_obj->getPoolId());
+        $this->privileges = new ilRoomSharingPrivileges($a_parent_obj->getPoolId());
 
-		parent::__construct($a_parent_obj, $a_parent_cmd);
+        parent::__construct($a_parent_obj, $a_parent_cmd);
 
-		$this->setTitle($this->lng->txt('rep_robj_xrs_privileges_settings'));
-		$this->setEnableHeader(true);
-		$this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
-		$this->setRowTemplate("tpl.obj_role_perm_row.html", "Services/AccessControl");
-		$this->setLimit(100);
-		$this->setShowRowsSelector(false);
-		$this->addCommandButton('savePrivileges', $this->lng->txt('save'));
+        $this->setTitle($this->lng->txt("rep_robj_xrs_privileges_settings"));
+        $this->setEnableHeader(true);
+        $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
+        $this->setRowTemplate("tpl.obj_role_perm_row.html", "Services/AccessControl");
+        $this->setLimit(100);
+        $this->setShowRowsSelector(false);
+        $this->addCommandButton('savePrivileges', $this->lng->txt('save'));
 
-		$this->addColumns();
+        $this->addColumns();
 //		$this->populateTable();
-	}
+    }
 
-	private function populateTable()
-	{
-		$this->tpl->addJavaScript("Services/AccessControl/js/ilPermSelect.js");
-		$data = $this->privileges->getPrivileges();
+    private function populateTable()
+    {
+        $this->tpl->addJavaScript("Services/AccessControl/js/ilPermSelect.js");
+        $data = $this->privileges->getPrivileges();
 
-		$this->setMaxCount(count($data));
-		$this->setData($data);
-	}
+        $this->setMaxCount(count($data));
+        $this->setData($data);
+    }
 
-	private function addColumns()
-	{
-		$roles = $this->privileges->getRoles();
+    private function addColumns()
+    {
+        $roles = $this->privileges->getRoles();
 
-		foreach ($roles as $role)
-		{
-			$this->addColumn($this->createTitle($role), "", "", "", false, $this->createTooltip($role));
-		}
-	}
+        foreach ($roles as $role)
+        {
+            $this->addColumn($this->createTitle($role), "", "", "", false, $this->createTooltip($role));
+        }
+    }
 
-	private function createTooltip($a_role)
-	{
-		return "toller " . $a_role;
-	}
+    private function createTooltip($a_role)
+    {
+        return "toller " . $a_role;
+    }
 
-	private function createTitle($a_role)
-	{
-		return '<a class="tblheader" href="' . $this->ctrl->getLinkTargetByClass('ilroomsharingprivilegesgui',
-				'') . '" >' . $a_role . '</a>';
-	}
+    private function createTitle($a_role)
+    {
+//        $a_role = "Guest";
+        $role_id = 255;
+        $this->ctrl->setParameterByClass('ilroomsharingrolegui', "role_id", $role_id);
+
+        return '<a class="tblheader" href="' . $this->ctrl->getLinkTargetByClass("ilroomsharingrolegui", "") . '" >' . $a_role . '</a>';
+    }
 
 }
-
 ?>
