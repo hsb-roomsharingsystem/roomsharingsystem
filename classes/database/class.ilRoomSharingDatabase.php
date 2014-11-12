@@ -368,7 +368,7 @@ class ilRoomsharingDatabase
 	{
 		$this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
-		$this->ilDB->manipulate('DELETE FROM ' . dbc::USER_TABLE .
+		$this->ilDB->manipulate('DELETE FROM ' . dbc::BOOK_USER_TABLE .
 			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
 
@@ -444,7 +444,7 @@ class ilRoomsharingDatabase
 	{
 		$set = $this->ilDB->query('SELECT users.firstname AS firstname,' .
 			' users.lastname AS lastname, users.login AS login,' .
-			' users.usr_id AS id FROM ' . dbc::USER_TABLE . ' user ' .
+			' users.usr_id AS id FROM ' . dbc::BOOK_USER_TABLE . ' user ' .
 			' LEFT JOIN usr_data AS users ON users.usr_id = user.user_id' .
 			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
 			' ORDER BY users.lastname, users.firstname ASC');
@@ -584,7 +584,7 @@ class ilRoomsharingDatabase
 	public function deleteParticipation($a_user_id, $a_booking_id)
 	{
 		return $this->ilDB->manipulate(
-				'DELETE FROM ' . dbc::USER_TABLE . ' WHERE user_id = ' .
+				'DELETE FROM ' . dbc::BOOK_USER_TABLE . ' WHERE user_id = ' .
 				$this->ilDB->quote($a_user_id(), 'integer') .
 				' AND booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
@@ -598,7 +598,7 @@ class ilRoomsharingDatabase
 	public function getParticipationsForUser($a_user_id)
 	{
 		$set = $this->ilDB->query(
-			'SELECT booking_id FROM ' . dbc::USER_TABLE .
+			'SELECT booking_id FROM ' . dbc::BOOK_USER_TABLE .
 			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
 
 		$participations = array();
@@ -845,6 +845,49 @@ class ilRoomsharingDatabase
 			"id" => array("integer", $a_id)
 		);
 		return $this->ilDB->update(dbc::ROOMS_TABLE, $fields, $where);
+	}
+
+	public function insertGroup($a_name, $a_description, $a_role_id)
+	{
+		$this->ilDB->insert(dbc::GROUPS_TABLE,
+			array(
+			'id' => array('integer', $this->ilDB->nextId(dbc::GROUPS_TABLE)),
+			'name' => array('text', $a_name),
+			'description' => array('text', $a_description),
+			'role_id' => array('integer', $a_role_id),
+			'pool_id' => array('integer', $this->pool_id)
+		));
+		return $this->ilDB->getLastInsertId();
+	}
+
+	public function updateGroup($a_group_id, $a_name, $a_description, $a_role_id)
+	{
+		$fields = array('name' => array('text', $a_name),
+			'description' => array('text', $a_description),
+			'role_id' => array('integer', $a_role_id),
+			'pool_id' => array('integer', $this->pool_id));
+		$where = array('id' => array('integer', $a_group_id));
+		return $this->ilDB->update(dbc::GROUPS_TABLE, $fields, $where);
+	}
+
+	public function addUserToGroup($a_group_id, $a_user_id)
+	{
+		if (!$this->isUserInGroup($a_group_id, $a_user_id))
+		{
+			$this->ilDB->insert(dbc::GROUP_USER_TABLE,
+				array(
+				'group_id' => array('integer', $a_group_id),
+				'user_id' => array('integer', $a_user_id)
+			));
+		}
+	}
+
+	public function isUserInGroup($a_group_id, $a_user_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUP_USER_TABLE .
+			' WHERE group_id = ' . $this->ilDB->quote($a_group_id, 'integer') .
+			' AND user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
+		return ($this->ilDB->numRows($set) != 0);
 	}
 
 }

@@ -632,3 +632,76 @@ $bookPublicAttributes = array(
 	'type' => 'boolean');
 $ilDB->addTableColumn($tableBookings, $bookPublicColumn, $bookPublicAttributes);
 ?>
+
+<#9>
+<?php
+//Additional of local group assignment
+// Author: R. Heimsoth
+// ##########################
+// 'rep_robj_xrs_groups'
+// ##########################
+$tableGroups = 'rep_robj_xrs_groups';
+
+$fieldsGroups = array(
+	'id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'name' => array(
+		'type' => 'text',
+		'length' => 75,
+		'notnull' => true
+	),
+	'description' => array(
+		'type' => 'text',
+		'length' => 1000
+	),
+	'role_id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'pool_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableGroups))
+{
+	$ilDB->dropTable($tableGroups);
+}
+$ilDB->createTable($tableGroups, $fieldsGroups);
+// add primary key
+$ilDB->addPrimaryKey($tableGroups, array("id"));
+// add sequence
+$ilDB->createSequence($tableGroups);
+// add index
+$ilDB->addIndex($tableGroups, array('pool_id'), 'i1');
+
+// Author: R. Heimsoth
+// ##########################
+// 'rep_robj_xrs_role_user'
+// ##########################
+$tableGroupUser = "rep_robj_xrs_group_user";
+$fieldsGroupUser = array(
+	'group_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	),
+	'user_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableGroupUser))
+{
+	$ilDB->dropTable($tableGroupUser);
+}
+$ilDB->createTable($tableGroupUser, $fieldsGroupUser);
+// add primary key
+$ilDB->addPrimaryKey($tableGroupUser, array("group_id"));
+?>
