@@ -60,7 +60,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->setRowTemplate("tpl.room_appointment_row.html",
 			"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
 		// command for cancelling bookings
-		$this->addMultiCommand('showBookings', $this->lng->txt('rep_robj_xrs_booking_cancel'));
+		$this->addMultiCommand('confirmMultipleCancels', $this->lng->txt('rep_robj_xrs_booking_cancel'));
 
 		$this->getItems();
 	}
@@ -110,6 +110,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		// setSelectAllCheckbox()-function in order to be affected when the
 		// "Select All" Checkbox is checked
 		$this->tpl->setVariable('CHECKBOX_NAME', 'bookings');
+		$this->tpl->setVariable('CHECKBOX_ID', $a_rowData['id'] . '_' . $a_rowData['subject']);
 
 		$this->setRecurrence($a_rowData);
 

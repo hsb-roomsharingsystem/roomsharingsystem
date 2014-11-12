@@ -20,8 +20,11 @@ booking_confirm#:#Are you sure you want to cancel the following booking?
 booking_confirm_cancel#:#Cancel booking
 booking_deleted#:#Booking deleted! (following sequence bookings are not affected)
 booking_doesnt_exists#:#This booking doesn't exist any more!
+booking_no_cancel_ids#:#Tick at least one booking to cancel.
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
 bookings#:#Bookings
+bookings_confirm#:#Are you sure you want to cancel the following bookings?
+bookings_deleted#:#Bookings deleted! (possible sequence bookings are not affected)
 cancel#:#Cancel
 content#:#Content
 course#:#Course

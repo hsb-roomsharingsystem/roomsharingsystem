@@ -384,7 +384,7 @@ class ilRoomsharingDatabase
 			' WHERE ' . $this->ilDB->in("id", $booking_ids));
 		$this->ilDB->execute($st, $booking_ids);
 		$st2 = $this->ilDB->manipulate('DELETE FROM ' . dbc::USER_TABLE .
-			' WHERE ' . $$this->ilDB->in("booking_id", $booking_ids));
+			' WHERE ' . $this->ilDB->in("booking_id", $booking_ids));
 		$this->ilDB->execute($st2, $booking_ids);
 	}
 

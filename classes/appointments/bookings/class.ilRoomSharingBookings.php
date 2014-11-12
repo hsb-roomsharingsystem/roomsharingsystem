@@ -63,13 +63,27 @@ class ilRoomSharingBookings
 		if (!$a_seq || ilRoomSharingNumericUtils::isPositiveNumber($row ['seq_id']))
 		{
 			$this->ilRoomsharingDatabase->deleteBooking($a_booking_id);
-			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_bookings_deleted'), true);
 		}
 		else //delete every booking in the sequence
 		{
 			$this->deleteBookingSequence($row['seq']);
 			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
 		}
+	}
+
+	/**
+	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal 1 and exists as booking ID.
+	 * @param array $a_booking_ids nummerical array of booking_ids to delete
+	 */
+	public function removeMultipleBookings(array $a_booking_ids)
+	{
+		foreach ($a_booking_ids as $booking_id)
+		{
+			$this->checkBookingId($booking_id);
+		}
+		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
+		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
 	}
 
 	/**
@@ -129,7 +143,7 @@ class ilRoomSharingBookings
 	}
 
 	/**
-	 * Get's the bookings from the database.
+	 * Gets the bookings from the database.
 	 *
 	 * @return array with bookings
 	 */

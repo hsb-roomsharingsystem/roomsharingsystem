@@ -20,8 +20,11 @@ booking_confirm#:#Möchten Sie wirklich die ausgewählte Buchung stornieren?
 booking_confirm_cancel#:#Stornieren
 booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
 booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
+booking_no_cancel_ids#:#Geben Sie mindestens eine Buchung zum Stornieren an.
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
 bookings#:#Buchungen
+bookings_confirm#:#Möchten Sie wirklich die ausgewählten Buchungen stornieren?
+bookings_deleted#:#Die Buchungen wurde gelöscht! (mögliche Serientermine nicht betroffen)
 cancel#:#Abbrechen
 content#:#Inhalt
 course#:#Studiengang

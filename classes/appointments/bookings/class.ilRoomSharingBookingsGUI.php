@@ -104,6 +104,61 @@ class ilRoomSharingBookingsGUI
 	}
 
 	/**
+	 * Asks Confirmation from the user while canceling multiple Bookings.
+	 * @global ilTabs $ilTabs
+	 */
+	public function confirmMultipleCancelsObject()
+	{
+		global $ilTabs;
+		if (!empty($_POST['bookings']))
+		{
+			$ilTabs->clearTargets();
+			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
+				$this->ctrl->getLinkTarget($this, 'showBookings'));
+
+			// create the confirmation GUI
+			$confirmation = new ilConfirmationGUI();
+			$confirmation->setFormAction($this->ctrl->getFormAction($this));
+			$confirmation->setHeaderText($this->lng->txt('rep_robj_xrs_bookings_confirm'));
+
+			foreach ($_POST['bookings'] as $num => $booking_data)
+			{
+				$parts = explode('_', $booking_data, 2); //$booking_data comes as <id>_<subject>
+				$confirmation->addItem('booking_ids[' . $num . ']', $parts[0], $parts[1]);
+			}
+
+			$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_booking_confirm_cancel'),
+				'cancelMultipleBookings'); // cancel the bookings
+			$confirmation->setCancel($this->lng->txt('cancel'), 'showBookings'); // cancel the confirmation dialog
+
+			$this->tpl->setContent($confirmation->getHTML()); // display
+		}
+		else
+		{
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_booking_no_cancel_ids'));
+			$this->showBookingsObject();
+		}
+	}
+
+	/**
+	 * Cancels Multiple Bookings.
+	 */
+	public function cancelMultipleBookingsObject()
+	{
+		$bookings = new ilRoomSharingBookings($this->pool_id);
+		try
+		{
+			$bookings->removeMultipleBookings($_POST ["booking_ids"]);
+		}
+		catch (ilRoomSharingBookingsException $exc)
+		{
+			ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+			$this->showBookingsObject();
+		}
+		$this->showBookingsObject();
+	}
+
+	/**
 	 * Displays a confirmation dialog, in which the user is given the chance
 	 * to decline or confirm his decision.
 	 *

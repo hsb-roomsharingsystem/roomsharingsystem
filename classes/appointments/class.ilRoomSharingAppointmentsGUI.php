@@ -54,6 +54,8 @@ class ilRoomSharingAppointmentsGUI
 			case 'render':
 			case 'showContent':
 			case 'cancelBooking':
+			case 'confirmMultipleCancels':
+			case 'cancelMultipleBookings':
 			case 'confirmCancel':
 				$cmd = 'showBookings';
 				break;
