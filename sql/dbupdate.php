@@ -633,6 +633,7 @@ $bookPublicAttributes = array(
 $ilDB->addTableColumn($tableBookings, $bookPublicColumn, $bookPublicAttributes);
 ?>
 
+<#9>
 <#10>
 <?php
 //Additional of local group assignment
