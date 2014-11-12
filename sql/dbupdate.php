@@ -633,7 +633,7 @@ $bookPublicAttributes = array(
 $ilDB->addTableColumn($tableBookings, $bookPublicColumn, $bookPublicAttributes);
 ?>
 
-<#9>
+<#10>
 <?php
 //Additional of local group assignment
 // Author: R. Heimsoth
@@ -681,9 +681,9 @@ $ilDB->addIndex($tableGroups, array('pool_id'), 'i1');
 
 // Author: R. Heimsoth
 // ##########################
-// 'rep_robj_xrs_role_user'
+// 'rep_robj_xrs_grp_user'
 // ##########################
-$tableGroupUser = "rep_robj_xrs_group_user";
+$tableGroupUser = "rep_robj_xrs_grp_user";
 $fieldsGroupUser = array(
 	'group_id' => array(
 		'type' => 'integer',

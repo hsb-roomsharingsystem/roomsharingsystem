@@ -1,6 +1,8 @@
 <?php
 
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingPrivilegesException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 
 /**
  * Class ilRoomSharingPrivileges
@@ -34,12 +36,11 @@ class ilRoomSharingPrivileges
 		return $priv;
 	}
 
-	public function getRoles()
+	public function getGroups()
 	{
+		$groups = array("User", "Student");
 
-		$roles = array("User", "Student");
-
-		return $roles;
+		return $groups;
 	}
 
 	public function getGlobalRoles()
@@ -58,9 +59,12 @@ class ilRoomSharingPrivileges
 
 	public function addGroup($a_groupData)
 	{
-		//TODO ERROR CATCHING
-		$this->ilRoomsharingDatabase->insertGroup($a_groupData['name'], $a_groupData['description'],
-			$a_groupData['role_id']);
+		$insertedID = $this->ilRoomsharingDatabase->insertGroup($a_groupData['name'],
+			$a_groupData['description'], $a_groupData['role_id']);
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($insertedID))
+		{
+			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_group_not_created");
+		}
 	}
 
 	public function updateGroup($a_groupData)

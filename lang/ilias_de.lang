@@ -46,6 +46,7 @@ floor_plans_replace_info#:#Der bisherige Gebäudeplan wird durch einen neuen ers
 floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_upload_error#:#Fehler beim Hochladen des Geäudeplans. Die Mögliche Ursache ist die verwendung eines nicht unterstütztes Datei Formats
 from#:#von
+group_not_created#:#Gruppe konnte nicht erstellt werden
 leave#:#Austreten
 mail_booking_creator_linktext#:#Du findest deine Buchung unter folgendem Link:
 mail_booking_creator_message#:#Du hast erfolgreich eine Buchung eingetragen. Du hast folgendes gebucht:
