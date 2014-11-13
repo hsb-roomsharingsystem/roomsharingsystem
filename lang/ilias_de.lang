@@ -70,6 +70,7 @@ plan#:#Plan
 pool#:#Roomsharingpool
 pools#:#Roomsharingpools
 privileges#:#Privilegien
+privileges_role_assignment#:#Rollenzuordnung
 privileges_settings#:#Privilegieneinstellungen
 quick_search#:#Schnellsuche
 room#:#Raum

@@ -7,7 +7,6 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * Class ilRoomSharingRolePrivilegesTableGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
- * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  *
  * @version $Id$
  */
@@ -54,23 +53,23 @@ class ilRoomSharingRolePrivilegesTableGUI extends ilTable2GUI
 
 	private function addColumns()
 	{
-		$roles = $this->privileges->getGroups();
+		$roles = $this->privileges->getGlobalRoles();
 
 		foreach ($roles as $role)
 		{
-			$this->addColumn($this->createTitle($role), "", "", "", false, $this->createTooltip($role));
+			$this->addColumn($this->createTitle($role["title"]), "", "", "", false,
+				$this->createTooltip($role["title"]));
 		}
 	}
 
 	private function createTooltip($a_role)
 	{
-		return "toller " . $a_role;
+		return "HARDCODED LINK FOR " . $a_role;
 	}
 
 	private function createTitle($a_role)
 	{
-//        $a_role = "Guest";
-		$role_id = 255;
+		$role_id = 255; // Guest
 		$this->ctrl->setParameterByClass('ilroomsharingrolegui', "role_id", $role_id);
 
 		return '<a class="tblheader" href="' . $this->ctrl->getLinkTargetByClass("ilroomsharingrolegui",
