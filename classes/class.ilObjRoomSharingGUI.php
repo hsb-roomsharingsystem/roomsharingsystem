@@ -1,11 +1,12 @@
 <?php
 
-include_once("./Services/Repository/classes/class.ilObjectPluginGUI.php");
-include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+require_once("Services/Repository/classes/class.ilObjectPluginGUI.php");
+require_once('Services/Form/classes/class.ilPropertyFormGUI.php');
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/utils/class.ilRoomSharingTimeInputGUI.php");
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/utils/class.ilRoomSharingCalendar.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 
 /**
  * User Interface class for RoomSharing repository object.
@@ -45,6 +46,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 {
 	var $object;
 	var $lng;
+	private $permission;
 	protected $settingsForm;
 	protected $pool_id;
 	protected $pl_obj;
@@ -58,8 +60,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		if ($this->object != null)
 		{
-			//Cannot initialize the user-calendar before the actual object is created because of missing poolID
+			//Cannot initialize the user-calendar and permission utils before the actual object is created because of missing poolID
 			$this->initCalendar();
+			$this->permission = new ilRoomSharingPermissionUtils($this->object->getPoolId());
 		}
 	}
 
@@ -294,46 +297,79 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $ilTabs, $ilCtrl, $ilAccess;
 
-		// Appointments
-		$ilTabs->addTab(
-			"appointments", $this->txt("appointments"),
-			$ilCtrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings")
-		);
+		$userPrivileges = $this->permission->getAllUserPrivileges();
+
+		if (in_array("accessAppointments", $userPrivileges))
+		{
+			// Appointments
+			$ilTabs->addTab(
+				"appointments", $this->txt("appointments"),
+				$ilCtrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings")
+			);
+		}
 		// Standard info screen tab
 		$this->addInfoTab();
-		// Search
-		$this->tabs_gui->addTab(
-			"search", $this->lng->txt("search"),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
-		);
-		// Rooms
-		$this->tabs_gui->addTab(
-			"rooms", $this->txt("rooms"),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms")
-		);
-		// Floorplans
-		$this->tabs_gui->addTab(
-			"floor_plans", $this->txt("room_floor_plans"),
-			$this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render")
-		);
-		// Show permissions, privileges and settings tabs if the user has write permissions.
-		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
+
+		if (in_array("accessSearch", $userPrivileges))
+		{
+			// Search
+			$this->tabs_gui->addTab(
+				"search", $this->lng->txt("search"),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
+			);
+		}
+
+		if (in_array("accessRooms", $userPrivileges))
+		{
+			// Rooms
+			$this->tabs_gui->addTab(
+				"rooms", $this->txt("rooms"),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms")
+			);
+		}
+
+		if (in_array("accessFloorplans", $userPrivileges))
+		{
+			// Floorplans
+			$this->tabs_gui->addTab(
+				"floor_plans", $this->txt("room_floor_plans"),
+				$this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render")
+			);
+		}
+
+		if (in_array("accessSettings", $userPrivileges))
 		{
 			// Settings
 			$this->tabs_gui->addTab(
 				'settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings')
 			);
+		}
+
+		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
+		{
 			// Permission
 			$this->addPermissionTab();
+		}
 
+		if (in_array("accessPrivileges", $userPrivileges))
+		{
 			// Privileges
 			$this->tabs_gui->addTab(
 				"privileges", $this->txt("privileges"),
 				$this->ctrl->getLinkTargetByClass("ilroomsharingprivilegesgui", "showPrivileges")
 			);
 		}
-		//show first tab per default
-		$this->tabs_gui->activateTab('appointments');
+
+		if (in_array("accessAppointments", $userPrivileges))
+		{
+			//show first tab per default
+			$this->tabs_gui->activateTab('appointments');
+		}
+		else
+		{
+			//TODO GEHT DAS SO??
+			$this->tabs_gui->activateTab("info");
+		}
 	}
 
 	/**
