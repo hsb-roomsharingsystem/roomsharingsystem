@@ -68,7 +68,7 @@ class ilRoomSharingParticipations
 			$bookingDatas = $this->ilRoomsharingDatabase->getBooking($participation['booking_id']);
 			foreach ($bookingDatas as $bookingData)
 			{
-				$result[] = $this->readBookingData($bookingData, $participation['id']);
+				$result[] = $this->readBookingData($bookingData);
 			}
 		}
 		return $result;
@@ -81,7 +81,7 @@ class ilRoomSharingParticipations
 	 * @param integer $a_participation_id
 	 * @return array Booking-Information
 	 */
-	private function readBookingData($a_bookingData, $a_participation_id)
+	private function readBookingData($a_bookingData)
 	{
 		$one_booking = array();
 		$one_booking['recurrence'] = ilRoomSharingNumericUtils::isPositiveNumber($a_bookingData['seq_id']);
@@ -98,7 +98,8 @@ class ilRoomSharingParticipations
 		$one_booking['person_responsible_id'] = $a_bookingData['user_id'];
 
 		// The booking id
-		$one_booking['id'] = $a_participation_id;
+		//$one_booking['id'] = $a_participation_id;
+		$one_booking['booking_id'] = $a_bookingData['id'];
 		return $one_booking;
 	}
 
