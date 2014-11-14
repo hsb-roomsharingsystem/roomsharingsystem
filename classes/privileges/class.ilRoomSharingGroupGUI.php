@@ -1,21 +1,20 @@
 <?php
 
-require_once("Services/AccessControl/classes/class.ilObjRoleGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingAssignedUsersTableGUI.php");
 
 /**
- * Class ilRoomSharingRoleGUI
+ * Class ilRoomSharingGroupGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  *
  * @version $Id$
  *
- * @ilCtrl_Calls ilRoomSharingRoleGUI: ilRepositorySearchGUI
+ * @ilCtrl_Calls ilRoomSharingGroupGUI: ilRepositorySearchGUI
  */
-class ilRoomSharingRoleGUI
+class ilRoomSharingGroupGUI
 {
 	private $parent;
-	private $role_id;
+	private $group_id;
 	private $pool_id;
 	private $ctrl;
 	private $lng;
@@ -23,17 +22,18 @@ class ilRoomSharingRoleGUI
 	private $tabs;
 	private $privileges;
 
-	public function __construct($parent, $role_id)
+	public function __construct($a_parent, $a_group_id)
 	{
 		global $ilCtrl, $lng, $tpl, $ilTabs;
 
-		$this->parent = $parent;
-		$this->role_id = $role_id;
+		$this->parent = $a_parent;
 		$this->pool_id = $this->parent->getPoolId();
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
 		$this->tabs = $ilTabs;
+		$this->group_id = $a_group_id ? $a_group_id : $_GET["group_id"];
+		$this->ctrl->saveParameter($this, "group_id");
 		$this->privileges = new ilRoomSharingPrivileges();
 	}
 
@@ -49,7 +49,7 @@ class ilRoomSharingRoleGUI
 			case 'ilrepositorysearchgui':
 				$rep_search = & new ilRepositorySearchGUI();
 				$rep_search->setTitle($this->lng->txt("role_add_user"));
-				$rep_search->setCallback($this, "addUsersToRole");
+				$rep_search->setCallback($this, "addUsersToGroup");
 
 				// Tabs
 				$this->tabs->setTabActive("user_assignment");
@@ -58,7 +58,7 @@ class ilRoomSharingRoleGUI
 				break;
 
 			default:
-				$cmd = $this->ctrl->getCmd("renderEditRoleForm");
+				$cmd = $this->ctrl->getCmd("renderEditGroupForm");
 				$this->$cmd();
 				break;
 		}
@@ -68,13 +68,14 @@ class ilRoomSharingRoleGUI
 	private function renderPage()
 	{
 		$this->tabs->clearTargets();
+		$group_info = $this->privileges->getGroupFromId($this->group_id);
 
 		// Title
-		$this->tpl->setTitle("HARDCODED ROLE");
+		$this->tpl->setTitle($group_info["name"]);
 		// Description
-		$this->tpl->setDescription("HARDCODED DESCRIPTION");
+		$this->tpl->setDescription($group_info["description"]);
 		// Icon
-		$this->tpl->setTitleIcon(ilUtil::getImagePath("icon_role_b.png"), "HARCODED ROLESYMBOL");
+		$this->tpl->setTitleIcon(ilUtil::getImagePath("icon_role_b.png"), "HARDCODED GROUPSYMBOL");
 		$this->setTabs();
 	}
 
@@ -84,43 +85,45 @@ class ilRoomSharingRoleGUI
 		$this->tabs->setBackTarget($this->lng->txt("rep_robj_xrs_privileges"),
 			$this->ctrl->getLinkTargetByClass("ilroomsharingprivilegesgui", "showPrivileges"));
 
-		// Edit Role
+		// Edit Group
 		$this->tabs->addTab("edit_properties", $this->lng->txt("edit_properties"),
-			$this->ctrl->getLinkTarget($this, "renderEditRoleForm"));
+			$this->ctrl->getLinkTarget($this, "renderEditGroupForm"));
 
 		// User Assignment
 		$this->tabs->addTab("user_assignment", $this->lng->txt("user_assignment"),
 			$this->ctrl->getLinkTarget($this, "renderUserAssignment"));
 	}
 
-	private function renderEditRoleForm()
+	private function renderEditGroupForm()
 	{
 		$this->tabs->setTabActive("edit_properties");
 
-		$role_form = $this->createEditRoleForm();
-		$this->tpl->setContent($role_form->getHTML());
+		$group_form = $this->createEditGroupForm();
+		$this->tpl->setContent($group_form->getHTML());
 	}
 
-	private function createEditRoleForm()
+	private function createEditGroupForm()
 	{
+		$group_info = $this->privileges->getGroupFromId($this->group_id);
+
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
-		$form->setTitle($this->lng->txt("role_edit"));
-		$form->addCommandButton("saveEditedRoleForm", $this->lng->txt("save"));
+		$form->setTitle($this->lng->txt("rep_robj_xrs_privileges_group_edit"));
+		$form->addCommandButton("saveEditedGroupForm", $this->lng->txt("save"));
 
 		// Name
 		$name = new ilTextInputGUI($this->lng->txt("name"), "name");
 		$name->setSize(40);
 		$name->setMaxLength(70);
 		$name->setRequired(true);
-		$name->setValue("HARDCODED ROLE");
+		$name->setValue($group_info["name"]);
 		$form->addItem($name);
 
 		// Description
 		$description = new ilTextAreaInputGUI($this->lng->txt("description"), "description");
 		$description->setCols(40);
 		$description->setRows(3);
-		$description->setValue("HARDCODED DESCRIPTION");
+		$description->setValue($group_info["description"]);
 		$form->addItem($description);
 
 		// Role assignment
@@ -135,40 +138,40 @@ class ilRoomSharingRoleGUI
 		}
 
 		$role_assignment->setOptions($role_names);
+		$role_assignment->setValue($group_info["role"]);
 		$form->addItem($role_assignment);
 
 		return $form;
 	}
 
-	private function saveEditedRoleForm()
+	private function saveEditedGroupForm()
 	{
-		$role_form = $this->createEditRoleForm();
-		if ($role_form->checkInput())
+		$group_form = $this->createEditGroupForm();
+		if ($group_form->checkInput())
 		{
-			$this->evaluateRoleFormEntries($role_form);
-			$this->renderEditRoleForm();
+			$this->evaluateGroupFormEntries($group_form);
+			$this->renderEditGroupForm();
 		}
 		else
 		{
-			$role_form->setValuesByPost();
-			$this->renderEditRoleForm();
+			$group_form->setValuesByPost();
+			$this->renderEditGroupForm();
 		}
 	}
 
-	private function evaluateRoleFormEntries($a_role_form)
+	private function evaluateGroupFormEntries($a_group_form)
 	{
 		$entries = array();
-		$entries["name"] = $a_role_form->getInput("name");
-		$entries["description"] = $a_role_form->getInput("description");
-		$entries["role_assignment"] = $a_role_form->getInput("role_assignment");
+		$entries["name"] = $a_group_form->getInput("name");
+		$entries["description"] = $a_group_form->getInput("description");
+		$entries["role_assignment"] = $a_group_form->getInput("role_assignment");
 
 		$this->saveFormEntries($entries);
 	}
 
 	private function saveFormEntries($a_entries)
 	{
-		ilUtil::sendSuccess("HARDCODED MESSAGE FOR NOT HARDCODED ROLE FORM ENTRIES " . implode(", ",
-				$a_entries), true);
+		ilUtil::sendSuccess("EDITED GROUP FORM ENTRIES: " . implode(", ", $a_entries), true);
 	}
 
 	private function renderUserAssignment()
@@ -192,15 +195,21 @@ class ilRoomSharingRoleGUI
 		);
 
 		// Assigned Users Table
-		$table = new ilRoomSharingAssignedUsersTableGUI($this, "renderUserAssignment", $this->pool_id);
+		$table = new ilRoomSharingAssignedUsersTableGUI($this, "renderUserAssignment", $this->group_id);
 		$this->tpl->setContent($toolbar->getHTML() . $table->getHTML());
 	}
 
-	public function addUsersToRole($a_user_ids)
+	public function addUsersToGroup($a_user_ids)
 	{
-		ilUtil::sendSuccess($this->lng->txt("HARDCODED MESSAGE FOR NOT HARDCODED ADDED USER IDS " . implode(", ",
-					$a_user_ids)), true);
+		ilUtil::sendSuccess($this->lng->txt("ADDED USER IDS: " . implode(", ", $a_user_ids)), true);
 		$this->ctrl->redirect($this, "renderuserassignment");
+	}
+
+	public function deassignUsers()
+	{
+		$selected_users = ($_POST["user_id"]) ? $_POST["user_id"] : array($_GET["user_id"]);
+		ilUtil::sendSuccess($this->lng->txt("DEASSIGNED USERS: " . implode(", ", $selected_users)), true);
+		$this->renderUserAssignment();
 	}
 
 	/**

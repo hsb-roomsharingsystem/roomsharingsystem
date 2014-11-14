@@ -70,6 +70,11 @@ plan#:#Plan
 pool#:#RoomSharing Pool
 pools#:#RoomSharing Pools
 privileges#:#Privileges
+privileges_copy_privileges#:#Copy privileges
+privileges_group_edit#:#Edit group
+privileges_group_new#:#Create new group
+privileges_lock#:#Lock privileges
+privileges_lock_desc#:#Locks privileges for group
 privileges_role_assignment#:#Role assignment
 privileges_settings#:#Privilege settings
 quick_search#:#Quick Search

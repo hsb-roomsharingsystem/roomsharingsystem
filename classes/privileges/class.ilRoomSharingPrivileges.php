@@ -22,9 +22,47 @@ class ilRoomSharingPrivileges
 	 */
 	public function __construct($a_pool_id = 1)
 	{
-
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
+	}
+
+	public function getPrivilegesMatrix()
+	{
+		// Lock Group
+		$privileges[] = array("show_lock_row" => 1, "locked_groups" => array(1001));
+
+		// ### Buchungen ###
+		// Info-Spalte
+		$privileges[] = array("show_section_info" => 1, "section" =>
+			array("title" => "Buchungen", "description" => "Hier sind die Privilegien für die Buchungen aufgeführt")); // Table Section
+		// Privilegien
+		$privileges[] = array("privilege" =>
+			array("id" => 1, "name" => "Stornieren", "description" => "Fremde Buchungen stornieren"),
+			"groups" => array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true)));
+		$privileges[] = array("privilege" =>
+			array("id" => 2, "name" => "Serienbuchungen", "description" => "Serienbuchungen sind anlegbar"),
+			"groups" => array(array("id" => 1001, "privilege_set" => true), array("id" => 1002, "privilege_set" => true)));
+		// Select all
+		$privileges[] = array("show_select_all" => 1, "type" => "booking", "privileges" => array(1, 2));
+
+		// ### Räume ###
+		// Info-Spalte
+		$privileges[] = array("show_section_info" => 1, "section" =>
+			array("title" => "Räume", "description" => "Hier sind die Privilegien für die Räume aufgeführt")); // Table Section
+		// Privilegien
+		$privileges[] = array("privilege" =>
+			array("id" => 3, "name" => "Erstellen", "description" => "Neue Räume erstellbar"),
+			"groups" => array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true)));
+		$privileges[] = array("privilege" =>
+			array("id" => 4, "name" => "Editieren", "description" => "Vorhandene Räume können editiert werden"),
+			"groups" => array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true)));
+		$privileges[] = array("privilege" =>
+			array("id" => 5, "name" => "Löschen", "description" => "Vorhandene Räume können gelöscht werden"),
+			"groups" => array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true)));
+		// Select all
+		$privileges[] = array("show_select_all" => 1, "type" => "room", "privileges" => array(3, 4, 5));
+
+		return $privileges;
 	}
 
 	public function getPrivileges()
@@ -58,9 +96,27 @@ class ilRoomSharingPrivileges
 
 	public function getGroups()
 	{
-		$groups = array("User", "Student");
+		$groups[] = array("id" => 1001, "name" => "HARDCODED USER", "description" => "HARDCODED DESCRIPTION",
+			"role" => "HARDCODED ROLE");
+		$groups[] = array("id" => 1002, "name" => "HARDCODED ADMIN", "description" => "HARDCODED DESCRIPTION",
+			"role" => "");
 
 		return $groups;
+	}
+
+	public function getGroupFromId($a_group_id)
+	{
+		return array("name" => "HARDCODED GROUP " . $a_group_id, "description" => "HARDCODED DESCRIPTION",
+			"role" => 1);
+	}
+
+	public function getAssignedUsersForGroup($a_group_id)
+	{
+		$assigned_users[] = array("login" => "plustig", "firstname" => "Peter", "lastname" => "Lustig", "id" => 2001);
+		$assigned_users[] = array("login" => "mmustermann", "firstname" => "Max", "lastname" => "Mustermann",
+			"id" => 2002);
+
+		return $assigned_users;
 	}
 
 	public function getGlobalRoles()

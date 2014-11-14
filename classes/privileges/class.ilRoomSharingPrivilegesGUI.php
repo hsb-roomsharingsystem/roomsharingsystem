@@ -1,8 +1,8 @@
 <?php
 
 require_once("Services/AccessControl/classes/class.ilPermissionGUI.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingRolePrivilegesTableGUI.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingRoleGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingGroupPrivilegesTableGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingGroupGUI.php");
 require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/Search/classes/class.ilRepositorySearchGUI.php");
 
@@ -18,7 +18,7 @@ require_once("Services/Search/classes/class.ilRepositorySearchGUI.php");
  * @property ilLanguage $lng
  * @property ilTemplate $tpl
  *
- * @ilCtrl_Calls ilRoomSharingPrivilegesGUI: ilRoomSharingRoleGUI, ilRepositorySearchGUI
+ * @ilCtrl_Calls ilRoomSharingPrivilegesGUI: ilRoomSharingGroupGUI, ilRepositorySearchGUI
  */
 class ilRoomSharingPrivilegesGUI
 {
@@ -64,11 +64,11 @@ class ilRoomSharingPrivilegesGUI
 
 		switch ($next_class)
 		{
-			case "ilroomsharingrolegui":
-				$role_id = (int) $_GET["role_id"];
+			case "ilroomsharinggroupgui":
+				$group_id = (int) $_GET["group_id"];
 				$this->ctrl->setReturn($this, "showPrivileges");
-				$this->role_gui = new ilRoomSharingRoleGUI($this->parent, $role_id);
-				$this->ctrl->forwardCommand($this->role_gui);
+				$this->group_gui = new ilRoomSharingGroupGUI($this->parent, $group_id);
+				$this->ctrl->forwardCommand($this->group_gui);
 				break;
 
 			case 'ilrepositorysearchgui':
@@ -90,95 +90,122 @@ class ilRoomSharingPrivilegesGUI
 
 		if ($this->access->checkAccess('write', '', $this->ref_id))
 		{
-			$target = $this->ctrl->getLinkTarget($this, "renderAddRoleForm");
-			$toolbar->addButton($this->lng->txt("role_new"), $target);
+			$target = $this->ctrl->getLinkTarget($this, "renderAddGroupForm");
+			$toolbar->addButton($this->lng->txt("rep_robj_xrs_privileges_group_new"), $target);
 		}
 
-		$role_privileges_table = new ilRoomSharingRolePrivilegesTableGUI($this, "showPrivileges",
+		$group_privileges_table = new ilRoomSharingGroupPrivilegesTableGUI($this, "showPrivileges",
 			$this->ref_id);
 
-		$this->tpl->setContent($toolbar->getHTML() . $role_privileges_table->getHTML());
+		$this->tpl->setContent($toolbar->getHTML() . $group_privileges_table->getHTML());
 	}
 
-	private function renderAddRoleForm()
+	private function renderAddGroupForm()
 	{
 		$this->tabs->clearTargets();
-		$role_form = $this->createAddRoleForm();
-		$this->tpl->setContent($role_form->getHTML());
+		$group_form = $this->createAddGroupForm();
+		$this->tpl->setContent($group_form->getHTML());
 	}
 
-	private function createAddRoleForm()
+	private function createAddGroupForm()
 	{
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
-		$form->setTitle($this->lng->txt('role_new'));
-		$form->addCommandButton("addRole", $this->lng->txt('role_new'));
+		$form->setTitle($this->lng->txt("rep_robj_xrs_privileges_group_new"));
+		$form->addCommandButton("addGroup", $this->lng->txt("rep_robj_xrs_privileges_group_new"));
 		$form->addCommandButton("showPrivileges", $this->lng->txt('cancel'));
 
-		// Name
+// Name
 		$name = new ilTextInputGUI($this->lng->txt("name"), "name");
 		$name->setSize(40);
 		$name->setMaxLength(70);
 		$name->setRequired(true);
 		$form->addItem($name);
 
-		// Description
+// Description
 		$description = new ilTextAreaInputGUI($this->lng->txt("description"), "description");
 		$description->setCols(40);
 		$description->setRows(3);
 		$form->addItem($description);
 
-		// Role assignment
-		$role_assignment = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_privileges_role_assignment"),
-			"role_assignment");
-		$role_names = array();
-		$global_roles = $this->privileges->getGlobalRoles();
+// Copy Group Privileges
+		$group_to_copy = new ilRadioGroupInputGUI($this->lng->txt("rep_robj_xrs_privileges_copy_privileges"),
+			"copied_group_privileges");
+		$empty_option = new ilRadioOption($this->lng->txt("none"), 0);
+		$group_to_copy->addOption($empty_option);
 
-		foreach ($global_roles as $role)
+		$groups = $this->privileges->getGroups();
+
+		foreach ($groups as $group)
 		{
-			$role_names[] = $role["title"];
+			$copy_option = new ilRadioOption($group["name"], $group["id"], $group["description"]);
+			$group_to_copy->addOption($copy_option);
 		}
-
-		$role_assignment->setOptions($role_names);
-		$form->addItem($role_assignment);
+		$form->addItem($group_to_copy);
 
 		return $form;
 	}
 
-	private function addRole()
+	private function addGroup()
 	{
-		$role_form = $this->createAddRoleForm();
-		if ($role_form->checkInput())
+		$group_form = $this->createAddGroupForm();
+		if ($group_form->checkInput())
 		{
-			$this->evaluateRoleFormEntries($role_form);
+			$this->evaluateGroupFormEntries($group_form);
 			$this->showPrivileges();
 		}
 		else
 		{
 			$this->tabs->clearTargets();
-			$role_form->setValuesByPost();
-			$this->tpl->setContent($role_form->getHTML());
+			$group_form->setValuesByPost();
+			$this->tpl->setContent($group_form->getHTML());
 		}
 	}
 
-	private function evaluateRoleFormEntries($a_role_form)
+	private function evaluateGroupFormEntries($a_group_form)
 	{
 		$entries = array();
-		$entries["name"] = $a_role_form->getInput("name");
-		$entries["description"] = $a_role_form->getInput("description");
-		$entries["role_assignment"] = $a_role_form->getInput("role_assignment");
+		$entries["name"] = $a_group_form->getInput("name");
+		$entries["description"] = $a_group_form->getInput("description");
+		$entries["copied_group_privileges"] = $a_group_form->getInput("copied_group_privileges");
 
 		$this->saveFormEntries($entries);
 	}
 
 	private function saveFormEntries($a_entries)
 	{
-		ilUtil::sendSuccess("HARDCODED MESSAGE FOR NOT HARDCODED ROLE FORM ENTRIES " . implode(", ",
-				$a_entries), true);
+		ilUtil::sendSuccess("NEW GROUP FORM ENTRIES: " . implode(", ", $a_entries), true);
 	}
 
 	private function savePrivileges()
 	{
+		$privileges_post_exists = !empty($_POST["priv"]);
+		$lock_post_exists = !empty($_POST["lock"]);
+
+		if ($privileges_post_exists || $lock_post_exists)
+		{
+			if ($privileges_post_exists)
+			{
+
+				$group_ids = array_keys($_POST["priv"]);
+				foreach ($group_ids as $group_id)
+				{
+					$groups_with_ticked_privileges[$group_id] = $_POST["priv"][$group_id];
+					$groups_with_ticked_privileges_message = "GROUPS AND TICKED PRIVILEGES: " . print_r($groups_with_ticked_privileges,
+							true);
+				}
+			}
+
+			if ($lock_post_exists)
+			{
+				$groups_with_ticked_locks = $_POST["lock"];
+				$locked_groups_message = "; LOCKED GROUPS: " . implode(", ",
+						array_keys($groups_with_ticked_locks));
+			}
+
+			ilUtil::sendSuccess($groups_with_ticked_privileges_message . $locked_groups_message, true);
+		}
+
 		$this->showPrivileges();
 	}
 

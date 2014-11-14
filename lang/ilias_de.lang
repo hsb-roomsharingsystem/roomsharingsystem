@@ -70,6 +70,11 @@ plan#:#Plan
 pool#:#Roomsharingpool
 pools#:#Roomsharingpools
 privileges#:#Privilegien
+privileges_copy_privileges#:#Privilegien kopieren
+privileges_group_edit#:#Gruppe bearbeiten
+privileges_group_new#:#Neue Gruppe anlegen
+privileges_lock#:#Privilegien sperren
+privileges_lock_desc#:#Sperrt die Privilegien für die Gruppe
 privileges_role_assignment#:#Rollenzuordnung
 privileges_settings#:#Privilegieneinstellungen
 quick_search#:#Schnellsuche
