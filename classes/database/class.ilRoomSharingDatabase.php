@@ -601,8 +601,22 @@ class ilRoomsharingDatabase
 	{
 		return $this->ilDB->manipulate(
 				'DELETE FROM ' . dbc::USER_TABLE . ' WHERE user_id = ' .
-				$this->ilDB->quote($a_user_id(), 'integer') .
+				$this->ilDB->quote($a_user_id, 'integer') .
 				' AND booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
+	}
+
+	/**
+	 * Deletes a participation from the database.
+	 *
+	 * @param integer $a_user_id
+	 * @param array $a_booking_ids
+	 */
+	public function deleteParticipations($a_user_id, $a_booking_ids)
+	{
+		$st = $this->ilDB->prepareManip('DELETE FROM ' . dbc::USER_TABLE .
+			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer') .
+			' AND ' . $this->ilDB->in("booking_id", $a_booking_ids));
+		$this->ilDB->execute($st, $a_booking_ids);
 	}
 
 	/**
