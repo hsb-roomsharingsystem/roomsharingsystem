@@ -29,9 +29,29 @@ class ilRoomSharingPrivileges
 
 	public function getPrivileges()
 	{
-		$priv[] = array(
-			"book" => true,
-		);
+		$priv = array();
+		$priv[] = 'locked';
+		$priv[] = 'accessAppointments';
+		$priv[] = 'accessSearch';
+		$priv[] = 'accessRooms';
+		$priv[] = 'accessFloorplans';
+		$priv[] = 'accessSettings';
+		$priv[] = 'accessPrivileges';
+		$priv[] = 'addBooking';
+		$priv[] = 'addSequenceBooking';
+		$priv[] = 'addUnlimitedBooking';
+		$priv[] = 'editBooking';
+		$priv[] = 'deleteBooking';
+		$priv[] = 'addParticipantsToBooking';
+		$priv[] = 'deleteParticipation';
+		$priv[] = 'seeAllBookingData';
+		$priv[] = 'deleteBookingWithLowerPriority';
+		$priv[] = 'deleteAllExistingBookings';
+		$priv[] = 'bookMultipleRooms';
+		$priv[] = 'seeBookingsOfRooms';
+		$priv[] = 'administrateRooms';
+		$priv[] = 'administrateFloorplans';
+		$priv[] = 'administratePrivileges';
 
 		return $priv;
 	}
