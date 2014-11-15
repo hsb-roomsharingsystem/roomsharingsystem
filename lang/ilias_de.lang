@@ -123,3 +123,16 @@ xrs_read#:#Lesezugriff auf RoomSharing
 xrs_visible#:#RoomSharing ist sichtbar
 xrs_write#:#RoomSharing bearbeiten
 comment#:#Kommentar
+attributes#:#Attribute
+attributes_for_rooms#:#Attribute für Räume
+attributes_for_bookings#:#Attribute für Buchungen
+edit_attributes#:#Änderung der Attribute
+attributes_for_rooms_desc#:#Hier können Attribute für Räume festgelegt werden. Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Räume.
+actual_attributes_for_rooms#:#Aktuelle Raumattribute
+attributes_deleted#:#Attribute gelöscht
+and#:#und
+attributes_inserted#:#Attribute hinzugefügt
+attribute_room_assigns_deleted#:#Räume aktualisiert
+attribute_booking_assigns_deleted#:#Buchungen aktualisiert
+attributes_for_bookings_desc#:#Hier können Attribute für Buchungen festgelegt werden. Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Buchungen.
+actual_attributes_for_bookings#:#Aktuelle Buchungsattribute

@@ -10,6 +10,8 @@ use ilRoomSharingDBConstants as dbc;
  * Class for database queries.
  *
  * @author Malte Ahlering
+ *
+ * @property ilDB $ilDB
  */
 class ilRoomsharingDatabase
 {
@@ -875,6 +877,105 @@ class ilRoomsharingDatabase
 			"id" => array("integer", $a_id)
 		);
 		return $this->ilDB->update(dbc::ROOMS_TABLE, $fields, $where);
+	}
+
+	/**
+	 * Gets all available attributes for rooms.
+	 *
+	 * @return type return of $this->ilDB->query
+	 */
+	public function getAllRoomAttributes()
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+
+		$attributesRows = array();
+		while ($attributesRow = $this->ilDB->fetchAssoc($set))
+		{
+			$attributesRows [] = $attributesRow;
+		}
+
+		return $attributesRows;
+	}
+
+	/**
+	 * Deletes an room attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer Affected rows
+	 */
+	public function deleteRoomAttribute($a_attribute_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
+				' WHERE id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+	}
+
+	/**
+	 * Inserts new room attribute.
+	 *
+	 * @param string $a_attribute_name
+	 */
+	public function insertRoomAttribute($a_attribute_name)
+	{
+		$this->ilDB->insert(dbc::ROOM_ATTRIBUTES_TABLE,
+			array(
+			'id' => array('integer', $this->ilDB->nextID(dbc::ROOM_ATTRIBUTES_TABLE)),
+			'name' => array('text', $a_attribute_name),
+			'pool_id' => array('integer', $this->pool_id),
+			)
+		);
+	}
+
+	/**
+	 * Deletes all assignments of an attribute to the rooms.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer Affected rows
+	 */
+	public function deleteAttributeRoomAssign($a_attribute_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::ROOM_TO_ATTRIBUTE_TABLE .
+				' WHERE att_id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+	}
+
+	/**
+	 * Deletes all assignments of an attribute to the bookings.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer Affected rows
+	 */
+	public function deleteAttributeBookingAssign($a_attribute_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKING_TO_ATTRIBUTE_TABLE .
+				' WHERE attr_id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+	}
+
+	/**
+	 * Deletes an booking attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer Affected rows
+	 */
+	public function deleteBookingAttribute($a_attribute_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKING_ATTRIBUTES_TABLE .
+				' WHERE id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+	}
+
+	/**
+	 * Inserts new booking attribute.
+	 *
+	 * @param string $a_attribute_name
+	 */
+	public function insertBookingAttribut($a_attribute_name)
+	{
+		$this->ilDB->insert(dbc::BOOKING_ATTRIBUTES_TABLE,
+			array(
+			'id' => array('integer', $this->ilDB->nextID(dbc::BOOKING_ATTRIBUTES_TABLE)),
+			'name' => array('text', $a_attribute_name),
+			'pool_id' => array('integer', $this->pool_id),
+			)
+		);
 	}
 
 }
