@@ -28,41 +28,79 @@ class ilRoomSharingPrivileges
 
 	public function getPrivilegesMatrix()
 	{
+		$privilegesMatrix = array();
+
 		// Lock Group
-		$privileges[] = array("show_lock_row" => 1, "locked_groups" => array(1001));
+		$privilegesMatrix[] = array("show_lock_row" => "lock", "locked_groups" => array(1001));
 
-		// ### Buchungen ###
-		// Info-Spalte
-		$privileges[] = array("show_section_info" => 1, "section" =>
-			array("title" => "Buchungen", "description" => "Hier sind die Privilegien für die Buchungen aufgeführt")); // Table Section
-		// Privilegien
-		$privileges[] = array("privilege" =>
-			array("id" => 1, "name" => "Stornieren", "description" => "Fremde Buchungen stornieren"),
-			"groups" => array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true)));
-		$privileges[] = array("privilege" =>
-			array("id" => 2, "name" => "Serienbuchungen", "description" => "Serienbuchungen sind anlegbar"),
-			"groups" => array(array("id" => 1001, "privilege_set" => true), array("id" => 1002, "privilege_set" => true)));
-		// Select all
-		$privileges[] = array("show_select_all" => 1, "type" => "booking", "privileges" => array(1, 2));
+		// ### Appointments ###
+		$privilegesMatrix[] = $this->addNewSection("Termine",
+			"Hier sind die Privilegien für die Termine aufgeführt");
+		$privilegesMatrix[] = $this->addPrivilege("accessAppointments", "Termine aufrufen",
+			"Zugang zum Reiter &quot;Termine&quot;");
+		$privilegesMatrix[] = $this->addPrivilege("accessSearch", "Suche aufrufen",
+			"Zugang zum Reiter &quot;Suche&quot;");
+		$privilegesMatrix[] = $this->addPrivilege("addOwnBookings", "Erstellen, Bearbeiten, Stornieren",
+			"Eigene Buchungen anleg-, bearbeit- und stornierbar");
+		$privilegesMatrix[] = $this->addPrivilege("addParticipants", "Teilnahmer hinzufügen",
+			"Teilnehmer zu einer Buchung hinzufügbar");
+		$privilegesMatrix[] = $this->addPrivilege("addSequenceBookings", "Serienbuchungen",
+			"Serienbuchungen anlegbar");
+		$privilegesMatrix[] = $this->addPrivilege("cancelBookingLowerPriority",
+			"Niedrigere Priorität stornieren",
+			"Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar");
+		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("bookings",
+			array("accessAppointments",
+			"addOwnBookings", "addSequenceBookings", "cancelBookingWithLowerPriority"));
 
-		// ### Räume ###
-		// Info-Spalte
-		$privileges[] = array("show_section_info" => 1, "section" =>
-			array("title" => "Räume", "description" => "Hier sind die Privilegien für die Räume aufgeführt")); // Table Section
-		// Privilegien
-		$privileges[] = array("privilege" =>
-			array("id" => 3, "name" => "Erstellen", "description" => "Neue Räume erstellbar"),
-			"groups" => array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true)));
-		$privileges[] = array("privilege" =>
-			array("id" => 4, "name" => "Editieren", "description" => "Vorhandene Räume können editiert werden"),
-			"groups" => array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true)));
-		$privileges[] = array("privilege" =>
-			array("id" => 5, "name" => "Löschen", "description" => "Vorhandene Räume können gelöscht werden"),
-			"groups" => array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true)));
-		// Select all
-		$privileges[] = array("show_select_all" => 1, "type" => "room", "privileges" => array(3, 4, 5));
+		// ### Rooms ###
+		$privilegesMatrix[] = $this->addNewSection("Räume",
+			"Hier sind die Privilegien für die Räume aufgeführt");
+		$privilegesMatrix[] = $this->addPrivilege("accessRooms", "Räume aufrufen",
+			"Zugang zum Reiter &quot;Räume&quot;");
+		$privilegesMatrix[] = $this->addPrivilege("seeBookingsOfRooms", "Buchungen einsehen",
+			"Buchungen von einzelnen Räumen in Detailansicht einsehbar");
+		$privilegesMatrix[] = $this->addPrivilege("addRooms", "Erstellen", "Neue Räume erstellbar");
+		$privilegesMatrix[] = $this->addPrivilege("editRooms", "Bearbeiten",
+			"Vorhandene Räume können bearbeitet werden");
+		$privilegesMatrix[] = $this->addPrivilege("deleteRooms", "Löschen",
+			"Vorhandene Räume können gelöscht werden");
+		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("rooms",
+			array("accessRooms", "seeBookingsOfRooms",
+			"addRooms", "editRooms", "deleteRooms"));
 
-		return $privileges;
+		// ### Floorplans ###
+		$privilegesMatrix[] = $this->addNewSection("Gebäudepläne",
+			"Hier sind die Privilegien für die Gebäudepläne aufgeführt");
+		$privilegesMatrix[] = $this->addPrivilege("accessFloorplans", "Gebäudepläne aufrufen",
+			"Zugang zum Reiter &quot;Gebäudepläne&quot;");
+		$privilegesMatrix[] = $this->addPrivilege("addFloorplans", "Erstellen",
+			"Neue Gebäudepläne erstellbar");
+		$privilegesMatrix[] = $this->addPrivilege("editFloorplans", "Bearbeiten",
+			"Vorhandene Gebäudepläne können bearbeitet werden");
+		$privilegesMatrix[] = $this->addPrivilege("deleteFloorplans", "Löschen",
+			"Vorhandene Gebäudepläne können gelöscht werden");
+		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("floorplans",
+			array("accessFloorplans",
+			"addFloorplans", "editFloorplans", "deleteFloorplans"));
+
+		// ### Privileges ###
+		$privilegesMatrix[] = $this->addNewSection("Allgemeine Privilegien",
+			"Hier sind die allgemeinen Privilegien aufgeführt");
+		$privilegesMatrix[] = $this->addPrivilege("accessSettings", "Einstellungen aufrufen",
+			"Zugang zum Reiter &quot;Einstellungen&quot;");
+		$privilegesMatrix[] = $this->addPrivilege("accessPrivileges", "Privilegien aufrufen",
+			"Zugang zum Reiter &quot;Privilegien&quot;");
+		$privilegesMatrix[] = $this->addPrivilege("addGroup", "Gruppe anlegen", "Neue Gruppe anlegbar");
+		$privilegesMatrix[] = $this->addPrivilege("editPrivileges", "Privilegien bearbeiten",
+			"Privilegien anderer Gruppen bearbeiten");
+		$privilegesMatrix[] = $this->addPrivilege("lockPrivileges", "Privilegien sperren",
+			"Privilegien anderer Gruppen sperrbar");
+		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("privileges",
+			array("accessSettings",
+			"accessPrivileges", "addGroup", "lockPrivileges", "lockPrivileges"));
+
+		return $privilegesMatrix;
 	}
 
 	public function getPrivileges()
@@ -96,18 +134,27 @@ class ilRoomSharingPrivileges
 
 	public function getGroups()
 	{
-		$groups[] = array("id" => 1001, "name" => "HARDCODED USER", "description" => "HARDCODED DESCRIPTION",
+		global $rbacreview;
+		$grp = array();
+		$groups = $this->ilRoomsharingDatabase->getGroups();
+		foreach ($groups as $group)
+		{
+			$grp_values = $group;
+			$grp_values['role'] = $this->getGlobalRoleTitle($group['role_id']);
+			$grp[] = $grp_values;
+		}
+
+		$grp[] = array("id" => 1001, "name" => "HARDCODED USER", "description" => "HARDCODED DESCRIPTION",
 			"role" => "HARDCODED ROLE");
-		$groups[] = array("id" => 1002, "name" => "HARDCODED ADMIN", "description" => "HARDCODED DESCRIPTION",
+		$grp[] = array("id" => 1002, "name" => "HARDCODED ADMIN", "description" => "HARDCODED DESCRIPTION",
 			"role" => "");
 
-		return $groups;
+		return $grp;
 	}
 
-	public function getGroupFromId($a_group_id)
+	public function getGroupById($a_group_id)
 	{
-		return array("name" => "HARDCODED GROUP " . $a_group_id, "description" => "HARDCODED DESCRIPTION",
-			"role" => 1);
+		return $this->ilRoomsharingDatabase->getGroupById($a_group_id);
 	}
 
 	public function getAssignedUsersForGroup($a_group_id)
@@ -128,15 +175,29 @@ class ilRoomSharingPrivileges
 		$global_roles = array();
 		foreach ($roles as $role)
 		{
-			$global_roles[] = array('id' => $role['id'], 'title' => $role['title']);
+			$global_roles[] = array('id' => $role['rol_id'], 'title' => $role['title']);
 		}
 		return $global_roles;
+	}
+
+	public function getGlobalRoleTitle($a_role_id)
+	{
+		$roles = $this->getGlobalRoles();
+		$roleName = null;
+		foreach ($roles as $role)
+		{
+			if ($role['id'] == $a_role_id)
+			{
+				$roleName = $role['title'];
+			}
+		}
+		return $roleName;
 	}
 
 	public function addGroup($a_groupData)
 	{
 		$insertedID = $this->ilRoomsharingDatabase->insertGroup($a_groupData['name'],
-			$a_groupData['description'], $a_groupData['role_id']);
+			$a_groupData['description'], $a_groupData['role_id'], $a_groupData['copied_group_privileges']);
 		if (!ilRoomSharingNumericUtils::isPositiveNumber($insertedID))
 		{
 			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_group_not_created");
@@ -154,6 +215,64 @@ class ilRoomSharingPrivileges
 	{
 		//TODO ERROR CATCHING
 		$this->ilRoomsharingDatabase->addUserToGroup($a_group_id, $a_user_id);
+	}
+
+	/**
+	 * Adds a new Table-Section Header
+	 *
+	 * @param string $a_section_title_lng_key Section-Title language key
+	 * @param string $a_section_description_lng_key Optional Section-Description language key
+	 *
+	 * @return array Array with the new section-information for privilege matrix
+	 */
+	private function addNewSection($a_section_title_lng_key, $a_section_description_lng_key = null)
+	{
+		return array("show_section_info" => 1, "section" =>
+			array("title" => $a_section_title_lng_key, "description" => $a_section_description_lng_key));
+	}
+
+	/**
+	 * Adds a new privilege
+	 *
+	 * @param string $a_id Privilege-ID
+	 * @param string $a_name_lng_key Privilege-Name Language Key
+	 * @param string $a_description_lng_key Privilege-Description Language Key
+	 *
+	 * @return array Array with the new privilege information for privilege matrix
+	 */
+	private function addPrivilege($a_id, $a_name_lng_key, $a_description_lng_key)
+	{
+		return array("privilege" => array(
+				"id" => $a_id,
+				"name" => $a_name_lng_key,
+				"description" => $a_description_lng_key),
+			"groups" => $this->getGroupsPrivilegeValue($a_id)
+		);
+	}
+
+	/**
+	 * Get each group values to the specific privilege
+	 *
+	 * @param string $a_privilege_id Privilege ID
+	 *
+	 * @return array Array with the group-ids and if this privilege is set or not
+	 */
+	private function getGroupsPrivilegeValue($a_privilege_id)
+	{
+		return array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true));
+	}
+
+	/**
+	 * Add the checkbox values for a multiple select checkbox to select more checkboxes with one
+	 *
+	 * @param string $a_type Used for ID of the checkbox
+	 * @param array $a_privilege_ids Privilege IDs of privileges which should be checked by checking this checkbox
+	 *
+	 * @return array Checkbox Values for privelege matrix
+	 */
+	private function addSelectMultipleCheckbox($a_type, $a_privilege_ids)
+	{
+		return array("show_select_all" => 1, "type" => $a_type, "privileges" => $a_privilege_ids);
 	}
 
 }

@@ -199,6 +199,14 @@ class ilRoomSharingPrivilegesGUI
 
 	private function saveFormEntries($a_entries)
 	{
+		try
+		{
+			$this->privileges->addGroup($a_entries);
+		}
+		catch (ilRoomSharingPrivilegesException $exc)
+		{
+			ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+		}
 		ilUtil::sendSuccess("NEW GROUP FORM ENTRIES: " . implode(", ", $a_entries), true);
 	}
 

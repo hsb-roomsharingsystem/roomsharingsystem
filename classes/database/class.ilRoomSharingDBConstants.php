@@ -21,5 +21,6 @@ class ilRoomSharingDBConstants
 	const ROOM_TO_ATTRIBUTE_TABLE = 'rep_robj_xrs_room_attr';
 	const GROUPS_TABLE = 'rep_robj_xrs_groups';
 	const GROUP_USER_TABLE = 'rep_robj_xrs_grp_user';
+	const GROUP_PRIVILEGES_TABLE = 'rep_robj_xrs_grp_priv';
 
 }

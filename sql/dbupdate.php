@@ -706,3 +706,95 @@ $ilDB->createTable($tableGroupUser, $fieldsGroupUser);
 // add primary key
 $ilDB->addPrimaryKey($tableGroupUser, array("group_id"));
 ?>
+
+<#11>
+<?php
+//Additional of local group to right assignment
+// Author: R. Heimsoth
+// ##########################
+// 'rep_robj_xrs_groups'
+// 'rep_robj_xrs_grp_priv'
+// ##########################
+//Add lock attribute for group
+
+$tableGroups = 'rep_robj_xrs_groups';
+
+$fieldsGroups = array(
+	'id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'name' => array(
+		'type' => 'text',
+		'length' => 75,
+		'notnull' => true
+	),
+	'description' => array(
+		'type' => 'text',
+		'length' => 1000
+	),
+	'role_id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'locked' => array(
+		'type' => 'integer',
+		'length' => 1,
+		'default' => 0
+	),
+	'pool_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableGroups))
+{
+	$ilDB->dropTable($tableGroups);
+}
+$ilDB->createTable($tableGroups, $fieldsGroups);
+// add primary key
+$ilDB->addPrimaryKey($tableGroups, array("id"));
+// add sequence
+$ilDB->createSequence($tableGroups);
+// add index
+$ilDB->addIndex($tableGroups, array('pool_id'), 'i1');
+
+$tableGroupPriv = 'rep_robj_xrs_grp_priv';
+
+$fieldsGroupPriv = array(
+	'group_id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'accessappointments' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accesssearch' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addownbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addparticipants' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addsequencebookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'cancelbookinglowerpriority' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'seebookingsofrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'deleterooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'deletefloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accesssettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addgroup' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'lockprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableGroupPriv))
+{
+	$ilDB->dropTable($tableGroupPriv);
+}
+$ilDB->createTable($tableGroupPriv, $fieldsGroupPriv);
+// add primary key
+$ilDB->addPrimaryKey($tableGroupPriv, array("group_id"));
+?>

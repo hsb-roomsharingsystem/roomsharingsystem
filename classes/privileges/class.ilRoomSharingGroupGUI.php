@@ -68,7 +68,7 @@ class ilRoomSharingGroupGUI
 	private function renderPage()
 	{
 		$this->tabs->clearTargets();
-		$group_info = $this->privileges->getGroupFromId($this->group_id);
+		$group_info = $this->privileges->getGroupById($this->group_id);
 
 		// Title
 		$this->tpl->setTitle($group_info["name"]);
@@ -104,7 +104,7 @@ class ilRoomSharingGroupGUI
 
 	private function createEditGroupForm()
 	{
-		$group_info = $this->privileges->getGroupFromId($this->group_id);
+		$group_info = $this->privileges->getGroupById($this->group_id);
 
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
@@ -138,7 +138,7 @@ class ilRoomSharingGroupGUI
 		}
 
 		$role_assignment->setOptions($role_names);
-		$role_assignment->setValue($group_info["role"]);
+		$role_assignment->setValue($group_info["role_id"]);
 		$form->addItem($role_assignment);
 
 		return $form;

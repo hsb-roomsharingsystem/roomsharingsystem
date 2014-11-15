@@ -150,7 +150,8 @@ class ilRoomSharingGroupPrivilegesTableGUI extends ilTable2GUI
 
 	private function createTitle($a_group_set)
 	{
-		$assigned_role = $this->isGroupAssignedToRole($a_group_set) ? " → " . $a_group_set["role"] : null;
+		// &#8658; = Unicode double arrow to right
+		$assigned_role = $this->isGroupAssignedToRole($a_group_set) ? " &#8658; " . $a_group_set["role"] : null;
 		$table_head = $a_group_set["name"] . $assigned_role;
 
 		$this->ctrl->setParameterByClass("ilroomsharinggroupgui", "group_id", $a_group_set["id"]);

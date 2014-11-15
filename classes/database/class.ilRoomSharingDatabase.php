@@ -847,7 +847,40 @@ class ilRoomsharingDatabase
 		return $this->ilDB->update(dbc::ROOMS_TABLE, $fields, $where);
 	}
 
-	public function insertGroup($a_name, $a_description, $a_role_id)
+	public function getGroups()
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUPS_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+		$groups = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$groups[] = $row;
+		}
+		return $groups;
+	}
+
+	public function getGroupById($a_group_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUPS_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($a_group_id, 'integer'));
+		$groups = array();
+		$row = $this->ilDB->fetchAssoc($set);
+
+		return $row;
+	}
+
+	public function getPrivilegesOfGroup($a_group_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUP_PRIVILEGES_TABLE .
+			' WHERE group_id = ' . $this->ilDB->quote($a_group_id, 'integer'));
+
+		$row = $this->ilDB->fetchAssoc($set);
+		//Remove group_id of resultlist
+		unset($row['group_id']);
+		return $row;
+	}
+
+	public function insertGroup($a_name, $a_description, $a_role_id, $a_copy_group_id)
 	{
 		$this->ilDB->insert(dbc::GROUPS_TABLE,
 			array(
@@ -857,7 +890,32 @@ class ilRoomsharingDatabase
 			'role_id' => array('integer', $a_role_id),
 			'pool_id' => array('integer', $this->pool_id)
 		));
-		return $this->ilDB->getLastInsertId();
+		$insertedID = $this->ilDB->getLastInsertId();
+
+		if (ilRoomSharingNumericUtils::isPositiveNumber($insertedID))
+		{
+			//Should privileges of another group should be copied?
+			if (ilRoomSharingNumericUtils::isPositiveNumber($a_copy_group_id))
+			{
+				$privilege_array = array('group_id' => array('integer', $insertedID));
+
+				//Get privileges of the copy-group
+				$copied_privileges = $this->getPrivilegesOfGroup($a_copy_group_id);
+				foreach ($copied_privileges as $privilege_key => $privilege_value)
+				{
+					$privilege_array[$privilege_key] = array('integer', $privilege_value);
+				}
+				$this->ilDB->insert(dbc::GROUP_PRIVILEGES_TABLE, $privilege_array);
+			}
+			//else add empty privileges
+			else
+			{
+				$this->ilDB->insert(dbc::GROUP_PRIVILEGES_TABLE,
+					array('group_id' => array('integer', $insertedID)));
+			}
+		}
+
+		return $insertedID;
 	}
 
 	public function updateGroup($a_group_id, $a_name, $a_description, $a_role_id)
