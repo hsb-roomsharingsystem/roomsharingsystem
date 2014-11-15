@@ -155,32 +155,22 @@ class ilRoomSharingBook
 
     /**
      * Generate a booking acknowledgement via mail.
-     *
+     * @param array $a_participants_ids userids of participants
      * @return array $recipient_ids;
      * 	List of reciepients
-     *
-     *
      */
-    private function sendBookingNotification()
+    private function sendBookingNotification($a_participants_ids)
     {
 
         global $lng, $ilUser;
-
+        
         $roomname = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
-
-        $message = $lng->txt('rep_robj_xrs_mail_booking_creator_message') . "\n";
-        $message .= "----------------------\n";
-        $message .= $roomname . " ";
-        $message .= $lng->txt('rep_robj_xrs_from') . " ";
-        $message .= $this->date_from . " ";
-        $message .= $lng->txt('rep_robj_xrs_to') . " ";
-        $message .= $this->date_to;
-
+        
         $mailer = new ilRoomSharingMailer();
-        $mailer->setRawSubject($lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
-        $mailer->setRawMessage($message);
-
-        return $mailer->sendMail(array($ilUser->getId()));
+        $mailer->setRoomname($roomname);
+        $mailer->setDateStart($this->date_from);
+        $mailer->setDateEnd($this->date_to);
+        return $mailer->sendBookingMail(array($ilUser->getId()), $a_participants_ids);
     }
 
     /**
