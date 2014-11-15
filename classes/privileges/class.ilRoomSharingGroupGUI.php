@@ -129,7 +129,7 @@ class ilRoomSharingGroupGUI
 		// Role assignment
 		$role_assignment = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_privileges_role_assignment"),
 			"role_assignment");
-		$role_names = array();
+		$role_names = array($this->lng->txt("none"));
 		$global_roles = $this->privileges->getGlobalRoles();
 
 		foreach ($global_roles as $role)
@@ -164,9 +164,17 @@ class ilRoomSharingGroupGUI
 		$entries = array();
 		$entries["name"] = $a_group_form->getInput("name");
 		$entries["description"] = $a_group_form->getInput("description");
-		$entries["role_assignment"] = $a_group_form->getInput("role_assignment");
+		$entries["role_id"] = $this->getRoleIdFromSelectionInput($a_group_form);
 
 		$this->saveFormEntries($entries);
+	}
+
+	private function getRoleIdFromSelectionInput($a_group_form)
+	{
+		$selection = $a_group_form->getInput("role_assignment");
+		$global_roles = $this->privileges->getGlobalRoles();
+
+		return $global_roles[$selection - ilRoomSharingPrivilegesGUI::SELECT_INPUT_NONE_OFFSET]["id"];
 	}
 
 	private function saveFormEntries($a_entries)

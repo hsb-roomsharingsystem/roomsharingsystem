@@ -32,6 +32,8 @@ class ilRoomSharingPrivilegesGUI
 	private $access;
 	private $privileges;
 
+	CONST SELECT_INPUT_NONE_OFFSET = 1;
+
 	/**
 	 * Constructor of ilRoomSharingPrivilegesGUI
 	 *
@@ -115,20 +117,34 @@ class ilRoomSharingPrivilegesGUI
 		$form->addCommandButton("addGroup", $this->lng->txt("rep_robj_xrs_privileges_group_new"));
 		$form->addCommandButton("showPrivileges", $this->lng->txt('cancel'));
 
-// Name
+		// Name
 		$name = new ilTextInputGUI($this->lng->txt("name"), "name");
 		$name->setSize(40);
 		$name->setMaxLength(70);
 		$name->setRequired(true);
 		$form->addItem($name);
 
-// Description
+		// Description
 		$description = new ilTextAreaInputGUI($this->lng->txt("description"), "description");
 		$description->setCols(40);
 		$description->setRows(3);
 		$form->addItem($description);
 
-// Copy Group Privileges
+		// Role assignment
+		$role_assignment = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_privileges_role_assignment"),
+			"role_assignment");
+		$role_names = array($this->lng->txt("none"));
+		$global_roles = $this->privileges->getGlobalRoles();
+
+		foreach ($global_roles as $role)
+		{
+			$role_names[] = $role["title"];
+		}
+
+		$role_assignment->setOptions($role_names);
+		$form->addItem($role_assignment);
+
+		// Copy Group Privileges
 		$group_to_copy = new ilRadioGroupInputGUI($this->lng->txt("rep_robj_xrs_privileges_copy_privileges"),
 			"copied_group_privileges");
 		$empty_option = new ilRadioOption($this->lng->txt("none"), 0);
@@ -167,9 +183,18 @@ class ilRoomSharingPrivilegesGUI
 		$entries = array();
 		$entries["name"] = $a_group_form->getInput("name");
 		$entries["description"] = $a_group_form->getInput("description");
+		$entries["role_id"] = $this->getRoleIdFromSelectionInput($a_group_form);
 		$entries["copied_group_privileges"] = $a_group_form->getInput("copied_group_privileges");
 
 		$this->saveFormEntries($entries);
+	}
+
+	private function getRoleIdFromSelectionInput($a_group_form)
+	{
+		$selection = $a_group_form->getInput("role_assignment");
+		$global_roles = $this->privileges->getGlobalRoles();
+
+		return $global_roles[$selection - self::SELECT_INPUT_NONE_OFFSET]["id"];
 	}
 
 	private function saveFormEntries($a_entries)
