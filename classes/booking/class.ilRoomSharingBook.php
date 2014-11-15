@@ -159,14 +159,14 @@ class ilRoomSharingBook
      * @return array $recipient_ids;
      * 	List of reciepients
      */
-    private function sendBookingNotification($a_participants_ids)
+    private function sendBookingNotification()
     {
 
         global $lng, $ilUser;
         
         $roomname = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
         
-        $mailer = new ilRoomSharingMailer();
+        $mailer = new ilRoomSharingMailer($lng);
         $mailer->setRoomname($roomname);
         $mailer->setDateStart($this->date_from);
         $mailer->setDateEnd($this->date_to);
