@@ -67,6 +67,11 @@ on#:#On
 participants#:#Participants
 participants_list#:#Participants list
 participations#:#Participations
+participations_back#:#Back to participations
+participations_confirm#:#Are you sure you want to leave these bookings?
+participations_confirm_leave#:#Leave bookings
+participations_left#:#You left the bookings!
+participations_no_leave_ids#:#Please tick at least one booking to leave.
 person_responsible#:#Person Responsible
 plan#:#Plan
 pool#:#RoomSharing Pool

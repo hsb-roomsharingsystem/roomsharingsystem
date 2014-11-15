@@ -34,23 +34,31 @@ class ilRoomSharingParticipations
 	}
 
 	/**
-	 * Remove a participation.
+	 * Remove a participations.
 	 *
 	 * @param integer $booking_id The booking id of the participation.
 	 * @global type $lng, $ilUser
 	 */
-	public function removeParticipation($a_booking_id)
+	public function removeParticipations(array $a_booking_ids)
 	{
 		global $lng;
-
-		if (ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
+		foreach ($a_booking_ids as $a_booking_id)
 		{
-			$this->ilRoomsharingDatabase->deleteParticipation($this->ilUser->getId(), $a_booking_id);
+			if (!ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
+			{
+				ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
+			}
 		}
-		else
+		//In order to prevent unnessary prepareManip statements, use different function if only one booking shoud be left.
+		if (count($a_booking_ids) > 1)
 		{
-			ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
+			$this->ilRoomsharingDatabase->deleteParticipation($this->ilUser->getId(), $a_booking_ids[0]);
 		}
+		else if (count($a_booking_ids) > 0)
+		{
+			$this->ilRoomsharingDatabase->deleteParticipations($this->ilUser->getId(), $a_booking_ids);
+		}
+		ilUtil::sendSuccess($lng->txt('rep_robj_xrs_participations_left'), true);
 	}
 
 	/**
@@ -98,7 +106,6 @@ class ilRoomSharingParticipations
 		$one_booking['person_responsible_id'] = $a_bookingData['user_id'];
 
 		// The booking id
-		//$one_booking['id'] = $a_participation_id;
 		$one_booking['booking_id'] = $a_bookingData['id'];
 		return $one_booking;
 	}

@@ -109,7 +109,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	{
 		// Checkbox-Name must be the same which was set in setSelectAllCheckbox.
 		$this->tpl->setVariable('CHECKBOX_NAME', 'participations');
-		$this->tpl->setVariable('CHECKBOX_ID', $a_rowData['booking_id']);
+		$this->tpl->setVariable('CHECKBOX_ID', $a_rowData['booking_id'] . '_' . $a_rowData['subject']);
 
 		$this->setRecurrence($a_rowData);
 
@@ -224,6 +224,8 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	{
 		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_id',
 			$a_rowData ['booking_id']);
+		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_subject',
+			$a_rowData ['subject']);
 		$this->tpl->setVariable('LINK_ACTION',
 			$this->ctrl->getLinkTarget($this->parent_obj, 'confirmLeaveParticipation'));
 		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_leave'));
