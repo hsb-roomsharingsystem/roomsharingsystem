@@ -126,3 +126,16 @@ xrs_read#:#Read access to RoomSharing
 xrs_visible#:#RoomSharing is visible
 xrs_write#:#Edit RoomSharing
 comment#:#Comment
+attributes#:#Attributes
+attributes_for_rooms#:#Attributes for rooms
+attributes_for_bookings#:#Attributes for bookings
+edit_attributes#:#Changing of attributes
+attributes_for_rooms_desc#:#Here you can define the attributes for the rooms. Deletion of an attribute causes an update of the linked rooms.
+actual_attributes_for_rooms#:#Actual room attributes
+attributes_deleted#:#attributes deleted
+and#:#and
+attributes_inserted#:#attributes added
+attribute_room_assigns_deleted#:#rooms updated
+attribute_booking_assigns_deleted#:#bookings updated
+attributes_for_bookings_desc#:#Here you can define the attributes for the bookings. Deletion of an attribute causes an update of the linked bookings.
+actual_attributes_for_bookings#:#Actual booking attributes

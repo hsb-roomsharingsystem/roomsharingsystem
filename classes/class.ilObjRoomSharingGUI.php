@@ -27,7 +27,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingAttributesGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
@@ -128,6 +128,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Main switch for cmdClass.
 		switch ($next_class)
 		{
+			// Attributes for rooms and bookings
+			case 'ilroomsharingattributesgui':
+				$this->tabs_gui->setTabActive('attributes');
+				$this->pl_obj->includeClass("attributes/class.ilRoomSharingAttributesGUI.php");
+				$attributes_gui = & new ilRoomSharingAttributesGUI($this);
+				$ret = & $this->ctrl->forwardCommand($attributes_gui);
+				break;
 			// Appointments
 			case 'ilroomsharingappointmentsgui':
 				$this->tabs_gui->setTabActive('appointments');
@@ -312,6 +319,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Show permissions and settings tabs if the user has write permissions.
 		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
 		{
+			// Attributes for rooms and bookings
+			$ilTabs->addTab(
+				"attributes", $this->txt("attributes"),
+				$ilCtrl->getLinkTargetByClass('ilroomsharingattributesgui', "showRoomAttributes")
+			);
 			// Settings
 			$this->tabs_gui->addTab(
 				'settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings')
