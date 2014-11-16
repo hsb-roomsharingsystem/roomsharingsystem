@@ -132,20 +132,34 @@ class ilRoomSharingGroupGUI
 		$role_names = array($this->lng->txt("none"));
 		$global_roles = $this->privileges->getGlobalRoles();
 
-		foreach ($global_roles as $role)
+		foreach ($global_roles as $role_info)
 		{
-			$role_names[] = $role["title"];
+			$role_names[] = $role_info["title"];
 		}
 
 		$role_assignment->setOptions($role_names);
-		$role_assignment->setValue($group_info["role_id"]);
+		$selection_index = $this->getSelectionIndexForRoleAssignment($group_info);
+		$role_assignment->setValue($selection_index + ilRoomSharingPrivilegesGUI::SELECT_INPUT_NONE_OFFSET);
 		$form->addItem($role_assignment);
 
-		$hidden_group_id = new ilHiddenInputGUI("id");
-		$hidden_group_id->setValue($this->group_id);
-		$form->addItem($hidden_group_id);
-
 		return $form;
+	}
+
+	private function getSelectionIndexForRoleAssignment($a_group_info)
+	{
+		$global_roles = $this->privileges->getGlobalRoles();
+		$selection_index = -1;
+
+		foreach ($global_roles as $role_index => $role_info)
+		{
+			if ($role_info["id"] == $a_group_info["role_id"])
+			{
+				$selection_index = $role_index;
+				break;
+			}
+		}
+
+		return $selection_index;
 	}
 
 	private function saveEditedGroupForm()
@@ -158,15 +172,15 @@ class ilRoomSharingGroupGUI
 		}
 		else
 		{
-			$group_form->setValuesByPost();
 			$this->renderEditGroupForm();
+			$group_form->setValuesByPost();
 		}
 	}
 
 	private function evaluateGroupFormEntries($a_group_form)
 	{
 		$entries = array();
-		$entries["id"] = $a_group_form->getInput("id");
+		$entries["id"] = $this->group_id;
 		$entries["name"] = $a_group_form->getInput("name");
 		$entries["description"] = $a_group_form->getInput("description");
 		$entries["role_id"] = $this->getRoleIdFromSelectionInput($a_group_form);
