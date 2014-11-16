@@ -131,25 +131,46 @@ xrs_visible#:#RoomSharing is visible
 xrs_write#:#Edit RoomSharing
 
 //Privileges
-locked#:#Lock privileges
-accessAppointments#:#Access Appointments
-accessSearch#:#Access Search
-accessRooms#:#Access Rooms
-accessFloorplans#:#Access Floorplans
-accessSettings#:#Access Settings
-accessPrivileges#:#Access Privileges
-addBooking#:#Add simple booking
-addSequenceBooking#:#Add sequence bookin
-addUnlimitedBooking#:#Add unlimited booking
-editBooking#:#Edit own bookings
-deleteBooking#:#Delete own bookings
-addParticipantsToBooking#:#Add participants to booking
-deleteParticipation#:#Cancel participation
-seeAllBookingData#:#See all booking data
-deleteBookingWithLowerPriority#:#Cancel bookings with lower priority
-deleteAllExistingBookings#:#Cancel every booking
-bookMultipleRooms#:#Book multiple rooms
-seeBookingsOfRooms#:#See bookings of rooms
-administrateRooms#:#Administrate rooms
-administrateFloorplans#:#Administrate Floorplans
-administratePrivileges#:#Administrate Privileges
+appointments_privileges_description#:#Here are the privileges for the appointments listed
+access_appointments#:#Access Appointments
+access_appointments_description#:#Access to tab "Appointments"
+access_search#:#Access Search
+access_search_description#:#Access to tab "Search"
+create_edit_delete#:#Create, edit, cancel
+create_edit_delete_description#:#Own bookings can be created, edited and canceled
+add_participant#:#Add participant
+add_participant_description#:#Add participant to a booking
+sequence_bookings#:#Sequence bookings
+sequence_bookings_addable#:#Sequence bookings creatable
+cancel_lower_priority#:#Cancel lower priority
+cancel_lower_priority_description#:#Other bookings, which are created by users with lower priority, are cancelable
+rooms_privileges_description#:#Here are the privileges for the rooms listed
+access_rooms#:#Access rooms
+access_rooms_description#:#Access to tab "Rooms"
+see_booking_of_rooms#:#See bookings
+see_booking_of_rooms_description#:#Bookings of rooms in their detail-view viewable
+create_rooms_description#:#New rooms creatable
+create_edit_rooms_description#:#Existing rooms editable
+create_delete_rooms_description#:#Existing rooms deleteable
+create#:#Create
+edit#:#Edit
+delete#:#Delete
+floorplans#:#Floorplans
+floorplans_privileges_description#:#Here are the privileges for the floorplans listed
+access_floorplans#:#Access floorplans
+access_floorplans_description#:#Access to tab "Floorplans"
+create_floorplans_description#:#New floorplans creatable
+edit_floorplans_description#:#Existing floorplans editable
+delete_floorplans_description#:#Existing floorplans deleteable
+general_privileges#:#General Privileges
+general_privileges_description#:#Here are the general privileges listed
+access_settings#:#Access settings
+access_settings_description#:#Access to tab "Settings"
+access_privileges#:#Access privileges
+access_privileges_description#:#Access to tab "Privileges"
+create_group#:#Create group
+create_group_description#:#New group createable
+edit_privileges#:#Edit privileges
+edit_privileges_description#:#Privileges of all groups editable
+lock_privileges#:#Lock privileges
+lock_privileges_description#:#Privileges of all groups can be locked, so that the group has no more privileges

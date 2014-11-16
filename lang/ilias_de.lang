@@ -130,26 +130,47 @@ xrs_read#:#Lesezugriff auf RoomSharing
 xrs_visible#:#RoomSharing ist sichtbar
 xrs_write#:#RoomSharing bearbeiten
 
-//Privileges
-locked#:#Rechte sperren
-accessAppointments#:#Zugriff auf Termine
-accessSearch#:#Zugriff auf Suche
-accessRooms#:#Zugriff auf Räume
-accessFloorplans#:#Zugriff auf Gebäudepläne
-accessSettings#:#Zugriff auf Einstellungen
-accessPrivileges#:#Zugriff auf Privilegien
-addBooking#:#Einfache Buchungen anlegen
-addSequenceBooking#:#Serienbuchungen anlegen
-addUnlimitedBooking#:#Unbegrenzte Buchungen anlegen
-editBooking#:#Eigene Buchungen bearbeiten
-deleteBooking#:#Eigene Buchungen stornieren
-addParticipantsToBooking#:#Teilnehmer zu Buchung hinzufügen
-deleteParticipation#:#Teilnahme stornieren
-seeAllBookingData#:#Sämtliche Buchungsdaten einsehen
-deleteBookingWithLowerPriority#:#Buchungen geringerer Priorität stornieren
-deleteAllExistingBookings#:#Sämtliche Buchungen stornieren
-bookMultipleRooms#:#Mehrere Räume buchen
-seeBookingsOfRooms#:#Buchungen eines Raumes einsehen
-administrateRooms#:#Räume administrieren
-administrateFloorplans#:#Gebäudepläne administrieren
-administratePrivileges#:#Privilegien administrieren
+//Privileges 
+appointments_privileges_description#:#Hier sind die Privilegien für die Termine aufgeführt
+access_appointments#:#Termine aufrufen
+access_appointments_description#:#Zugang zum Reiter "Termine"
+access_search#:#Suche aufrufen
+access_search_description#:#Zugang zum Reiter "Suche"
+create_edit_delete#:#Erstellen, Bearbeiten, Stornieren
+create_edit_delete_description#:#Eigene Buchungen anleg-, bearbeit- und stornierbar
+add_participant#:#Teilnahmer hinzufügen
+add_participant_description#:#Teilnehmer zu einer Buchung hinzufügbar
+sequence_bookings#:#Serienbuchungen
+sequence_bookings_addable#:#Serienbuchungen anlegbar
+cancel_lower_priority#:#Niedrigere Priorität stornieren
+cancel_lower_priority_description#:#Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar
+rooms_privileges_description#:#Hier sind die Privilegien für die Räume aufgeführt
+access_rooms#:#Räume aufrufen
+access_rooms_description#:#Zugang zum Reiter "Räume"
+see_booking_of_rooms#:#Buchungen einsehen
+see_booking_of_rooms_description#:#Buchungen von einzelnen Räumen in Detailansicht einsehbar
+create_rooms_description#:#Neue Räume erstellbar
+create_edit_rooms_description#:#Vorhandene Räume können bearbeitet werden
+create_delete_rooms_description#:#Vorhandene Räume können gelöscht werden
+create#:#Erstellen
+edit#:#Bearbeiten
+delete#:#Löschen
+floorplans#:#Gebäudepläne
+floorplans_privileges_description#:#Hier sind die Privilegien für die Gebäudepläne aufgeführt
+access_floorplans#:#Gebäudepläne aufrufen
+access_floorplans_description#:#Zugang zum Reiter "Gebäudepläne"
+create_floorplans_description#:#Neue Gebäudepläne erstellbar
+edit_floorplans_description#:#Vorhandene Gebäudepläne können bearbeitet werden
+delete_floorplans_description#:#Vorhandene Gebäudepläne können gelöscht werden
+general_privileges#:#Allgemeine Privilegien
+general_privileges_description#:#Hier sind die allgemeinen Privilegien aufgeführt
+access_settings#:#Einstellungen aufrufen
+access_settings_description#:#Zugang zum Reiter "Einstellungen"
+access_privileges#:#Privilegien aufrufen
+access_privileges_description#:#Zugang zum Reiter "Privilegien"
+create_group#:#Gruppe anlegen
+create_group_description#:#Neue Gruppe anlegbar
+edit_privileges#:#Privilegien bearbeiten
+edit_privileges_description#:#Privilegien aller Gruppen bearbeiten
+lock_privileges#:#Privilegien sperren
+lock_privileges_description#:#Privilegien aller Gruppen sperrbar, so dass diese Gruppen keinerlei Privilegien haben

@@ -15,6 +15,7 @@ class ilRoomSharingPrivileges
 	private $pool_id;
 	private $ilRoomsharingDatabase;
 	private $groups_privileges;
+	private $lng;
 
 	/**
 	 * Constructor of ilRoomSharingPrivileges
@@ -23,7 +24,10 @@ class ilRoomSharingPrivileges
 	 */
 	public function __construct($a_pool_id = 1)
 	{
+		global $lng;
+
 		$this->pool_id = $a_pool_id;
+		$this->lng = $lng;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
 		$this->groups_privileges = $this->getAllGroupsPrivileges();
 	}
@@ -36,68 +40,69 @@ class ilRoomSharingPrivileges
 		$privilegesMatrix[] = array("show_lock_row" => "lock", "locked_groups" => $this->getLockedGroups());
 
 		// ### Appointments ###
-		$privilegesMatrix[] = $this->addNewSection("Termine",
-			"Hier sind die Privilegien für die Termine aufgeführt");
-		$privilegesMatrix[] = $this->addPrivilege("accessAppointments", "Termine aufrufen",
-			"Zugang zum Reiter &quot;Termine&quot;");
-		$privilegesMatrix[] = $this->addPrivilege("accessSearch", "Suche aufrufen",
-			"Zugang zum Reiter &quot;Suche&quot;");
-		$privilegesMatrix[] = $this->addPrivilege("addOwnBookings", "Erstellen, Bearbeiten, Stornieren",
-			"Eigene Buchungen anleg-, bearbeit- und stornierbar");
-		$privilegesMatrix[] = $this->addPrivilege("addParticipants", "Teilnahmer hinzufügen",
-			"Teilnehmer zu einer Buchung hinzufügbar");
-		$privilegesMatrix[] = $this->addPrivilege("addSequenceBookings", "Serienbuchungen",
-			"Serienbuchungen anlegbar");
+		$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_appointments",
+			"rep_robj_xrs_appointments_privileges_description");
+		$privilegesMatrix[] = $this->addPrivilege("accessAppointments",
+			"rep_robj_xrs_access_appointments", "rep_robj_xrs_access_appointments_description");
+		$privilegesMatrix[] = $this->addPrivilege("accessSearch", "rep_robj_xrs_access_search",
+			"rep_robj_xrs_access_search_description");
+		$privilegesMatrix[] = $this->addPrivilege("addOwnBookings", "rep_robj_xrs_create_edit_delete",
+			"rep_robj_xrs_create_edit_delete_description");
+		$privilegesMatrix[] = $this->addPrivilege("addParticipants", "rep_robj_xrs_add_participant",
+			"rep_robj_xrs_add_participant_description");
+		$privilegesMatrix[] = $this->addPrivilege("addSequenceBookings", "rep_robj_xrs_sequence_bookings",
+			"rep_robj_xrs_sequence_bookings_addable");
 		$privilegesMatrix[] = $this->addPrivilege("cancelBookingLowerPriority",
-			"Niedrigere Priorität stornieren",
-			"Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar");
+			"rep_robj_xrs_cancel_lower_priority", "rep_robj_xrs_cancel_lower_priority_description");
 		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("bookings",
 			array("accessAppointments", "accessSearch", "addParticipants",
 			"addOwnBookings", "addSequenceBookings", "cancelBookingLowerPriority"));
 
 		// ### Rooms ###
-		$privilegesMatrix[] = $this->addNewSection("Räume",
-			"Hier sind die Privilegien für die Räume aufgeführt");
-		$privilegesMatrix[] = $this->addPrivilege("accessRooms", "Räume aufrufen",
-			"Zugang zum Reiter &quot;Räume&quot;");
-		$privilegesMatrix[] = $this->addPrivilege("seeBookingsOfRooms", "Buchungen einsehen",
-			"Buchungen von einzelnen Räumen in Detailansicht einsehbar");
-		$privilegesMatrix[] = $this->addPrivilege("addRooms", "Erstellen", "Neue Räume erstellbar");
-		$privilegesMatrix[] = $this->addPrivilege("editRooms", "Bearbeiten",
-			"Vorhandene Räume können bearbeitet werden");
-		$privilegesMatrix[] = $this->addPrivilege("deleteRooms", "Löschen",
-			"Vorhandene Räume können gelöscht werden");
+		$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_rooms",
+			"rep_robj_xrs_rooms_privileges_description");
+		$privilegesMatrix[] = $this->addPrivilege("accessRooms", "rep_robj_xrs_access_rooms",
+			"rep_robj_xrs_access_rooms_description");
+		$privilegesMatrix[] = $this->addPrivilege("seeBookingsOfRooms",
+			"rep_robj_xrs_see_booking_of_rooms", "rep_robj_xrs_see_booking_of_rooms_description");
+		$privilegesMatrix[] = $this->addPrivilege("addRooms", "rep_robj_xrs_create",
+			"rep_robj_xrs_create_rooms_description");
+		$privilegesMatrix[] = $this->addPrivilege("editRooms", "rep_robj_xrs_edit",
+			"rep_robj_xrs_create_edit_rooms_description");
+		$privilegesMatrix[] = $this->addPrivilege("deleteRooms", "rep_robj_xrs_delete",
+			"rep_robj_xrs_create_delete_rooms_description");
 		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("rooms",
 			array("accessRooms", "seeBookingsOfRooms",
 			"addRooms", "editRooms", "deleteRooms"));
 
 		// ### Floorplans ###
-		$privilegesMatrix[] = $this->addNewSection("Gebäudepläne",
-			"Hier sind die Privilegien für die Gebäudepläne aufgeführt");
-		$privilegesMatrix[] = $this->addPrivilege("accessFloorplans", "Gebäudepläne aufrufen",
-			"Zugang zum Reiter &quot;Gebäudepläne&quot;");
-		$privilegesMatrix[] = $this->addPrivilege("addFloorplans", "Erstellen",
-			"Neue Gebäudepläne erstellbar");
-		$privilegesMatrix[] = $this->addPrivilege("editFloorplans", "Bearbeiten",
-			"Vorhandene Gebäudepläne können bearbeitet werden");
-		$privilegesMatrix[] = $this->addPrivilege("deleteFloorplans", "Löschen",
-			"Vorhandene Gebäudepläne können gelöscht werden");
+		$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_floorplans",
+			"rep_robj_xrs_floorplans_privileges_description");
+		$privilegesMatrix[] = $this->addPrivilege("accessFloorplans", "rep_robj_xrs_access_floorplans",
+			"rep_robj_xrs_access_floorplans_description");
+		$privilegesMatrix[] = $this->addPrivilege("addFloorplans", "rep_robj_xrs_create",
+			"rep_robj_xrs_create_floorplans_description");
+		$privilegesMatrix[] = $this->addPrivilege("editFloorplans", "rep_robj_xrs_edit",
+			"rep_robj_xrs_edit_floorplans_description");
+		$privilegesMatrix[] = $this->addPrivilege("deleteFloorplans", "rep_robj_xrs_delete",
+			"rep_robj_xrs_delete_floorplans_description");
 		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("floorplans",
 			array("accessFloorplans",
 			"addFloorplans", "editFloorplans", "deleteFloorplans"));
 
 		// ### Privileges ###
-		$privilegesMatrix[] = $this->addNewSection("Allgemeine Privilegien",
-			"Hier sind die allgemeinen Privilegien aufgeführt");
-		$privilegesMatrix[] = $this->addPrivilege("accessSettings", "Einstellungen aufrufen",
-			"Zugang zum Reiter &quot;Einstellungen&quot;");
-		$privilegesMatrix[] = $this->addPrivilege("accessPrivileges", "Privilegien aufrufen",
-			"Zugang zum Reiter &quot;Privilegien&quot;");
-		$privilegesMatrix[] = $this->addPrivilege("addGroup", "Gruppe anlegen", "Neue Gruppe anlegbar");
-		$privilegesMatrix[] = $this->addPrivilege("editPrivileges", "Privilegien bearbeiten",
-			"Privilegien anderer Gruppen bearbeiten");
-		$privilegesMatrix[] = $this->addPrivilege("lockPrivileges", "Privilegien sperren",
-			"Privilegien anderer Gruppen sperrbar");
+		$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_general_privileges",
+			"rep_robj_xrs_general_privileges_description");
+		$privilegesMatrix[] = $this->addPrivilege("accessSettings", "rep_robj_xrs_access_settings",
+			"rep_robj_xrs_access_settings_description");
+		$privilegesMatrix[] = $this->addPrivilege("accessPrivileges", "rep_robj_xrs_access_privileges",
+			"rep_robj_xrs_access_privileges_description");
+		$privilegesMatrix[] = $this->addPrivilege("addGroup", "rep_robj_xrs_create_group",
+			"rep_robj_xrs_create_group_description");
+		$privilegesMatrix[] = $this->addPrivilege("editPrivileges", "rep_robj_xrs_edit_privileges",
+			"rep_robj_xrs_edit_privileges_description");
+		$privilegesMatrix[] = $this->addPrivilege("lockPrivileges", "rep_robj_xrs_lock_privileges",
+			"rep_robj_xrs_lock_privileges_description");
 		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("privileges",
 			array("accessSettings",
 			"accessPrivileges", "addGroup", "editPrivileges", "lockPrivileges"));
@@ -256,7 +261,10 @@ class ilRoomSharingPrivileges
 	private function addNewSection($a_section_title_lng_key, $a_section_description_lng_key = null)
 	{
 		return array("show_section_info" => 1, "section" =>
-			array("title" => $a_section_title_lng_key, "description" => $a_section_description_lng_key));
+			array("title" => $this->lng->txt($a_section_title_lng_key),
+				"description" => $this->lng->txt($a_section_description_lng_key)
+			)
+		);
 	}
 
 	/**
@@ -272,8 +280,8 @@ class ilRoomSharingPrivileges
 	{
 		return array("privilege" => array(
 				"id" => $a_id,
-				"name" => $a_name_lng_key,
-				"description" => $a_description_lng_key),
+				"name" => $this->lng->txt($a_name_lng_key),
+				"description" => $this->lng->txt($a_description_lng_key)),
 			"groups" => $this->getGroupsPrivilegeValue($a_id)
 		);
 	}
