@@ -53,8 +53,8 @@ leave#:#Leave
 mail_booking_creator_linktext#:#You can see your booking via the following link:
 mail_booking_creator_message#:#You have successfully booked a room. This is what you've booked:
 mail_booking_creator_subject#:#You booked a room.
-mail_booking_participant_subject#:#Someone booked a room for you.
-mail_booking_participant_message#:#Someone booked a room for you. You have been added as participant for the following room:
+mail_booking_participant_subject#:#Someone booked a room and added you as a participant.
+mail_booking_participant_message#:#Someone booked a room and added you as a participant. You have been added for the following booking:
 mail_cancellation_creator_subject#:#Your booking has been canceled.
 mail_cancellation_creator_message#:#Your booking has been canceled. The following room is no longer yours:
 mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
