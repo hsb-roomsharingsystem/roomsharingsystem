@@ -141,6 +141,10 @@ class ilRoomSharingGroupGUI
 		$role_assignment->setValue($group_info["role_id"]);
 		$form->addItem($role_assignment);
 
+		$hidden_group_id = new ilHiddenInputGUI("id");
+		$hidden_group_id->setValue($this->group_id);
+		$form->addItem($hidden_group_id);
+
 		return $form;
 	}
 
@@ -162,6 +166,7 @@ class ilRoomSharingGroupGUI
 	private function evaluateGroupFormEntries($a_group_form)
 	{
 		$entries = array();
+		$entries["id"] = $a_group_form->getInput("id");
 		$entries["name"] = $a_group_form->getInput("name");
 		$entries["description"] = $a_group_form->getInput("description");
 		$entries["role_id"] = $this->getRoleIdFromSelectionInput($a_group_form);
@@ -179,6 +184,14 @@ class ilRoomSharingGroupGUI
 
 	private function saveFormEntries($a_entries)
 	{
+		try
+		{
+			$this->privileges->editGroup($a_entries);
+		}
+		catch (ilRoomSharingPrivilegesException $exc)
+		{
+			ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+		}
 		ilUtil::sendSuccess("EDITED GROUP FORM ENTRIES: " . implode(", ", $a_entries), true);
 	}
 

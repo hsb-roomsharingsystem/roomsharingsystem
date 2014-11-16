@@ -47,6 +47,7 @@ floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
 from#:#from
 group_not_created#:#Group could not be created
+group_id_incorrect#:#Group-ID incorrect
 leave#:#Leave
 mail_booking_creator_linktext#:#You can see your booking via the following link:
 mail_booking_creator_message#:#You have successfully created a booking. This is what you've booked:

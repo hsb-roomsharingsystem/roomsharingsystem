@@ -14,6 +14,7 @@ class ilRoomSharingPrivileges
 {
 	private $pool_id;
 	private $ilRoomsharingDatabase;
+	private $groups_privileges;
 
 	/**
 	 * Constructor of ilRoomSharingPrivileges
@@ -24,6 +25,7 @@ class ilRoomSharingPrivileges
 	{
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
+		$this->groups_privileges = $this->getAllGroupsPrivileges();
 	}
 
 	public function getPrivilegesMatrix()
@@ -31,7 +33,7 @@ class ilRoomSharingPrivileges
 		$privilegesMatrix = array();
 
 		// Lock Group
-		$privilegesMatrix[] = array("show_lock_row" => "lock", "locked_groups" => array(1001));
+		$privilegesMatrix[] = array("show_lock_row" => "lock", "locked_groups" => $this->getLockedGroups());
 
 		// ### Appointments ###
 		$privilegesMatrix[] = $this->addNewSection("Termine",
@@ -50,8 +52,8 @@ class ilRoomSharingPrivileges
 			"Niedrigere Priorität stornieren",
 			"Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar");
 		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("bookings",
-			array("accessAppointments",
-			"addOwnBookings", "addSequenceBookings", "cancelBookingWithLowerPriority"));
+			array("accessAppointments", "accessSearch", "addParticipants",
+			"addOwnBookings", "addSequenceBookings", "cancelBookingLowerPriority"));
 
 		// ### Rooms ###
 		$privilegesMatrix[] = $this->addNewSection("Räume",
@@ -98,43 +100,39 @@ class ilRoomSharingPrivileges
 			"Privilegien anderer Gruppen sperrbar");
 		$privilegesMatrix[] = $this->addSelectMultipleCheckbox("privileges",
 			array("accessSettings",
-			"accessPrivileges", "addGroup", "lockPrivileges", "lockPrivileges"));
-
+			"accessPrivileges", "addGroup", "editPrivileges", "lockPrivileges"));
 		return $privilegesMatrix;
 	}
 
 	public function getPrivileges()
 	{
 		$priv = array();
-		$priv[] = 'locked';
 		$priv[] = 'accessAppointments';
 		$priv[] = 'accessSearch';
+		$priv[] = 'addOwnBookings';
+		$priv[] = 'addParticipants';
+		$priv[] = 'addSequenceBookings';
+		$priv[] = 'cancelBookingLowerPriority';
 		$priv[] = 'accessRooms';
+		$priv[] = 'seeBookingsOfRooms';
+		$priv[] = 'addRooms';
+		$priv[] = 'editRooms';
+		$priv[] = 'deleteRooms';
 		$priv[] = 'accessFloorplans';
+		$priv[] = 'addFloorplans';
+		$priv[] = 'editFloorplans';
+		$priv[] = 'deleteFloorplans';
 		$priv[] = 'accessSettings';
 		$priv[] = 'accessPrivileges';
-		$priv[] = 'addBooking';
-		$priv[] = 'addSequenceBooking';
-		$priv[] = 'addUnlimitedBooking';
-		$priv[] = 'editBooking';
-		$priv[] = 'deleteBooking';
-		$priv[] = 'addParticipantsToBooking';
-		$priv[] = 'deleteParticipation';
-		$priv[] = 'seeAllBookingData';
-		$priv[] = 'deleteBookingWithLowerPriority';
-		$priv[] = 'deleteAllExistingBookings';
-		$priv[] = 'bookMultipleRooms';
-		$priv[] = 'seeBookingsOfRooms';
-		$priv[] = 'administrateRooms';
-		$priv[] = 'administrateFloorplans';
-		$priv[] = 'administratePrivileges';
+		$priv[] = 'addGroup';
+		$priv[] = 'editPrivileges';
+		$priv[] = 'lockPrivileges';
 
 		return $priv;
 	}
 
 	public function getGroups()
 	{
-		global $rbacreview;
 		$grp = array();
 		$groups = $this->ilRoomsharingDatabase->getGroups();
 		foreach ($groups as $group)
@@ -143,11 +141,6 @@ class ilRoomSharingPrivileges
 			$grp_values['role'] = $this->getGlobalRoleTitle($group['role_id']);
 			$grp[] = $grp_values;
 		}
-
-		$grp[] = array("id" => 1001, "name" => "HARDCODED USER", "description" => "HARDCODED DESCRIPTION",
-			"role" => "HARDCODED ROLE");
-		$grp[] = array("id" => 1002, "name" => "HARDCODED ADMIN", "description" => "HARDCODED DESCRIPTION",
-			"role" => "");
 
 		return $grp;
 	}
@@ -204,6 +197,16 @@ class ilRoomSharingPrivileges
 		}
 	}
 
+	public function editGroup($a_groupData)
+	{
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_groupData['id']))
+		{
+			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_group_id_incorrect");
+		}
+		$this->ilRoomsharingDatabase->updateGroup($a_groupData['id'], $a_groupData['name'],
+			$a_groupData['description'], $a_groupData['role_id']);
+	}
+
 	public function updateGroup($a_groupData)
 	{
 		//TODO ERROR CATCHING
@@ -215,6 +218,31 @@ class ilRoomSharingPrivileges
 	{
 		//TODO ERROR CATCHING
 		$this->ilRoomsharingDatabase->addUserToGroup($a_group_id, $a_user_id);
+	}
+
+	public function setPrivileges($a_privileges)
+	{
+
+		foreach ($a_privileges as $group_id => $given_privileges)
+		{
+			$privileges = array();
+			foreach ($given_privileges as $given_privilege_key => $val)
+			{
+				$privileges[] = $given_privilege_key;
+			}
+			$no_privileges = array_diff($this->getPrivileges(), $privileges);
+			$this->ilRoomsharingDatabase->setPrivilegesForGroup($group_id, $privileges, $no_privileges);
+		}
+	}
+
+	public function setLockedGroups($a_group_ids)
+	{
+		$this->ilRoomsharingDatabase->setLockedGroups($a_group_ids);
+	}
+
+	public function getLockedGroups()
+	{
+		return $this->ilRoomsharingDatabase->getLockedGroups();
 	}
 
 	/**
@@ -250,6 +278,25 @@ class ilRoomSharingPrivileges
 		);
 	}
 
+	private function getAllGroupsPrivileges()
+	{
+		$privileges = array();
+		$groups = $this->ilRoomsharingDatabase->getGroups();
+		foreach ($groups as $group)
+		{
+			$privileges[$group['id']] = array();
+			$grp_privileges = $this->ilRoomsharingDatabase->getPrivilegesOfGroup($group['id']);
+			foreach ($grp_privileges as $privilege_id => $privilege_value)
+			{
+				if ($privilege_value == 1)
+				{
+					$privileges[$group['id']][] = $privilege_id;
+				}
+			}
+		}
+		return $privileges;
+	}
+
 	/**
 	 * Get each group values to the specific privilege
 	 *
@@ -259,7 +306,19 @@ class ilRoomSharingPrivileges
 	 */
 	private function getGroupsPrivilegeValue($a_privilege_id)
 	{
-		return array(array("id" => 1001, "privilege_set" => false), array("id" => 1002, "privilege_set" => true));
+		$privilegesArray = array();
+		foreach ($this->groups_privileges as $group_id => $group_privileges_ids)
+		{
+			if (in_array(strtolower($a_privilege_id), $group_privileges_ids))
+			{
+				$privilegesArray[] = array("id" => $group_id, "privilege_set" => true);
+			}
+			else
+			{
+				$privilegesArray[] = array("id" => $group_id, "privilege_set" => false);
+			}
+		}
+		return $privilegesArray;
 	}
 
 	/**

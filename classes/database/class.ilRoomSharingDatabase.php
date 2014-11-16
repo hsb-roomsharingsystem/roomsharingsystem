@@ -880,6 +880,67 @@ class ilRoomsharingDatabase
 		return $row;
 	}
 
+	public function setLockedGroups($a_group_ids)
+	{
+		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_group_ids)))
+		{
+			$positive_where = "";
+			$negative_where = "";
+			foreach ($a_group_ids as $group_id => $val)
+			{
+				$positive_where .= " OR id = " . $this->ilDB->quote($group_id, 'integer');
+				$negative_where .= " AND id != " . $this->ilDB->quote($group_id, 'integer');
+			}
+			//Cut the where strings, to avoid e.g. WHERE OR id=1 OR id=2
+			if (strlen($positive_where) > 0) $positive_where = substr($positive_where, 3);
+			if (strlen($negative_where) > 0) $negative_where = substr($negative_where, 4);
+			$this->ilDB->manipulate('UPDATE ' . dbc::GROUPS_TABLE .
+				' SET locked = 1 WHERE ' . $positive_where);
+			$this->ilDB->manipulate('UPDATE ' . dbc::GROUPS_TABLE .
+				' SET locked = 0 WHERE ' . $negative_where);
+		} else
+		{
+			$this->ilDB->manipulate('UPDATE ' . dbc::GROUPS_TABLE .
+				' SET locked = 0');
+		}
+	}
+
+	public function getLockedGroups()
+	{
+		$set = $this->ilDB->query('SELECT id FROM ' . dbc::GROUPS_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
+			' AND locked = 1');
+		$locked_group_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$locked_group_ids[] = $row['id'];
+		}
+		return $locked_group_ids;
+	}
+
+	public function setPrivilegesForGroup($a_group_id, $a_privileges, $a_no_privileges)
+	{
+		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_group_id)))
+		{
+			$positive_set = "";
+			$negative_set = "";
+			foreach ($a_privileges as $privilege)
+			{
+				$positive_set .= "," . strtolower($privilege) . " = 1";
+			}
+			foreach ($a_no_privileges as $no_privilege)
+			{
+				$negative_set .= "," . strtolower($no_privilege) . " = 0";
+			}
+			if (strlen($positive_set) > 0) $positive_set = substr($positive_set, 1);
+			if (strlen($negative_set) > 0 && strlen($positive_set) == 0)
+					$negative_set = substr($negative_set, 1);
+			$this->ilDB->manipulate('UPDATE ' . dbc::GROUP_PRIVILEGES_TABLE .
+				' SET ' . $positive_set . $negative_set . ' WHERE group_id = ' . $this->ilDB->quote($a_group_id,
+					'integer'));
+		}
+	}
+
 	public function insertGroup($a_name, $a_description, $a_role_id, $a_copy_group_id)
 	{
 		$this->ilDB->insert(dbc::GROUPS_TABLE,

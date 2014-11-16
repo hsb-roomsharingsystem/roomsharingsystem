@@ -227,6 +227,7 @@ class ilRoomSharingPrivilegesGUI
 					$groups_with_ticked_privileges_message = "GROUPS AND TICKED PRIVILEGES: " . print_r($groups_with_ticked_privileges,
 							true);
 				}
+				$this->privileges->setPrivileges($groups_with_ticked_privileges);
 			}
 
 			if ($lock_post_exists)
@@ -235,6 +236,7 @@ class ilRoomSharingPrivilegesGUI
 				$locked_groups_message = "; LOCKED GROUPS: " . implode(", ",
 						array_keys($groups_with_ticked_locks));
 			}
+			$this->privileges->setLockedGroups($groups_with_ticked_locks);
 
 			ilUtil::sendSuccess($groups_with_ticked_privileges_message . $locked_groups_message, true);
 		}
