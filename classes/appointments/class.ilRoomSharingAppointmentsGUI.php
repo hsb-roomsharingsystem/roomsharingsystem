@@ -1,85 +1,71 @@
 <?php
 
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
+
 /**
  * Class ilRoomSharingAppointmentsGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
  * @version $Id$
- * 
+ *
  * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI
- * 
+ *
+ * @property ilCtrl $ctrl
+ * @property ilLanguage $lng
  */
 class ilRoomSharingAppointmentsGUI
 {
+	public $ref_id;
+	protected $ctrl;
+	protected $lng;
+	private $pool_id;
+
 	/**
 	 * Constructor of ilRoomSharingAppointmentsGUI
 	 *
-	 * @param object $a_parent_obj        	
+	 * @param object $a_parent_obj
 	 */
 	function __construct($a_parent_obj)
 	{
 		global $ilCtrl, $lng;
-		
-		$this->parent_obj = $a_parent_obj;
-		$this->ref_id = $a_parent_obj->ref_id;
-		$this->pool_id = $a_parent_obj->getPoolId();
-		
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
+
+		$this->ref_id = $a_parent_obj->ref_id;
+		$this->pool_id = $a_parent_obj->getPoolId();
 	}
-	
-	/**
-	 * Perform the given Command
-	 * 
-	 * @param $cmd
-	 */
-	function performCommand($cmd)
-	{
-		echo $cmd;
-	}
-	
+
 	/**
 	 * Main switch for command execution.
-	 * 
+	 *
 	 * @return Returns always true.
 	 */
 	function executeCommand()
 	{
-		global $ilCtrl, $tpl;
-		
 		// set cmd to 'showBookings' if no cmd can be found
-		$cmd = $ilCtrl->getCmd("showBookings");
+		$cmd = $this->ctrl->getCmd("showBookings");
 
-		if ($cmd === 'render' || $cmd === 'showContent')
+		switch ($cmd)
 		{
-			$cmd = 'showBookings';
-		} else if ($cmd === 'cancelBooking' || $cmd === 'confirmCancel')
-		{
-			$next_class = 'ilroomsharingbookingsgui';
-		}
-		
-		$ilCtrl->setReturn($this, "showBookings");
-		
-		switch ($next_class)
-		{
-			// Bookings
-			case 'ilroomsharingbookingsgui' :
-				$this->showBookings();
+			case 'render':
+			case 'showContent':
+			case 'cancelBooking':
+			case 'confirmMultipleCancels':
+			case 'cancelMultipleBookings':
+			case 'confirmCancel':
+				$cmd = 'showBookings';
 				break;
-			
-			// Participations
-			case 'ilroomsharingparticipationsgui' :
-				$this->showParticipations();
-				break;
-			
-			default :
-				$this->$cmd();
+			default:
 				break;
 		}
-		
+		$this->$cmd();
 		return true;
 	}
-	
+
 	/**
 	 * Adds SubTabs for the MainTab "appointments".
 	 *
@@ -88,60 +74,58 @@ class ilRoomSharingAppointmentsGUI
 	 */
 	protected function setSubTabs($a_active)
 	{
-		global $ilTabs, $lng;
+		global $ilTabs;
 		$ilTabs->setTabActive('appointments');
 		// Bookings
-		$ilTabs->addSubTab('bookings', $lng->txt('rep_robj_xrs_bookings'), 
-				$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBookings'));
-		
+		$ilTabs->addSubTab('bookings', $this->lng->txt('rep_robj_xrs_bookings'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBookings'));
+
 		// Participations
-		$ilTabs->addSubTab('participations', $this->lng->txt('rep_robj_xrs_participations'), 
-				$this->ctrl->getLinkTargetByClass('ilroomsharingparticipationsgui',
-						'showParticipations'));
+		$ilTabs->addSubTab('participations', $this->lng->txt('rep_robj_xrs_participations'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingparticipationsgui', 'showParticipations'));
 		$ilTabs->activateSubTab($a_active);
 	}
-	
+
 	/**
 	 * Shows all bookings.
 	 */
 	function showBookings()
 	{
 		$this->setSubTabs('bookings');
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
 		$object_gui = & new ilRoomSharingBookingsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}
-	
+
 	/**
 	 * Show all participations.
 	 */
 	function showParticipations()
 	{
 		$this->setSubTabs('participations');
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
 		$object_gui = & new ilRoomSharingParticipationsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}
-	
+
 	/**
 	 * Returns roomsharing pool id.
-	 * 
+	 *
 	 * @return Room-ID
 	 */
 	function getPoolId()
 	{
 		return $this->pool_id;
 	}
-	
+
 	/**
 	 * Sets roomsharing pool id.
-	 * 
+	 *
 	 * @param integer Pool-ID
 	 */
 	function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
 	}
+
 }
 
 ?>

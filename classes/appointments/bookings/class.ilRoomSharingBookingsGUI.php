@@ -1,24 +1,39 @@
 <?php
 
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
+require_once ("Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
+require_once ("Services/PermanentLink/classes/class.ilPermanentLinkGUI.php");
+require_once ("Services/Utilities/classes/class.ilConfirmationGUI.php");
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+
 /**
  * Class ilRoomSharingBookingsGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
- * @version $Id$
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
  *
+ * @version $Id$
+ * @property ilCtrl $ctrl
+ * @property ilLanguage $lng
+ * @property ilTemplate $tpl
  */
 class ilRoomSharingBookingsGUI
 {
 	protected $ref_id;
 	protected $pool_id;
+	private $ctrl;
+	private $lng;
+	private $tpl;
 
 	/**
 	 * Constructor of ilRoomSharingBookingsGUI
 	 *
 	 * @global type $ilCtrl
 	 * @global type $lng
-	 * @global type $ilCtrl
-	 * @param object $a_parent_obj
+	 * @global type $tpl
+	 * @param ilRoomSharingAppointmentsGUI $a_parent_obj
 	 */
 	function __construct(ilRoomSharingAppointmentsGUI $a_parent_obj)
 	{
@@ -45,13 +60,9 @@ class ilRoomSharingBookingsGUI
 			$cmd = 'showBookings';
 		}
 
-		switch ($next_class)
-		{
-			default :
-				$cmd .= 'Object';
-				$this->$cmd();
-				break;
-		}
+		$cmd .= 'Object';
+		$this->$cmd();
+
 		return true;
 	}
 
@@ -62,19 +73,15 @@ class ilRoomSharingBookingsGUI
 	 */
 	function showBookingsObject()
 	{
-		global $tpl;
-
-		include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
 		$toolbar = new ilToolbarGUI();
 		$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
 			$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
+
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
 
-		include_once ('Services/PermanentLink/classes/class.ilPermanentLinkGUI.php');
 		$plink = new ilPermanentLinkGUI('room', $this->ref_id);
 
-		$tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
+		$this->tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
 	}
 
 	/**
@@ -82,10 +89,72 @@ class ilRoomSharingBookingsGUI
 	 */
 	public function cancelBookingObject()
 	{
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 		$bookings = new ilRoomSharingBookings($this->pool_id);
 		// the canceling has to be confirmed via a form, which is why we get the id from POST
-		$bookings->removeBooking($_POST ["booking_id"]);
+		try
+		{
+			$bookings->removeBooking($_POST ["booking_id"]);
+		}
+		catch (ilRoomSharingBookingsException $exc)
+		{
+			ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+			$this->showBookingsObject();
+		}
+		$this->showBookingsObject();
+	}
+
+	/**
+	 * Asks Confirmation from the user while canceling multiple Bookings.
+	 * @global ilTabs $ilTabs
+	 */
+	public function confirmMultipleCancelsObject()
+	{
+		global $ilTabs;
+		if (!empty($_POST['bookings']))
+		{
+			$ilTabs->clearTargets();
+			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
+				$this->ctrl->getLinkTarget($this, 'showBookings'));
+
+			// create the confirmation GUI
+			$confirmation = new ilConfirmationGUI();
+			$confirmation->setFormAction($this->ctrl->getFormAction($this));
+			$confirmation->setHeaderText($this->lng->txt('rep_robj_xrs_bookings_confirm'));
+
+			foreach ($_POST['bookings'] as $num => $booking_data)
+			{
+				$parts = explode('_', $booking_data, 2); //$booking_data comes as <id>_<subject>
+				$confirmation->addItem('booking_ids[' . $num . ']', $parts[0], $parts[1]);
+			}
+
+			$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_booking_confirm_cancel'),
+				'cancelMultipleBookings'); // cancel the bookings
+			$confirmation->setCancel($this->lng->txt('cancel'), 'showBookings'); // cancel the confirmation dialog
+
+			$this->tpl->setContent($confirmation->getHTML()); // display
+		}
+		else
+		{
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_booking_no_cancel_ids'));
+			$this->showBookingsObject();
+		}
+	}
+
+	/**
+	 * Cancels Multiple Bookings.
+	 */
+	public function cancelMultipleBookingsObject()
+	{
+		$bookings = new ilRoomSharingBookings($this->pool_id);
+		try
+		{
+			$bookings->removeMultipleBookings($_POST ["booking_ids"]);
+		}
+		catch (ilRoomSharingBookingsException $exc)
+		{
+			ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+			$this->showBookingsObject();
+		}
 		$this->showBookingsObject();
 	}
 
@@ -93,14 +162,11 @@ class ilRoomSharingBookingsGUI
 	 * Displays a confirmation dialog, in which the user is given the chance
 	 * to decline or confirm his decision.
 	 *
-	 * @global type $tpl
-	 * @global type $ilTabs
+	 * @global ilTabs $ilTabs
 	 */
 	public function confirmCancelObject()
 	{
-		global $tpl, $ilTabs;
-		include_once 'Services/Utilities/classes/class.ilConfirmationGUI.php';
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+		global $ilTabs;
 
 		$ilTabs->clearTargets();
 		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
@@ -118,7 +184,7 @@ class ilRoomSharingBookingsGUI
 		$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_booking_confirm_cancel'), 'cancelBooking'); // cancel the booking
 		$confirmation->setCancel($this->lng->txt('cancel'), 'showBookings'); // cancel the confirmation dialog
 
-		$tpl->setContent($confirmation->getHTML()); // display
+		$this->tpl->setContent($confirmation->getHTML()); // display
 	}
 
 	/**

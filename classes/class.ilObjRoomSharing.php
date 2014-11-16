@@ -32,7 +32,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 */
 	function __construct($a_ref_id = 0)
 	{
-		global $ilDB;
+		global $ilDB; // needed for db-creation
 		$this->ilDB = $ilDB;
 		parent::__construct($a_ref_id);
 		$this->pool_id = $this->getId();

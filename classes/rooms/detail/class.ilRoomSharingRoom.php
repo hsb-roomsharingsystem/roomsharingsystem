@@ -55,12 +55,9 @@ class ilRoomSharingRoom
 	 */
 	public function read()
 	{
-		global $ilDB;
-
 		if ($this->checkId())
 		{
-			$set = $this->ilRoomsharingDatabase->getRoom($this->id);
-			$row = $ilDB->fetchAssoc($set);
+			$row = $this->ilRoomsharingDatabase->getRoom($this->id);
 			$this->setName($row['name']);
 			$this->setType($row['type']);
 			$this->setMinAlloc($row['min_alloc']);
@@ -93,7 +90,7 @@ class ilRoomSharingRoom
 	 */
 	function create()
 	{
-		global $ilDB, $lng;
+		global $lng;
 		$numsValid = $this->checkNumProps(
 			array(
 				$this->min_alloc,
@@ -124,13 +121,13 @@ class ilRoomSharingRoom
 	 */
 	public function addAttribute($a_attr_id, $a_count)
 	{
-		global $ilDB;
+		global $lng;
 		// Check arguments
 		if (ilRoomSharingNumericUtils::isPositiveNumber($a_attr_id) &&
 			ilRoomSharingNumericUtils::isPositiveNumber($a_count))
 		{
 			// Check whether the attribute is real/exist.
-			$attrDB = $ilDB->fetchAssoc($this->ilRoomsharingDatabase->getRoomAttribute($a_attr_id));
+			$attrDB = $this->ilRoomsharingDatabase->getRoomAttribute($a_attr_id);
 
 			if (array_count_values($attrDB) == 0)
 			{
@@ -157,17 +154,12 @@ class ilRoomSharingRoom
 	 */
 	protected function getAttributesFromDB()
 	{
-		global $ilDB;
-		$result = array();
+		$attributes = array();
 		if ($this->checkId())
 		{
 			$attributes = $this->ilRoomsharingDatabase->getAttributesForRoom($this->id);
-			while ($row = $ilDB->fetchAssoc($attributes))
-			{
-				$result[] = $row;
-			}
 		}
-		return $result;
+		return $attributes;
 	}
 
 	/**
@@ -175,18 +167,10 @@ class ilRoomSharingRoom
 	 */
 	protected function loadBookedTimes()
 	{
-		global $ilDB;
-
-		$result = array();
 		if ($this->checkId())
 		{
-			$booked_times = $this->ilRoomsharingDatabase->getBookingsForRoom($this->id);
-			while ($row = $ilDB->fetchAssoc($booked_times))
-			{
-				$result[] = $row;
-			}
+			$this->booked_times = $this->ilRoomsharingDatabase->getBookingsForRoom($this->id);
 		}
-		$this->booked_times = $result;
 	}
 
 	/**
@@ -194,43 +178,11 @@ class ilRoomSharingRoom
 	 */
 	protected function updateMainProperties()
 	{
-		global $ilDB;
 		if ($this->checkId())
 		{
-			$table = "rep_robj_xrs_rooms";
-			$fields = array(
-				"name" => array(
-					"text",
-					$this->getName()
-				),
-				"type" => array(
-					"text",
-					$this->getType()
-				),
-				"min_alloc" => array(
-					"integer",
-					$this->getMinAlloc()
-				),
-				"max_alloc" => array(
-					"integer",
-					$this->getMaxAlloc()
-				),
-				"file_id" => array(
-					"integer",
-					$this->getFileId()
-				),
-				"building_id" => array(
-					"integer",
-					$this->getBuildingId()
-				)
-			);
-			$where = array(
-				"id" => array(
-					"integer",
-					$this->id
-				)
-			);
-			$ilDB->update($table, $fields, $where);
+			$this->ilRoomsharingDatabase->updateRoomProperties($this->getId(), $this->getName(),
+				$this->getType(), $this->getMinAlloc(), $this->getMaxAlloc(), $this->getFileId(),
+				$this->getFileId());
 		}
 	}
 
@@ -271,7 +223,7 @@ class ilRoomSharingRoom
 	 */
 	protected function checkAttributes()
 	{
-		global $lng, $ilDB;
+		global $lng;
 		if (!empty($this->attributes))
 		{
 			foreach ($this->attributes as $attr_value)
@@ -284,7 +236,7 @@ class ilRoomSharingRoom
 					return false;
 				}
 				// Check whether the attributes are real/exist.
-				$attrDB = $ilDB->fetchAssoc($this->ilRoomsharingDatabase->getRoomAttribute($attr_value['id']));
+				$attrDB = $this->ilRoomsharingDatabase->getRoomAttribute($attr_value['id']);
 				if (array_count_values($attrDB) === 0)
 				{
 					ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
@@ -321,16 +273,16 @@ class ilRoomSharingRoom
 	 */
 	protected function checkId()
 	{
-		global $ilDB;
+		$rtrn = FALSE;
 		if (ilRoomSharingNumericUtils::isPositiveNumber($this->id))
 		{
-			$room = $ilDB->fetchAssoc($this->ilRoomsharingDatabase->getRoom($this->id));
+			$room = $this->ilRoomsharingDatabase->getRoom($this->id);
 			if (count($room) > 0)
 			{
-				return true;
+				$rtrn = TRUE;
 			}
 		}
-		return false;
+		return $rtrn;
 	}
 
 	/**

@@ -414,7 +414,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->settingsForm->addItem($maxtimeField);
 
 		// Rooms agreement
-		$roomsAgrField = new ilFileInputGUI($this->lng->txt('rep_robj_xrs_rooms_useagreement'),
+		$roomsAgrField = new ilFileInputGUI($this->lng->txt('rep_robj_xrs_rooms_user_agreement'),
 			"rooms_agreement");
 		$roomsAgrField->setSize(50);
 		$roomsAgrField->setRequired(false);
@@ -452,7 +452,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
 
 			$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
-				$this->lng->txt('rep_robj_xrs_actual_rooms_useagreement') . "</a></p>";
+				$this->lng->txt('rep_robj_xrs_current_rooms_user_agreement') . "</a></p>";
 			$values ['rooms_agreement'] = $linkPresentation;
 		}
 
@@ -578,17 +578,17 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 			"RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-		$ilDB = new ilRoomsharingDatabase($this->object->getPoolId());
+		$db = new ilRoomsharingDatabase($this->object->getPoolId());
 
 		//Initialize the Calendar
 		$this->initSeed();
-		$cal_id = $ilDB->getCalendarIdFromDatabase();
+		$cal_id = $db->getCalendarIdFromDatabase();
 		$this->cal = new ilRoomSharingCalendar($this->seed, $cal_id, $this);
 		if ($cal_id == 0 || $cal_id != $this->cal->getCalendarId())
 		{
 			//if calendar is new, save id in pools-table
 			$cal_id = $this->cal->getCalendarId();
-			$ilDB->setCalendarId($cal_id);
+			$db->setCalendarId($cal_id);
 		}
 	}
 

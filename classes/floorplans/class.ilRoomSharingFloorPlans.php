@@ -18,6 +18,7 @@ class ilRoomSharingFloorPlans
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlans.
+	 *
 	 * @param type $a_pool_id the pool id of the plugin instance
 	 */
 	public function __construct($a_pool_id = 1)
@@ -29,50 +30,29 @@ class ilRoomSharingFloorPlans
 	/**
 	 * Get an array that contains all floor plans.
 	 *
-	 * @global type $ilDB the database instance
 	 * @return type array containing all of the floor plans
 	 */
 	public function getAllFloorPlans()
 	{
-		global $ilDB;
-		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-		
-		$set = $this->ilRoomsharingDatabase->getAllFloorplans();
-		$floorplans = array();
-		$row = $ilDB->fetchAssoc($set);
-		while ($row)
-		{				
-			$mobj = new ilObjMediaObject($row['file_id']);
-			$row["title"] = $mobj->getTitle();
-			$floorplans [] = $row;
-            $row = $ilDB->fetchAssoc($set);
-		}
+		$floorplans = $this->ilRoomsharingDatabase->getAllFloorplans();
 		return $floorplans;
 	}
 
 	/**
 	 * Returns an array that contains all information to a floor plan.
-	 * @global type $ilDB the ilias db instance
+	 *
 	 * @param type $a_file_id the id of the floor plan
 	 * @return type the result
 	 */
 	public function getFloorPlanInfo($a_file_id)
 	{
-		global $ilDB;
-		$set = $this->ilRoomsharingDatabase->getFloorplan($a_file_id);
-		$floorplan = array();
-		$row = $ilDB->fetchAssoc($set);
-		while ($row)
-		{
-			$floorplan [] = $row;
-			$row = $ilDB->fetchAssoc($set);
-		}
+		$floorplan = $this->ilRoomsharingDatabase->getFloorplan($a_file_id);
 		return $floorplan;
 	}
 
 	/**
 	 * Inserts the file id of the uploaded image file to the database.
-	 * @global type $ilDB the ilias database instance
+	 *
 	 * @param type $a_file_id the file id of the floor plan image
 	 * @return type the result of the database manipulation
 	 */
@@ -86,7 +66,7 @@ class ilRoomSharingFloorPlans
 
 	/**
 	 * Deletes a floor plan by file id.
-	 * @global type $ilDB ilias db instance
+	 *
 	 * @param type $a_file_id the file id of the floor plan
 	 * @return the result of the manipulation
 	 */
