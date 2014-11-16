@@ -168,11 +168,6 @@ class ilRoomSharingRoomGUI
 		$max_alloc->setDisabled(true);
 		$form_gui->addItem($max_alloc);
 
-		$file_id = new ilRoomSharingNumberInputGUI(
-			$this->lng->txt("rep_robj_xrs_room_file_id"), "file_id");
-		$file_id->setDisabled(true);
-		$form_gui->addItem($file_id);
-
 		$building_id = new ilRoomSharingNumberInputGUI(
 			$this->lng->txt("rep_robj_xrs_room_floor_plans"), "building_id");
 		$building_id->setDisabled(true);
@@ -187,7 +182,6 @@ class ilRoomSharingRoomGUI
 			$min_alloc->setRequired(true);
 			$max_alloc->setDisabled(false);
 			$max_alloc->setRequired(true);
-			$file_id->setDisabled(false);
 			$building_id->setDisabled(false);
 
 			if ($a_mode == "create")
@@ -206,7 +200,6 @@ class ilRoomSharingRoomGUI
 			$type->setValue($this->room_obj->getType());
 			$min_alloc->setValue($this->room_obj->getMinAlloc());
 			$max_alloc->setValue($this->room_obj->getMaxAlloc());
-			$file_id->setValue($this->room_obj->getFileId());
 			$building_id->setValue($this->room_obj->getBuildingId());
 
 			$post = new ilFormSectionHeaderGUI();
@@ -245,7 +238,6 @@ class ilRoomSharingRoomGUI
 			$this->room_obj->setType($this->form_gui->getInput("type"));
 			$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 			$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-			$this->room_obj->setFileId($this->form_gui->getInput("file_id"));
 			$this->room_obj->setBuildingId(
 				$this->form_gui->getInput("building_id"));
 
