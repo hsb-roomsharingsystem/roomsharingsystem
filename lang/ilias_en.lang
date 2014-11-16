@@ -51,12 +51,14 @@ floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for 
 from#:#from
 leave#:#Leave
 mail_booking_creator_linktext#:#You can see your booking via the following link:
-mail_booking_creator_message#:#You have successfully created a booking. This is what you've booked:
-mail_booking_creator_subject#:#You created a booking.
+mail_booking_creator_message#:#You have successfully booked a room. This is what you've booked:
+mail_booking_creator_subject#:#You booked a room.
 mail_booking_participant_subject#:#Someone booked a room for you.
 mail_booking_participant_message#:#Someone booked a room for you. You have been added as participant for the following room:
 mail_cancellation_creator_subject#:#Your booking has been canceled.
 mail_cancellation_creator_message#:#Your booking has been canceled. The following room is no longer yours:
+mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
+mail_cancellation_participant_message#:#A booking in which you participated has been canceled. The following booking has been canceled:
 manage#:#Manage
 max_book_time#:#Maximal time of a booking
 missing_agreement_entries#:#The Rooms use agreement is not accepted.

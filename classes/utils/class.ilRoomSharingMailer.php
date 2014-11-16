@@ -1,6 +1,7 @@
 <?php
 
 include_once 'Services/Mail/classes/class.ilMailNotification.php';
+include_once('Services/Calendar/classes/class.ilDate.php');
 
 /**
  * This class is used for generating mails to inform users about the bookings.
@@ -12,14 +13,11 @@ include_once 'Services/Mail/classes/class.ilMailNotification.php';
  */
 class ilRoomSharingMailer extends ilMailNotification
 {
-    const BOOKINGCREATOR = 0;
-    const BOOKINGPARTICIPANT = 1;
-    const BOOKINGCANCELCREATOR = 2;
-    const BOOKINGCANCELPARTICIPANT = 3;
+
     
     protected $s_roomname; // string
-    protected $s_datestart; // string
-    protected $s_dateend; // string
+    protected $datestart; // ilDateTime
+    protected $dateend; // ilDateTime
     protected $lng; // Object
     
     /**
@@ -51,7 +49,7 @@ class ilRoomSharingMailer extends ilMailNotification
      */
     public function setDateStart($s_datestart)
     {
-        $this->s_datestart = (string) $s_datestart;
+        $this->datestart = new ilDateTime((string) $s_datestart ,IL_CAL_DATETIME);
     }
     
     /**
@@ -61,7 +59,7 @@ class ilRoomSharingMailer extends ilMailNotification
      */
     public function setDateEnd($s_dateend)
     {
-        $this->s_dateend = (string) $s_dateend;
+        $this->dateend = new ilDateTime((string) $s_dateend, IL_CAL_DATETIME);
     }
     
     
@@ -80,9 +78,9 @@ class ilRoomSharingMailer extends ilMailNotification
         $message .= $lng->txt('rep_robj_xrs_room'). " ";
         $message .= $this->s_roomname . " ";
         $message .= $lng->txt('rep_robj_xrs_from') . " ";
-        $message .= $this->s_datestart. " ";
+        $message .= $this->datestart->get(IL_CAL_FKT_DATE, 'd.m.Y H:s'). " ";
         $message .= $lng->txt('rep_robj_xrs_to') . " ";
-        $message .= $this->s_dateend;
+        $message .= $this->dateend->get(IL_CAL_FKT_DATE, 'd.m.Y H:s');
         
         $this->initLanguage($a_user_id);
         $this->initMail();
@@ -109,9 +107,9 @@ class ilRoomSharingMailer extends ilMailNotification
         $message .= $lng->txt('rep_robj_xrs_room'). " ";
         $message .= $this->s_roomname . " ";
         $message .= $lng->txt('rep_robj_xrs_from') . " ";
-        $message .= $this->s_datestart. " ";
+        $message .= $this->datestart->get(IL_CAL_FKT_DATE, 'd.m.Y H:s'). " ";
         $message .= $lng->txt('rep_robj_xrs_to') . " ";
-        $message .= $this->s_dateend;
+        $message .= $this->dateend->get(IL_CAL_FKT_DATE, 'd.m.Y H:s');
         
         $this->initLanguage($a_user_id);
         $this->initMail();
@@ -128,22 +126,22 @@ class ilRoomSharingMailer extends ilMailNotification
      * Compose a cancellation mail for the creator of the booking.
      * @param type $a_user_id The user who will get the cancellation mail.
      */
-    private function composeCancelationMailForCreator($a_user_id)
+    private function composeCancellationMailForCreator($a_user_id)
     {
         $lng = $this->lng;
         
-        $message = $lng->txt('rep_robj_xrs_mail_cancelation_creator_message') . "\n";
+        $message = $lng->txt('rep_robj_xrs_mail_cancellation_creator_message') . "\n";
         $message .= "----------------------\n";
         $message .= $lng->txt('rep_robj_xrs_room'). " ";
         $message .= $this->s_roomname . " ";
         $message .= $lng->txt('rep_robj_xrs_from') . " ";
-        $message .= $this->s_datestart. " ";
+        $message .= $this->datestart->get(IL_CAL_FKT_DATE, 'd.m.Y H:s'). " ";
         $message .= $lng->txt('rep_robj_xrs_to') . " ";
-        $message .= $this->s_dateend;
+        $message .= $this->dateend->get(IL_CAL_FKT_DATE, 'd.m.Y H:s');
         
         $this->initLanguage($a_user_id);
         $this->initMail();
-        $this->setSubject($this->lng->txt('rep_robj_xrs_mail_cancelation_creator_subject'));
+        $this->setSubject($this->lng->txt('rep_robj_xrs_mail_cancellation_creator_subject'));
         $this->setBody(ilMail::getSalutation($a_user_id, $this->getLanguage()));
         $this->appendBody("\n\n");
         $this->appendBody($message);
@@ -155,22 +153,22 @@ class ilRoomSharingMailer extends ilMailNotification
      * Compose a cancellation mail for the participants of the booking.
      * @param type $a_user_id The user who will get the cancellation mail.
      */
-    private function composeCancelationMailForParticipant($a_user_id)
+    private function composeCancellationMailForParticipant($a_user_id)
     {
         $lng = $this->lng;
         
-        $message = $lng->txt('rep_robj_xrs_mail_booking_participant_message') . "\n";
+        $message = $lng->txt('rep_robj_xrs_mail_cancellation_participant_message') . "\n";
         $message .= "----------------------\n";
         $message .= $lng->txt('rep_robj_xrs_room'). " ";
         $message .= $this->s_roomname . " ";
         $message .= $lng->txt('rep_robj_xrs_from') . " ";
-        $message .= $this->s_datestart. " ";
+        $message .= $this->datestart->get(IL_CAL_FKT_DATE, 'd.m.Y H:s'). " ";
         $message .= $lng->txt('rep_robj_xrs_to') . " ";
-        $message .= $this->s_dateend;
+        $message .= $this->dateend->get(IL_CAL_FKT_DATE, 'd.m.Y H:s');
         
         $this->initLanguage($a_user_id);
         $this->initMail();
-        $this->setSubject($this->lng->txt('rep_robj_xrs_mail_booking_participant_subject'));
+        $this->setSubject($this->lng->txt('rep_robj_xrs_mail_cancellation_participant_subject'));
         $this->setBody(ilMail::getSalutation($a_user_id, $this->getLanguage()));
         $this->appendBody("\n\n");
         $this->appendBody($message);
@@ -207,7 +205,7 @@ class ilRoomSharingMailer extends ilMailNotification
      */
     protected function composeAndSendCancellationMailToCreator($a_user_id)
     {
-        $this->composeAndSendCancellationMailToCreator($a_user_id);
+        $this->composeCancellationMailForCreator($a_user_id);
         parent::sendMail(array($a_user_id), array('system'), is_numeric($a_user_id));
     }
     
@@ -217,7 +215,7 @@ class ilRoomSharingMailer extends ilMailNotification
      */
     protected function composeAndSendCancellationMailToParticipant($a_participant_id)
     {
-        $this->composeAndSendCancellationMailToParticipant($a_participant_id);
+        $this->composeCancellationMailForParticipant($a_participant_id);
         parent::sendMail(array($a_participant_id), array('system'), is_numeric($a_participant_id));
     }
     
@@ -228,12 +226,12 @@ class ilRoomSharingMailer extends ilMailNotification
      * 
      * Returns nothing
      */
-    public function sendBookingMail(array $a_user_id, array $a_participants_ids)
+    public function sendBookingMail($a_user_id, array $a_participants_ids)
     {
-        $this->composeBookingMailForCreator($a_user_id);
+        $this->composeAndSendBookingMailToCreator($a_user_id);
         foreach (array_unique($a_participants_ids) as $participant_id)
         {
-            $this->composeBookingMailForParticipant($a_participant_id);
+            $this->composeAndSendBookingMailToParticipant($participant_id);
         }
     }
     
@@ -244,7 +242,7 @@ class ilRoomSharingMailer extends ilMailNotification
      * 
      * Returns nothing.
      */
-    public function sendCancellationMail(array $a_user_id, array $a_participants_ids)
+    public function sendCancellationMail($a_user_id, array $a_participants_ids)
     {
         $this->composeAndSendCancellationMailToCreator($a_user_id);
         foreach (array_unique($a_participants_ids) as $participant_id)

@@ -167,27 +167,16 @@ class ilRoomSharingBook
 	 */
 	private function sendBookingNotification()
 	{
-		$mail_message = $this->createMailMessage();
-		$mailer = new ilRoomSharingMailer();
-		$mailer->setRawSubject($this->lng->txt('rep_robj_xrs_mail_booking_creator_subject'));
-		$mailer->setRawMessage($mail_message);
+            $room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
 
-		$mailer->sendMail(array($this->user->getId()));
+            $mailer = new ilRoomSharingMailer($this->lng);
+            $mailer->setRoomname($room_name);
+            $mailer->setDateStart($this->date_from);
+            $mailer->setDateEnd($this->date_to);
+            $mailer->sendBookingMail($this->user->getId(), $this->participants);
+            
 	}
 
-	private function createMailMessage()
-	{
-		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
-		$message = $this->lng->txt('rep_robj_xrs_mail_booking_creator_message') . "\n";
-		$message .= "----------------------\n";
-		$message .= $room_name . " ";
-		$message .= $this->lng->txt('rep_robj_xrs_from') . " ";
-		$message .= $this->date_from . " ";
-		$message .= $this->lng->txt('rep_robj_xrs_to') . " ";
-		$message .= $this->date_to;
-
-		return $message;
-	}
 
 	/**
 	 * Returns the room user agreement file id.

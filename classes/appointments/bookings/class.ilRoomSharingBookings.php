@@ -5,6 +5,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingDateUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 
 /**
  * Class ilRoomSharingBookings
@@ -55,6 +56,9 @@ class ilRoomSharingBookings
 	{
 		$this->checkBookingId($a_booking_id);
 		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
+                $booking_details = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
+                $participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
+                
 
 		$this->checkResultNotEmpty($row);
 		$this->checkDeletePermission($row ['user_id']);
@@ -70,6 +74,7 @@ class ilRoomSharingBookings
 			$this->deleteBookingSequence($row['seq']);
 			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
 		}
+                $this->sendCancellationNotification($booking_details, $participants);
 	}
 
 	/**
@@ -282,5 +287,23 @@ class ilRoomSharingBookings
 	{
 		return (int) $this->pool_id;
 	}
+        
+        /**
+         * Send cancellation email.
+         */
+        public function sendCancellationNotification($booking_details, $participants)
+        {
+            $room_id = $booking_details[0]['room_id'];
+            $room_name = $this->ilRoomsharingDatabase->getRoomName($room_id);
+            $user_id = $booking_details[0]['user_id'];
+            $date_from = $booking_details[0]['date_from'];
+            $date_to = $booking_details[0]['date_to'];
+
+            $mailer = new ilRoomSharingMailer($this->lng);
+            $mailer->setRoomname($room_name);
+            $mailer->setDateStart($date_from);
+            $mailer->setDateEnd($date_to);
+            $mailer->sendCancellationMail($user_id, $participants);
+        }
 
 }
