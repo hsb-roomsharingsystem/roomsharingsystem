@@ -427,7 +427,7 @@ $ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%
 $resultTageslichtprojektorID = $ilDB->nextId("rep_robj_xrs_rattr");
 $ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)",
 	array("integer", "text", "integer"),
-	array($resultTageslichtprojektorID, "Tageslichprojektor", $resultPoolID));
+	array($resultTageslichtprojektorID, "Tageslichtprojektor", $resultPoolID));
 
 // Raumattribut Whiteboard Einfügen und die ID in einer Variable abspeichern
 $resultWhiteboardID = $ilDB->nextId("rep_robj_xrs_rattr");
@@ -476,7 +476,7 @@ $dataRoom[] = array($resultRoomID213, "213", "Diplomantenraum", 1, 6, NULL, $res
 $resultRoomID235 = $ilDB->nextId("rep_robj_xrs_rooms");
 $dataRoom[] = array($resultRoomID235, "235", "Vorbereitung", 1, 6, NULL, $resultBuildingID, $resultPoolID);
 $resultRoomID236 = $ilDB->nextId("rep_robj_xrs_rooms");
-$dataRoom[] = array($resultRoomID236, "236", "Studtenraum", 1, 10, NULL, $resultBuildingID, $resultPoolID);
+$dataRoom[] = array($resultRoomID236, "236", "Studentenraum", 1, 10, NULL, $resultBuildingID, $resultPoolID);
 $resultRoomID245 = $ilDB->nextId("rep_robj_xrs_rooms");
 $dataRoom[] = array($resultRoomID245, "245", "Vorbereitung", 1, 6, NULL, $resultBuildingID, $resultPoolID);
 $resultRoomID305 = $ilDB->nextId("rep_robj_xrs_rooms");
@@ -578,15 +578,15 @@ $ilDB->addPrimaryKey("rep_robj_xrs_book_attr", array('booking_id', 'attr_id'));
 <#6>
 <?php
 //Testattributes for Roomsharing Bookings
-/* $resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
-  $ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
-  . "(".$ilDB->quote($resultNextId, 'integer').", 'Modul', 1)");
-  $resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
-  $ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
-  . "(".$ilDB->quote($resultNextId, 'integer').", 'Kurs', 1)");
-  $resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
-  $ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
-  . "(".$ilDB->quote($resultNextId, 'integer').", 'Semester', 1)"); */
+$resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
+$ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
+	. "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Modul', 1)");
+$resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
+$ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
+	. "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Kurs', 1)");
+$resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
+$ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
+	. "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Semester', 1)");
 ?>
 
 <#7>
