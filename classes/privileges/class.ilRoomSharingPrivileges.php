@@ -113,7 +113,7 @@ class ilRoomSharingPrivileges
 				"rep_robj_xrs_lock_privileges_description");
 			$privilegesMatrix[] = $this->addSelectMultipleCheckbox("privileges",
 				array("accessSettings",
-				"accessPrivileges", "addClass", "editPrivileges", "lockPrivileges"));
+				"accessPrivileges", "addClass", "editClass", "deleteClass", "editPrivileges", "lockPrivileges"));
 		}
 		return $privilegesMatrix;
 	}
@@ -218,10 +218,10 @@ class ilRoomSharingPrivileges
 	public function addClass($a_classData)
 	{
 		$insertedID = $this->ilRoomsharingDatabase->insertClass($a_classData['name'],
-			$a_classData['description'], $a_classData['role_id'], $a_classData['copied_group_privileges']);
+			$a_classData['description'], $a_classData['role_id'], $a_classData['copied_class_privileges']);
 		if (!ilRoomSharingNumericUtils::isPositiveNumber($insertedID))
 		{
-			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_group_not_created");
+			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_class_not_created");
 		}
 	}
 
@@ -229,7 +229,7 @@ class ilRoomSharingPrivileges
 	{
 		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_classData['id']))
 		{
-			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_group_id_incorrect");
+			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_class_id_incorrect");
 		}
 		$this->ilRoomsharingDatabase->updateClass($a_classData['id'], $a_classData['name'],
 			$a_classData['description'], $a_classData['role_id']);
@@ -265,7 +265,7 @@ class ilRoomSharingPrivileges
 	public function setPrivileges($a_privileges)
 	{
 
-		foreach ($a_privileges as $group_id => $given_privileges)
+		foreach ($a_privileges as $class_id => $given_privileges)
 		{
 			$privileges = array();
 			foreach ($given_privileges as $given_privilege_key => $val)
@@ -273,13 +273,13 @@ class ilRoomSharingPrivileges
 				$privileges[] = $given_privilege_key;
 			}
 			$no_privileges = array_diff($this->getPrivileges(), $privileges);
-			$this->ilRoomsharingDatabase->setPrivilegesForClass($group_id, $privileges, $no_privileges);
+			$this->ilRoomsharingDatabase->setPrivilegesForClass($class_id, $privileges, $no_privileges);
 		}
 	}
 
-	public function setLockedClasses($a_group_ids)
+	public function setLockedClasses($a_class_ids)
 	{
-		$this->ilRoomsharingDatabase->setLockedClasses($a_group_ids);
+		$this->ilRoomsharingDatabase->setLockedClasses($a_class_ids);
 	}
 
 	public function getLockedClasses()
@@ -319,7 +319,7 @@ class ilRoomSharingPrivileges
 				"id" => $a_id,
 				"name" => $this->lng->txt($a_name_lng_key),
 				"description" => $this->lng->txt($a_description_lng_key)),
-			"groups" => $this->getClassPrivilegeValue($a_id)
+			"classes" => $this->getClassPrivilegeValue($a_id)
 		);
 	}
 
