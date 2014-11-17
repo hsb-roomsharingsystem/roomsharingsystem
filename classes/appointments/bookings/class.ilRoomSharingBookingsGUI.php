@@ -101,6 +101,11 @@ class ilRoomSharingBookingsGUI
 		$plink = new ilPermanentLinkGUI('room', $this->ref_id);
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsExportTableGUI.php");
 		$exportTable = new ilRoomSharingBookingsExportTableGUI($this, 'showBookings', $this->ref_id);
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharingPDFCreator.php");
+
+		$staff = $exportTable->getHTML();
+		ilObjRoomSharingPDFCreator::generatePDF($exportTable->getHTML(), 'D', 'file.pdf');
+
 		$tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
 	}
 
