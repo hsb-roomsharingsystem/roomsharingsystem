@@ -168,8 +168,12 @@ access_settings#:#Access settings
 access_settings_description#:#Access to tab "Settings"
 access_privileges#:#Access privileges
 access_privileges_description#:#Access to tab "Privileges"
-create_group#:#Create group
-create_group_description#:#New group createable
+create_class#:#Create class
+create_class_description#:#New classes createable
+edit_class#:#Edit class
+edit_class_description#:#Existing classes editable
+delete_class#:#Delete class
+delete_class_description#:#Existing classes deleteable
 edit_privileges#:#Edit privileges
 edit_privileges_description#:#Privileges of all groups editable
 lock_privileges#:#Lock privileges

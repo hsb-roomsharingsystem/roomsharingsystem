@@ -56,7 +56,7 @@ class ilRoomSharingAssignedUsersTableGUI extends ilTable2GUI
 
 	private function populateTable()
 	{
-		$data = $this->privileges->getAssignedUsersForGroup($this->group_id);
+		$data = $this->privileges->getAssignedUsersForClass($this->group_id);
 
 		$this->setMaxCount(count($data));
 		$this->setData($data);

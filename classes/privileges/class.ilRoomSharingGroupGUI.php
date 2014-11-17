@@ -69,7 +69,7 @@ class ilRoomSharingGroupGUI
     private function renderPage()
     {
         $this->tabs->clearTargets();
-        $group_info = $this->privileges->getGroupById($this->group_id);
+        $group_info = $this->privileges->getClassById($this->group_id);
 
         // Title
         $this->tpl->setTitle($group_info["name"]);
@@ -105,7 +105,7 @@ class ilRoomSharingGroupGUI
 
     private function createEditGroupForm()
     {
-        $group_info = $this->privileges->getGroupById($this->group_id);
+        $group_info = $this->privileges->getClassById($this->group_id);
 
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this));
@@ -200,7 +200,7 @@ class ilRoomSharingGroupGUI
     {
         try
         {
-            $this->privileges->editGroup($a_entries);
+            $this->privileges->editClass($a_entries);
         }
         catch (ilRoomSharingPrivilegesException $exc)
         {
@@ -242,7 +242,7 @@ class ilRoomSharingGroupGUI
         $confirmation->setFormAction($this->ctrl->getFormAction($this));
         $confirmation->setHeaderText($this->lng->txt("rep_robj_xrs_group_confirm_deletion_header"));
 
-        $group = $this->privileges->getGroupById($this->group_id);
+        $group = $this->privileges->getClassById($this->group_id);
         $confirmation->addItem("group_id", $this->group_id, $group["name"]);
         $confirmation->setConfirm($this->lng->txt("rep_robj_xrs_group_confirm_deletion"), "deleteGroup");
         $confirmation->setCancel($this->lng->txt("cancel"), "renderEditGroupForm");
@@ -252,13 +252,13 @@ class ilRoomSharingGroupGUI
 
     public function deleteGroup()
     {
-        $this->privileges->deleteGroup($this->group_id);
+        $this->privileges->deleteClass($this->group_id);
         $this->ctrl->redirectByClass("ilroomsharingprivilegesgui", "showConfirmedDeletion");
     }
 
     public function addUsersToGroup($a_user_ids)
     {
-        $this->privileges->assignUsersToGroup($this->group_id, $a_user_ids);
+        $this->privileges->assignUsersToClass($this->group_id, $a_user_ids);
         ilUtil::sendSuccess($this->lng->txt("ADDED USER IDS: " . implode(", ", $a_user_ids)), true);
         $this->ctrl->redirect($this, "renderuserassignment");
     }
@@ -266,7 +266,7 @@ class ilRoomSharingGroupGUI
     public function deassignUsers()
     {
         $selected_users = ($_POST["user_id"]) ? $_POST["user_id"] : array($_GET["user_id"]);
-        $this->privileges->deassignUsersFromGroup($this->group_id, $selected_users);
+        $this->privileges->deassignUsersFromClass($this->group_id, $selected_users);
         ilUtil::sendSuccess($this->lng->txt("DEASSIGNED USERS: " . implode(", ", $selected_users)), true);
         $this->renderUserAssignment();
     }

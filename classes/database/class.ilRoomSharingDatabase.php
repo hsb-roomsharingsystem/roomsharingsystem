@@ -847,80 +847,86 @@ class ilRoomsharingDatabase
 		return $this->ilDB->update(dbc::ROOMS_TABLE, $fields, $where);
 	}
 
-	public function getGroups()
+	public function getClasses()
 	{
-		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUPS_TABLE .
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASSES_TABLE .
 			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
-		$groups = array();
+		$classes = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
-			$groups[] = $row;
+			$classes[] = $row;
 		}
-		return $groups;
+		return $classes;
 	}
 
-	public function getGroupById($a_group_id)
+	public function getClassById($a_class_id)
 	{
-		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUPS_TABLE .
-			' WHERE id = ' . $this->ilDB->quote($a_group_id, 'integer'));
-		$groups = array();
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASSES_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($a_class_id, 'integer'));
 		$row = $this->ilDB->fetchAssoc($set);
 
 		return $row;
 	}
 
-	public function getPrivilegesOfGroup($a_group_id)
+	public function getPrivilegesOfClass($a_class_id)
 	{
-		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUP_PRIVILEGES_TABLE .
-			' WHERE group_id = ' . $this->ilDB->quote($a_group_id, 'integer'));
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASS_PRIVILEGES_TABLE .
+			' WHERE class_id = ' . $this->ilDB->quote($a_class_id, 'integer'));
 
 		$row = $this->ilDB->fetchAssoc($set);
-		//Remove group_id of resultlist
-		unset($row['group_id']);
+		//Remove class_id from resultlist, so that only the privileges are in the array
+		unset($row['class_id']);
 		return $row;
 	}
 
-	public function setLockedGroups($a_group_ids)
+	public function setLockedClasses($a_class_ids)
 	{
-		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_group_ids)))
+		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_class_ids)))
 		{
 			$positive_where = "";
 			$negative_where = "";
-			foreach ($a_group_ids as $group_id => $val)
+			foreach ($a_class_ids as $class_id => $val)
 			{
-				$positive_where .= " OR id = " . $this->ilDB->quote($group_id, 'integer');
-				$negative_where .= " AND id != " . $this->ilDB->quote($group_id, 'integer');
+				$positive_where .= " OR id = " . $this->ilDB->quote($class_id, 'integer');
+				$negative_where .= " AND id != " . $this->ilDB->quote($class_id, 'integer');
 			}
 			//Cut the where strings, to avoid e.g. WHERE OR id=1 OR id=2
-			if (strlen($positive_where) > 0) $positive_where = substr($positive_where, 3);
-			if (strlen($negative_where) > 0) $negative_where = substr($negative_where, 4);
-			$this->ilDB->manipulate('UPDATE ' . dbc::GROUPS_TABLE .
+			if (strlen($positive_where) > 0)
+			{
+				$positive_where = substr($positive_where, 3);
+			}
+			if (strlen($negative_where) > 0)
+			{
+				$negative_where = substr($negative_where, 4);
+			}
+			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
 				' SET locked = 1 WHERE ' . $positive_where);
-			$this->ilDB->manipulate('UPDATE ' . dbc::GROUPS_TABLE .
+			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
 				' SET locked = 0 WHERE ' . $negative_where);
-		} else
+		}
+		else
 		{
-			$this->ilDB->manipulate('UPDATE ' . dbc::GROUPS_TABLE .
+			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
 				' SET locked = 0');
 		}
 	}
 
-	public function getLockedGroups()
+	public function getLockedClasses()
 	{
-		$set = $this->ilDB->query('SELECT id FROM ' . dbc::GROUPS_TABLE .
+		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
 			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
 			' AND locked = 1');
-		$locked_group_ids = array();
+		$locked_class_ids = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
-			$locked_group_ids[] = $row['id'];
+			$locked_class_ids[] = $row['id'];
 		}
-		return $locked_group_ids;
+		return $locked_class_ids;
 	}
 
-	public function setPrivilegesForGroup($a_group_id, $a_privileges, $a_no_privileges)
+	public function setPrivilegesForClass($a_class_id, $a_privileges, $a_no_privileges)
 	{
-		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_group_id)))
+		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_class_id)))
 		{
 			$positive_set = "";
 			$negative_set = "";
@@ -932,20 +938,25 @@ class ilRoomsharingDatabase
 			{
 				$negative_set .= "," . strtolower($no_privilege) . " = 0";
 			}
-			if (strlen($positive_set) > 0) $positive_set = substr($positive_set, 1);
+			if (strlen($positive_set) > 0)
+			{
+				$positive_set = substr($positive_set, 1);
+			}
 			if (strlen($negative_set) > 0 && strlen($positive_set) == 0)
-					$negative_set = substr($negative_set, 1);
-			$this->ilDB->manipulate('UPDATE ' . dbc::GROUP_PRIVILEGES_TABLE .
-				' SET ' . $positive_set . $negative_set . ' WHERE group_id = ' . $this->ilDB->quote($a_group_id,
+			{
+				$negative_set = substr($negative_set, 1);
+			}
+			$this->ilDB->manipulate('UPDATE ' . dbc::CLASS_PRIVILEGES_TABLE .
+				' SET ' . $positive_set . $negative_set . ' WHERE class_id = ' . $this->ilDB->quote($a_class_id,
 					'integer'));
 		}
 	}
 
-	public function insertGroup($a_name, $a_description, $a_role_id, $a_copy_group_id)
+	public function insertClass($a_name, $a_description, $a_role_id, $a_copy_class_id)
 	{
-		$this->ilDB->insert(dbc::GROUPS_TABLE,
+		$this->ilDB->insert(dbc::CLASSES_TABLE,
 			array(
-			'id' => array('integer', $this->ilDB->nextId(dbc::GROUPS_TABLE)),
+			'id' => array('integer', $this->ilDB->nextId(dbc::CLASSES_TABLE)),
 			'name' => array('text', $a_name),
 			'description' => array('text', $a_description),
 			'role_id' => array('integer', $a_role_id),
@@ -955,56 +966,56 @@ class ilRoomsharingDatabase
 
 		if (ilRoomSharingNumericUtils::isPositiveNumber($insertedID))
 		{
-			//Should privileges of another group should be copied?
-			if (ilRoomSharingNumericUtils::isPositiveNumber($a_copy_group_id))
+			//Should privileges of another class should be copied?
+			if (ilRoomSharingNumericUtils::isPositiveNumber($a_copy_class_id))
 			{
-				$privilege_array = array('group_id' => array('integer', $insertedID));
+				$privilege_array = array('class_id' => array('integer', $insertedID));
 
-				//Get privileges of the copy-group
-				$copied_privileges = $this->getPrivilegesOfGroup($a_copy_group_id);
+				//Get privileges of the class, which should be copied
+				$copied_privileges = $this->getPrivilegesOfClass($a_copy_class_id);
 				foreach ($copied_privileges as $privilege_key => $privilege_value)
 				{
 					$privilege_array[$privilege_key] = array('integer', $privilege_value);
 				}
-				$this->ilDB->insert(dbc::GROUP_PRIVILEGES_TABLE, $privilege_array);
+				$this->ilDB->insert(dbc::CLASS_PRIVILEGES_TABLE, $privilege_array);
 			}
 			//else add empty privileges
 			else
 			{
-				$this->ilDB->insert(dbc::GROUP_PRIVILEGES_TABLE,
-					array('group_id' => array('integer', $insertedID)));
+				$this->ilDB->insert(dbc::CLASS_PRIVILEGES_TABLE,
+					array('class_id' => array('integer', $insertedID)));
 			}
 		}
 
 		return $insertedID;
 	}
 
-	public function updateGroup($a_group_id, $a_name, $a_description, $a_role_id)
+	public function updateClass($a_class_id, $a_name, $a_description, $a_role_id)
 	{
 		$fields = array('name' => array('text', $a_name),
 			'description' => array('text', $a_description),
 			'role_id' => array('integer', $a_role_id),
 			'pool_id' => array('integer', $this->pool_id));
-		$where = array('id' => array('integer', $a_group_id));
-		return $this->ilDB->update(dbc::GROUPS_TABLE, $fields, $where);
+		$where = array('id' => array('integer', $a_class_id));
+		return $this->ilDB->update(dbc::CLASSES_TABLE, $fields, $where);
 	}
 
-	public function assignUserToGroup($a_group_id, $a_user_id)
+	public function assignUserToClass($a_class_id, $a_user_id)
 	{
-		if (!$this->isUserInGroup($a_group_id, $a_user_id))
+		if (!$this->isUserInClass($a_class_id, $a_user_id))
 		{
-			$this->ilDB->insert(dbc::GROUP_USER_TABLE,
+			$this->ilDB->insert(dbc::CLASS_USER_TABLE,
 				array(
-				'group_id' => array('integer', $a_group_id),
+				'class_id' => array('integer', $a_class_id),
 				'user_id' => array('integer', $a_user_id)
 			));
 		}
 	}
 
-	public function getUsersForGroup($a_group_id)
+	public function getUsersForClass($a_class_id)
 	{
-		$set = $this->ilDB->query('SELECT user_id FROM ' . dbc::GROUP_USER_TABLE .
-			' WHERE group_id = ' . $this->ilDB->quote($a_group_id, 'integer'));
+		$set = $this->ilDB->query('SELECT user_id FROM ' . dbc::CLASS_USER_TABLE .
+			' WHERE class_id = ' . $this->ilDB->quote($a_class_id, 'integer'));
 		$assigned_user_ids = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
@@ -1013,37 +1024,37 @@ class ilRoomsharingDatabase
 		return $assigned_user_ids;
 	}
 
-	public function deassignUserFromGroup($a_group_id, $a_user_id)
+	public function deassignUserFromClass($a_class_id, $a_user_id)
 	{
-		$this->ilDB->manipulate("DELETE FROM " . dbc::GROUP_USER_TABLE .
-			" WHERE group_id = " . $this->ilDB->quote($a_group_id, 'integer') .
+		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_USER_TABLE .
+			" WHERE class_id = " . $this->ilDB->quote($a_class_id, 'integer') .
 			" AND user_id = " . $this->ilDB->quote($a_user_id, 'integer'));
 	}
 
-	public function clearUsersInGroup($a_group_id)
+	public function clearUsersInClass($a_class_id)
 	{
-		$this->ilDB->manipulate("DELETE FROM " . dbc::GROUP_USER_TABLE .
-			" WHERE group_id = " . $this->ilDB->quote($a_group_id, 'integer'));
+		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_USER_TABLE .
+			" WHERE class_id = " . $this->ilDB->quote($a_class_id, 'integer'));
 	}
 
-	public function deleteGroupPrivileges($a_group_id)
+	public function deleteClassPrivileges($a_class_id)
 	{
-		$this->ilDB->manipulate("DELETE FROM " . dbc::GROUP_PRIVILEGES_TABLE .
-			" WHERE group_id = " . $this->ilDB->quote($a_group_id, 'integer'));
+		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_PRIVILEGES_TABLE .
+			" WHERE class_id = " . $this->ilDB->quote($a_class_id, 'integer'));
 	}
 
-	public function deleteGroup($a_group_id)
+	public function deleteClass($a_class_id)
 	{
-		$this->clearUsersInGroup($a_group_id);
-		$this->deleteGroupPrivileges($a_group_id);
-		$this->ilDB->manipulate("DELETE FROM " . dbc::GROUPS_TABLE .
-			" WHERE id = " . $this->ilDB->quote($a_group_id, 'integer'));
+		$this->clearUsersInClass($a_class_id);
+		$this->deleteClassPrivileges($a_class_id);
+		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASSES_TABLE .
+			" WHERE id = " . $this->ilDB->quote($a_class_id, 'integer'));
 	}
 
-	public function isUserInGroup($a_group_id, $a_user_id)
+	public function isUserInClass($a_class_id, $a_user_id)
 	{
-		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUP_USER_TABLE .
-			' WHERE group_id = ' . $this->ilDB->quote($a_group_id, 'integer') .
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASS_USER_TABLE .
+			' WHERE class_id = ' . $this->ilDB->quote($a_class_id, 'integer') .
 			' AND user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
 		return ($this->ilDB->numRows($set) != 0);
 	}

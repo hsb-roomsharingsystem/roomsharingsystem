@@ -153,7 +153,7 @@ class ilRoomSharingPrivilegesGUI
         $empty_option = new ilRadioOption($this->lng->txt("none"), 0);
         $group_to_copy->addOption($empty_option);
 
-        $groups = $this->privileges->getGroups();
+        $groups = $this->privileges->getClasses();
 
         foreach ($groups as $group)
         {
@@ -204,7 +204,7 @@ class ilRoomSharingPrivilegesGUI
     {
         try
         {
-            $this->privileges->addGroup($a_entries);
+            $this->privileges->addClass($a_entries);
         }
         catch (ilRoomSharingPrivilegesException $exc)
         {
@@ -237,7 +237,7 @@ class ilRoomSharingPrivilegesGUI
                 $groups_with_ticked_locks = $_POST["lock"];
                 $locked_groups_message = "; LOCKED GROUPS: " . implode(", ", array_keys($groups_with_ticked_locks));
             }
-            $this->privileges->setLockedGroups($groups_with_ticked_locks);
+            $this->privileges->setLockedClasses($groups_with_ticked_locks);
 
             ilUtil::sendSuccess($groups_with_ticked_privileges_message . $locked_groups_message, true);
         }

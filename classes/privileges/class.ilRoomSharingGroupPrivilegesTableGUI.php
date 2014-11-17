@@ -61,7 +61,7 @@ class ilRoomSharingGroupPrivilegesTableGUI extends ilTable2GUI
 
     private function addColumns()
     {
-        $groups = $this->privileges->getGroups();
+        $groups = $this->privileges->getClasses();
 
         foreach ($groups as $group)
         {
@@ -80,7 +80,7 @@ class ilRoomSharingGroupPrivilegesTableGUI extends ilTable2GUI
         // Lock Group
         if (isset($a_table_row["show_lock_row"]))
         {
-            $groups = $this->privileges->getGroups();
+            $groups = $this->privileges->getClasses();
             foreach ($groups as $group)
             {
                 $this->tpl->setCurrentBlock("group_lock");
@@ -112,7 +112,7 @@ class ilRoomSharingGroupPrivilegesTableGUI extends ilTable2GUI
         // Select all
         if (isset($a_table_row['show_select_all']))
         {
-            $groups = $this->privileges->getGroups();
+            $groups = $this->privileges->getClasses();
 
             foreach ($groups as $group)
             {
@@ -149,7 +149,7 @@ class ilRoomSharingGroupPrivilegesTableGUI extends ilTable2GUI
 
     private function addTooltips()
     {
-        $groups = $this->privileges->getGroups();
+        $groups = $this->privileges->getClasses();
 
         $cnt = 1;
         foreach ($groups as $group)

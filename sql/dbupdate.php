@@ -809,3 +809,137 @@ $ilDB->addPrimaryKey($tableGroupPriv, array("group_id"));
 $tableGroupUser = "rep_robj_xrs_grp_user";
 $ilDB->dropPrimaryKey($tableGroupUser);
 ?>
+<#13>
+<?php
+// Author: R. Heimsoth
+// Rename groups to classes
+// ##########################
+// 'rep_robj_xrs_classes'
+// 'rep_robj_xrs_cls_user'
+// 'rep_robj_xrs_cls_priv'
+// ##########################
+
+$tableClasses = 'rep_robj_xrs_classes';
+
+$fieldsClasses = array(
+	'id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'name' => array(
+		'type' => 'text',
+		'length' => 75,
+		'notnull' => true
+	),
+	'description' => array(
+		'type' => 'text',
+		'length' => 1000
+	),
+	'role_id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'pool_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClasses))
+{
+	$ilDB->dropTable($tableClasses);
+}
+$ilDB->createTable($tableClasses, $fieldsClasses);
+// add primary key
+$ilDB->addPrimaryKey($tableClasses, array("id"));
+// add sequence
+$ilDB->createSequence($tableClasses);
+// add index
+$ilDB->addIndex($tableClasses, array('pool_id'), 'i1');
+
+$tableClassUser = "rep_robj_xrs_cls_user";
+$fieldsClassUser = array(
+	'class_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	),
+	'user_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassUser))
+{
+	$ilDB->dropTable($tableClassUser);
+}
+$ilDB->createTable($tableClassUser, $fieldsClassUser);
+
+$tableClassPriv = 'rep_robj_xrs_cls_priv';
+
+$fieldsClassPriv = array(
+	'class_id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'accessappointments' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accesssearch' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addownbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addparticipants' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addsequencebookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'cancelbookinglowerpriority' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'seebookingsofrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'deleterooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'deletefloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accesssettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'deleteclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'lockprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassPriv))
+{
+	$ilDB->dropTable($tableClassPriv);
+}
+$ilDB->createTable($tableClassPriv, $fieldsClassPriv);
+
+// add primary key
+$ilDB->addPrimaryKey($tableClassPriv, array("class_id"));
+?>
+<#14>
+<?php
+// Author: R. Heimsoth
+// Delete old group tables
+// ##########################
+// 'rep_robj_xrs_groups'
+// 'rep_robj_xrs_grp_user'
+// 'rep_robj_xrs_grp_priv'
+// ##########################
+$tableGroups = "rep_robj_xrs_groups";
+$tableGroupUser = "rep_robj_xrs_grp_user";
+$tableGroupPriv = "rep_robj_xrs_grp_priv";
+if ($ilDB->tableExists($tableGroupPriv))
+{
+	$ilDB->dropTable($tableGroupPriv);
+}
+if ($ilDB->tableExists($tableGroupUser))
+{
+	$ilDB->dropTable($tableGroupUser);
+}
+if ($ilDB->tableExists($tableGroups))
+{
+	$ilDB->dropTable($tableGroups);
+}
+?>

@@ -14,7 +14,7 @@ class ilRoomSharingPrivileges
 {
 	private $pool_id;
 	private $ilRoomsharingDatabase;
-	private $groups_privileges;
+	private $classes_privileges;
 	private $lng;
 
 	/**
@@ -29,7 +29,7 @@ class ilRoomSharingPrivileges
 		$this->pool_id = $a_pool_id;
 		$this->lng = $lng;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
-		$this->groups_privileges = $this->getAllGroupsPrivileges();
+		$this->classes_privileges = $this->getAllClassPrivileges();
 	}
 
 	public function getPrivilegesMatrix()
@@ -37,11 +37,11 @@ class ilRoomSharingPrivileges
 
 		$privilegesMatrix = array();
 
-		//Only fill the array if there are more than 0 results
-		if (count($this->getGroups()) > 0)
+		//Only fill the array if there are more than 0 classes
+		if (ilRoomSharingNumericUtils::isPositiveNumber(count($this->getClasses())))
 		{
-			// Lock Group
-			$privilegesMatrix[] = array("show_lock_row" => "lock", "locked_groups" => $this->getLockedGroups());
+			// Locked classes
+			$privilegesMatrix[] = array("show_lock_row" => "lock", "locked_classes" => $this->getLockedClasses());
 
 			// ### Appointments ###
 			$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_appointments",
@@ -101,15 +101,19 @@ class ilRoomSharingPrivileges
 				"rep_robj_xrs_access_settings_description");
 			$privilegesMatrix[] = $this->addPrivilege("accessPrivileges", "rep_robj_xrs_access_privileges",
 				"rep_robj_xrs_access_privileges_description");
-			$privilegesMatrix[] = $this->addPrivilege("addGroup", "rep_robj_xrs_create_group",
-				"rep_robj_xrs_create_group_description");
+			$privilegesMatrix[] = $this->addPrivilege("addClass", "rep_robj_xrs_create_class",
+				"rep_robj_xrs_create_class_description");
+			$privilegesMatrix[] = $this->addPrivilege("editClass", "rep_robj_xrs_edit_class",
+				"rep_robj_xrs_edit_class_description");
+			$privilegesMatrix[] = $this->addPrivilege("deleteClass", "rep_robj_xrs_delete_class",
+				"rep_robj_xrs_delete_class_description");
 			$privilegesMatrix[] = $this->addPrivilege("editPrivileges", "rep_robj_xrs_edit_privileges",
 				"rep_robj_xrs_edit_privileges_description");
 			$privilegesMatrix[] = $this->addPrivilege("lockPrivileges", "rep_robj_xrs_lock_privileges",
 				"rep_robj_xrs_lock_privileges_description");
 			$privilegesMatrix[] = $this->addSelectMultipleCheckbox("privileges",
 				array("accessSettings",
-				"accessPrivileges", "addGroup", "editPrivileges", "lockPrivileges"));
+				"accessPrivileges", "addClass", "editPrivileges", "lockPrivileges"));
 		}
 		return $privilegesMatrix;
 	}
@@ -134,35 +138,37 @@ class ilRoomSharingPrivileges
 		$priv[] = 'deleteFloorplans';
 		$priv[] = 'accessSettings';
 		$priv[] = 'accessPrivileges';
-		$priv[] = 'addGroup';
+		$priv[] = 'addClass';
+		$priv[] = 'editClass';
+		$priv[] = 'deleteClass';
 		$priv[] = 'editPrivileges';
 		$priv[] = 'lockPrivileges';
 
 		return $priv;
 	}
 
-	public function getGroups()
+	public function getClasses()
 	{
-		$grp = array();
-		$groups = $this->ilRoomsharingDatabase->getGroups();
-		foreach ($groups as $group)
+		$cls = array();
+		$classes = $this->ilRoomsharingDatabase->getClasses();
+		foreach ($classes as $class)
 		{
-			$grp_values = $group;
-			$grp_values['role'] = $this->getGlobalRoleTitle($group['role_id']);
-			$grp[] = $grp_values;
+			$cls_values = $class;
+			$cls_values['role'] = $this->getGlobalRoleTitle($class['role_id']);
+			$cls[] = $cls_values;
 		}
 
-		return $grp;
+		return $cls;
 	}
 
-	public function getGroupById($a_group_id)
+	public function getClassById($a_class_id)
 	{
-		return $this->ilRoomsharingDatabase->getGroupById($a_group_id);
+		return $this->ilRoomsharingDatabase->getClassById($a_class_id);
 	}
 
-	public function getAssignedUsersForGroup($a_group_id)
+	public function getAssignedUsersForClass($a_class_id)
 	{
-		$assigned_user_ids = $this->ilRoomsharingDatabase->getUsersForGroup($a_group_id);
+		$assigned_user_ids = $this->ilRoomsharingDatabase->getUsersForClass($a_class_id);
 		$assigned_users = array();
 		foreach ($assigned_user_ids as $assigned_user_id)
 		{
@@ -209,51 +215,51 @@ class ilRoomSharingPrivileges
 		return $roleName;
 	}
 
-	public function addGroup($a_groupData)
+	public function addClass($a_classData)
 	{
-		$insertedID = $this->ilRoomsharingDatabase->insertGroup($a_groupData['name'],
-			$a_groupData['description'], $a_groupData['role_id'], $a_groupData['copied_group_privileges']);
+		$insertedID = $this->ilRoomsharingDatabase->insertClass($a_classData['name'],
+			$a_classData['description'], $a_classData['role_id'], $a_classData['copied_group_privileges']);
 		if (!ilRoomSharingNumericUtils::isPositiveNumber($insertedID))
 		{
 			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_group_not_created");
 		}
 	}
 
-	public function editGroup($a_groupData)
+	public function editClass($a_classData)
 	{
-		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_groupData['id']))
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_classData['id']))
 		{
 			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_group_id_incorrect");
 		}
-		$this->ilRoomsharingDatabase->updateGroup($a_groupData['id'], $a_groupData['name'],
-			$a_groupData['description'], $a_groupData['role_id']);
+		$this->ilRoomsharingDatabase->updateClass($a_classData['id'], $a_classData['name'],
+			$a_classData['description'], $a_classData['role_id']);
 	}
 
-	public function updateGroup($a_groupData)
+	public function updateClass($a_classData)
 	{
-		$this->ilRoomsharingDatabase->updateGroup($a_groupData['id'], $a_groupData['name'],
-			$a_groupData['description'], $a_groupData['role_id']);
+		$this->ilRoomsharingDatabase->updateClass($a_classData['id'], $a_classData['name'],
+			$a_classData['description'], $a_classData['role_id']);
 	}
 
-	public function assignUsersToGroup($a_group_id, $a_user_ids)
+	public function assignUsersToClass($a_class_id, $a_user_ids)
 	{
 		foreach ($a_user_ids as $user_id)
 		{
-			$this->ilRoomsharingDatabase->assignUserToGroup($a_group_id, $user_id);
+			$this->ilRoomsharingDatabase->assignUserToClass($a_class_id, $user_id);
 		}
 	}
 
-	public function deassignUsersFromGroup($a_group_id, $a_users_ids)
+	public function deassignUsersFromClass($a_class_id, $a_users_ids)
 	{
 		foreach ($a_users_ids as $user_id)
 		{
-			$this->ilRoomsharingDatabase->deassignUserFromGroup($a_group_id, $user_id);
+			$this->ilRoomsharingDatabase->deassignUserFromClass($a_class_id, $user_id);
 		}
 	}
 
-	public function deleteGroup($a_group_id)
+	public function deleteClass($a_class_id)
 	{
-		$this->ilRoomsharingDatabase->deleteGroup($a_group_id);
+		$this->ilRoomsharingDatabase->deleteClass($a_class_id);
 	}
 
 	public function setPrivileges($a_privileges)
@@ -267,18 +273,18 @@ class ilRoomSharingPrivileges
 				$privileges[] = $given_privilege_key;
 			}
 			$no_privileges = array_diff($this->getPrivileges(), $privileges);
-			$this->ilRoomsharingDatabase->setPrivilegesForGroup($group_id, $privileges, $no_privileges);
+			$this->ilRoomsharingDatabase->setPrivilegesForClass($group_id, $privileges, $no_privileges);
 		}
 	}
 
-	public function setLockedGroups($a_group_ids)
+	public function setLockedClasses($a_group_ids)
 	{
-		$this->ilRoomsharingDatabase->setLockedGroups($a_group_ids);
+		$this->ilRoomsharingDatabase->setLockedClasses($a_group_ids);
 	}
 
-	public function getLockedGroups()
+	public function getLockedClasses()
 	{
-		return $this->ilRoomsharingDatabase->getLockedGroups();
+		return $this->ilRoomsharingDatabase->getLockedClasses();
 	}
 
 	/**
@@ -313,23 +319,23 @@ class ilRoomSharingPrivileges
 				"id" => $a_id,
 				"name" => $this->lng->txt($a_name_lng_key),
 				"description" => $this->lng->txt($a_description_lng_key)),
-			"groups" => $this->getGroupsPrivilegeValue($a_id)
+			"groups" => $this->getClassPrivilegeValue($a_id)
 		);
 	}
 
-	private function getAllGroupsPrivileges()
+	private function getAllClassPrivileges()
 	{
 		$privileges = array();
-		$groups = $this->ilRoomsharingDatabase->getGroups();
-		foreach ($groups as $group)
+		$classes = $this->ilRoomsharingDatabase->getClasses();
+		foreach ($classes as $class)
 		{
-			$privileges[$group['id']] = array();
-			$grp_privileges = $this->ilRoomsharingDatabase->getPrivilegesOfGroup($group['id']);
-			foreach ($grp_privileges as $privilege_id => $privilege_value)
+			$privileges[$class['id']] = array();
+			$cls_privileges = $this->ilRoomsharingDatabase->getPrivilegesOfClass($class['id']);
+			foreach ($cls_privileges as $privilege_id => $privilege_value)
 			{
 				if ($privilege_value == 1)
 				{
-					$privileges[$group['id']][] = $privilege_id;
+					$privileges[$class['id']][] = $privilege_id;
 				}
 			}
 		}
@@ -337,24 +343,24 @@ class ilRoomSharingPrivileges
 	}
 
 	/**
-	 * Get each group values to the specific privilege
+	 * Get each class values to the specific privilege
 	 *
 	 * @param string $a_privilege_id Privilege ID
 	 *
-	 * @return array Array with the group-ids and if this privilege is set or not
+	 * @return array Array with the class-ids and if this privilege is set or not
 	 */
-	private function getGroupsPrivilegeValue($a_privilege_id)
+	private function getClassPrivilegeValue($a_privilege_id)
 	{
 		$privilegesArray = array();
-		foreach ($this->groups_privileges as $group_id => $group_privileges_ids)
+		foreach ($this->classes_privileges as $class_id => $class_privileges_ids)
 		{
-			if (in_array(strtolower($a_privilege_id), $group_privileges_ids))
+			if (in_array(strtolower($a_privilege_id), $class_privileges_ids))
 			{
-				$privilegesArray[] = array("id" => $group_id, "privilege_set" => true);
+				$privilegesArray[] = array("id" => $class_id, "privilege_set" => true);
 			}
 			else
 			{
-				$privilegesArray[] = array("id" => $group_id, "privilege_set" => false);
+				$privilegesArray[] = array("id" => $class_id, "privilege_set" => false);
 			}
 		}
 		return $privilegesArray;

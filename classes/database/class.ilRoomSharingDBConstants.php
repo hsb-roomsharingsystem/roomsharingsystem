@@ -19,8 +19,8 @@ class ilRoomSharingDBConstants
 	const ROOM_ATTRIBUTES_TABLE = 'rep_robj_xrs_rattr';
 	const ROOMS_TABLE = 'rep_robj_xrs_rooms';
 	const ROOM_TO_ATTRIBUTE_TABLE = 'rep_robj_xrs_room_attr';
-	const GROUPS_TABLE = 'rep_robj_xrs_groups';
-	const GROUP_USER_TABLE = 'rep_robj_xrs_grp_user';
-	const GROUP_PRIVILEGES_TABLE = 'rep_robj_xrs_grp_priv';
+	const CLASSES_TABLE = 'rep_robj_xrs_classes';
+	const CLASS_USER_TABLE = 'rep_robj_xrs_cls_user';
+	const CLASS_PRIVILEGES_TABLE = 'rep_robj_xrs_cls_priv';
 
 }

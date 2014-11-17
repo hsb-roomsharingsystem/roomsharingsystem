@@ -168,8 +168,12 @@ access_settings#:#Einstellungen aufrufen
 access_settings_description#:#Zugang zum Reiter "Einstellungen"
 access_privileges#:#Privilegien aufrufen
 access_privileges_description#:#Zugang zum Reiter "Privilegien"
-create_group#:#Gruppe anlegen
-create_group_description#:#Neue Gruppe anlegbar
+create_class#:#Klasse anlegen
+create_class_description#:#Neue Klassen anlegbar
+edit_class#:#Klasse bearbeiten
+edit_class_description#:#Vorhandene Klassen bearbeitbar
+delete_class#:#Klasse löschen
+delete_class_description#:#Vorhandene Klassen löschbar
 edit_privileges#:#Privilegien bearbeiten
 edit_privileges_description#:#Privilegien aller Gruppen bearbeiten
 lock_privileges#:#Privilegien sperren
