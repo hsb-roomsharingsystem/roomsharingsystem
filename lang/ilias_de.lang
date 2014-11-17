@@ -174,3 +174,7 @@ edit_privileges#:#Privilegien bearbeiten
 edit_privileges_description#:#Privilegien aller Gruppen bearbeiten
 lock_privileges#:#Privilegien sperren
 lock_privileges_description#:#Privilegien aller Gruppen sperrbar, so dass diese Gruppen keinerlei Privilegien haben
+group_back#:#Zurück zu den Gruppeneigenschaften
+group_confirm_deletion_header#:#Möchten Sie wirklich die ausgewählte Gruppe löschen?
+group_confirm_deletion#:#Gruppe löschen
+group_deletion_successful#:#Gruppe wurde erfolgreich gelöscht

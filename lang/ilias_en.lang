@@ -174,3 +174,7 @@ edit_privileges#:#Edit privileges
 edit_privileges_description#:#Privileges of all groups editable
 lock_privileges#:#Lock privileges
 lock_privileges_description#:#Privileges of all groups can be locked, so that the group has no more privileges
+group_back#:#Back to group properties
+group_confirm_deletion_header#:#Are you sure you want to delete the following group?
+group_confirm_deletion#:#Delete group
+group_deletion_successful#:#Group has been deleted successfully
