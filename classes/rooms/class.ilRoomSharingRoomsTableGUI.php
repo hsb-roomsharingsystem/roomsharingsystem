@@ -282,8 +282,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$room_attribute_input->setMaxLength(8);
 			$room_attribute_input->setSize(8);
 			$room_attribute_input->setMinValue(0);
-			$room_attribute_input->setMaxValue(
-				$this->rooms->getMaxCountForAttribute($room_attribute));
+			$max_count = $this->rooms->getMaxCountForAttribute($room_attribute);
+			$max_count_num = isset($max_count) ? $max_count : 0;
+			$room_attribute_input->setMaxValue($max_count_num);
 			$room_attribute_comb->addCombinationItem("amount", $room_attribute_input,
 				$this->lng->txt("rep_robj_xrs_amount"));
 
