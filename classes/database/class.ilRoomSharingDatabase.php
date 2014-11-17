@@ -92,7 +92,6 @@ class ilRoomsharingDatabase
 
 	public function getAllRoomIds()
 	{
-
 		$resRoomIds = $this->ilDB->query('SELECT id FROM ' . dbc::ROOMS_TABLE);
 		$room_ids = array();
 		while ($row = $this->ilDB->fetchAssoc($resRoomIds))
@@ -473,27 +472,27 @@ class ilRoomsharingDatabase
 		}
 		return $participants;
 	}
-        
-        /*
-         * Gets only the usernames of the participants of a booking.
-         * 
-         * @param integer $a_booking_id
-         * @return type return of $this->ilDB->query
-         */
-        public function getParticipantsForBookingShort($a_booking_id)
-        {
-            $set = $this->ilDB->query('SELECT  users.login AS login' .
-                    ' FROM ' . dbc::USER_TABLE . ' participants ' .
-                    ' INNER JOIN usr_data AS users ON users.usr_id = participants.user_id' .
-                    ' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
-                    ' ORDER BY users.lastname, users.firstname ASC');
-            $participants = array();
-            while ($row = $this->ilDB->fetchAssoc($set))
-            {
-                    $participants[] = $row['login'];
-            }
-            return $participants;
-        }
+
+	/*
+	 * Gets only the usernames of the participants of a booking.
+	 *
+	 * @param integer $a_booking_id
+	 * @return type return of $this->ilDB->query
+	 */
+	public function getParticipantsForBookingShort($a_booking_id)
+	{
+		$set = $this->ilDB->query('SELECT  users.login AS login' .
+			' FROM ' . dbc::USER_TABLE . ' participants ' .
+			' INNER JOIN usr_data AS users ON users.usr_id = participants.user_id' .
+			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
+			' ORDER BY users.lastname, users.firstname ASC');
+		$participants = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$participants[] = $row['login'];
+		}
+		return $participants;
+	}
 
 	/**
 	 * Gets all attributes of a booking.
