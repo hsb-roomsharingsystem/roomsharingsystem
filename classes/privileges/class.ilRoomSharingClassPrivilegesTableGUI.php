@@ -151,13 +151,22 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
     {
         $classes = $this->privileges->getClasses();
 
+//        $cnt = 1;
+//        foreach ($classes as $class)
+//        {
+//            $role_text = $this->isClassAssignedToRole($class) ? $class["role"] : $this->lng->txt("none");
+//
+//            ilTooltipGUI::addTooltip("thc_" . $this->getId() . "_" . $cnt, "<pre>" . $this->lng->txt("rep_robj_xrs_class") . ": " . $class["name"] . "&#13;&#10;"
+//                    . $this->lng->txt("rep_robj_xrs_privileges_role_assignment") . ": " . $role_text . "</pre>", "", "bottom center", "top center", false) . "&#13;&#10;" . $this->lng->txt("rep_robj_xrs_class_priority") . ": " . $class["priority"];
+//            $cnt++;
+//        }
         $cnt = 1;
         foreach ($classes as $class)
         {
             $role_text = $this->isClassAssignedToRole($class) ? $class["role"] : $this->lng->txt("none");
 
             ilTooltipGUI::addTooltip("thc_" . $this->getId() . "_" . $cnt, "<pre>" . $this->lng->txt("rep_robj_xrs_class") . ": " . $class["name"] . "&#13;&#10;"
-                    . $this->lng->txt("rep_robj_xrs_privileges_role_assignment") . ": " . $role_text . "</pre>", "", "bottom center", "top center", false) . "&#13;&#10;" . $this->lng->txt("rep_robj_xrs_class_priority") . $class["priority"];
+                . $this->lng->txt("rep_robj_xrs_privileges_role_assignment") . ": " . $role_text . "&#13;&#10;" . $this->lng->txt("rep_robj_xrs_class_priority") . ": " . $class["priority"] . "</pre>", "", "bottom center", "top center", false);
             $cnt++;
         }
     }

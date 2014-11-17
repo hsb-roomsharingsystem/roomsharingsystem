@@ -131,6 +131,7 @@ class ilRoomSharingClassGUI
         $priority = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_class_priority"), "priority");
         $priority_levels = range(0, 9);
         $priority->setOptions($priority_levels);
+        $priority->setValue($class_info["priority"]);
         $form->addItem($priority);
 
         // Role assignment
