@@ -23,6 +23,8 @@ class ilRoomSharingAssignedUsersTableGUI extends ilTable2GUI
 	{
 		global $ilCtrl, $lng;
 
+		parent::__construct($a_parent_obj, $a_parent_cmd);
+
 		$this->lng = $lng;
 		$this->ctrl = $ilCtrl;
 		$this->group_id = $a_group_id;
@@ -30,7 +32,7 @@ class ilRoomSharingAssignedUsersTableGUI extends ilTable2GUI
 
 		$this->privileges = new ilRoomSharingPrivileges($a_parent_obj->getPoolId());
 
-		parent::__construct($a_parent_obj, $a_parent_cmd);
+
 
 		$this->setExternalSorting(true);
 		$this->setExternalSegmentation(true);
@@ -66,10 +68,9 @@ class ilRoomSharingAssignedUsersTableGUI extends ilTable2GUI
 		$this->tpl->setVariable("TXT_LOGIN", $a_user_data["login"]);
 		$this->tpl->setVariable("TXT_FIRSTNAME", $a_user_data["firstname"]);
 		$this->tpl->setVariable("TXT_LASTNAME", $a_user_data["lastname"]);
+		$this->ctrl->setParameter($this->parent, "user_id", $a_user_data["id"]);
 		$this->tpl->setVariable("LINK_ACTION", $this->ctrl->getLinkTarget($this->parent, "deassignUsers"));
 		$this->tpl->setVariable("LINK_ACTION_TXT", $this->lng->txt("remove"));
-
-		$this->ctrl->setParameter($this->parent, "user_id", $a_user_data["id"]);
 	}
 
 	private function addColumns()

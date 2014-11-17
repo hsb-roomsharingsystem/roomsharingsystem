@@ -989,7 +989,7 @@ class ilRoomsharingDatabase
 		return $this->ilDB->update(dbc::GROUPS_TABLE, $fields, $where);
 	}
 
-	public function addUserToGroup($a_group_id, $a_user_id)
+	public function assignUserToGroup($a_group_id, $a_user_id)
 	{
 		if (!$this->isUserInGroup($a_group_id, $a_user_id))
 		{
@@ -999,6 +999,31 @@ class ilRoomsharingDatabase
 				'user_id' => array('integer', $a_user_id)
 			));
 		}
+	}
+
+	public function getUsersForGroup($a_group_id)
+	{
+		$set = $this->ilDB->query('SELECT user_id FROM ' . dbc::GROUP_USER_TABLE .
+			' WHERE group_id = ' . $this->ilDB->quote($a_group_id, 'integer'));
+		$assigned_user_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$assigned_user_ids[] = $row['user_id'];
+		}
+		return $assigned_user_ids;
+	}
+
+	public function deassignUserFromGroup($a_group_id, $a_user_id)
+	{
+		$this->ilDB->manipulate("DELETE FROM " . dbc::GROUP_USER_TABLE .
+			" WHERE group_id = " . $this->ilDB->quote($a_group_id, 'integer') .
+			" AND user_id = " . $this->ilDB->quote($a_user_id, 'integer'));
+	}
+
+	public function clearUsersInGroup($a_group_id)
+	{
+		$this->ilDB->manipulate("DELETE FROM " . dbc::GROUP_USER_TABLE .
+			" WHERE group_id = " . $this->ilDB->quote($a_group_id, 'integer'));
 	}
 
 	public function isUserInGroup($a_group_id, $a_user_id)

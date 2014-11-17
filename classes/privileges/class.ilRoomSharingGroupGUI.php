@@ -236,6 +236,7 @@ class ilRoomSharingGroupGUI
 
 	public function addUsersToGroup($a_user_ids)
 	{
+		$this->privileges->assignUsersToGroup($this->group_id, $a_user_ids);
 		ilUtil::sendSuccess($this->lng->txt("ADDED USER IDS: " . implode(", ", $a_user_ids)), true);
 		$this->ctrl->redirect($this, "renderuserassignment");
 	}
@@ -243,6 +244,7 @@ class ilRoomSharingGroupGUI
 	public function deassignUsers()
 	{
 		$selected_users = ($_POST["user_id"]) ? $_POST["user_id"] : array($_GET["user_id"]);
+		$this->privileges->deassignUsersFromGroup($this->group_id, $selected_users);
 		ilUtil::sendSuccess($this->lng->txt("DEASSIGNED USERS: " . implode(", ", $selected_users)), true);
 		$this->renderUserAssignment();
 	}

@@ -157,6 +157,22 @@ class ilRoomSharingPrivileges
 
 	public function getAssignedUsersForGroup($a_group_id)
 	{
+		$assigned_user_ids = $this->ilRoomsharingDatabase->getUsersForGroup($a_group_id);
+		$assigned_users = array();
+		foreach ($assigned_user_ids as $assigned_user_id)
+		{
+
+			$user_name = ilObjUser::_lookupName($assigned_user_id);
+
+			$user_data = array();
+			$user_data['login'] = ilObjUser::_lookupLogin($assigned_user_id);
+			$user_data['firstname'] = $user_name['firstname'];
+			$user_data['lastname'] = $user_name['lastname'];
+			$user_data['id'] = $assigned_user_id;
+
+			$assigned_users[] = $user_data;
+		}
+
 		$assigned_users[] = array("login" => "plustig", "firstname" => "Peter", "lastname" => "Lustig", "id" => 2001);
 		$assigned_users[] = array("login" => "mmustermann", "firstname" => "Max", "lastname" => "Mustermann",
 			"id" => 2002);
@@ -218,10 +234,20 @@ class ilRoomSharingPrivileges
 			$a_groupData['description'], $a_groupData['role_id']);
 	}
 
-	public function addUserToGroup($a_group_id, $a_user_id)
+	public function assignUsersToGroup($a_group_id, $a_user_ids)
 	{
-		//TODO ERROR CATCHING
-		$this->ilRoomsharingDatabase->addUserToGroup($a_group_id, $a_user_id);
+		foreach ($a_user_ids as $user_id)
+		{
+			$this->ilRoomsharingDatabase->assignUserToGroup($a_group_id, $user_id);
+		}
+	}
+
+	public function deassignUsersFromGroup($a_group_id, $a_users_ids)
+	{
+		foreach ($a_users_ids as $user_id)
+		{
+			$this->ilRoomsharingDatabase->deassignUserFromGroup($a_group_id, $user_id);
+		}
 	}
 
 	public function setPrivileges($a_privileges)
