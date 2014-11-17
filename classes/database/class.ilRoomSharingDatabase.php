@@ -1026,6 +1026,20 @@ class ilRoomsharingDatabase
 			" WHERE group_id = " . $this->ilDB->quote($a_group_id, 'integer'));
 	}
 
+	public function deleteGroupPrivileges($a_group_id)
+	{
+		$this->ilDB->manipulate("DELETE FROM " . dbc::GROUP_PRIVILEGES_TABLE .
+			" WHERE group_id = " . $this->ilDB->quote($a_group_id, 'integer'));
+	}
+
+	public function deleteGroup($a_group_id)
+	{
+		$this->clearUsersInGroup($a_group_id);
+		$this->deleteGroupPrivileges($a_group_id);
+		$this->ilDB->manipulate("DELETE FROM " . dbc::GROUPS_TABLE .
+			" WHERE id = " . $this->ilDB->quote($a_group_id, 'integer'));
+	}
+
 	public function isUserInGroup($a_group_id, $a_user_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::GROUP_USER_TABLE .

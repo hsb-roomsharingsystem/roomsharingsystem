@@ -250,6 +250,11 @@ class ilRoomSharingPrivileges
 		}
 	}
 
+	public function deleteGroup($a_group_id)
+	{
+		$this->ilRoomsharingDatabase->deleteGroup($a_group_id);
+	}
+
 	public function setPrivileges($a_privileges)
 	{
 
