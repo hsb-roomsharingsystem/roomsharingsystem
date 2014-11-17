@@ -233,7 +233,8 @@ class ilRoomSharingPrivileges
 	public function addClass($a_classData)
 	{
 		$insertedID = $this->ilRoomsharingDatabase->insertClass($a_classData['name'],
-			$a_classData['description'], $a_classData['role_id'], $a_classData['copied_class_privileges']);
+			$a_classData['description'], $a_classData['role_id'], $a_classData['priority'],
+			$a_classData['copied_class_privileges']);
 		if (!ilRoomSharingNumericUtils::isPositiveNumber($insertedID))
 		{
 			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_class_not_created");
@@ -247,13 +248,7 @@ class ilRoomSharingPrivileges
 			throw new ilRoomSharingPrivilegesException("rep_robj_xrs_class_id_incorrect");
 		}
 		$this->ilRoomsharingDatabase->updateClass($a_classData['id'], $a_classData['name'],
-			$a_classData['description'], $a_classData['role_id']);
-	}
-
-	public function updateClass($a_classData)
-	{
-		$this->ilRoomsharingDatabase->updateClass($a_classData['id'], $a_classData['name'],
-			$a_classData['description'], $a_classData['role_id']);
+			$a_classData['description'], $a_classData['role_id'], $a_classData['priority']);
 	}
 
 	public function assignUsersToClass($a_class_id, $a_user_ids)

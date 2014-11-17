@@ -952,13 +952,14 @@ class ilRoomsharingDatabase
 		}
 	}
 
-	public function insertClass($a_name, $a_description, $a_role_id, $a_copy_class_id)
+	public function insertClass($a_name, $a_description, $a_role_id, $a_priority, $a_copy_class_id)
 	{
 		$this->ilDB->insert(dbc::CLASSES_TABLE,
 			array(
 			'id' => array('integer', $this->ilDB->nextId(dbc::CLASSES_TABLE)),
 			'name' => array('text', $a_name),
 			'description' => array('text', $a_description),
+			'priority' => array('integer', $a_priority),
 			'role_id' => array('integer', $a_role_id),
 			'pool_id' => array('integer', $this->pool_id)
 		));
@@ -990,10 +991,11 @@ class ilRoomsharingDatabase
 		return $insertedID;
 	}
 
-	public function updateClass($a_class_id, $a_name, $a_description, $a_role_id)
+	public function updateClass($a_class_id, $a_name, $a_description, $a_role_id, $a_priority)
 	{
 		$fields = array('name' => array('text', $a_name),
 			'description' => array('text', $a_description),
+			'priority' => array('integer', $a_priority),
 			'role_id' => array('integer', $a_role_id),
 			'pool_id' => array('integer', $this->pool_id));
 		$where = array('id' => array('integer', $a_class_id));
