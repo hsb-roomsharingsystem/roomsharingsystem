@@ -798,3 +798,13 @@ $ilDB->createTable($tableGroupPriv, $fieldsGroupPriv);
 // add primary key
 $ilDB->addPrimaryKey($tableGroupPriv, array("group_id"));
 ?>
+<#12>
+<?php
+// Author: R. Heimsoth
+// Drop Primary Key
+// ##########################
+// 'rep_robj_xrs_grp_user'
+// ##########################
+
+$ilDB->dropPrimaryKey($tableGroupUser);
+?>
