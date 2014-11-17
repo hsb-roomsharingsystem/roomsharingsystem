@@ -214,7 +214,6 @@ class ilRoomSharingPrivileges
 
 	public function updateGroup($a_groupData)
 	{
-		//TODO ERROR CATCHING
 		$this->ilRoomsharingDatabase->updateGroup($a_groupData['id'], $a_groupData['name'],
 			$a_groupData['description'], $a_groupData['role_id']);
 	}

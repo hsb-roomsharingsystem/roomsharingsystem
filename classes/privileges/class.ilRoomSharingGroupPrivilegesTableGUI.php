@@ -7,6 +7,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * Class ilRoomSharingGroupPrivilegesTableGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  *
  * @version $Id$
  */
@@ -150,7 +151,7 @@ class ilRoomSharingGroupPrivilegesTableGUI extends ilTable2GUI
 
 	private function createTitle($a_group_set)
 	{
-		// &#8658; = Unicode double arrow to right
+		// &#8658; = Unicode double arrow to the right
 		$assigned_role = $this->isGroupAssignedToRole($a_group_set) ? " &#8658; " . $a_group_set["role"] : null;
 		$table_head = $a_group_set["name"] . $assigned_role;
 
