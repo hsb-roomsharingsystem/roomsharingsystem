@@ -46,8 +46,8 @@ floor_plans_replace_info#:#Der bisherige Gebäudeplan wird durch einen neuen ers
 floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_upload_error#:#Fehler beim Hochladen des Geäudeplans. Die Mögliche Ursache ist die verwendung eines nicht unterstütztes Datei Formats
 from#:#von
-group_not_created#:#Gruppe konnte nicht erstellt werden
-group_id_incorrect#:#Gruppen-ID ist nicht korrekt
+class_not_created#:#Klasse konnte nicht erstellt werden
+class_id_incorrect#:#Klassen-ID ist nicht korrekt
 leave#:#Austreten
 mail_booking_creator_linktext#:#Du findest deine Buchung unter folgendem Link:
 mail_booking_creator_message#:#Du hast erfolgreich eine Buchung eingetragen. Du hast folgendes gebucht:
@@ -72,10 +72,10 @@ pool#:#Roomsharingpool
 pools#:#Roomsharingpools
 privileges#:#Privilegien
 privileges_copy_privileges#:#Privilegien kopieren
-privileges_group_edit#:#Gruppe bearbeiten
-privileges_group_new#:#Neue Gruppe anlegen
+privileges_class_edit#:#Klasse bearbeiten
+privileges_class_new#:#Neue Klasse anlegen
 privileges_lock#:#Privilegien sperren
-privileges_lock_desc#:#Sperrt die Privilegien für die Gruppe
+privileges_lock_desc#:#Sperrt die Privilegien für die Klasse
 privileges_role_assignment#:#Rollenzuordnung
 privileges_settings#:#Privilegieneinstellungen
 quick_search#:#Schnellsuche
@@ -131,54 +131,54 @@ xrs_visible#:#RoomSharing ist sichtbar
 xrs_write#:#RoomSharing bearbeiten
 
 //Privileges 
-appointments_privileges_description#:#Hier sind die Privilegien für die Termine aufgeführt
 access_appointments#:#Termine aufrufen
 access_appointments_description#:#Zugang zum Reiter "Termine"
-access_search#:#Suche aufrufen
-access_search_description#:#Zugang zum Reiter "Suche"
-create_edit_delete#:#Erstellen, Bearbeiten, Stornieren
-create_edit_delete_description#:#Eigene Buchungen anleg-, bearbeit- und stornierbar
-add_participant#:#Teilnahmer hinzufügen
-add_participant_description#:#Teilnehmer zu einer Buchung hinzufügbar
-sequence_bookings#:#Serienbuchungen
-sequence_bookings_addable#:#Serienbuchungen anlegbar
-cancel_lower_priority#:#Niedrigere Priorität stornieren
-cancel_lower_priority_description#:#Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar
-rooms_privileges_description#:#Hier sind die Privilegien für die Räume aufgeführt
-access_rooms#:#Räume aufrufen
-access_rooms_description#:#Zugang zum Reiter "Räume"
-see_booking_of_rooms#:#Buchungen einsehen
-see_booking_of_rooms_description#:#Buchungen von einzelnen Räumen in Detailansicht einsehbar
-create_rooms_description#:#Neue Räume erstellbar
-create_edit_rooms_description#:#Vorhandene Räume können bearbeitet werden
-create_delete_rooms_description#:#Vorhandene Räume können gelöscht werden
-create#:#Erstellen
-edit#:#Bearbeiten
-delete#:#Löschen
-floorplans#:#Gebäudepläne
-floorplans_privileges_description#:#Hier sind die Privilegien für die Gebäudepläne aufgeführt
 access_floorplans#:#Gebäudepläne aufrufen
 access_floorplans_description#:#Zugang zum Reiter "Gebäudepläne"
-create_floorplans_description#:#Neue Gebäudepläne erstellbar
-edit_floorplans_description#:#Vorhandene Gebäudepläne können bearbeitet werden
-delete_floorplans_description#:#Vorhandene Gebäudepläne können gelöscht werden
-general_privileges#:#Allgemeine Privilegien
-general_privileges_description#:#Hier sind die allgemeinen Privilegien aufgeführt
-access_settings#:#Einstellungen aufrufen
-access_settings_description#:#Zugang zum Reiter "Einstellungen"
 access_privileges#:#Privilegien aufrufen
 access_privileges_description#:#Zugang zum Reiter "Privilegien"
+access_rooms#:#Räume aufrufen
+access_rooms_description#:#Zugang zum Reiter "Räume"
+access_search#:#Suche aufrufen
+access_search_description#:#Zugang zum Reiter "Suche"
+access_settings#:#Einstellungen aufrufen
+access_settings_description#:#Zugang zum Reiter "Einstellungen"
+add_participant#:#Teilnahmer hinzufügen
+add_participant_description#:#Teilnehmer zu einer Buchung hinzufügbar
+appointments_privileges_description#:#Hier sind die Privilegien für die Termine aufgeführt
+cancel_lower_priority#:#Niedrigere Priorität stornieren
+cancel_lower_priority_description#:#Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar
+class_back#:#Zurück zu den Klasseneigenschaften
+class_confirm_deletion#:#Klasse löschen
+class_confirm_deletion_header#:#Möchten Sie wirklich die ausgewählte Klasse löschen?
+class_deletion_successful#:#Klasse wurde erfolgreich gelöscht
+create#:#Erstellen
 create_class#:#Klasse anlegen
 create_class_description#:#Neue Klassen anlegbar
-edit_class#:#Klasse bearbeiten
-edit_class_description#:#Vorhandene Klassen bearbeitbar
+create_delete_rooms_description#:#Vorhandene Räume können gelöscht werden
+create_edit_delete#:#Erstellen, Bearbeiten, Stornieren
+create_edit_delete_description#:#Eigene Buchungen anleg-, bearbeit- und stornierbar
+create_edit_rooms_description#:#Vorhandene Räume können bearbeitet werden
+create_floorplans_description#:#Neue Gebäudepläne erstellbar
+create_rooms_description#:#Neue Räume erstellbar
+delete#:#Löschen
 delete_class#:#Klasse löschen
 delete_class_description#:#Vorhandene Klassen löschbar
+delete_floorplans_description#:#Vorhandene Gebäudepläne können gelöscht werden
+edit#:#Bearbeiten
+edit_class#:#Klasse bearbeiten
+edit_class_description#:#Vorhandene Klassen bearbeitbar
+edit_floorplans_description#:#Vorhandene Gebäudepläne können bearbeitet werden
 edit_privileges#:#Privilegien bearbeiten
-edit_privileges_description#:#Privilegien aller Gruppen bearbeiten
+edit_privileges_description#:#Privilegien aller Klassen bearbeiten
+floorplans#:#Gebäudepläne
+floorplans_privileges_description#:#Hier sind die Privilegien für die Gebäudepläne aufgeführt
+general_privileges#:#Allgemeine Privilegien
+general_privileges_description#:#Hier sind die allgemeinen Privilegien aufgeführt
 lock_privileges#:#Privilegien sperren
-lock_privileges_description#:#Privilegien aller Gruppen sperrbar, so dass diese Gruppen keinerlei Privilegien haben
-group_back#:#Zurück zu den Gruppeneigenschaften
-group_confirm_deletion_header#:#Möchten Sie wirklich die ausgewählte Gruppe löschen?
-group_confirm_deletion#:#Gruppe löschen
-group_deletion_successful#:#Gruppe wurde erfolgreich gelöscht
+lock_privileges_description#:#Privilegien aller Klassen sperrbar, so dass diese Klassen keinerlei Privilegien haben
+rooms_privileges_description#:#Hier sind die Privilegien für die Räume aufgeführt
+see_booking_of_rooms#:#Buchungen einsehen
+see_booking_of_rooms_description#:#Buchungen von einzelnen Räumen in Detailansicht einsehbar
+sequence_bookings#:#Serienbuchungen
+sequence_bookings_addable#:#Serienbuchungen anlegbar

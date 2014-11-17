@@ -12,76 +12,74 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  */
 class ilRoomSharingAssignedUsersTableGUI extends ilTable2GUI
 {
-	private $ctrl;
-	private $privileges;
-	private $parent;
+    private $ctrl;
+    private $privileges;
+    private $parent;
 
-	/**
-	 * Constructor for ilRoomSharingAssignedUsersTableGUI
-	 */
-	public function __construct($a_parent_obj, $a_parent_cmd, $a_group_id)
-	{
-		global $ilCtrl, $lng;
+    /**
+     * Constructor for ilRoomSharingAssignedUsersTableGUI
+     */
+    public function __construct($a_parent_obj, $a_parent_cmd, $a_class_id)
+    {
+        global $ilCtrl, $lng;
 
-		parent::__construct($a_parent_obj, $a_parent_cmd);
+        parent::__construct($a_parent_obj, $a_parent_cmd);
 
-		$this->lng = $lng;
-		$this->ctrl = $ilCtrl;
-		$this->group_id = $a_group_id;
-		$this->parent = $a_parent_obj;
+        $this->lng = $lng;
+        $this->ctrl = $ilCtrl;
+        $this->class_id = $a_class_id;
+        $this->parent = $a_parent_obj;
 
-		$this->privileges = new ilRoomSharingPrivileges($a_parent_obj->getPoolId());
+        $this->privileges = new ilRoomSharingPrivileges($a_parent_obj->getPoolId());
 
 
 
-		$this->setExternalSorting(true);
-		$this->setExternalSegmentation(true);
-		$this->setEnableHeader(true);
+        $this->setExternalSorting(true);
+        $this->setExternalSegmentation(true);
+        $this->setEnableHeader(true);
 
-		$this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
-		$this->setRowTemplate("tpl.room_user_assignment_row.html",
-			"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
+        $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
+        $this->setRowTemplate("tpl.room_user_assignment_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
 
-		$this->setEnableTitle(true);
-		$this->setDefaultOrderField("login");
-		$this->setDefaultOrderDirection("asc");
+        $this->setEnableTitle(true);
+        $this->setDefaultOrderField("login");
+        $this->setDefaultOrderDirection("asc");
 
-		$this->setShowRowsSelector(true);
-		$this->setSelectAllCheckbox("user_id[]");
-		$this->addMultiCommand("deassignUsers", $lng->txt("remove"));
+        $this->setShowRowsSelector(true);
+        $this->setSelectAllCheckbox("user_id[]");
+        $this->addMultiCommand("deassignUsers", $lng->txt("remove"));
 
-		$this->addColumns();
-		$this->populateTable();
-	}
+        $this->addColumns();
+        $this->populateTable();
+    }
 
-	private function populateTable()
-	{
-		$data = $this->privileges->getAssignedUsersForClass($this->group_id);
+    private function populateTable()
+    {
+        $data = $this->privileges->getAssignedUsersForClass($this->class_id);
 
-		$this->setMaxCount(count($data));
-		$this->setData($data);
-	}
+        $this->setMaxCount(count($data));
+        $this->setData($data);
+    }
 
-	public function fillRow($a_user_data)
-	{
-		$this->tpl->setVariable("ID", $a_user_data["id"]);
-		$this->tpl->setVariable("TXT_LOGIN", $a_user_data["login"]);
-		$this->tpl->setVariable("TXT_FIRSTNAME", $a_user_data["firstname"]);
-		$this->tpl->setVariable("TXT_LASTNAME", $a_user_data["lastname"]);
-		$this->ctrl->setParameter($this->parent, "user_id", $a_user_data["id"]);
-		$this->tpl->setVariable("LINK_ACTION", $this->ctrl->getLinkTarget($this->parent, "deassignUsers"));
-		$this->tpl->setVariable("LINK_ACTION_TXT", $this->lng->txt("remove"));
-	}
+    public function fillRow($a_user_data)
+    {
+        $this->tpl->setVariable("ID", $a_user_data["id"]);
+        $this->tpl->setVariable("TXT_LOGIN", $a_user_data["login"]);
+        $this->tpl->setVariable("TXT_FIRSTNAME", $a_user_data["firstname"]);
+        $this->tpl->setVariable("TXT_LASTNAME", $a_user_data["lastname"]);
+        $this->ctrl->setParameter($this->parent, "user_id", $a_user_data["id"]);
+        $this->tpl->setVariable("LINK_ACTION", $this->ctrl->getLinkTarget($this->parent, "deassignUsers"));
+        $this->tpl->setVariable("LINK_ACTION_TXT", $this->lng->txt("remove"));
+    }
 
-	private function addColumns()
-	{
-		$this->addColumn("", "", "1", true);
-		$this->addColumn($this->lng->txt("login"), "login", "29%");
-		$this->addColumn($this->lng->txt("firstname"), "firstname", "29%");
-		$this->addColumn($this->lng->txt("lastname"), "lastname", "29%");
-		$this->addColumn($this->lng->txt('actions'), '', '13%');
-	}
+    private function addColumns()
+    {
+        $this->addColumn("", "", "1", true);
+        $this->addColumn($this->lng->txt("login"), "login", "29%");
+        $this->addColumn($this->lng->txt("firstname"), "firstname", "29%");
+        $this->addColumn($this->lng->txt("lastname"), "lastname", "29%");
+        $this->addColumn($this->lng->txt('actions'), '', '13%');
+    }
 
 }
-
 ?>

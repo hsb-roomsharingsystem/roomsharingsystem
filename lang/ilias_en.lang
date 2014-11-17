@@ -46,8 +46,8 @@ floor_plans_replace_info#:#The existing floorplan will be replaced
 floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
 from#:#from
-group_not_created#:#Group could not be created
-group_id_incorrect#:#Group-ID incorrect
+class_not_created#:#Class could not be created
+class_id_incorrect#:#Class-ID incorrect
 leave#:#Leave
 mail_booking_creator_linktext#:#You can see your booking via the following link:
 mail_booking_creator_message#:#You have successfully created a booking. This is what you've booked:
@@ -72,10 +72,10 @@ pool#:#RoomSharing Pool
 pools#:#RoomSharing Pools
 privileges#:#Privileges
 privileges_copy_privileges#:#Copy privileges
-privileges_group_edit#:#Edit group
-privileges_group_new#:#Create new group
+privileges_class_edit#:#Edit class
+privileges_class_new#:#Create new class
 privileges_lock#:#Lock privileges
-privileges_lock_desc#:#Locks privileges for group
+privileges_lock_desc#:#Locks privileges for class
 privileges_role_assignment#:#Role assignment
 privileges_settings#:#Privilege settings
 quick_search#:#Quick Search
@@ -131,54 +131,54 @@ xrs_visible#:#RoomSharing is visible
 xrs_write#:#Edit RoomSharing
 
 //Privileges
-appointments_privileges_description#:#Here are the privileges for the appointments listed
 access_appointments#:#Access Appointments
 access_appointments_description#:#Access to tab "Appointments"
-access_search#:#Access Search
-access_search_description#:#Access to tab "Search"
-create_edit_delete#:#Create, edit, cancel
-create_edit_delete_description#:#Own bookings can be created, edited and canceled
-add_participant#:#Add participant
-add_participant_description#:#Add participant to a booking
-sequence_bookings#:#Sequence bookings
-sequence_bookings_addable#:#Sequence bookings creatable
-cancel_lower_priority#:#Cancel lower priority
-cancel_lower_priority_description#:#Other bookings, which are created by users with lower priority, are cancelable
-rooms_privileges_description#:#Here are the privileges for the rooms listed
-access_rooms#:#Access rooms
-access_rooms_description#:#Access to tab "Rooms"
-see_booking_of_rooms#:#See bookings
-see_booking_of_rooms_description#:#Bookings of rooms in their detail-view viewable
-create_rooms_description#:#New rooms creatable
-create_edit_rooms_description#:#Existing rooms editable
-create_delete_rooms_description#:#Existing rooms deleteable
-create#:#Create
-edit#:#Edit
-delete#:#Delete
-floorplans#:#Floorplans
-floorplans_privileges_description#:#Here are the privileges for the floorplans listed
 access_floorplans#:#Access floorplans
 access_floorplans_description#:#Access to tab "Floorplans"
-create_floorplans_description#:#New floorplans creatable
-edit_floorplans_description#:#Existing floorplans editable
-delete_floorplans_description#:#Existing floorplans deleteable
-general_privileges#:#General Privileges
-general_privileges_description#:#Here are the general privileges listed
-access_settings#:#Access settings
-access_settings_description#:#Access to tab "Settings"
 access_privileges#:#Access privileges
 access_privileges_description#:#Access to tab "Privileges"
+access_rooms#:#Access rooms
+access_rooms_description#:#Access to tab "Rooms"
+access_search#:#Access Search
+access_search_description#:#Access to tab "Search"
+access_settings#:#Access settings
+access_settings_description#:#Access to tab "Settings"
+add_participant#:#Add participant
+add_participant_description#:#Add participant to a booking
+appointments_privileges_description#:#Here are the privileges for the appointments listed
+cancel_lower_priority#:#Cancel lower priority
+cancel_lower_priority_description#:#Other bookings, which are created by users with lower priority, are cancelable
+class_back#:#Back to class properties
+class_confirm_deletion#:#Delete class
+class_confirm_deletion_header#:#Are you sure you want to delete the following class?
+class_deletion_successful#:#Class has been deleted successfully
+create#:#Create
 create_class#:#Create class
 create_class_description#:#New classes createable
-edit_class#:#Edit class
-edit_class_description#:#Existing classes editable
+create_delete_rooms_description#:#Existing rooms deleteable
+create_edit_delete#:#Create, edit, cancel
+create_edit_delete_description#:#Own bookings can be created, edited and canceled
+create_edit_rooms_description#:#Existing rooms editable
+create_floorplans_description#:#New floorplans creatable
+create_rooms_description#:#New rooms creatable
+delete#:#Delete
 delete_class#:#Delete class
 delete_class_description#:#Existing classes deleteable
+delete_floorplans_description#:#Existing floorplans deleteable
+edit#:#Edit
+edit_class#:#Edit class
+edit_class_description#:#Existing classes editable
+edit_floorplans_description#:#Existing floorplans editable
 edit_privileges#:#Edit privileges
-edit_privileges_description#:#Privileges of all groups editable
+edit_privileges_description#:#Privileges of all classes editable
+floorplans#:#Floorplans
+floorplans_privileges_description#:#Here are the privileges for the floorplans listed
+general_privileges#:#General Privileges
+general_privileges_description#:#Here are the general privileges listed
 lock_privileges#:#Lock privileges
-lock_privileges_description#:#Privileges of all groups can be locked, so that the group has no more privileges
-group_back#:#Back to group properties
-group_confirm_deletion_header#:#Are you sure you want to delete the following group?
-group_confirm_deletion#:#Delete group
-group_deletion_successful#:#Group has been deleted successfully
+lock_privileges_description#:#Privileges of all classes can be locked, so that the class has no more privileges
+rooms_privileges_description#:#Here are the privileges for the rooms listed
+see_booking_of_rooms#:#See bookings
+see_booking_of_rooms_description#:#Bookings of rooms in their detail-view viewable
+sequence_bookings#:#Sequence bookings
+sequence_bookings_addable#:#Sequence bookings creatable

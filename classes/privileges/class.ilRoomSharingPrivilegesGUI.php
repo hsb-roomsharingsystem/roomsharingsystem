@@ -1,8 +1,7 @@
 <?php
 
-require_once("Services/AccessControl/classes/class.ilPermissionGUI.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingGroupPrivilegesTableGUI.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingGroupGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingClassPrivilegesTableGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingClassGUI.php");
 require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/Search/classes/class.ilRepositorySearchGUI.php");
 
@@ -18,7 +17,7 @@ require_once("Services/Search/classes/class.ilRepositorySearchGUI.php");
  * @property ilLanguage $lng
  * @property ilTemplate $tpl
  *
- * @ilCtrl_Calls ilRoomSharingPrivilegesGUI: ilRoomSharingGroupGUI, ilRepositorySearchGUI
+ * @ilCtrl_Calls ilRoomSharingPrivilegesGUI: ilRoomSharingClassGUI, ilRepositorySearchGUI
  */
 class ilRoomSharingPrivilegesGUI
 {
@@ -66,11 +65,11 @@ class ilRoomSharingPrivilegesGUI
 
         switch ($next_class)
         {
-            case "ilroomsharinggroupgui":
-                $group_id = (int) $_GET["group_id"];
+            case "ilroomsharingclassgui":
+                $class_id = (int) $_GET["class_id"];
                 $this->ctrl->setReturn($this, "showPrivileges");
-                $this->group_gui = new ilRoomSharingGroupGUI($this->parent, $group_id);
-                $this->ctrl->forwardCommand($this->group_gui);
+                $this->class_gui = new ilRoomSharingClassGUI($this->parent, $class_id);
+                $this->ctrl->forwardCommand($this->class_gui);
                 break;
 
             case 'ilrepositorysearchgui':
@@ -92,35 +91,35 @@ class ilRoomSharingPrivilegesGUI
 
         if ($this->access->checkAccess('write', '', $this->ref_id))
         {
-            $target = $this->ctrl->getLinkTarget($this, "renderAddGroupForm");
-            $toolbar->addButton($this->lng->txt("rep_robj_xrs_privileges_group_new"), $target);
+            $target = $this->ctrl->getLinkTarget($this, "renderAddClassForm");
+            $toolbar->addButton($this->lng->txt("rep_robj_xrs_privileges_class_new"), $target);
         }
 
-        $group_privileges_table = new ilRoomSharingGroupPrivilegesTableGUI($this, "showPrivileges", $this->ref_id);
+        $class_privileges_table = new ilRoomSharingClassPrivilegesTableGUI($this, "showPrivileges", $this->ref_id);
 
-        $this->tpl->setContent($toolbar->getHTML() . $group_privileges_table->getHTML());
+        $this->tpl->setContent($toolbar->getHTML() . $class_privileges_table->getHTML());
     }
 
-    private function renderAddGroupForm()
+    private function renderAddClassForm()
     {
         $this->tabs->clearTargets();
-        $group_form = $this->createAddGroupForm();
-        $this->tpl->setContent($group_form->getHTML());
+        $class_form = $this->createAddClassForm();
+        $this->tpl->setContent($class_form->getHTML());
     }
 
     public function showConfirmedDeletion()
     {
-        ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_group_deletion_successful"));
+        ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_class_deletion_successful"));
         $this->showPrivileges();
     }
 
-    private function createAddGroupForm()
+    private function createAddClassForm()
     {
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this));
-        $form->setTitle($this->lng->txt("rep_robj_xrs_privileges_group_new"));
-        $form->addCommandButton("addGroup", $this->lng->txt("rep_robj_xrs_privileges_group_new"));
-        $form->addCommandButton("showPrivileges", $this->lng->txt('cancel'));
+        $form->setTitle($this->lng->txt("rep_robj_xrs_privileges_class_new"));
+        $form->addCommandButton("addClass", $this->lng->txt("rep_robj_xrs_privileges_class_new"));
+        $form->addCommandButton("showPrivileges", $this->lng->txt("cancel"));
 
         // Name
         $name = new ilTextInputGUI($this->lng->txt("name"), "name");
@@ -148,53 +147,53 @@ class ilRoomSharingPrivilegesGUI
         $role_assignment->setOptions($role_names);
         $form->addItem($role_assignment);
 
-        // Copy Group Privileges
-        $group_to_copy = new ilRadioGroupInputGUI($this->lng->txt("rep_robj_xrs_privileges_copy_privileges"), "copied_group_privileges");
+        // Copy Class Privileges
+        $class_to_copy = new ilRadioGroupInputGUI($this->lng->txt("rep_robj_xrs_privileges_copy_privileges"), "copied_class_privileges");
         $empty_option = new ilRadioOption($this->lng->txt("none"), 0);
-        $group_to_copy->addOption($empty_option);
+        $class_to_copy->addOption($empty_option);
 
-        $groups = $this->privileges->getClasses();
+        $classes = $this->privileges->getClasses();
 
-        foreach ($groups as $group)
+        foreach ($classes as $class)
         {
-            $copy_option = new ilRadioOption($group["name"], $group["id"], $group["description"]);
-            $group_to_copy->addOption($copy_option);
+            $copy_option = new ilRadioOption($class["name"], $class["id"], $class["description"]);
+            $class_to_copy->addOption($copy_option);
         }
-        $form->addItem($group_to_copy);
+        $form->addItem($class_to_copy);
 
         return $form;
     }
 
-    private function addGroup()
+    private function addClass()
     {
-        $group_form = $this->createAddGroupForm();
-        if ($group_form->checkInput())
+        $class_form = $this->createAddClassForm();
+        if ($class_form->checkInput())
         {
-            $this->evaluateGroupFormEntries($group_form);
+            $this->evaluateClassFormEntries($class_form);
             $this->showPrivileges();
         }
         else
         {
             $this->tabs->clearTargets();
-            $group_form->setValuesByPost();
-            $this->tpl->setContent($group_form->getHTML());
+            $class_form->setValuesByPost();
+            $this->tpl->setContent($class_form->getHTML());
         }
     }
 
-    private function evaluateGroupFormEntries($a_group_form)
+    private function evaluateClassFormEntries($a_class_form)
     {
         $entries = array();
-        $entries["name"] = $a_group_form->getInput("name");
-        $entries["description"] = $a_group_form->getInput("description");
-        $entries["role_id"] = $this->getRoleIdFromSelectionInput($a_group_form);
-        $entries["copied_group_privileges"] = $a_group_form->getInput("copied_group_privileges");
+        $entries["name"] = $a_class_form->getInput("name");
+        $entries["description"] = $a_class_form->getInput("description");
+        $entries["role_id"] = $this->getRoleIdFromSelectionInput($a_class_form);
+        $entries["copied_class_privileges"] = $a_class_form->getInput("copied_class_privileges");
 
         $this->saveFormEntries($entries);
     }
 
-    private function getRoleIdFromSelectionInput($a_group_form)
+    private function getRoleIdFromSelectionInput($a_class_form)
     {
-        $selection = $a_group_form->getInput("role_assignment");
+        $selection = $a_class_form->getInput("role_assignment");
         $global_roles = $this->privileges->getGlobalRoles();
 
         return $global_roles[$selection - self::SELECT_INPUT_NONE_OFFSET]["id"];
@@ -210,7 +209,7 @@ class ilRoomSharingPrivilegesGUI
         {
             ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
         }
-        ilUtil::sendSuccess("NEW GROUP FORM ENTRIES: " . implode(", ", $a_entries), true);
+        ilUtil::sendSuccess("NEW CLASS FORM ENTRIES: " . implode(", ", $a_entries), true);
     }
 
     private function savePrivileges()
@@ -223,23 +222,23 @@ class ilRoomSharingPrivilegesGUI
             if ($privileges_post_exists)
             {
 
-                $group_ids = array_keys($_POST["priv"]);
-                foreach ($group_ids as $group_id)
+                $class_ids = array_keys($_POST["priv"]);
+                foreach ($class_ids as $class_id)
                 {
-                    $groups_with_ticked_privileges[$group_id] = $_POST["priv"][$group_id];
-                    $groups_with_ticked_privileges_message = "GROUPS AND TICKED PRIVILEGES: " . print_r($groups_with_ticked_privileges, true);
+                    $classes_with_ticked_privileges[$class_id] = $_POST["priv"][$class_id];
+                    $classes_with_ticked_privileges_message = "CLASSES AND TICKED PRIVILEGES: " . print_r($classes_with_ticked_privileges, true);
                 }
-                $this->privileges->setPrivileges($groups_with_ticked_privileges);
+                $this->privileges->setPrivileges($classes_with_ticked_privileges);
             }
 
             if ($lock_post_exists)
             {
-                $groups_with_ticked_locks = $_POST["lock"];
-                $locked_groups_message = "; LOCKED GROUPS: " . implode(", ", array_keys($groups_with_ticked_locks));
+                $classes_with_ticked_locks = $_POST["lock"];
+                $locked_classes_message = "; LOCKED CLASSES: " . implode(", ", array_keys($classes_with_ticked_locks));
             }
-            $this->privileges->setLockedClasses($groups_with_ticked_locks);
+            $this->privileges->setLockedClasses($classes_with_ticked_locks);
 
-            ilUtil::sendSuccess($groups_with_ticked_privileges_message . $locked_groups_message, true);
+            ilUtil::sendSuccess($classes_with_ticked_privileges_message . $locked_classes_message, true);
         }
 
         $this->showPrivileges();
