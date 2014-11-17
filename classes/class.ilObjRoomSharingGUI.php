@@ -27,7 +27,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingAttributesGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingAttributesGUI, ilRoomSharingCalendarWeekGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
@@ -166,6 +166,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$room_id = (int) $_GET['room_id'];
 				$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 				$object_gui = & new ilRoomSharingRoomGUI($this, $room_id);
+				$ret = & $this->ctrl->forwardCommand($object_gui);
+				break;
+			// CalendarWeek, Called for display a weekly view for a single room
+			case 'ilroomsharingcalendarweekgui':
+				$this->tabs_gui->setTabActive('rooms');
+				$room_id = (int) $_GET['room_id'];
+				$this->pl_obj->includeClass("rooms/detail/calendar/class.ilRoomSharingCalendarWeekGUI.php");
+				$object_gui = & new ilRoomSharingCalendarWeekGUI($this->seed, $this->pool_id, $room_id);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
 			// Book

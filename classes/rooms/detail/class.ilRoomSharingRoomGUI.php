@@ -1,6 +1,7 @@
 <?php
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarWeekGUI.php");
 
 /**
  * Class ilRoomSharingRoomGUI.
@@ -61,10 +62,35 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
+	 * Adds SubTabs for the MainTab "Rooms".
+	 *
+	 * @param type $a_active
+	 *        	SubTab which should be activated after method call.
+	 */
+	protected function setSubTabs($a_active)
+	{
+		global $ilTabs;
+		$ilTabs->setTabActive('rooms');
+
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
+
+		// Roominfo
+		$ilTabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'showRoom'));
+
+		// week-view
+		$ilTabs->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'),
+			$this->ctrl->getLinkTargetByClass('ilRoomSharingCalendarWeekGUI', 'show'));
+		$ilTabs->activateSubTab($a_active);
+	}
+
+	/**
 	 * Show room.
 	 */
 	function showRoomObject()
 	{
+		$this->setSubTabs('room');
+
 		global $ilAccess;
 
 		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
