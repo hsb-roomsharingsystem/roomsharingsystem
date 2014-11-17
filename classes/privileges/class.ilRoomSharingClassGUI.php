@@ -127,6 +127,12 @@ class ilRoomSharingClassGUI
         $description->setValue($class_info["description"]);
         $form->addItem($description);
 
+        // Priority
+        $priority = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_class_priority"), "priority");
+        $priority_levels = range(0, 9);
+        $priority->setOptions($priority_levels);
+        $form->addItem($priority);
+
         // Role assignment
         $role_assignment = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_privileges_role_assignment"), "role_assignment");
         $role_names = array($this->lng->txt("none"));
@@ -183,6 +189,7 @@ class ilRoomSharingClassGUI
         $entries = array();
         $entries["id"] = $this->class_id;
         $entries["name"] = $a_class_form->getInput("name");
+        $entries["priority"] = $a_class_form->getInput("priority");
         $entries["description"] = $a_class_form->getInput("description");
         $entries["role_id"] = $this->getRoleIdFromSelectionInput($a_class_form);
 

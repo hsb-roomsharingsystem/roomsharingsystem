@@ -153,6 +153,7 @@ class_back#:#Zurück zu den Klasseneigenschaften
 class_confirm_deletion#:#Klasse löschen
 class_confirm_deletion_header#:#Möchten Sie wirklich die ausgewählte Klasse löschen?
 class_deletion_successful#:#Klasse wurde erfolgreich gelöscht
+class_priority#:#Klassenpriorität
 create#:#Erstellen
 create_class#:#Klasse anlegen
 create_class_description#:#Neue Klassen anlegbar

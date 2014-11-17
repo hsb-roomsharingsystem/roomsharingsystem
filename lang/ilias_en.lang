@@ -153,6 +153,7 @@ class_back#:#Back to class properties
 class_confirm_deletion#:#Delete class
 class_confirm_deletion_header#:#Are you sure you want to delete the following class?
 class_deletion_successful#:#Class has been deleted successfully
+class_priority#:#Class priority
 create#:#Create
 create_class#:#Create class
 create_class_description#:#New classes createable
