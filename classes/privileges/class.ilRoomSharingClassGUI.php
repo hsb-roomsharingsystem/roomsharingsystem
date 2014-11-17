@@ -117,14 +117,14 @@ class ilRoomSharingClassGUI
         $name->setSize(40);
         $name->setMaxLength(70);
         $name->setRequired(true);
-        $name->setValue($$class_info["name"]);
+        $name->setValue($class_info["name"]);
         $form->addItem($name);
 
         // Description
         $description = new ilTextAreaInputGUI($this->lng->txt("description"), "description");
         $description->setCols(40);
         $description->setRows(3);
-        $description->setValue($$class_info["description"]);
+        $description->setValue($class_info["description"]);
         $form->addItem($description);
 
         // Role assignment
@@ -138,7 +138,7 @@ class ilRoomSharingClassGUI
         }
 
         $role_assignment->setOptions($role_names);
-        $selection_index = $this->getSelectionIndexForRoleAssignment($$class_info);
+        $selection_index = $this->getSelectionIndexForRoleAssignment($class_info);
         $role_assignment->setValue($selection_index + ilRoomSharingPrivilegesGUI::SELECT_INPUT_NONE_OFFSET);
         $form->addItem($role_assignment);
 
@@ -168,6 +168,7 @@ class ilRoomSharingClassGUI
         if ($class_form->checkInput())
         {
             $this->evaluateClassFormEntries($class_form);
+            $this->renderPage();
             $this->renderEditClassForm();
         }
         else
@@ -177,7 +178,7 @@ class ilRoomSharingClassGUI
         }
     }
 
-    private function evaluateFormFormEntries($a_class_form)
+    private function evaluateClassFormEntries($a_class_form)
     {
         $entries = array();
         $entries["id"] = $this->class_id;

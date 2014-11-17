@@ -27,8 +27,8 @@ content#:#Inhalt
 course#:#Studiengang
 current_rooms_user_agreement#:#Aktuelle Raumnutzungsordnung
 date#:#Termin
-datefrom_bigger_dateto#:#"Von" ist später oder gleich "bis"
-datefrom_is_earlier_than_now#:#"Von" liegt in der Vergangenheit
+datefrom_bigger_dateto#:#&quot;Von&quot; ist später oder gleich &quot;bis&quot;
+datefrom_is_earlier_than_now#:#&quot;Von&quot; liegt in der Vergangenheit
 description#:#Beschreibung
 edit#:#Bearbeiten
 edit_properties#:#Einstellungen bearbeiten
@@ -132,22 +132,23 @@ xrs_write#:#RoomSharing bearbeiten
 
 //Privileges 
 access_appointments#:#Termine aufrufen
-access_appointments_description#:#Zugang zum Reiter "Termine"
+access_appointments_description#:#Zugang zum Reiter &quot;Termine&quot;
 access_floorplans#:#Gebäudepläne aufrufen
-access_floorplans_description#:#Zugang zum Reiter "Gebäudepläne"
+access_floorplans_description#:#Zugang zum Reiter &quot;Gebäudepläne&quot;
 access_privileges#:#Privilegien aufrufen
-access_privileges_description#:#Zugang zum Reiter "Privilegien"
+access_privileges_description#:#Zugang zum Reiter &quot;Privilegien&quot;
 access_rooms#:#Räume aufrufen
-access_rooms_description#:#Zugang zum Reiter "Räume"
+access_rooms_description#:#Zugang zum Reiter &quot;Räume&quot;
 access_search#:#Suche aufrufen
-access_search_description#:#Zugang zum Reiter "Suche"
+access_search_description#:#Zugang zum Reiter &quot;Suche&quot;
 access_settings#:#Einstellungen aufrufen
-access_settings_description#:#Zugang zum Reiter "Einstellungen"
-add_participant#:#Teilnahmer hinzufügen
+access_settings_description#:#Zugang zum Reiter &quot;Einstellungen&quot;
+add_participant#:#Teilnehmer hinzufügen
 add_participant_description#:#Teilnehmer zu einer Buchung hinzufügbar
 appointments_privileges_description#:#Hier sind die Privilegien für die Termine aufgeführt
 cancel_lower_priority#:#Niedrigere Priorität stornieren
 cancel_lower_priority_description#:#Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar
+class#:#Klasse
 class_back#:#Zurück zu den Klasseneigenschaften
 class_confirm_deletion#:#Klasse löschen
 class_confirm_deletion_header#:#Möchten Sie wirklich die ausgewählte Klasse löschen?

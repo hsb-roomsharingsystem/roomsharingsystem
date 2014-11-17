@@ -116,7 +116,7 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
 
             foreach ($classes as $class)
             {
-                $this->tpl->setCurrentBlock("classes_select_all");
+                $this->tpl->setCurrentBlock("class_select_all");
                 $this->tpl->setVariable("JS_CLASS_ID", $class["id"]);
                 $this->tpl->setVariable("JS_FORM_NAME", $this->getFormName());
                 $this->tpl->setVariable("JS_SUBID", $a_table_row["type"]);
@@ -156,7 +156,7 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
         {
             $role_text = $this->isClassAssignedToRole($class) ? $class["role"] : $this->lng->txt("none");
 
-            ilTooltipGUI::addTooltip("thc_" . $this->getId() . "_" . $cnt, "<pre>" . $this->lng->txt("class") . ": " . $class["name"] . "&#13;&#10;"
+            ilTooltipGUI::addTooltip("thc_" . $this->getId() . "_" . $cnt, "<pre>" . $this->lng->txt("rep_robj_xrs_class") . ": " . $class["name"] . "&#13;&#10;"
                 . $this->lng->txt("rep_robj_xrs_privileges_role_assignment") . ": " . $role_text . "</pre>", "", "bottom center", "top center", false);
             $cnt++;
         }

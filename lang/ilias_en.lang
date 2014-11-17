@@ -27,8 +27,8 @@ content#:#Content
 course#:#Course
 current_rooms_user_agreement#:#Current rooms user agreement
 date#:#Date
-datefrom_bigger_dateto#:#"From" is later or equal "to"
-datefrom_is_earlier_than_now#:#"From" lies in the past
+datefrom_bigger_dateto#:#&quot;From&quot; is later or equal &quot;to&quot;
+datefrom_is_earlier_than_now#:#&quot;From&quot; lies in the past
 description#:#Description
 edit#:#Edit
 edit_properties#:#Edit Properties
@@ -132,22 +132,23 @@ xrs_write#:#Edit RoomSharing
 
 //Privileges
 access_appointments#:#Access Appointments
-access_appointments_description#:#Access to tab "Appointments"
+access_appointments_description#:#Access to tab &quot;Appointments&quot;
 access_floorplans#:#Access floorplans
-access_floorplans_description#:#Access to tab "Floorplans"
+access_floorplans_description#:#Access to tab &quot;Floorplans&quot;
 access_privileges#:#Access privileges
-access_privileges_description#:#Access to tab "Privileges"
+access_privileges_description#:#Access to tab &quot;Privileges&quot;
 access_rooms#:#Access rooms
-access_rooms_description#:#Access to tab "Rooms"
+access_rooms_description#:#Access to tab &quot;Rooms&quot;
 access_search#:#Access Search
-access_search_description#:#Access to tab "Search"
+access_search_description#:#Access to tab &quot;Search&quot;
 access_settings#:#Access settings
-access_settings_description#:#Access to tab "Settings"
+access_settings_description#:#Access to tab &quot;Settings&quot;
 add_participant#:#Add participant
 add_participant_description#:#Add participant to a booking
 appointments_privileges_description#:#Here are the privileges for the appointments listed
 cancel_lower_priority#:#Cancel lower priority
 cancel_lower_priority_description#:#Other bookings, which are created by users with lower priority, are cancelable
+class#:#Class
 class_back#:#Back to class properties
 class_confirm_deletion#:#Delete class
 class_confirm_deletion_header#:#Are you sure you want to delete the following class?
