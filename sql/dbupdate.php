@@ -806,5 +806,6 @@ $ilDB->addPrimaryKey($tableGroupPriv, array("group_id"));
 // 'rep_robj_xrs_grp_user'
 // ##########################
 
+$tableGroupUser = "rep_robj_xrs_grp_user";
 $ilDB->dropPrimaryKey($tableGroupUser);
 ?>
