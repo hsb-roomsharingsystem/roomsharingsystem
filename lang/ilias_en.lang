@@ -146,6 +146,8 @@ access_settings_description#:#Access to tab &quot;Settings&quot;
 add_participant#:#Add participant
 add_participant_description#:#Add participant to a booking
 appointments_privileges_description#:#Here are the privileges for the appointments listed
+add_unlimited_bookings#:#Unlimited Bookings
+add_unlimited_bookings_description#:#The booking duration is unlimited
 cancel_lower_priority#:#Cancel lower priority
 cancel_lower_priority_description#:#Other bookings, which are created by users with lower priority, are cancelable
 class#:#Class
@@ -183,3 +185,9 @@ see_booking_of_rooms#:#See bookings
 see_booking_of_rooms_description#:#Bookings of rooms in their detail-view viewable
 sequence_bookings#:#Sequence bookings
 sequence_bookings_addable#:#Sequence bookings creatable
+notification_tunable#:#Notification settings
+notification_tunable_description#:#Notifications can be en-/disabled
+create_edit_delete_room_attributes#:#Administrate attributes
+create_edit_delete_room_attributes_description#:#Roomattributes create-, edit- and deleteable
+create_edit_delete_booking_attributes#:#Administrate attributes
+create_edit_delete_booking_attributes_description#:#Bookingattributes create-, edit- and deleteable

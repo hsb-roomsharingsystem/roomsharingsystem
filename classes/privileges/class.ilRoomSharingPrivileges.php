@@ -56,11 +56,19 @@ class ilRoomSharingPrivileges
 				"rep_robj_xrs_add_participant_description");
 			$privilegesMatrix[] = $this->addPrivilege("addSequenceBookings",
 				"rep_robj_xrs_sequence_bookings", "rep_robj_xrs_sequence_bookings_addable");
+			$privilegesMatrix[] = $this->addPrivilege("addUnlimitedBookings",
+				"rep_robj_xrs_add_unlimited_bookings", "rep_robj_xrs_add_unlimited_bookings_description");
+			$privilegesMatrix[] = $this->addPrivilege("adminBookingAttributes",
+				"rep_robj_xrs_create_edit_delete_booking_attributes",
+				"rep_robj_xrs_create_edit_delete_booking_attributes_description");
 			$privilegesMatrix[] = $this->addPrivilege("cancelBookingLowerPriority",
 				"rep_robj_xrs_cancel_lower_priority", "rep_robj_xrs_cancel_lower_priority_description");
+			$privilegesMatrix[] = $this->addPrivilege("notificationSettings",
+				"rep_robj_xrs_notification_tunable", "rep_robj_xrs_notification_tunable_description");
 			$privilegesMatrix[] = $this->addSelectMultipleCheckbox("bookings",
 				array("accessAppointments", "accessSearch", "addParticipants",
-				"addOwnBookings", "addSequenceBookings", "cancelBookingLowerPriority"));
+				"addOwnBookings", "addSequenceBookings", "addUnlimitedBookings", "adminBookingAttributes", "cancelBookingLowerPriority",
+				"notificationSettings"));
 
 			// ### Rooms ###
 			$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_rooms",
@@ -75,9 +83,12 @@ class ilRoomSharingPrivileges
 				"rep_robj_xrs_create_edit_rooms_description");
 			$privilegesMatrix[] = $this->addPrivilege("deleteRooms", "rep_robj_xrs_delete",
 				"rep_robj_xrs_create_delete_rooms_description");
+			$privilegesMatrix[] = $this->addPrivilege("adminRoomAttributes",
+				"rep_robj_xrs_create_edit_delete_room_attributes",
+				"rep_robj_xrs_create_edit_delete_room_attributes_description");
 			$privilegesMatrix[] = $this->addSelectMultipleCheckbox("rooms",
 				array("accessRooms", "seeBookingsOfRooms",
-				"addRooms", "editRooms", "deleteRooms"));
+				"addRooms", "editRooms", "deleteRooms", "adminRoomAttributes"));
 
 			// ### Floorplans ###
 			$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_floorplans",
@@ -126,12 +137,16 @@ class ilRoomSharingPrivileges
 		$priv[] = 'addOwnBookings';
 		$priv[] = 'addParticipants';
 		$priv[] = 'addSequenceBookings';
+		$priv[] = 'addUnlimitedBookings';
+		$priv[] = 'notificationSettings';
+		$priv[] = 'adminBookingAttributes';
 		$priv[] = 'cancelBookingLowerPriority';
 		$priv[] = 'accessRooms';
 		$priv[] = 'seeBookingsOfRooms';
 		$priv[] = 'addRooms';
 		$priv[] = 'editRooms';
 		$priv[] = 'deleteRooms';
+		$priv[] = 'adminRoomAttributes';
 		$priv[] = 'accessFloorplans';
 		$priv[] = 'addFloorplans';
 		$priv[] = 'editFloorplans';

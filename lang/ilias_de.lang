@@ -146,6 +146,8 @@ access_settings_description#:#Zugang zum Reiter &quot;Einstellungen&quot;
 add_participant#:#Teilnehmer hinzufügen
 add_participant_description#:#Teilnehmer zu einer Buchung hinzufügbar
 appointments_privileges_description#:#Hier sind die Privilegien für die Termine aufgeführt
+add_unlimited_bookings#:#Unbegrenzte Buchungen
+add_unlimited_bookings_description#:#Unbegrenzt lange Buchungen erstellbar
 cancel_lower_priority#:#Niedrigere Priorität stornieren
 cancel_lower_priority_description#:#Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar
 class#:#Klasse
@@ -183,3 +185,9 @@ see_booking_of_rooms#:#Buchungen einsehen
 see_booking_of_rooms_description#:#Buchungen von einzelnen Räumen in Detailansicht einsehbar
 sequence_bookings#:#Serienbuchungen
 sequence_bookings_addable#:#Serienbuchungen anlegbar
+notification_tunable#:#Benachrichtungseinstellung
+notification_tunable_description#:#Benachrichtigungen sind ein-/abschaltbar
+create_edit_delete_room_attributes#:#Attribute administrierbar
+create_edit_delete_room_attributes_description#:#Raumattribute sind erstell-, bearbeit- und löschbar
+create_edit_delete_booking_attributes#:#Attribute administrierbar
+create_edit_delete_booking_attributes_description#:#Buchungsattribute sind erstell-, bearbeit- und löschbar
