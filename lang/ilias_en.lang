@@ -96,6 +96,7 @@ room_prop_description#:#The choosen room has following properties -
 room_properties#:#Room properties
 room_public_booking#:#Display username publicly in booking
 room_type#:#Room type
+room_occupation#:#Week View
 rooms_user_agreement_accept#:#Accept Room User Agreement
 rooms#:#Rooms
 rooms_user_agreement#:#Rooms user agreement

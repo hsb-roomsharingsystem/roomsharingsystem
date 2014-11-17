@@ -256,14 +256,37 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 				if (!$hour['apps_num'] && !$ilUser->prefs["screen_reader_optimization"] && !$no_add)
 				{
 					$this->tpl->setCurrentBlock('new_app_link');
-					$this->ctrl->setParameterByClass('ilcalendarappointmentgui', 'idate',
-						$this->weekdays[$num_day]->get(IL_CAL_DATE));
-					$this->ctrl->setParameterByClass('ilcalendarappointmentgui', 'seed',
-						$this->seed->get(IL_CAL_DATE));
-					$this->ctrl->setParameterByClass('ilcalendarappointmentgui', 'hour', floor($num_hour / 60));
+
+					$this->tpl->setVariable('DAY_NEW_APP_LINK', $this->lng->txt('rep_robj_xrs_room_book'));
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $room->getName());
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room->getId());
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', $this->parent_cmd);
+
+					$date = $this->weekdays[$num_day]->get(IL_CAL_DATE);
+
+					$hr = floor($num_hour / 60);
+					$hr = $hr < 10 ? "0" . $hr : $hr;
+
+					$hr_end = floor(($num_hour + 60) / 60);
+					$hr_end = $hr_end < 10 ? "0" . $hr_end : $hr_end;
+
+					$min = floor($num_hour % 60);
+					$min = $min < 10 ? "0" . $min : $min;
+
+					$min_end = floor(($num_hour + 60) % 60);
+					$min_end = $min_end < 10 ? "0" . $min_end : $min_end;
+
+					$time_from = $hr . ":" . $min . ":00";
+					$time_to = $hr_end . ":" . $min_end . ":00";
+
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', $date);
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', $time_from);
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', $time_to);
 					$this->tpl->setVariable('DAY_NEW_APP_LINK',
-						$this->ctrl->getLinkTargetByClass('ilcalendarappointmentgui', 'add'));
-					$this->ctrl->clearParametersByClass('ilcalendarappointmentgui');
+						$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'book'));
+
+					// free the parameters
+					$this->ctrl->clearParametersByClass('ilobjroomsharinggui');
 
 					$this->tpl->setVariable('DAY_NEW_APP_SRC', ilUtil::getImagePath('date_add.png'));
 					$this->tpl->setVariable('DAY_NEW_APP_ALT', $this->lng->txt('cal_new_app'));
