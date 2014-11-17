@@ -112,9 +112,9 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
         // Select all
         if (isset($a_table_row['show_select_all']))
         {
-            $class = $this->privileges->getClasses();
+            $classes = $this->privileges->getClasses();
 
-            foreach ($class as $class)
+            foreach ($classes as $class)
             {
                 $this->tpl->setCurrentBlock("classes_select_all");
                 $this->tpl->setVariable("JS_CLASS_ID", $class["id"]);
