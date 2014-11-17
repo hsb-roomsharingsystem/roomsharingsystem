@@ -943,3 +943,49 @@ if ($ilDB->tableExists($tableGroups))
 	$ilDB->dropTable($tableGroups);
 }
 ?>
+<#15>
+<?php
+$tableClasses = 'rep_robj_xrs_classes';
+
+$fieldsClasses = array(
+	'id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'name' => array(
+		'type' => 'text',
+		'length' => 75,
+		'notnull' => true
+	),
+	'description' => array(
+		'type' => 'text',
+		'length' => 1000
+	),
+	'role_id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'locked' => array(
+		'type' => 'integer',
+		'length' => 1,
+		'default' => 0
+	),
+	'pool_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClasses))
+{
+	$ilDB->dropTable($tableClasses);
+}
+$ilDB->createTable($tableClasses, $fieldsClasses);
+// add primary key
+$ilDB->addPrimaryKey($tableClasses, array("id"));
+// add sequence
+$ilDB->createSequence($tableClasses);
+// add index
+$ilDB->addIndex($tableClasses, array('pool_id'), 'i1');
+?>
