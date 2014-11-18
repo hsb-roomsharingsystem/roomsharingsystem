@@ -188,15 +188,40 @@ class ilRoomSharingPrivileges
 
 	public function getPriorityOfUser($a_user_id)
 	{
-		$user_class = $this->getAssignedClassesForUser($a_user_id);
-
-		return $this->ilRoomsharingDatabase->getPriorityOfClass($user_class);
+		$user_classes = $this->getAssignedClassesForUser($a_user_id);
+		$priority = 0;
+		//Get the highest possible priority for the user
+		foreach ($user_classes as $user_class)
+		{
+			$class_priority = $this->ilRoomsharingDatabase->getPriorityOfClass($user_class);
+			if ($priority < $class_priority)
+			{
+				$priority = $class_priority;
+			}
+		}
+		return $priority;
 	}
 
 	public function getPrivilegesForUser($a_user_id)
 	{
-		$user_class = $this->getAssignedClassesForUser($a_user_id);
-		return $this->classes_privileges[$user_class];
+		$user_classes = $this->getAssignedClassesForUser($a_user_id);
+		$user_privileges = array();
+		foreach ($user_classes as $user_class)
+		{
+			if ($this->getClassById($user_class)['locked'] == 1)
+			{
+				echo "uebersprungen";
+				continue;
+			}
+			foreach ($this->classes_privileges[$user_class] as $class_privilege)
+			{
+				if (!in_array($class_privilege, $user_privileges))
+				{
+					$user_privileges[] = $class_privilege;
+				}
+			}
+		}
+		return $user_privileges;
 	}
 
 	public function getAssignedUsersForClass($a_class_id)

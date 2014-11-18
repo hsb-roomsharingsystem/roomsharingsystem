@@ -62,7 +62,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		{
 			//Cannot initialize the user-calendar and permission utils before the actual object is created because of missing poolID
 			$this->initCalendar();
-			$this->permission = new ilRoomSharingPermissionUtils($this->object->getPoolId());
+			$this->permission = new ilRoomSharingPermissionUtils($this->object->getPoolId(),
+				$this->object->getOwner());
 		}
 	}
 
@@ -297,9 +298,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $ilTabs, $ilCtrl, $ilAccess;
 
-		$userPrivileges = $this->permission->getAllUserPrivileges();
-
-		if (in_array("accessAppointments", $userPrivileges))
+		if ($this->permission->checkPrivilege("accessAppointments"))
 		{
 			// Appointments
 			$ilTabs->addTab(
@@ -310,7 +309,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Standard info screen tab
 		$this->addInfoTab();
 
-		if (in_array("accessSearch", $userPrivileges))
+		if ($this->permission->checkPrivilege("accessSearch"))
 		{
 			// Search
 			$this->tabs_gui->addTab(
@@ -319,7 +318,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			);
 		}
 
-		if (in_array("accessRooms", $userPrivileges))
+		if ($this->permission->checkPrivilege("accessRooms"))
 		{
 			// Rooms
 			$this->tabs_gui->addTab(
@@ -328,7 +327,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			);
 		}
 
-		if (in_array("accessFloorplans", $userPrivileges))
+		if ($this->permission->checkPrivilege("accessFloorplans"))
 		{
 			// Floorplans
 			$this->tabs_gui->addTab(
@@ -337,7 +336,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			);
 		}
 
-		if (in_array("accessSettings", $userPrivileges))
+		if ($this->permission->checkPrivilege("accessSettings"))
 		{
 			// Settings
 			$this->tabs_gui->addTab(
@@ -351,7 +350,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$this->addPermissionTab();
 		}
 
-		if (in_array("accessPrivileges", $userPrivileges))
+		if ($this->permission->checkPrivilege("accessPrivileges"))
 		{
 			// Privileges
 			$this->tabs_gui->addTab(
@@ -360,7 +359,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			);
 		}
 
-		if (in_array("accessAppointments", $userPrivileges))
+		if ($this->permission->checkPrivilege("accessAppointments"))
 		{
 			//show first tab per default
 			$this->tabs_gui->activateTab('appointments');
