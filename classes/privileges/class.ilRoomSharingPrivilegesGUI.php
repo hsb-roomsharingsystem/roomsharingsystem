@@ -30,6 +30,7 @@ class ilRoomSharingPrivilegesGUI
     private $tabs;
     private $access;
     private $privileges;
+    private $user;
 
     CONST SELECT_INPUT_NONE_OFFSET = 1;
 
@@ -43,7 +44,7 @@ class ilRoomSharingPrivilegesGUI
      */
     public function __construct(ilObjRoomSharingGUI $a_parent_obj)
     {
-        global $ilCtrl, $lng, $tpl, $ilTabs, $ilAccess;
+        global $ilCtrl, $lng, $tpl, $ilTabs, $ilAccess, $ilUser, $rssPermission;
 
         $this->parent = $a_parent_obj;
         $this->ref_id = $this->parent->ref_id;
@@ -53,6 +54,7 @@ class ilRoomSharingPrivilegesGUI
         $this->tpl = $tpl;
         $this->tabs = $ilTabs;
         $this->access = $ilAccess;
+        $this->user = $ilUser;
         $this->privileges = new ilRoomSharingPrivileges();
     }
 
@@ -221,8 +223,9 @@ class ilRoomSharingPrivilegesGUI
 
     private function savePrivileges()
     {
+        $classes_with_ticked_locks = $_POST["lock"];
         $privileges_post_exists = !empty($_POST["priv"]);
-        $lock_post_exists = !empty($_POST["lock"]);
+        $lock_post_exists = !empty($classes_with_ticked_locks);
 
         if ($privileges_post_exists || $lock_post_exists)
         {
@@ -238,17 +241,87 @@ class ilRoomSharingPrivilegesGUI
                 $this->privileges->setPrivileges($classes_with_ticked_privileges);
             }
 
-            if ($lock_post_exists)
+            if ($lock_post_exists && $this->hasLockBeenSet())
             {
-                $classes_with_ticked_locks = $_POST["lock"];
+                $this->showConfirmLock($classes_with_ticked_locks);
                 $locked_classes_message = "; LOCKED CLASSES: " . implode(", ", array_keys($classes_with_ticked_locks));
             }
-            $this->privileges->setLockedClasses($classes_with_ticked_locks);
-
-            ilUtil::sendSuccess($classes_with_ticked_privileges_message . $locked_classes_message, true);
+            else
+            {
+                ilUtil::sendSuccess($classes_with_ticked_privileges_message . $locked_classes_message, true);
+                $this->privileges->setLockedClasses($classes_with_ticked_locks);
+                $this->showPrivileges();
+            }
         }
+    }
 
+    private function hasLockBeenSet()
+    {
+        $classes_with_ticked_locks = array_keys($_POST["lock"]);
+        $unlocked_classes = $this->privileges->getUnlockedClasses();
+
+        foreach ($classes_with_ticked_locks as $ticked_class)
+        {
+            if (in_array($ticked_class, $unlocked_classes))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function showConfirmLock($a_classes_to_be_locked)
+    {
+        $this->tabs->clearTargets();
+        $this->tabs->setBackTarget($this->lng->txt("rep_robj_xrs_privileges_lock_confirm_back"), $this->ctrl->getLinkTarget($this, "showPrivileges"));
+        // create the confirmation GUI
+        $confirmation = new ilConfirmationGUI();
+        $confirmation->setFormAction($this->ctrl->getFormAction($this));
+        $confirmation->setHeaderText($this->lng->txt("rep_robj_xrs_privileges_confirm_class_lock_question"));
+
+        foreach ($a_classes_to_be_locked as $class_key => $class)
+        {
+            $confirmation->addItem("locked_class_ids", implode(",", array_keys($a_classes_to_be_locked)), $this->privileges->getClassById($class_key)["name"]);
+        }
+        $confirmation->setConfirm($this->lng->txt("rep_robj_xrs_privileges_confirm_class_lock"), "lockClasses");
+        $confirmation->setCancel($this->lng->txt("cancel"), "showPrivileges");
+        $this->tpl->setContent($confirmation->getHTML());
+
+        if ($this->checkForOwnLockedClass($a_classes_to_be_locked))
+        {
+            $assigned_user_classes = $this->privileges->getAssignedClassesForUser($this->user->getId());
+            $assigned_user_class_names = array();
+
+            foreach ($assigned_user_classes as $class_id)
+            {
+                $assigned_user_class_names[] = $this->privileges->getClassById($class_id)["name"];
+            }
+
+            ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_privileges_confirm_class_self_lock_of") . " " . implode(", ", $assigned_user_class_names));
+        }
+        ilUtil::sendInfo($this->lng->txt("rep_robj_xrs_privileges_confirm_class_lock_info"));
+    }
+
+    public function lockClasses()
+    {
+        $classes_to_be_locked = explode(",", $_POST["locked_class_ids"]);
+        $this->privileges->setLockedClasses(array_flip($classes_to_be_locked));
         $this->showPrivileges();
+    }
+
+    private function checkForOwnLockedClass($a_classes_to_be_locked)
+    {
+        $assigned_user_classes = $this->privileges->getAssignedClassesForUser($this->user->getId());
+        $in_class = false;
+        foreach ($assigned_user_classes as $assigned_user_class)
+        {
+            if (in_array($assigned_user_class, array_keys($a_classes_to_be_locked)))
+            {
+                $in_class = true;
+                break;
+            }
+        }
+        return $in_class;
     }
 
     /**
@@ -256,7 +329,8 @@ class ilRoomSharingPrivilegesGUI
      *
      * @return integer Pool-ID
      */
-    function getPoolId()
+    public
+        function getPoolId()
     {
         return $this->pool_id;
     }
@@ -267,7 +341,8 @@ class ilRoomSharingPrivilegesGUI
      * @param integer Pool-ID
      *
      */
-    function setPoolId($a_pool_id)
+    public
+        function setPoolId($a_pool_id)
     {
         $this->pool_id = $a_pool_id;
     }

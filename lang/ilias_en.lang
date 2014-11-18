@@ -75,6 +75,11 @@ privileges_copy_privileges#:#Copy privileges
 privileges_class_edit#:#Edit class
 privileges_class_new#:#Create new class
 privileges_lock#:#Lock privileges
+privileges_lock_confirm_back#:#Back to privileges
+privileges_confirm_class_lock#:#Lock class privileges
+privileges_confirm_class_lock_question#:##Are you sure you want to lock the privileges of the following classes?
+privileges_confirm_class_self_lock_of#:#You are about to lock the privileges of at least one class you are assigned to.<br />You could lock your own privileges, which is why only a user with the privilege of changing privileges or the owner of the pool can restore these privileges.<br />This change applies to the following classes that you are assigned to:
+privileges_confirm_class_lock_info#:#The following operations will be performed:<br /><br />-all privileges of this class will be locked.<br />-users that are directly assigned to a class or through a corresponding role will be denied of all privileges.
 privileges_lock_desc#:#Locks privileges for class
 privileges_role_assignment#:#Role assignment
 privileges_settings#:#Privilege settings

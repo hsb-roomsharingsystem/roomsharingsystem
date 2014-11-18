@@ -75,6 +75,11 @@ privileges_copy_privileges#:#Privilegien kopieren
 privileges_class_edit#:#Klasse bearbeiten
 privileges_class_new#:#Neue Klasse anlegen
 privileges_lock#:#Privilegien sperren
+privileges_lock_confirm_back#:#Zurück zu den Privilegien
+privileges_confirm_class_lock#:#Klassenprivilegien sperren
+privileges_confirm_class_lock_question#:#Möchten Sie wirklich die Privilegien folgender Klassen sperren?
+privileges_confirm_class_self_lock_of#:#Sie beabsichtigen die Sperrung der Privilegien mindestens einer Klasse, der Sie selbst zugeordnet sind.<br />Unter Umständen sperren Sie somit Ihre eigenen Privilegien und nur ein weiterer Benutzer mit dem Privileg, andere Privilegien zu verändern, oder der Besitzer des Pools kann die Privilegien wiederherstellen.<br />Dies betrifft die Sperrung folgender, Ihnen zugeordneter Klassen:
+privileges_confirm_class_lock_info#:#Die folgenden Einstellungsänderungen werden vorgenommen:<br /><br />- Alle Privilegien für diese Klassen werden gesperrt.<br />- Benutzer, die einer gesperrten Klasse über Rollen- oder Direktzuweisung zugeordnet sind, verfügen somit über keinerlei Privilegien.
 privileges_lock_desc#:#Sperrt die Privilegien für die Klasse
 privileges_role_assignment#:#Rollenzuordnung
 privileges_settings#:#Privilegieneinstellungen

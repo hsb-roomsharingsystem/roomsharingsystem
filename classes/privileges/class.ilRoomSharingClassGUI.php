@@ -76,7 +76,7 @@ class ilRoomSharingClassGUI
         // Description
         $this->tpl->setDescription($class_info["description"]);
         // Icon
-        $this->tpl->setTitleIcon(ilUtil::getImagePath("icon_role_b.png"), "HARDCODED CLASSSYMBOL");
+        $this->tpl->setTitleIcon(ilUtil::getImagePath("icon_role_b.png"), $this->lng->txt("rep_robj_xrs_class"));
         $this->setTabs();
     }
 
