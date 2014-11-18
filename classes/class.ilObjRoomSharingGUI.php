@@ -594,7 +594,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 		//Initialize the Calendar
 		$this->initSeed();
-		$cal_id = $db->getCalendarIdFromDatabase();
+		$cal_id = $db->getCalendarId();
 		$this->cal = new ilRoomSharingCalendar($this->seed, $cal_id, $this);
 		if ($cal_id == 0 || $cal_id != $this->cal->getCalendarId())
 		{

@@ -833,7 +833,7 @@ class ilRoomsharingDatabase
 	 *
 	 * @return type return of $ilDB->query
 	 */
-	public function getRoomAgreementIdFromDatabase()
+	public function getRoomAgreementId()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::POOLS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' order by rooms_agreement DESC');
@@ -847,7 +847,7 @@ class ilRoomsharingDatabase
 	 *
 	 * @return integer calendar-id
 	 */
-	public function getCalendarIdFromDatabase()
+	public function getCalendarId()
 	{
 		$set = $this->ilDB->query('SELECT calendar_id FROM ' . dbc::POOLS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
