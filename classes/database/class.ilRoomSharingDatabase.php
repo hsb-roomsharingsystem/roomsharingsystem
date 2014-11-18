@@ -911,12 +911,16 @@ class ilRoomsharingDatabase
 		}
 	}
 
-	public function getAssignedClassForUser($a_user_id)
+	public function getAssignedClassesForUser($a_user_id)
 	{
 		$set = $this->ilDB->query('SELECT class_id FROM ' . dbc::CLASS_USER_TABLE .
 			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
-		$row = $this->ilDB->fetchAssoc($set);
-		return $row['class_id'];
+		$class_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$class_ids[] = $row['class_id'];
+		}
+		return $class_ids;
 	}
 
 	public function getLockedClasses()
@@ -930,6 +934,14 @@ class ilRoomsharingDatabase
 			$locked_class_ids[] = $row['id'];
 		}
 		return $locked_class_ids;
+	}
+
+	public function getPriorityOfClass($a_class_id)
+	{
+		$set = $this->ilDB->query('SELECT priority FROM ' . dbc::CLASSES_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($a_class_id, 'integer'));
+		$row = $this->ilDB->fetchAssoc($set);
+		return $row['priority'];
 	}
 
 	public function setPrivilegesForClass($a_class_id, $a_privileges, $a_no_privileges)
