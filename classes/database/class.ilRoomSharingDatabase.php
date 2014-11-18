@@ -913,16 +913,27 @@ class ilRoomsharingDatabase
 
 	public function getAssignedClassesForUser($a_user_id, $a_user_role_ids)
 	{
-		$where_role_ids = "";
-		foreach ($a_user_role_ids as $user_role_id)
-		{
-			$where_role_ids .= " OR role_id = " . $this->ilDB->quote($user_role_id);
-		}
 		$set = $this->ilDB->query('SELECT class_id FROM ' . dbc::CLASS_USER_TABLE .
-			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer') .
-			$where_role_ids);
+			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
 
 		$class_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$class_ids[] = $row['class_id'];
+		}
+
+		$where = "";
+		foreach ($a_user_role_ids as $user_role_id)
+		{
+			$where .= " OR id = " . $this->ilDB->quote($user_role_id);
+		}
+		if (strlen($where) > 3)
+		{
+			$where = substr($where, 3);
+		}
+
+		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
+			' WHERE ' . $where);
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
 			$class_ids[] = $row['class_id'];
