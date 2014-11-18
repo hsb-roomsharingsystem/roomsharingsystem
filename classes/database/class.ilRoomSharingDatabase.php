@@ -936,6 +936,19 @@ class ilRoomsharingDatabase
 		return $locked_class_ids;
 	}
 
+	public function getUnlockedClasses()
+	{
+		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
+			' AND locked = 0');
+		$unlocked_class_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$unlocked_class_ids[] = $row['id'];
+		}
+		return $unlocked_class_ids;
+	}
+
 	public function getPriorityOfClass($a_class_id)
 	{
 		$set = $this->ilDB->query('SELECT priority FROM ' . dbc::CLASSES_TABLE .

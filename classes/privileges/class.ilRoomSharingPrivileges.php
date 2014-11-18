@@ -340,6 +340,11 @@ class ilRoomSharingPrivileges
 		return $this->ilRoomsharingDatabase->getLockedClasses();
 	}
 
+	public function getUnlockedClasses()
+	{
+		return $this->ilRoomsharingDatabase->getUnlockedClasses();
+	}
+
 	/**
 	 * Adds a new Table-Section Header
 	 *
