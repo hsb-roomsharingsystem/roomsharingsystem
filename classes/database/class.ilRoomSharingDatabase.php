@@ -524,7 +524,8 @@ class ilRoomsharingDatabase
 	public function getAllBookingAttributes()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::BOOKING_ATTRIBUTES_TABLE .
-			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer')
+			. ' ORDER BY name ASC');
 
 		$attributesRows = array();
 		while ($attributesRow = $this->ilDB->fetchAssoc($set))
@@ -907,7 +908,8 @@ class ilRoomsharingDatabase
 	public function getAllRoomAttributes()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer')
+			. ' ORDER BY name ASC');
 
 		$attributesRows = array();
 		while ($attributesRow = $this->ilDB->fetchAssoc($set))
