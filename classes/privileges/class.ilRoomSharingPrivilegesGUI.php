@@ -98,7 +98,6 @@ class ilRoomSharingPrivilegesGUI
         }
 
         $class_privileges_table = new ilRoomSharingClassPrivilegesTableGUI($this, "showPrivileges", $this->ref_id);
-
         $this->tpl->setContent($toolbar->getHTML() . $class_privileges_table->getHTML());
     }
 
@@ -231,7 +230,6 @@ class ilRoomSharingPrivilegesGUI
         {
             if ($privileges_post_exists)
             {
-
                 $class_ids = array_keys($_POST["priv"]);
                 foreach ($class_ids as $class_id)
                 {
@@ -249,8 +247,8 @@ class ilRoomSharingPrivilegesGUI
             else
             {
                 ilUtil::sendSuccess($classes_with_ticked_privileges_message . $locked_classes_message, true);
-                $this->privileges->setLockedClasses($classes_with_ticked_locks);
-                $this->showPrivileges();
+                // make sure to go through the whole plugin build up processs in order to make the appplied privileges visible
+                $this->ctrl->redirect($this);
             }
         }
     }
@@ -306,7 +304,8 @@ class ilRoomSharingPrivilegesGUI
     {
         $classes_to_be_locked = explode(",", $_POST["locked_class_ids"]);
         $this->privileges->setLockedClasses(array_flip($classes_to_be_locked));
-        $this->showPrivileges();
+        // make sure to go through the whole plugin build up processs in order to make the appplied privileges visible
+        $this->ctrl->redirect($this);
     }
 
     private function checkForOwnLockedClass($a_classes_to_be_locked)
