@@ -911,6 +911,14 @@ class ilRoomsharingDatabase
 		}
 	}
 
+	public function getAssignedClassForUser($a_user_id)
+	{
+		$set = $this->ilDB->query('SELECT class_id FROM ' . dbc::CLASS_USER_TABLE .
+			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
+		$row = $this->ilDB->fetchAssoc($set);
+		return $row['class_id'];
+	}
+
 	public function getLockedClasses()
 	{
 		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .

@@ -181,6 +181,11 @@ class ilRoomSharingPrivileges
 		return $this->ilRoomsharingDatabase->getClassById($a_class_id);
 	}
 
+	public function getAssignedClassForUser($a_user_id)
+	{
+		return $this->ilRoomsharingDatabase->getAssignedClassForUser($a_user_id);
+	}
+
 	public function getAssignedUsersForClass($a_class_id)
 	{
 		$assigned_user_ids = $this->ilRoomsharingDatabase->getUsersForClass($a_class_id);
