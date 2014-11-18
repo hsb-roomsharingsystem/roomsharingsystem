@@ -936,7 +936,7 @@ class ilRoomsharingDatabase
 			' WHERE ' . $where);
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
-			$class_ids[] = $row['class_id'];
+			$class_ids[] = $row['id'];
 		}
 		return $class_ids;
 	}
