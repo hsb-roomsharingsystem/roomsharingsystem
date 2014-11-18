@@ -28,7 +28,7 @@
 	<!-- BEGIN class_select_all -->
 	<td class="std">
 		<p style="margin: 0px;margin-left:.25in;text-indent:-.25in">
-			<input type="checkbox" id="select_{JS_CLASS_ID}_{JS_SUBID}" onclick="setCheckboxes('{JS_FORM_NAME}','{JS_CLASS_ID}','{JS_SUBID}',{JS_ALL_PRIVS}); return true;" />
+			<input type="checkbox" id="select_{JS_CLASS_ID}_{JS_SUBID}" {PRIV_DISABLED} onclick="setCheckboxes('{JS_FORM_NAME}','{JS_CLASS_ID}','{JS_SUBID}',{JS_ALL_PRIVS}); return true;" />
 			<label for="select_{JS_CLASS_ID}_{JS_SUBID}"><font class="bold">{TXT_SEL_ALL}</font></label>
 		</p>
 	</td>

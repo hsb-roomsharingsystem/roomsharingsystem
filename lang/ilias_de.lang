@@ -193,6 +193,7 @@ sequence_bookings#:#Serienbuchungen
 sequence_bookings_addable#:#Serienbuchungen anlegbar
 notification_tunable#:#Benachrichtungseinstellung
 notification_tunable_description#:#Benachrichtigungen sind ein-/abschaltbar
+no_permission#:#Sie besitzen kein Privileg um auf dieses Objekt zuzugreifen
 create_edit_delete_room_attributes#:#Attribute administrierbar
 create_edit_delete_room_attributes_description#:#Raumattribute sind erstell-, bearbeit- und löschbar
 create_edit_delete_booking_attributes#:#Attribute administrierbar

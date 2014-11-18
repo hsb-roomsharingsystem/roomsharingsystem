@@ -17,6 +17,7 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
     private $ctrl;
     private $privileges;
     private $ref_id;
+    private $permission;
 
     /**
      * Constructor of ilRoomSharingClassPrivilegesTableGUI
@@ -24,11 +25,12 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
      */
     public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id = 1)
     {
-        global $ilCtrl, $lng;
+        global $ilCtrl, $lng, $rssPermission;
 
         $this->lng = $lng;
         $this->ctrl = $ilCtrl;
         $this->ref_id = $a_ref_id;
+        $this->permission = $rssPermission;
 
         $this->privileges = new ilRoomSharingPrivileges($a_parent_obj->getPoolId());
 
@@ -40,7 +42,10 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
         $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
         $this->setLimit(100);
         $this->setShowRowsSelector(false);
-        $this->addCommandButton('savePrivileges', $this->lng->txt('save'));
+        if ($this->permission->checkPrivilege("editPrivileges"))
+        {
+            $this->addCommandButton('savePrivileges', $this->lng->txt('save'));
+        }
 
         $this->addColumns();
         $this->populateTable();
@@ -92,6 +97,10 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
                 {
                     $this->tpl->setVariable("LOCK_CHECKED", "checked='checked'");
                 }
+                if (!$this->permission->checkPrivilege("editPrivileges"))
+                {
+                    $this->tpl->setVariable("LOCK_DISABLED", 'disabled="disabled"');
+                }
 
                 $this->tpl->parseCurrentBlock();
             }
@@ -122,6 +131,10 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
                 $this->tpl->setVariable("JS_SUBID", $a_table_row["type"]);
                 $this->tpl->setVariable("JS_ALL_PRIVS", "['" . implode("','", $a_table_row["privileges"]) . "']");
                 $this->tpl->setVariable("TXT_SEL_ALL", $this->lng->txt("select_all"));
+                if (!$this->permission->checkPrivilege("editPrivileges"))
+                {
+                    $this->tpl->setVariable("PRIV_DISABLED", 'disabled="disabled"');
+                }
                 $this->tpl->parseCurrentBlock();
             }
             return true;
@@ -141,6 +154,11 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
             if ($class["privilege_set"])
             {
                 $this->tpl->setVariable("PRIV_CHECKED", 'checked="checked"');
+            }
+
+            if (!$this->permission->checkPrivilege("editPrivileges"))
+            {
+                $this->tpl->setVariable("PRIV_DISABLED", 'disabled="disabled"');
             }
 
             $this->tpl->parseCurrentBlock();
@@ -170,7 +188,14 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
 
         $this->ctrl->setParameterByClass("ilroomsharingclassgui", "class_id", $a_class_set["id"]);
 
-        return '<a class="tblheader" href="' . $this->ctrl->getLinkTargetByClass("ilroomsharingclassgui", "") . '" >' . $table_head . "</a>";
+        if ($this->permission->checkPrivilege("editPrivileges"))
+        {
+            return '<a class="tblheader" href="' . $this->ctrl->getLinkTargetByClass("ilroomsharingclassgui", "") . '" >' . $table_head . "</a>";
+        }
+        else
+        {
+            return $table_head;
+        }
     }
 
     private function isClassAssignedToRole($a_class_set)
