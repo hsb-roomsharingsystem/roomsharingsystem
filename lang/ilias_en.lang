@@ -193,6 +193,7 @@ sequence_bookings#:#Sequence bookings
 sequence_bookings_addable#:#Sequence bookings creatable
 notification_tunable#:#Notification settings
 notification_tunable_description#:#Notifications can be en-/disabled
+no_permission#:#You have no privilege to access this object
 create_edit_delete_room_attributes#:#Administrate attributes
 create_edit_delete_room_attributes_description#:#Roomattributes create-, edit- and deleteable
 create_edit_delete_booking_attributes#:#Administrate attributes
