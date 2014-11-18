@@ -16,6 +16,7 @@ class ilRoomSharingPrivileges
 	private $ilRoomsharingDatabase;
 	private $classes_privileges;
 	private $lng;
+	private $rbacreview;
 
 	/**
 	 * Constructor of ilRoomSharingPrivileges
@@ -24,10 +25,11 @@ class ilRoomSharingPrivileges
 	 */
 	public function __construct($a_pool_id = 1)
 	{
-		global $lng;
+		global $lng, $rbacreview;
 
 		$this->pool_id = $a_pool_id;
 		$this->lng = $lng;
+		$this->rbacreview = $rbacreview;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
 		$this->classes_privileges = $this->getAllClassPrivileges();
 	}
@@ -183,7 +185,8 @@ class ilRoomSharingPrivileges
 
 	public function getAssignedClassesForUser($a_user_id)
 	{
-		return $this->ilRoomsharingDatabase->getAssignedClassesForUser($a_user_id);
+		$user_roles = $this->rbacreview->assignedRoles($a_user_id);
+		return $this->ilRoomsharingDatabase->getAssignedClassesForUser($a_user_id, $user_roles);
 	}
 
 	public function getPriorityOfUser($a_user_id)
@@ -247,9 +250,7 @@ class ilRoomSharingPrivileges
 
 	public function getGlobalRoles()
 	{
-		global $rbacreview;
-
-		$roles = $rbacreview->getParentRoleIds($_GET['ref_id']);
+		$roles = $this->rbacreview->getParentRoleIds($_GET['ref_id']);
 
 		$global_roles = array();
 		foreach ($roles as $role)
