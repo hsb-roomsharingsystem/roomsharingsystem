@@ -44,8 +44,12 @@ class ilRoomSharingPrivileges
         //Only fill the array if there are more than 0 classes
         if (ilRoomSharingNumericUtils::isPositiveNumber(count($this->getClasses())))
         {
-            // Locked classes
-            $privilegesMatrix[] = array("show_lock_row" => "lock", "locked_classes" => $this->getLockedClasses());
+
+            if ($this->rssPermission->checkPrivilege("lockPrivileges"))
+            {
+                // Locked classes
+                $privilegesMatrix[] = array("show_lock_row" => "lock", "locked_classes" => $this->getLockedClasses());
+            }
 
             // ### Appointments ###
             $privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_appointments", "rep_robj_xrs_appointments_privileges_description");
