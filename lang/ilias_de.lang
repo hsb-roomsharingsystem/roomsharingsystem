@@ -142,3 +142,6 @@ attribute_room_assigns_deleted#:#Räume aktualisiert
 attribute_booking_assigns_deleted#:#Buchungen aktualisiert
 attributes_for_bookings_desc#:#Hier können Attribute für Buchungen festgelegt werden. Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Buchungen.
 actual_attributes_for_bookings#:#Aktuelle Buchungsattribute
+no_match_for#:#Keine Ergebnisse für
+found#:#gefunden
+results_for#:#Ergebnisse für

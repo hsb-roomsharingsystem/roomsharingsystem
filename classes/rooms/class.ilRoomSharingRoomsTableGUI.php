@@ -60,6 +60,20 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	{
 		$data = $this->rooms->getList($filter);
 
+		$old_name = $filter["room_name"];
+		if (count($data) == 0 && ($old_name || $old_name === "0"))
+		{
+			$new_name = filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT);
+			$filter["room_name"] = $new_name;
+			$data = $this->rooms->getList($filter);
+
+			$message = $this->lng->txt('rep_robj_xrs_no_match_for') . " $old_name " .
+				$this->lng->txt('rep_robj_xrs_found') . ". " .
+				$this->lng->txt('rep_robj_xrs_results_for') . " $new_name.";
+
+			ilUtil::sendInfo($message);
+		}
+
 		$this->setMaxCount(count($data));
 		$this->setData($data);
 	}

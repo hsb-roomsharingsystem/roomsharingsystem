@@ -142,3 +142,6 @@ attribute_room_assigns_deleted#:#rooms updated
 attribute_booking_assigns_deleted#:#bookings updated
 attributes_for_bookings_desc#:#Here you can define the attributes for the bookings. Deletion of an attribute causes an update of the linked bookings.
 actual_attributes_for_bookings#:#Actual booking attributes
+no_match_for#:#No match for
+found#:#found
+results_for#:#Results for
