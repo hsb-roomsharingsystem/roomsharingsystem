@@ -150,6 +150,8 @@ fake_attribute_id_provided#:#Some incorrect data was provided. Try again.
 attribute_already_exists#:#The attribute is already exists!
 wrong_attribute_name_provided#:#The name of the attribute is incorrect!
 attributes_change_not_allowed#:#You are not allowed to administrate the attributes.
+bookings_were_updated#:#bookings were updated.
+rooms_were_updated#:#rooms were updated.
 no_match_for#:#No match for
 found#:#found
 results_for#:#Results for

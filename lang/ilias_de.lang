@@ -150,6 +150,8 @@ fake_attribute_id_provided#:#Es wurden fehlerhafte Daten übermittelt. Versuchen
 attribute_already_exists#:#Das Attribut ist bereits vorhanden!
 wrong_attribute_name_provided#:#Der Name des Attributs ist ungültig!
 attributes_change_not_allowed#:#Sie sind nicht berechtigt die Attribute zu verwalten!
+bookings_were_updated#:#Buchungen wurden aktualisiert.
+rooms_were_updated#:#Räume wurden aktualisiert.
 no_match_for#:#Keine Ergebnisse für
 found#:#gefunden
 results_for#:#Ergebnisse für
