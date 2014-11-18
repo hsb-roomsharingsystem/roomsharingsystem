@@ -183,7 +183,6 @@ class ilRoomSharingPrivileges
         {
             if ($this->getClassById($user_class)['locked'] == 1)
             {
-                echo "uebersprungen";
                 continue;
             }
             foreach ($this->classes_privileges[$user_class] as $class_privilege)
