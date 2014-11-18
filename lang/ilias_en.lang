@@ -10,7 +10,6 @@ appointments#:#Appointments
 at_most#:#At most
 back_to_list#:#Back to floorplans
 back_to_rooms#:#Back to all rooms
-back_to_search#:#Back to search
 between#:#Between
 booking_add#:#Add Booking
 booking_add_error#:#Booking couldn't been added
@@ -133,15 +132,24 @@ attributes#:#Attributes
 attributes_for_rooms#:#Attributes for rooms
 attributes_for_bookings#:#Attributes for bookings
 edit_attributes#:#Changing of attributes
-attributes_for_rooms_desc#:#Here you can define the attributes for the rooms. Deletion of an attribute causes an update of the linked rooms.
-actual_attributes_for_rooms#:#Actual room attributes
-attributes_deleted#:#attributes deleted
-and#:#and
-attributes_inserted#:#attributes added
-attribute_room_assigns_deleted#:#rooms updated
-attribute_booking_assigns_deleted#:#bookings updated
-attributes_for_bookings_desc#:#Here you can define the attributes for the bookings. Deletion of an attribute causes an update of the linked bookings.
-actual_attributes_for_bookings#:#Actual booking attributes
+attributes_for_rooms_desc#:#Here you can define the attributes for the rooms.
+attributes_for_bookings_desc#:#Here you can define the attributes for the bookings.
+must_be_unique#:#Attribute name must be unique!
+choose_action#:#Choose the wished action:
+create_attribute#:#Create a new attribute
+create_attribute_info#:#With this option you can create new attributes.
+name_of_new_attribute#:#Name of the new attribute.
+rename_attribute#:#Rename an existing attribute
+rename_attribute_info#:#With this option you can rename an existing attribute.
+delete_attribute#:#Delete an existing attribute
+choose_attribute#:#Choose an existing attribute
+new_attribute_name#:#New name for the attribute
+delete_room_attribute_info#:#With this option you can delete an existing room attribute. <br>Deletion of an attribute causes an update of the linked rooms.
+delete_booking_attribute_info#:#With this option you can delete an existing booking attribute. <br>Deletion of an attribute causes an update of the linked bookings.
+fake_attribute_id_provided#:#Some incorrect data was provided. Try again.
+attribute_already_exists#:#The attribute is already exists!
+wrong_attribute_name_provided#:#The name of the attribute is incorrect!
+attributes_change_not_allowed#:#You are not allowed to administrate the attributes.
 no_match_for#:#No match for
 found#:#found
 results_for#:#Results for

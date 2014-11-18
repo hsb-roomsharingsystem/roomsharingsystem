@@ -2,8 +2,12 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/room/class.ilRoomSharingRoomAttributes.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingAttributesException.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesActionModes.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
+
+use ilRoomSharingAttributesActionModes as MODES;
+use ilRoomSharingAttributesConstants as ATTRC;
 
 /**
  * Class ilRoomSharingRoomAttributesGUI
@@ -51,10 +55,10 @@ class ilRoomSharingRoomAttributesGUI
 	 */
 	function executeCommand()
 	{
-		$cmd = $this->ctrl->getCmd("showRoomAttributes");
+		$cmd = $this->ctrl->getCmd(ATTRC::SHOW_ROOM_ATTR_ACTIONS);
 		if ($cmd == 'render')
 		{
-			$cmd = 'showRoomAttributes';
+			$cmd = ATTRC::SHOW_ROOM_ATTR_ACTIONS;
 		}
 		$this->$cmd();
 		return true;
@@ -63,95 +67,150 @@ class ilRoomSharingRoomAttributesGUI
 	/**
 	 * Shows all available attributes.
 	 */
-	public function showRoomAttributes()
+	public function showRoomAttributeActions()
 	{
 		$this->createAttributesForm();
-		$this->setAttributesFormValues();
 		$this->tpl->setContent($this->attributesForm->getHTML());
 	}
 
 	/**
-	 * Save attributes provided by the user.
+	 * Executes the action provided by the user.
 	 */
-	public function saveRoomAttributes()
+	public function executeRoomAttributeAction()
 	{
 		$this->createAttributesForm();
 		if ($this->attributesForm->checkInput())
 		{
-			$attributes = $this->attributesForm->getInput('attributes');
-			$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id);
 			try
 			{
-				$affected = $roomSharingRoomAttributes->updateAttributes($attributes);
+				$updatedRoomsAmount = $this->proceedRoomAttributeAction();
 			}
 			catch (ilRoomSharingAttributesException $exc)
 			{
 				ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
-				$this->ctrl->redirect($this, 'showRoomAttributes');
+				$this->ctrl->redirect($this, ATTRC::SHOW_ROOM_ATTR_ACTIONS);
 			}
-			ilUtil::sendSuccess($this->createUpdateMessage($affected), true);
-			$this->ctrl->redirect($this, 'showRoomAttributes');
+			if (isset($updatedRoomsAmount) && $updatedRoomsAmount > 0)
+			{
+				ilUtil::sendSuccess($this->createDeletionMessage($updatedRoomsAmount), true);
+			}
+			else
+			{
+				ilUtil::sendSuccess($this->lng->txt('msg_obj_modified'), true);
+			}
+			$this->ctrl->redirect($this, ATTRC::SHOW_ROOM_ATTR_ACTIONS);
 		}
-		$this->settingsForm->setValuesByPost();
-		$this->tpl->setContent($this->settingsForm->getHtml());
+		$this->attributesForm->setValuesByPost();
+		$this->tpl->setContent($this->attributesForm->getHtml());
 	}
 
 	/**
-	 * Creates an update message for the user.
+	 * Creates an message with amount of affected rooms after an attribute was deleted.
 	 *
-	 * @param array $a_affected with 'deleted', 'deletedAssigments' and 'inserted' of type integer
+	 * @param integer $a_updated_rooms_amount
+	 * @return string Created message
 	 */
-	private function createUpdateMessage($a_affected)
+	private function createDeletionMessage($a_updated_rooms_amount)
 	{
 		$message[] = $this->lng->txt('msg_obj_modified');
-		$message[] = '. ';
 		$message[] = ' ';
-		$message[] = $a_affected['inserted'] ? $a_affected['inserted'] : 0;
+		$message[] = $a_updated_rooms_amount;
 		$message[] = ' ';
-		$message[] = $this->lng->txt('rep_robj_xrs_attributes_inserted');
-		$message[] = ', ';
-		$message[] = $a_affected['deleted'] ? $a_affected['deleted'] : 0;
-		$message[] = ' ';
-		$message[] = $this->lng->txt('rep_robj_xrs_attributes_deleted');
-		$message[] = ' ';
-		$message[] = $this->lng->txt('rep_robj_xrs_and');
-		$message[] = ' ';
-		$message[] = $a_affected['deletedAssigments'] ? $a_affected['deletedAssigments'] : 0;
-		$message[] = ' ';
-		$message[] = $this->lng->txt('rep_robj_xrs_attribute_room_assigns_deleted');
-		$message[] = ' ';
+		$message[] = $this->lng->txt('rep_robj_xrs_rooms_were_updated');
 		return implode($message);
 	}
 
 	/**
+	 * Determines which action the user performed and calls backend functions.
+	 *
+	 * @throws ilRoomSharingAttributesException itself and from backend
+	 * @return integer deleted assignments if action 'Delete' was executed
+	 */
+	private function proceedRoomAttributeAction()
+	{
+		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id);
+
+		switch ($this->attributesForm->getInput(ATTRC::ACTION_MODE))
+		{
+			case MODES::CREATE_MODE:
+				$newName = $this->attributesForm->getInput(ATTRC::NEW_NAME);
+				$roomSharingRoomAttributes->createAttribute($newName);
+				break;
+
+			case MODES::RENAME_MODE:
+				$attributeId = $this->attributesForm->getInput(ATTRC::RENAME_ATTR_ID);
+				$changedName = $this->attributesForm->getInput(ATTRC::CHANGED_NAME);
+				$roomSharingRoomAttributes->renameAttribute($attributeId, $changedName);
+				break;
+
+			case MODES::DELETE_MODE:
+				$attributeId = $this->attributesForm->getInput(ATTRC::DEL_ATTR_ID);
+				return $roomSharingRoomAttributes->deleteAttribute($attributeId);
+			default:
+				throw new ilRoomSharingAttributesException('rep_robj_xrs_illigal_action_performed');
+		}
+	}
+
+	/**
 	 * Creates the attributes form.
-	 * It contains only an an multiple field which represents all available attributes.
+	 * It contains an radio group with radio names as actions.
+	 * Every radio has own gui elements.
 	 */
 	private function createAttributesForm()
 	{
 		$this->attributesForm = new ilPropertyFormGUI();
+		$this->attributesForm->setTitle($this->lng->txt('rep_robj_xrs_edit_attributes'));
 		$this->attributesForm->setDescription($this->lng->txt('rep_robj_xrs_attributes_for_rooms_desc'));
 
-		$attributesFields = new ilTextInputGUI(
-			$this->lng->txt('rep_robj_xrs_actual_attributes_for_rooms'), 'attributes');
-		$attributesFields->setMulti(true, false, true);
-		$attributesFields->setRequired(true);
-		$attributesFields->setMaxLength(45);
-		$this->attributesForm->addItem($attributesFields);
+		// Radio group
+		$radioGroup = new ilRadioGroupInputGUI($this->lng->txt('rep_robj_xrs_choose_action'),
+			ATTRC::ACTION_MODE);
+		$radioGroup->setRequired(true);
 
-		$this->attributesForm->addCommandButton('saveRoomAttributes', $this->lng->txt('save'));
-		$this->attributesForm->setTitle($this->lng->txt('rep_robj_xrs_edit_attributes'));
-		$this->attributesForm->setFormAction($this->ctrl->getFormAction($this));
-	}
-
-	/**
-	 * Sets available attributes data in the attributes form.
-	 */
-	private function setAttributesFormValues()
-	{
+		// Available attributes
 		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id);
-		$formData['attributes'] = $roomSharingRoomAttributes->getAllAvailableAttributesNames();
-		$this->attributesForm->setValuesByArray($formData);
+		$attributes = $roomSharingRoomAttributes->getAllAvailableAttributesWithIdAndName();
+
+		// Create
+		$create = new ilRadioOption($this->lng->txt('rep_robj_xrs_create_attribute'), MODES::CREATE_MODE,
+			$this->lng->txt('rep_robj_xrs_create_attribute_info'));
+		$new_name = new ilTextInputGUI($this->lng->txt('rep_robj_xrs_name_of_new_attribute'),
+			ATTRC::NEW_NAME);
+		$new_name->setRequired(true);
+		$new_name->setMaxLength(ATTRC::MAX_NAME_LENGTH);
+		$new_name->setInfo($this->lng->txt('rep_robj_xrs_must_be_unique'));
+		$create->addSubItem($new_name);
+		$radioGroup->addOption($create);
+
+		//Rename
+		$rename = new ilRadioOption($this->lng->txt('rep_robj_xrs_rename_attribute'), MODES::RENAME_MODE,
+			$this->lng->txt('rep_robj_xrs_rename_attribute_info'));
+		$toRename = new ilSelectInputGUI($this->lng->txt('rep_robj_xrs_choose_attribute'),
+			ATTRC::RENAME_ATTR_ID);
+		$toRename->setOptions($attributes);
+		$toRename->setRequired(true);
+		$rename->addSubItem($toRename);
+		$changedName = new ilTextInputGUI($this->lng->txt('rep_robj_xrs_new_attribute_name'),
+			ATTRC::CHANGED_NAME);
+		$changedName->setRequired(true);
+		$changedName->setMaxLength(ATTRC::MAX_NAME_LENGTH);
+		$changedName->setInfo($this->lng->txt('rep_robj_xrs_must_be_unique'));
+		$rename->addSubItem($changedName);
+		$radioGroup->addOption($rename);
+
+		//Delete
+		$delete = new ilRadioOption($this->lng->txt('rep_robj_xrs_delete_attribute'), MODES::DELETE_MODE,
+			$this->lng->txt('rep_robj_xrs_delete_room_attribute_info'));
+		$toDelete = new ilSelectInputGUI($this->lng->txt('rep_robj_xrs_choose_attribute'),
+			ATTRC::DEL_ATTR_ID);
+		$toDelete->setOptions($attributes);
+		$toDelete->setRequired(true);
+		$delete->addSubItem($toDelete);
+		$radioGroup->addOption($delete);
+
+		$this->attributesForm->addItem($radioGroup);
+		$this->attributesForm->addCommandButton(ATTRC::EXECUTE_ROOM_ATTR_ACTION, $this->lng->txt("save"));
+		$this->attributesForm->setFormAction($this->ctrl->getFormAction($this));
 	}
 
 	/**

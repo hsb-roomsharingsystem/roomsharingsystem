@@ -10,7 +10,6 @@ appointments#:#Termine
 at_most#:#Höchstens
 back_to_list#:#Zurück zu den Gebäudeplänen
 back_to_rooms#:#Zurück zu allen Räumen
-back_to_search#:#Zurück zur Suchanfrage
 between#:#Zwischen
 booking_add#:#Buchung hinzufügen
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
@@ -133,15 +132,24 @@ attributes#:#Attribute
 attributes_for_rooms#:#Attribute für Räume
 attributes_for_bookings#:#Attribute für Buchungen
 edit_attributes#:#Änderung der Attribute
-attributes_for_rooms_desc#:#Hier können Attribute für Räume festgelegt werden. Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Räume.
-actual_attributes_for_rooms#:#Aktuelle Raumattribute
-attributes_deleted#:#Attribute gelöscht
-and#:#und
-attributes_inserted#:#Attribute hinzugefügt
-attribute_room_assigns_deleted#:#Räume aktualisiert
-attribute_booking_assigns_deleted#:#Buchungen aktualisiert
-attributes_for_bookings_desc#:#Hier können Attribute für Buchungen festgelegt werden. Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Buchungen.
-actual_attributes_for_bookings#:#Aktuelle Buchungsattribute
+attributes_for_rooms_desc#:#Hier können Attribute für Räume festgelegt werden.
+attributes_for_bookings_desc#:#Hier können Attribute für Buchungen festgelegt werden.
+must_be_unique#:#Attributname muss eindeutig sein!
+choose_action#:#Wählen Sie die gewünschte Aktion:
+create_attribute#:#Neues Attribut anlegen
+create_attribute_info#:#Mit dieser Option können neue Attribute angelegt werden.
+name_of_new_attribute#:#Name des neuen Attributs
+rename_attribute#:#Vorhandenes Attribut umbenennen
+rename_attribute_info#:#Mit dieser Option können vorhandene Attribute umbenannt werden.
+delete_attribute#:#Vorhandenes Attribut löschen
+choose_attribute#:#Wählen Sie ein vorhandenes Attribut
+new_attribute_name#:#Neuer Name des Attributs
+delete_room_attribute_info#:#Mit dieser Option können vorhandene Attribute gelöscht werden. <br>Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Räume.
+delete_booking_attribute_info#:#Mit dieser Option können vorhandene Attribute gelöscht werden. <br>Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Buchungen.
+fake_attribute_id_provided#:#Es wurden fehlerhafte Daten übermittelt. Versuchen sie es nochmal.
+attribute_already_exists#:#Das Attribut ist bereits vorhanden!
+wrong_attribute_name_provided#:#Der Name des Attributs ist ungültig!
+attributes_change_not_allowed#:#Sie sind nicht berechtigt die Attribute zu verwalten!
 no_match_for#:#Keine Ergebnisse für
 found#:#gefunden
 results_for#:#Ergebnisse für

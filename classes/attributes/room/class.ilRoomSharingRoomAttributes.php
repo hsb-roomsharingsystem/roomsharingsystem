@@ -3,6 +3,9 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingAttributesException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
+
+use ilRoomSharingAttributesConstants as ATTRC;
 
 /**
  * Class ilRoomSharingRoomAttributes for room attributes administration.
@@ -50,106 +53,112 @@ class ilRoomSharingRoomAttributes
 	}
 
 	/**
-	 * Updates room attributes and returns an associative array
-	 * with 'deleted', 'deletedAssigments' and 'inserted' integer values.
+	 * Returns all available attributes with ids and names.
+	 *
+	 * @return array with ids and names
+	 */
+	public function getAllAvailableAttributesWithIdAndName()
+	{
+		$idsWithNames = array();
+		foreach ($this->allAvailableAttributes as $attribute)
+		{
+			$idsWithNames[$attribute['id']] = $attribute['name'];
+		}
+		return $idsWithNames;
+	}
+
+	/**
+	 * Renames an attribute with given id.
+	 *
+	 * @throws ilRoomSharingAttributesException on any violations
+	 *
+	 * @param integer $a_attribute_id
+	 * @param string $a_changed_attribute_name
+	 */
+	public function renameAttribute($a_attribute_id, $a_changed_attribute_name)
+	{
+		$this->checkUserPrivileges();
+		$this->checkAttributeNameLength($a_changed_attribute_name);
+		$this->checkAttributeNameIsFree($a_changed_attribute_name);
+
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_attribute_id, true))
+		{
+			throw new ilRoomSharingAttributesException('rep_robj_xrs_fake_attribute_id_provided');
+		}
+
+		$this->ilRoomsharingDatabase->renameRoomAttribute($a_attribute_id, $a_changed_attribute_name);
+	}
+
+	/**
+	 * Deletes given attribute and associations/assignments to it (rooms - attributes).
 	 *
 	 * @throws ilRoomSharingAttributesException
 	 *
-	 * @param array $a_user_given_attributes_names
-	 * @return assoc array with affections count
+	 * @param integer $a_attribute_id
+	 * @return integer number of deleted assignments
 	 */
-	public function updateAttributes($a_user_given_attributes_names)
+	public function deleteAttribute($a_attribute_id)
 	{
 		$this->checkUserPrivileges();
-
-		$filteredAttributesNames = array_unique($a_user_given_attributes_names);
-
-		$attributesToDelete = $this->findAttributesForDeletion($filteredAttributesNames);
-		$affections['deletedAssigments'] = $this->deleteAttributes($attributesToDelete);
-		$affections['deleted'] = count($attributesToDelete);
-
-		$attributesToInsert = $this->findAttributesForInsertion($filteredAttributesNames);
-		$this->insertAttributes($attributesToInsert);
-		$affections['inserted'] = count($attributesToInsert);
-
-		return $affections;
-	}
-
-	/**
-	 * Returns attributes which are no more wished by the user.
-	 *
-	 * @param array $a_user_given_attributes_names
-	 * @return array with attributes should be deleted
-	 */
-	private function findAttributesForDeletion($a_user_given_attributes_names)
-	{
-		return array_diff($this->getAllAvailableAttributesNames(), $a_user_given_attributes_names);
-	}
-
-	/**
-	 * Returns attributes which are wished by the user but does not exists in the database.
-	 *
-	 * @param array $a_user_given_attributes_names
-	 * @return array with attributes should be inserted
-	 */
-	private function findAttributesForInsertion($a_user_given_attributes_names)
-	{
-		return array_diff($a_user_given_attributes_names, $this->getAllAvailableAttributesNames());
-	}
-
-	/**
-	 * Deletes given attributes and associations/assignments to it (rooms - attributes).
-	 *
-	 * @param array $a_attributesNames
-	 * @return assoc array with number of deleted assignments
-	 */
-	private function deleteAttributes($a_attributesNames)
-	{
 		$deletedAssignments = 0;
-		foreach ($a_attributesNames as $attributeName)
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_attribute_id, true))
 		{
-			$attributeId = $this->getAttributeId($attributeName);
-			if ($attributeId)
-			{
-				$deletedAssignments += $this->ilRoomsharingDatabase->deleteAttributeRoomAssign($attributeId);
-				$this->ilRoomsharingDatabase->deleteRoomAttribute($attributeId);
-			}
+			$deletedAssignments += $this->ilRoomsharingDatabase->deleteAttributeRoomAssign($a_attribute_id);
+			$this->ilRoomsharingDatabase->deleteRoomAttribute($a_attribute_id);
+		}
+		else
+		{
+			throw new ilRoomSharingAttributesException('rep_robj_xrs_fake_attribute_id_provided');
 		}
 		return $deletedAssignments;
 	}
 
 	/**
-	 * Inserts new room attributes with given names.
+	 * Creates an new room attribute with given name.
 	 *
-	 * @param array $a_attributeNames
+	 * @param string $a_attribute_name
+	 * @throws ilRoomSharingAttributesException
 	 */
-	private function insertAttributes($a_attributeNames)
+	public function createAttribute($a_attribute_name)
 	{
-		foreach ($a_attributeNames as $attributeName)
+		$this->checkUserPrivileges();
+		$this->checkAttributeNameLength($a_attribute_name);
+		$this->checkAttributeNameIsFree($a_attribute_name);
+
+		$this->ilRoomsharingDatabase->insertRoomAttribute($a_attribute_name);
+	}
+
+	/**
+	 * Throws an exception if the given attribute name is already used.
+	 *
+	 * @param string $a_attribute_name
+	 * @throws ilRoomSharingAttributesException if the attribute already exists
+	 */
+	private function checkAttributeNameIsFree($a_attribute_name)
+	{
+		foreach ($this->getAllAvailableAttributesNames() as $existingName)
 		{
-			$this->ilRoomsharingDatabase->insertRoomAttribute($attributeName);
+			if (strcmp($a_attribute_name, $existingName) === 0)
+			{
+				throw new ilRoomSharingAttributesException('rep_robj_xrs_attribute_already_exists');
+			}
 		}
 	}
 
 	/**
-	 * Returns the id of an attribute with the given name.
-	 * If such doesn't exists, FALSE will be returned.
+	 * Throws an exception if the given attribute name is empty or to long.
 	 *
 	 * @param string $a_attribute_name
-	 * @return boolean or integer (id)
+	 * @throws ilRoomSharingAttributesException if the attribute already exists
 	 */
-	private function getAttributeId($a_attribute_name)
+	private function checkAttributeNameLength($a_attribute_name)
 	{
-		$rVal = FALSE;
-		foreach ($this->allAvailableAttributes as $attribute)
+		$nameLength = strlen($a_attribute_name);
+
+		if ($nameLength == 0 || $nameLength > ATTRC::MAX_NAME_LENGTH)
 		{
-			if ($attribute['name'] == $a_attribute_name)
-			{
-				$rVal = $attribute['id'];
-				break;
-			}
+			throw new ilRoomSharingAttributesException('rep_robj_xrs_wrong_attribute_name_provided');
 		}
-		return $rVal;
 	}
 
 	/**

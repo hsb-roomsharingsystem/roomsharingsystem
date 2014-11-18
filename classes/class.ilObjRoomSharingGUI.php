@@ -6,6 +6,9 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 	"RoomSharing/classes/utils/class.ilRoomSharingTimeInputGUI.php");
 include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/utils/class.ilRoomSharingCalendar.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
+
+use ilRoomSharingAttributesConstants as ATTRC;
 
 /**
  * User Interface class for RoomSharing repository object.
@@ -129,9 +132,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		switch ($next_class)
 		{
 			// Attributes for rooms and bookings
-			case 'ilroomsharingattributesgui':
-				$this->tabs_gui->setTabActive('attributes');
-				$this->pl_obj->includeClass("attributes/class.ilRoomSharingAttributesGUI.php");
+			case ATTRC::ATTRS_GUI:
+				$this->tabs_gui->setTabActive(ATTRC::ATTRS);
+				$this->pl_obj->includeClass(ATTRC::ATTRS_GUI_PATH);
 				$attributes_gui = & new ilRoomSharingAttributesGUI($this);
 				$ret = & $this->ctrl->forwardCommand($attributes_gui);
 				break;
@@ -321,8 +324,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		{
 			// Attributes for rooms and bookings
 			$ilTabs->addTab(
-				"attributes", $this->txt("attributes"),
-				$ilCtrl->getLinkTargetByClass('ilroomsharingattributesgui', "showRoomAttributes")
+				ATTRC::ATTRS, $this->txt("attributes"),
+				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, ATTRC::SHOW_ROOM_ATTR_ACTIONS)
 			);
 			// Settings
 			$this->tabs_gui->addTab(

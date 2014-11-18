@@ -998,4 +998,38 @@ class ilRoomsharingDatabase
 		);
 	}
 
+	/**
+	 * Renames an room attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @param string $a_changed_attribute_name
+	 */
+	public function renameRoomAttribute($a_attribute_id, $a_changed_attribute_name)
+	{
+		$fields = array(
+			'name' => array('text', $a_changed_attribute_name),
+		);
+		$where = array(
+			'id' => array("integer", $a_attribute_id)
+		);
+		$this->ilDB->update(dbc::ROOM_ATTRIBUTES_TABLE, $fields, $where);
+	}
+
+	/**
+	 * Renames an booking attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @param string $a_changed_attribute_name
+	 */
+	public function renameBookingAttribute($a_attribute_id, $a_changed_attribute_name)
+	{
+		$fields = array(
+			'name' => array('text', $a_changed_attribute_name),
+		);
+		$where = array(
+			'id' => array("integer", $a_attribute_id)
+		);
+		$this->ilDB->update(dbc::BOOKING_ATTRIBUTES_TABLE, $fields, $where);
+	}
+
 }
