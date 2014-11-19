@@ -13,13 +13,14 @@ class ilRoomSharingPermissionUtils
 	private $pool_id;
 	private $ilRoomsharingDatabase;
 	private $privileges;
-	private $user;
 	private $owner;
+	private $allUserPrivileges;
 
 	/**
 	 *
 	 * @global type $ilUser
-	 * @param type $a_pool_id
+	 * @param integer $a_pool_id
+	 * @param integer $a_owner_id
 	 */
 	public function __construct($a_pool_id, $a_owner_id)
 	{
@@ -28,8 +29,9 @@ class ilRoomSharingPermissionUtils
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($a_pool_id);
 		$this->privileges = new ilRoomsharingPrivileges();
-		$this->user = $ilUser;
 		$this->owner = $a_owner_id;
+		$this->user_id = $ilUser->getId();
+		$this->allUserPrivileges = $this->getAllUserPrivileges();
 	}
 
 	/**
@@ -43,7 +45,7 @@ class ilRoomSharingPermissionUtils
 	public function checkPrivilege($a_privilege)
 	{
 
-		return in_array(strtolower($a_privilege), $this->getAllUserPrivileges());
+		return in_array(strtolower($a_privilege), $this->allUserPrivileges);
 	}
 
 	/**
@@ -56,12 +58,12 @@ class ilRoomSharingPermissionUtils
 	{
 		if ($a_user_id === null)
 		{
-			$a_user_id = $this->user->getId();
+			$a_user_id = $this->user_id;
 		}
 
 		$priority = $this->privileges->getPriorityOfUser($a_user_id);
 
-		if ($this->owner === $this->user->getId())
+		if ($this->owner === $this->user_id)
 		{
 			$priority = 10;
 		}
@@ -76,13 +78,13 @@ class ilRoomSharingPermissionUtils
 	 */
 	public function getAllUserPrivileges()
 	{
-		if ($this->owner === $this->user->getId())
+		if ($this->owner === $this->user_id)
 		{
-			$privileges = $this->privileges->getPrivileges();
+			$privileges = $this->privileges->getAllPrivileges();
 		}
 		else
 		{
-			$privileges = $this->privileges->getPrivilegesForUser($this->user->getId());
+			$privileges = $this->privileges->getPrivilegesForUser($this->user_id);
 		}
 		$privileges = array_map('strtolower', $privileges);
 		return $privileges;

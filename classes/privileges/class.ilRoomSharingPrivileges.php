@@ -101,7 +101,7 @@ class ilRoomSharingPrivileges
         return $privilegesMatrix;
     }
 
-    public function getPrivileges()
+    public function getAllPrivileges()
     {
         $priv = array();
         $priv[] = 'accessAppointments';
@@ -292,7 +292,7 @@ class ilRoomSharingPrivileges
             {
                 $privileges[] = $given_privilege_key;
             }
-            $no_privileges = array_diff($this->getPrivileges(), $privileges);
+            $no_privileges = array_diff($this->getAllPrivileges(), $privileges);
             $this->ilRoomsharingDatabase->setPrivilegesForClass($class_id, $privileges, $no_privileges);
         }
     }
