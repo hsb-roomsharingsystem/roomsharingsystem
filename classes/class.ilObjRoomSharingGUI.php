@@ -512,6 +512,17 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$room_gui->showRoomObject();
 	}
 
+	public function editRoom() {
+		echo "hi";
+		$room_id = (int) $_GET['room_id'];
+		echo "hi2";
+		$this->tabs_gui->setTabActive('rooms');
+		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
+		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
+		echo "hi";
+		$room_gui->editRoomObject();
+	}
+
 	/**
 	 * Displays a booking form where the user can book a given room.
 	 */
