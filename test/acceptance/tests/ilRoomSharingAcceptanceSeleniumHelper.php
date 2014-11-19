@@ -5,12 +5,13 @@
  *
  * created by: Thomas Wolscht
  */
-class SeleniumHelper {
-
+class ilRoomSharingAcceptanceSeleniumHelper
+{
 	private $webDriver;
 	private $rssObjectName;
 
-	public function SeleniumHelper($driver, $rss) {
+	public function SeleniumHelper($driver, $rss)
+	{
 
 		$this->webDriver = $driver;
 		$this->rssObjectName = $rss;
@@ -20,7 +21,8 @@ class SeleniumHelper {
 	 * Search for room by room name.
 	 * @param type $roomName Room name
 	 */
-	public function searchForRoomByName($roomName) {
+	public function searchForRoomByName($roomName)
+	{
 		$this->webDriver->findElement(WebDriverBy::linkText('Suche'))->click();
 		$this->webDriver->findElement(WebDriverBy::id('room_name'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($roomName);
@@ -43,7 +45,9 @@ class SeleniumHelper {
 	 * @param type $proj		Amount of projectors
 	 * @param type $white		Amount of whiteboards
 	 */
-	public function searchForRoomByAll($roomName, $seats, $day, $month, $year, $h_from, $m_from, $h_to, $m_to, $beamer, $sound, $proj, $white) {
+	public function searchForRoomByAll($roomName, $seats, $day, $month, $year, $h_from, $m_from, $h_to,
+		$m_to, $beamer, $sound, $proj, $white)
+	{
 		$this->webDriver->findElement(WebDriverBy::linkText('Suche'))->click();
 		$this->webDriver->findElement(WebDriverBy::id('room_name'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($roomName);
@@ -65,7 +69,8 @@ class SeleniumHelper {
 	 * Get current Month
 	 * @return current month
 	 */
-	public function getCurrentMonth() {
+	public function getCurrentMonth()
+	{
 		$monate = array(1 => "Januar",
 			2 => "Februar",
 			3 => "M&auml;rz",
@@ -87,7 +92,8 @@ class SeleniumHelper {
 	 * @param type $user
 	 * @param type $pass
 	 */
-	public function login($user, $pass) {
+	public function login($user, $pass)
+	{
 		$this->webDriver->findElement(WebDriverBy::id('username'))->sendKeys($user);
 		$this->webDriver->findElement(WebDriverBy::id('password'))->sendKeys($pass)->submit();
 		$this->webDriver->findElement(WebDriverBy::id('mm_rep_tr'))->click();
@@ -96,7 +102,8 @@ class SeleniumHelper {
 	/**
 	 * Navigate to RoomSharing Pool
 	 */
-	public function toRSS() {
+	public function toRSS()
+	{
 		$this->webDriver->findElement(WebDriverBy::linkText('Magazin - Einstiegsseite'))->click();
 		$this->webDriver->findElement(WebDriverBy::xpath("(//a[contains(text(),'" . $this->rssObjectName . "')])[2]"))->click();
 		//$this->assertContains(self::$rssObjectName, $this->webDriver->getTitle());
@@ -106,7 +113,8 @@ class SeleniumHelper {
 	 * Get current day
 	 * @return day
 	 */
-	public function getCurrentDay() {
+	public function getCurrentDay()
+	{
 		return date("d");
 	}
 
@@ -114,7 +122,8 @@ class SeleniumHelper {
 	 * Get current year
 	 * @return year
 	 */
-	public function getCurrentYear() {
+	public function getCurrentYear()
+	{
 		return date("y");
 	}
 
@@ -122,11 +131,15 @@ class SeleniumHelper {
 	 * Get amount of search results.
 	 * @return search results
 	 */
-	public function getNoOfResults() {
-		try {
+	public function getNoOfResults()
+	{
+		try
+		{
 			$result = $this->webDriver->findElement(WebDriverBy::cssSelector('span.ilTableFootLight'))->getText();
 			return substr($result, strripos($result, " ") + 1, -1);
-		} catch (WebDriverException $exception) {
+		}
+		catch (WebDriverException $exception)
+		{
 			return 0;
 		}
 	}
@@ -135,7 +148,8 @@ class SeleniumHelper {
 	 * Get first result of search.
 	 * @return first result
 	 */
-	public function getFirstResult() {
+	public function getFirstResult()
+	{
 		return $this->webDriver->findElement(WebDriverBy::cssSelector('td.std'))->getText();
 	}
 
@@ -143,14 +157,17 @@ class SeleniumHelper {
 	 * Get error message.
 	 * @return error message
 	 */
-	public function getErrMessage() {
+	public function getErrMessage()
+	{
 		return $this->webDriver->findElement(WebDriverBy::cssSelector('div.ilFailureMessage'))->getText();
 	}
 
 	/**
 	 * This method creates a booking.
 	 */
-	public function doABooking($subject, $f_d, $f_m, $f_y, $f_h, $f_m, $t_d, $t_m, $t_y, $t_h, $t_m, $acc) {
+	public function doABooking($subject, $f_d, $f_m, $f_y, $f_h, $f_m, $t_d, $t_m, $t_y, $t_h, $t_m,
+		$acc)
+	{
 		$this->webDriver->findElement(WebDriverBy::id('subject'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('subject'))->sendKeys($subject);
 		$this->webDriver->findElement(WebDriverBy::id('from[date]_d'))->sendKeys($f_d);
@@ -173,7 +190,8 @@ class SeleniumHelper {
 	 * Delete a booking by subject.
 	 * @param booking subject
 	 */
-	public function deleteBooking($subject) {
+	public function deleteBooking($subject)
+	{
 		$row = $this->webDriver->findElement(WebDriverBy::xpath("//tr[contains(text(), " . $subject . ")]/td[7]"));
 		$row->findElement(WebDriverBy::linkText('Stornieren'))->click();
 		$this->webDriver->findElement(WebDriverBy::name('cmd[cancelBooking]'))->click();
@@ -183,7 +201,8 @@ class SeleniumHelper {
 	 * Get success message.
 	 * @return success message
 	 */
-	public function getSuccMessage() {
+	public function getSuccMessage()
+	{
 		return $this->webDriver->findElement(WebDriverBy::cssSelector('div.ilSuccessMessage'))->getText();
 	}
 

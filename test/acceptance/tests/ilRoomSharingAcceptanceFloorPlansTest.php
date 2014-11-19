@@ -11,8 +11,8 @@ include_once './acceptance/tests/SeleniumHelper.php';
  *
  * created by: Thomas Wolscht
  */
-class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
-
+class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
+{
 	private static $webDriver;
 	private static $url = 'http://localhost/roomsharingsystem'; // URL to local RoomSharing
 	private static $rssObjectName; // name of RoomSharing pool
@@ -20,7 +20,8 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 	private static $login_pass = 'homer';
 	private static $helper;
 
-	public static function setUpBeforeClass() {
+	public static function setUpBeforeClass()
+	{
 		global $rssObjectName;
 		self::$rssObjectName = $rssObjectName;
 		$host = 'http://localhost:4444/wd/hub'; // this is the default
@@ -32,7 +33,8 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 		self::$helper = new SeleniumHelper(self::$webDriver, self::$rssObjectName);
 	}
 
-	public function setUp() {
+	public function setUp()
+	{
 		self::$helper->login(self::$login_user, self::$login_pass);  // login
 		self::$helper->toRSS();
 	}
@@ -44,12 +46,14 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 	 * the tests from user story use functionality which is not yet implemented.
 	 * @test
 	 */
-	public function testGebaeudePlaeneExplorativ() {
+	public function testGebaeudePlaeneExplorativ()
+	{
 		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
 		/**
 		 *  Check editing of an existing floorplan
 		 */
-		if (self::$helper->getNoOfResults() >= 1) {
+		if (self::$helper->getNoOfResults() >= 1)
+		{
 			$desc = self::$webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[3]"))->getText();
 			$menu = self::$webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
 			$menu->findElement(WebDriverBy::linkText('Aktionen'))->click();
@@ -81,18 +85,21 @@ class FloorPlansGUITest extends PHPUnit_Framework_TestCase {
 		self::$webDriver->findElement(WebDriverBy::name("cmd[save]"))->click();
 		$error_mess = self::$webDriver->findElement(WebDriverBy::cssSelector("div.ilFailureMessage"))->getText();
 		// assert error message
-		$this->assertEquals("Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.", $error_mess);
+		$this->assertEquals("Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.",
+			$error_mess);
 		//self::$webDriver->quit();
 	}
 
 	/**
 	 * Closes web browser.
 	 */
-	public static function tearDownAfterClass() {
+	public static function tearDownAfterClass()
+	{
 		self::$webDriver->quit();
 	}
 
-	public function tearDown() {
+	public function tearDown()
+	{
 		self::$webDriver->findElement(WebDriverBy::linkText('Abmelden'))->click();
 		self::$webDriver->findElement(WebDriverBy::linkText('Bei ILIAS anmelden'))->click();
 	}
