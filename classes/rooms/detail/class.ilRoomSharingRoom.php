@@ -11,22 +11,24 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * you can create an room.
  *
  * @author Thomas Matern
+ *
+ * @property ilRoomsharingDatabase $ilRoomsharingDatabase
  */
 class ilRoomSharingRoom
 {
-	protected $id;
-	protected $name;
-	protected $type;
-	protected $min_alloc;
-	protected $max_alloc;
-	protected $file_id;
-	protected $building_id;
-	protected $pool_id;
+	private $id;
+	private $name;
+	private $type;
+	private $min_alloc;
+	private $max_alloc;
+	private $file_id;
+	private $building_id;
+	private $pool_id;
 	// Associative. Contains arrays with id, name, count.
-	protected $attributes = array();
+	private $attributes = array();
 	// Associative. Contains arrays with id, date_from, date_to...
-	protected $booked_times = array();
-	protected $ilRoomsharingDatabase;
+	private $booked_times = array();
+	private $ilRoomsharingDatabase;
 
 	/**
 	 * Constructor for ilRoomSharingRoom.
@@ -38,7 +40,7 @@ class ilRoomSharingRoom
 	 * @param bool $a_create
 	 * 			Set true if you want to create an room.
 	 */
-	function __construct($pool_id, $a_room_id, $a_create = false)
+	public function __construct($pool_id, $a_room_id, $a_create = false)
 	{
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
@@ -119,7 +121,7 @@ class ilRoomSharingRoom
 	 * @param int $a_count
 	 * @return bool True if the attribute was added successful.
 	 */
-	public function addAttribute($a_attr_id, $a_count)
+	protected function addAttribute($a_attr_id, $a_count)
 	{
 		global $lng;
 		// Check arguments
@@ -173,10 +175,15 @@ class ilRoomSharingRoom
 		}
 	}
 
+	public function getAllAvailableAttributes()
+	{
+		return $this->ilRoomsharingDatabase->getAllRoomAttributes();
+	}
+
 	/**
 	 * Update main properties of a room.
 	 */
-	protected function updateMainProperties()
+	private function updateMainProperties()
 	{
 		if ($this->checkId())
 		{
@@ -189,7 +196,7 @@ class ilRoomSharingRoom
 	/**
 	 * Updates attributes of a room if such were changed.
 	 */
-	protected function updateAttributes()
+	private function updateAttributes()
 	{
 		if ($this->checkId() && $this->compareAttributes() &&
 			$this->checkAttributes())
@@ -204,7 +211,7 @@ class ilRoomSharingRoom
 	/**
 	 * Insert attributes if such are set in the room object.
 	 */
-	protected function insertAttributes()
+	private function insertAttributes()
 	{
 		if ($this->checkId() && $this->checkAttributes())
 		{
@@ -221,7 +228,7 @@ class ilRoomSharingRoom
 	 * @return bool true if attributes are valid (data can be inserted into the
 	 * 		 database).
 	 */
-	protected function checkAttributes()
+	private function checkAttributes()
 	{
 		global $lng;
 		if (!empty($this->attributes))
@@ -256,7 +263,7 @@ class ilRoomSharingRoom
 	 * @return bool true if room attributes of the object have no difference
 	 * 		 with the database.
 	 */
-	protected function compareAttributes()
+	private function compareAttributes()
 	{
 		if ($this->attributes == $this->getAttributesFromDB())
 		{
@@ -271,7 +278,7 @@ class ilRoomSharingRoom
 	 * @return bool True if the room id is set and the room exists in the
 	 * 		 database.
 	 */
-	protected function checkId()
+	private function checkId()
 	{
 		$rtrn = FALSE;
 		if (ilRoomSharingNumericUtils::isPositiveNumber($this->id))
@@ -292,7 +299,7 @@ class ilRoomSharingRoom
 	 * 			Array with properties to check.
 	 * @return bool True if all properties are not empty and numeric.
 	 */
-	protected function checkNumProps($a_props)
+	private function checkNumProps($a_props)
 	{
 		foreach ($a_props as $prop)
 		{
