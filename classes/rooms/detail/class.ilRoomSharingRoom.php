@@ -189,7 +189,7 @@ class ilRoomSharingRoom
 		{
 			$this->ilRoomsharingDatabase->updateRoomProperties($this->getId(), $this->getName(),
 				$this->getType(), $this->getMinAlloc(), $this->getMaxAlloc(), $this->getFileId(),
-				$this->getFileId());
+				$this->getBuildingId());
 		}
 	}
 
@@ -309,6 +309,53 @@ class ilRoomSharingRoom
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Get all floorplan title.
+	 * @return array with all floorplan title
+	 */
+	public function getAllFloorplans()
+	{
+		$options = array();
+		$options["title"] = " - ohne Zuordnung - ";
+		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
+		{
+			$options[$fplans["title"]] = $fplans["title"];
+		}
+		return $options;
+	}
+
+	/**
+	 * Get floorplan file-id by name.
+	 * @param name
+	 * @return file-id
+	 */
+	public function getFloorplanIdByName($name)
+	{
+		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
+		{
+			if ($name == $fplans["title"])
+			{
+				return (int) $fplans["file_id"];
+			}
+		}
+	}
+
+	/**
+	 * Get floorplan name by file-id.
+	 * @param file-id
+	 * @return name
+	 */
+	public function getFloorplanNameById($id)
+	{
+		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
+		{
+			if ($id == $fplans["file_id"])
+			{
+				return $fplans["title"];
+			}
+		}
 	}
 
 	/**

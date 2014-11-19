@@ -37,6 +37,7 @@ class ilRoomSharingRoomGUI
 	private $form_gui;
 	private $room_obj;
 	private $ilRoomsharingDatabase;
+	private $room_floorplan;
 
 	const SESSION_ROOM_ID = 'xrs_room_id';
 
@@ -170,24 +171,15 @@ class ilRoomSharingRoomGUI
 			$this->lng->txt("rep_robj_xrs_room_max_alloc"), "max_alloc");
 		$max_alloc->setDisabled(true);
 		$form_gui->addItem($max_alloc);
-		// Floorplan
-		$options = array();
-		$options["title"] = " - ohne Zuordnung - ";
-		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
-		{
-			$options[$fplans["title"]] = $fplans["title"]; // . $fplans["file_id"];
-		}
+
 		$building_id = new ilSelectInputGUI(
 			$this->lng->txt("rep_robj_xrs_room_floor_plans"), "building_id");
-		$building_id->setOptions($options);
+		$building_id->setOptions($this->room_obj->getAllFloorplans());
 		$building_id->setDisabled(true);
 
-		$mobj = new ilObjMediaObject(295);
-		$med = $mobj->getMediaItem("Standard");
-		$target = $med->getThumbnailTarget();
-		$imageWithLink = "<a target='_blank' href='" . $mobj->getDataDirectory() . "/" . $med->getLocation() . "'>" . ilUtil::img($target) . "</a>";
 
-		$building_id->setInfo($imageWithLink);
+
+
 		$form_gui->addItem($building_id);
 
 		if ($a_mode == "edit" || $a_mode == "create")
@@ -217,7 +209,19 @@ class ilRoomSharingRoomGUI
 			$type->setValue($this->room_obj->getType());
 			$min_alloc->setValue($this->room_obj->getMinAlloc());
 			$max_alloc->setValue($this->room_obj->getMaxAlloc());
-			$building_id->setValue($this->room_obj->getBuildingId());
+			$building_id->setValue($this->room_obj->getFloorplanNameById($this->room_obj->getBuildingId()));
+			if ($a_mode == "show")
+			{
+				$building_id->setDisabled(true);
+				$mobj = new ilObjMediaObject((int) $this->room_obj->getBuildingId());
+				if (!empty($mobj->getMediaItems()))
+				{
+					$med = $mobj->getMediaItem("Standard");
+					$target = $med->getThumbnailTarget();
+					$imageWithLink = "<a target='_blank' href='" . $mobj->getDataDirectory() . "/" . $med->getLocation() . "'>" . ilUtil::img($target) . "</a>";
+					$building_id->setInfo($imageWithLink);
+				}
+			}
 
 			$post = new ilFormSectionHeaderGUI();
 			$post->setTitle($this->lng->txt("rep_robj_xrs_room_attributes"));
@@ -278,8 +282,7 @@ class ilRoomSharingRoomGUI
 			$this->room_obj->setType($this->form_gui->getInput("type"));
 			$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 			$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-			$this->room_obj->setBuildingId(
-				$this->form_gui->getInput("building_id"));
+			$this->room_obj->setBuildingId($this->room_obj->getFloorplanIdByName($this->form_gui->getInput("building_id")));
 
 			$newRoomId = $this->room_obj->create();
 			if (ilRoomSharingNumericUtils::isPositiveNumber($newRoomId))
@@ -321,7 +324,7 @@ class ilRoomSharingRoomGUI
 			$this->room_obj->setType($this->form_gui->getInput("type"));
 			$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 			$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-			$this->room_obj->setBuildingId($this->form_gui->getInput("building_id"));
+			$this->room_obj->setBuildingId($this->room_obj->getFloorplanIdByName($this->form_gui->getInput("building_id")));
 
 			$this->room_obj->save();
 			$this->showRoom();
