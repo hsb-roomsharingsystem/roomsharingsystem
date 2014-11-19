@@ -92,6 +92,7 @@ room_max_alloc#:#Max. Belegung
 room_max_allocation_exceeded#:#Maximale Raumbelegung überschritten
 room_min_alloc#:#Min. Belegung
 room_name#:#Raumbezeichnung
+room_no_assign#:#Keine Zuordnung
 room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
 room_properties#:#Raumeigenschaften
 room_public_booking#:#Nutzername in Buchung öffentlich anzeigen

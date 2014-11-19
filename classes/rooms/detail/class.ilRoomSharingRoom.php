@@ -29,6 +29,7 @@ class ilRoomSharingRoom
 	// Associative. Contains arrays with id, date_from, date_to...
 	private $booked_times = array();
 	private $ilRoomsharingDatabase;
+	private $lng;
 
 	/**
 	 * Constructor for ilRoomSharingRoom.
@@ -42,6 +43,8 @@ class ilRoomSharingRoom
 	 */
 	public function __construct($pool_id, $a_room_id, $a_create = false)
 	{
+		global $lng;
+
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 		if ($a_create == false)
@@ -49,6 +52,7 @@ class ilRoomSharingRoom
 			$this->id = $a_room_id;
 			$this->read();
 		}
+		$this->lng = $lng;
 	}
 
 	/**
@@ -318,7 +322,8 @@ class ilRoomSharingRoom
 	public function getAllFloorplans()
 	{
 		$options = array();
-		$options["title"] = " - ohne Zuordnung - ";
+		$options["title"] = " - " . $this->lng->txt("rep_robj_xrs_room_no_assign") . " - ";
+
 		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
 		{
 			$options[$fplans["title"]] = $fplans["title"];

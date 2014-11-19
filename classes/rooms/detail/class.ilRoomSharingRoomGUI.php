@@ -214,7 +214,8 @@ class ilRoomSharingRoomGUI
 			{
 				$building_id->setDisabled(true);
 				$mobj = new ilObjMediaObject((int) $this->room_obj->getBuildingId());
-				if (!empty($mobj->getMediaItems()))
+				$mitems = $mobj->getMediaItems();
+				if (!empty($mitems))
 				{
 					$med = $mobj->getMediaItem("Standard");
 					$target = $med->getThumbnailTarget();
