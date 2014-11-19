@@ -509,18 +509,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->tabs_gui->setTabActive('rooms');
 		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
-		$room_gui->showRoomObject();
+		$room_gui->showRoom();
 	}
 
-	public function editRoom() {
-		echo "hi";
+	public function editRoom()
+	{
 		$room_id = (int) $_GET['room_id'];
-		echo "hi2";
 		$this->tabs_gui->setTabActive('rooms');
 		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
-		echo "hi";
-		$room_gui->editRoomObject();
+		$room_gui->editRoom();
 	}
 
 	/**
