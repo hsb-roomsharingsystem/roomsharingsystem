@@ -342,9 +342,10 @@ class ilRoomSharingPrivilegesGUI
 			$confirmation->setCancel($this->lng->txt("cancel"), "showPrivileges");
 			$this->tpl->setContent($confirmation->getHTML());
 
-			if ($this->checkForOwnLockedClass($a_classes_to_be_locked, $already_locked_classes))
+			$assigned_user_classes = $this->privileges->getAssignedClassesForUser($this->user->getId());
+			if ($this->checkForOwnLockedClass($a_classes_to_be_locked, $already_locked_classes,
+					$assigned_user_classes))
 			{
-				$assigned_user_classes = $this->privileges->getAssignedClassesForUser($this->user->getId());
 				$assigned_user_class_names = array();
 
 				foreach ($assigned_user_classes as $class_id)
@@ -378,11 +379,11 @@ class ilRoomSharingPrivilegesGUI
 		}
 	}
 
-	private function checkForOwnLockedClass($a_classes_to_be_locked, $a_already_locked_classes)
+	private function checkForOwnLockedClass($a_classes_to_be_locked, $a_already_locked_classes,
+		$a_assigned_user_classes)
 	{
-		$assigned_user_classes = $this->privileges->getAssignedClassesForUser($this->user->getId());
 		$in_class = false;
-		foreach ($assigned_user_classes as $assigned_user_class)
+		foreach ($a_assigned_user_classes as $assigned_user_class)
 		{
 			if (in_array($assigned_user_class, array_keys($a_classes_to_be_locked)) && !in_array($assigned_user_class,
 					$a_already_locked_classes))
