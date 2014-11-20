@@ -46,6 +46,7 @@ floor_plans_keep#:#Gebäudeplan beibehalten
 floor_plans_keep_info#:#Der bisherige Gebäudeplan wird behalten
 floor_plans_replace#:#Gebäudeplan ersetzen
 floor_plans_replace_info#:#Der bisherige Gebäudeplan wird durch einen neuen ersetzt
+floor_plans_room_assoc#:#Die Raum-Gebäudeplan Zuordnungen folgender Räume werden dabei gelöscht:
 floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_upload_error#:#Fehler beim Hochladen des Geäudeplans. Die Mögliche Ursache ist die verwendung eines nicht unterstütztes Datei Formats
 from#:#von

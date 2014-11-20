@@ -46,6 +46,7 @@ floor_plans_keep#:#Keep floorplan
 floor_plans_keep_info#:#The existing floorplan will be kept
 floor_plans_replace#:#Replace floorplan
 floor_plans_replace_info#:#The existing floorplan will be replaced
+floor_plans_room_assoc#:#Following room-floorplan associations of these rooms will be deleted:
 floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
 from#:#from
