@@ -198,3 +198,5 @@ create_edit_delete_room_attributes#:#Attribute administrierbar
 create_edit_delete_room_attributes_description#:#Raumattribute sind erstell-, bearbeit- und löschbar
 create_edit_delete_booking_attributes#:#Attribute administrierbar
 create_edit_delete_booking_attributes_description#:#Buchungsattribute sind erstell-, bearbeit- und löschbar
+see_non_public_booking_information#:#Nicht öffentlichen Buchenden einsehen
+see_non_public_booking_information_description#:#Informationen von nicht öffentlichen Buchungen einsehbar

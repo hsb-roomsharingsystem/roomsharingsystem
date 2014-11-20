@@ -198,3 +198,5 @@ create_edit_delete_room_attributes#:#Administrate attributes
 create_edit_delete_room_attributes_description#:#Roomattributes create-, edit- and deleteable
 create_edit_delete_booking_attributes#:#Administrate attributes
 create_edit_delete_booking_attributes_description#:#Bookingattributes create-, edit- and deleteable
+see_non_public_booking_information#:#See nonpublic booking information
+see_non_public_booking_information_description#:#See information of nonpublic booking information

@@ -1102,3 +1102,132 @@ $ilDB->createSequence($tableClasses);
 // add index
 $ilDB->addIndex($tableClasses, array('pool_id'), 'i1');
 ?>
+<#18>
+<?php
+// Author: R. Heimsoth
+// Add new privilege "seeNonPublicBookingInformation"
+// ##########################
+// 'rep_robj_xrs_grp_priv'
+// ##########################
+$tableClassPriv = 'rep_robj_xrs_cls_priv';
+
+$fieldsClassPriv = array(
+	'class_id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'accessappointments' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accesssearch' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addownbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addparticipants' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addsequencebookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addunlimitedbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'seenonpublicbookinginformation' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'notificationsettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'adminbookingattributes' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'cancelbookinglowerpriority' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'seebookingsofrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'deleterooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'adminroomattributes' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'deletefloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accesssettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'accessprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'addclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'deleteclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'editprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+	'lockprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassPriv))
+{
+	$ilDB->dropTable($tableClassPriv);
+}
+$ilDB->createTable($tableClassPriv, $fieldsClassPriv);
+
+// add primary key
+$ilDB->addPrimaryKey($tableClassPriv, array("class_id"));
+?>
+<#19>
+<?php
+// Author: R. Heimsoth
+// Remove classes
+// ##########################
+// 'rep_robj_xrs_classes'
+// ##########################
+$tableClasses = 'rep_robj_xrs_classes';
+
+$fieldsClasses = array(
+	'id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'name' => array(
+		'type' => 'text',
+		'length' => 75,
+		'notnull' => true
+	),
+	'description' => array(
+		'type' => 'text',
+		'length' => 1000
+	),
+	'priority' => array(
+		'type' => 'integer',
+		'length' => 2,
+		'default' => 0
+	),
+	'role_id' => array(
+		'type' => 'integer',
+		'length' => 4
+	),
+	'locked' => array(
+		'type' => 'integer',
+		'length' => 1,
+		'default' => 0
+	),
+	'pool_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClasses))
+{
+	$ilDB->dropTable($tableClasses);
+}
+$ilDB->createTable($tableClasses, $fieldsClasses);
+// add primary key
+$ilDB->addPrimaryKey($tableClasses, array("id"));
+// add sequence
+$ilDB->createSequence($tableClasses);
+// add index
+$ilDB->addIndex($tableClasses, array('pool_id'), 'i1');
+
+//Remove assigned users
+$tableClassUser = "rep_robj_xrs_cls_user";
+$fieldsClassUser = array(
+	'class_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	),
+	'user_id' => array(
+		'type' => 'integer',
+		'length' => 4,
+		'notnull' => true
+	)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassUser))
+{
+	$ilDB->dropTable($tableClassUser);
+}
+$ilDB->createTable($tableClassUser, $fieldsClassUser);
+?>
