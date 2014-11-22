@@ -79,6 +79,7 @@ class ilRoomSharingBookings
 
 	/**
 	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal 1 and exists as booking ID.
+         * Sends all participants a cancellation notice.
 	 * @param array $a_booking_ids nummerical array of booking_ids to delete
 	 */
 	public function removeMultipleBookings(array $a_booking_ids)
@@ -86,6 +87,9 @@ class ilRoomSharingBookings
 		foreach ($a_booking_ids as $booking_id)
 		{
 			$this->checkBookingId($booking_id);
+                        $booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
+                        $participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
+                        $this->sendCancellationNotification($booking_details, $participants); 
 		}
 		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
 		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
