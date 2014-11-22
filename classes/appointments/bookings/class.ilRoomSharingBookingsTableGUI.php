@@ -72,7 +72,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	private function _addColumns()
 	{
 		$this->addColumn('', 'f', '1'); // checkboxes
-		$this->addColumn('', 'f', '1'); // icons
+		$this->addColumn('', 'f', 'l'); // icons
 		$this->addColumn($this->lng->txt("rep_robj_xrs_date"), "date");
 		$this->addColumn($this->lng->txt("rep_robj_xrs_room"), "room");
 		$this->addColumn($this->lng->txt("rep_robj_xrs_subject"), "subject");
