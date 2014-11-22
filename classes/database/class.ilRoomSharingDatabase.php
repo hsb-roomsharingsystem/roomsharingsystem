@@ -10,6 +10,8 @@ use ilRoomSharingDBConstants as dbc;
  * Class for database queries.
  *
  * @author Malte Ahlering
+ *
+ * @property ilDB $ilDB
  */
 class ilRoomsharingDatabase
 {
@@ -90,7 +92,6 @@ class ilRoomsharingDatabase
 
 	public function getAllRoomIds()
 	{
-
 		$resRoomIds = $this->ilDB->query('SELECT id FROM ' . dbc::ROOMS_TABLE);
 		$room_ids = array();
 		while ($row = $this->ilDB->fetchAssoc($resRoomIds))
@@ -472,6 +473,27 @@ class ilRoomsharingDatabase
 		return $participants;
 	}
 
+	/*
+	 * Gets only the usernames of the participants of a booking.
+	 *
+	 * @param integer $a_booking_id
+	 * @return type return of $this->ilDB->query
+	 */
+	public function getParticipantsForBookingShort($a_booking_id)
+	{
+		$set = $this->ilDB->query('SELECT  users.login AS login' .
+			' FROM ' . dbc::USER_TABLE . ' participants ' .
+			' INNER JOIN usr_data AS users ON users.usr_id = participants.user_id' .
+			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
+			' ORDER BY users.lastname, users.firstname ASC');
+		$participants = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$participants[] = $row['login'];
+		}
+		return $participants;
+	}
+
 	/**
 	 * Gets all attributes of a booking.
 	 *
@@ -502,7 +524,8 @@ class ilRoomsharingDatabase
 	public function getAllBookingAttributes()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::BOOKING_ATTRIBUTES_TABLE .
-			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer')
+			. ' ORDER BY name ASC');
 
 		$attributesRows = array();
 		while ($attributesRow = $this->ilDB->fetchAssoc($set))
@@ -588,6 +611,31 @@ class ilRoomsharingDatabase
 	{
 		return $this->ilDB->manipulate('DELETE FROM ' . dbc::FLOORPLANS_TABLE .
 				' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer'));
+	}
+
+	/**
+	 * Delete floorplan - room association if floorplan will be deleted.
+	 * @param floorplan_id
+	 * @return type
+	 */
+	public function deleteFloorplanRoomAssociation($a_file_id)
+	{
+		return $this->ilDB->manipulate('UPDATE ' . dbc::ROOMS_TABLE .
+				' SET building_id = 0 WHERE building_id = ' .
+				$this->ilDB->quote($a_file_id, 'integer'));
+	}
+
+	public function getRoomsWithFloorplan($a_file_id)
+	{
+		$set = $this->ilDB->query('SELECT name FROM ' . dbc::ROOMS_TABLE .
+			' WHERE building_id = ' . $this->ilDB->quote($a_file_id, 'integer'));
+		$rooms = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$rooms[] = $row;
+		}
+		return $rooms;
+		//return $this->ilDB->fetchAssoc($set);
 	}
 
 	/**
@@ -811,7 +859,7 @@ class ilRoomsharingDatabase
 	 *
 	 * @return type return of $ilDB->query
 	 */
-	public function getRoomAgreementIdFromDatabase()
+	public function getRoomAgreementId()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::POOLS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' order by rooms_agreement DESC');
@@ -825,7 +873,7 @@ class ilRoomsharingDatabase
 	 *
 	 * @return integer calendar-id
 	 */
-	public function getCalendarIdFromDatabase()
+	public function getCalendarId()
 	{
 		$set = $this->ilDB->query('SELECT calendar_id FROM ' . dbc::POOLS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
@@ -875,6 +923,140 @@ class ilRoomsharingDatabase
 			"id" => array("integer", $a_id)
 		);
 		return $this->ilDB->update(dbc::ROOMS_TABLE, $fields, $where);
+	}
+
+	/**
+	 * Gets all available attributes for rooms.
+	 *
+	 * @return type return of $this->ilDB->query
+	 */
+	public function getAllRoomAttributes()
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer')
+			. ' ORDER BY name ASC');
+
+		$attributesRows = array();
+		while ($attributesRow = $this->ilDB->fetchAssoc($set))
+		{
+			$attributesRows [] = $attributesRow;
+		}
+
+		return $attributesRows;
+	}
+
+	/**
+	 * Deletes an room attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer Affected rows
+	 */
+	public function deleteRoomAttribute($a_attribute_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
+				' WHERE id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+	}
+
+	/**
+	 * Inserts new room attribute.
+	 *
+	 * @param string $a_attribute_name
+	 */
+	public function insertRoomAttribute($a_attribute_name)
+	{
+		$this->ilDB->insert(dbc::ROOM_ATTRIBUTES_TABLE,
+			array(
+			'id' => array('integer', $this->ilDB->nextID(dbc::ROOM_ATTRIBUTES_TABLE)),
+			'name' => array('text', $a_attribute_name),
+			'pool_id' => array('integer', $this->pool_id),
+			)
+		);
+	}
+
+	/**
+	 * Deletes all assignments of an attribute to the rooms.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer Affected rows
+	 */
+	public function deleteAttributeRoomAssign($a_attribute_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::ROOM_TO_ATTRIBUTE_TABLE .
+				' WHERE att_id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+	}
+
+	/**
+	 * Deletes all assignments of an attribute to the bookings.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer Affected rows
+	 */
+	public function deleteAttributeBookingAssign($a_attribute_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKING_TO_ATTRIBUTE_TABLE .
+				' WHERE attr_id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+	}
+
+	/**
+	 * Deletes an booking attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer Affected rows
+	 */
+	public function deleteBookingAttribute($a_attribute_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKING_ATTRIBUTES_TABLE .
+				' WHERE id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+	}
+
+	/**
+	 * Inserts new booking attribute.
+	 *
+	 * @param string $a_attribute_name
+	 */
+	public function insertBookingAttribut($a_attribute_name)
+	{
+		$this->ilDB->insert(dbc::BOOKING_ATTRIBUTES_TABLE,
+			array(
+			'id' => array('integer', $this->ilDB->nextID(dbc::BOOKING_ATTRIBUTES_TABLE)),
+			'name' => array('text', $a_attribute_name),
+			'pool_id' => array('integer', $this->pool_id),
+			)
+		);
+	}
+
+	/**
+	 * Renames an room attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @param string $a_changed_attribute_name
+	 */
+	public function renameRoomAttribute($a_attribute_id, $a_changed_attribute_name)
+	{
+		$fields = array(
+			'name' => array('text', $a_changed_attribute_name),
+		);
+		$where = array(
+			'id' => array("integer", $a_attribute_id)
+		);
+		$this->ilDB->update(dbc::ROOM_ATTRIBUTES_TABLE, $fields, $where);
+	}
+
+	/**
+	 * Renames an booking attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @param string $a_changed_attribute_name
+	 */
+	public function renameBookingAttribute($a_attribute_id, $a_changed_attribute_name)
+	{
+		$fields = array(
+			'name' => array('text', $a_changed_attribute_name),
+		);
+		$where = array(
+			'id' => array("integer", $a_attribute_id)
+		);
+		$this->ilDB->update(dbc::BOOKING_ATTRIBUTES_TABLE, $fields, $where);
 	}
 
 }

@@ -5,6 +5,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingDateUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 
 /**
  * Class ilRoomSharingBookings
@@ -55,6 +56,9 @@ class ilRoomSharingBookings
 	{
 		$this->checkBookingId($a_booking_id);
 		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
+                $booking_details = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
+                $participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
+                
 
 		$this->checkResultNotEmpty($row);
 		$this->checkDeletePermission($row ['user_id']);
@@ -70,10 +74,12 @@ class ilRoomSharingBookings
 			$this->deleteBookingSequence($row['seq']);
 			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
 		}
+                $this->sendCancellationNotification($booking_details, $participants);
 	}
 
 	/**
 	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal 1 and exists as booking ID.
+         * Sends all participants a cancellation notice.
 	 * @param array $a_booking_ids nummerical array of booking_ids to delete
 	 */
 	public function removeMultipleBookings(array $a_booking_ids)
@@ -81,6 +87,9 @@ class ilRoomSharingBookings
 		foreach ($a_booking_ids as $booking_id)
 		{
 			$this->checkBookingId($booking_id);
+                        $booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
+                        $participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
+                        $this->sendCancellationNotification($booking_details, $participants); 
 		}
 		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
 		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
@@ -282,5 +291,23 @@ class ilRoomSharingBookings
 	{
 		return (int) $this->pool_id;
 	}
+        
+        /**
+         * Send cancellation email.
+         */
+        public function sendCancellationNotification($booking_details, $participants)
+        {
+            $room_id = $booking_details[0]['room_id'];
+            $room_name = $this->ilRoomsharingDatabase->getRoomName($room_id);
+            $user_id = $booking_details[0]['user_id'];
+            $date_from = $booking_details[0]['date_from'];
+            $date_to = $booking_details[0]['date_to'];
+
+            $mailer = new ilRoomSharingMailer($this->lng);
+            $mailer->setRoomname($room_name);
+            $mailer->setDateStart($date_from);
+            $mailer->setDateEnd($date_to);
+            $mailer->sendCancellationMail($user_id, $participants);
+        }
 
 }

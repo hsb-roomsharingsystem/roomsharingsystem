@@ -46,14 +46,20 @@ floor_plans_keep#:#Gebäudeplan beibehalten
 floor_plans_keep_info#:#Der bisherige Gebäudeplan wird behalten
 floor_plans_replace#:#Gebäudeplan ersetzen
 floor_plans_replace_info#:#Der bisherige Gebäudeplan wird durch einen neuen ersetzt
+floor_plans_room_assoc#:#Die Raum-Gebäudeplan Zuordnungen folgender Räume werden dabei gelöscht:
 floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_upload_error#:#Fehler beim Hochladen des Geäudeplans. Die Mögliche Ursache ist die verwendung eines nicht unterstütztes Datei Formats
 from#:#von
 leave#:#Austreten
 mail_booking_creator_linktext#:#Du findest deine Buchung unter folgendem Link:
-mail_booking_creator_message#:#Du hast erfolgreich eine Buchung eingetragen. Du hast folgendes gebucht:
-mail_booking_creator_subject#:#Du hast eine Buchung erstellt.
-mail_booking_participant_subject#:#Jemand hat für dich einen Raum gebucht.
+mail_booking_creator_message#:#Du hast erfolgreich einen Raum gebucht. Du hast folgendes gebucht:
+mail_booking_creator_subject#:#Du hast einen Raum gebucht.
+mail_booking_participant_subject#:#Jemand hat dich bei einer Raum-Buchung als Teilnehmer eingetragen.
+mail_booking_participant_message#:#Jemand hat eine Raum-Buchung erstellt und du wurdest als Teilnehmer eingetragen. Du bist für die folgende Buchung eingetragen worden:
+mail_cancellation_creator_subject#:#Deine Raum-Buchung wurde storniert.
+mail_cancellation_creator_message#:#Deine Raum-Buchung wurde storniert. Der folgende Raum ist jetzt wieder frei:
+mail_cancellation_participant_subject#:#Eine Raum-Buchung an der als Teilnehmer eingetragen bist, wurde storniert.
+mail_cancellation_participant_message#:#Eine Raum-Buchung an der als Teilnehmer eingetragen bist, wurde storniert. Folgende Buchung wurde storniert:
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
 missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.
@@ -92,6 +98,7 @@ room_max_alloc#:#Max. Belegung
 room_max_allocation_exceeded#:#Maximale Raumbelegung überschritten
 room_min_alloc#:#Min. Belegung
 room_name#:#Raumbezeichnung
+room_no_assign#:#Keine Zuordnung
 room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
 room_properties#:#Raumeigenschaften
 room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
@@ -128,3 +135,30 @@ xrs_read#:#Lesezugriff auf RoomSharing
 xrs_visible#:#RoomSharing ist sichtbar
 xrs_write#:#RoomSharing bearbeiten
 comment#:#Kommentar
+attributes#:#Attribute
+attributes_for_rooms#:#Attribute für Räume
+attributes_for_bookings#:#Attribute für Buchungen
+edit_attributes#:#Änderung der Attribute
+attributes_for_rooms_desc#:#Hier können Attribute für Räume festgelegt werden.
+attributes_for_bookings_desc#:#Hier können Attribute für Buchungen festgelegt werden.
+must_be_unique#:#Attributname muss eindeutig sein!
+choose_action#:#Wählen Sie die gewünschte Aktion:
+create_attribute#:#Neues Attribut anlegen
+create_attribute_info#:#Mit dieser Option können neue Attribute angelegt werden.
+name_of_new_attribute#:#Name des neuen Attributs
+rename_attribute#:#Vorhandenes Attribut umbenennen
+rename_attribute_info#:#Mit dieser Option können vorhandene Attribute umbenannt werden.
+delete_attribute#:#Vorhandenes Attribut löschen
+choose_attribute#:#Wählen Sie ein vorhandenes Attribut
+new_attribute_name#:#Neuer Name des Attributs
+delete_room_attribute_info#:#Mit dieser Option können vorhandene Attribute gelöscht werden. <br>Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Räume.
+delete_booking_attribute_info#:#Mit dieser Option können vorhandene Attribute gelöscht werden. <br>Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Buchungen.
+fake_attribute_id_provided#:#Es wurden fehlerhafte Daten übermittelt. Versuchen sie es nochmal.
+attribute_already_exists#:#Das Attribut ist bereits vorhanden!
+wrong_attribute_name_provided#:#Der Name des Attributs ist ungültig!
+attributes_change_not_allowed#:#Sie sind nicht berechtigt die Attribute zu verwalten!
+bookings_were_updated#:#Buchungen wurden aktualisiert.
+rooms_were_updated#:#Räume wurden aktualisiert.
+no_match_for#:#Keine Ergebnisse für
+found#:#gefunden
+results_for#:#Ergebnisse für
