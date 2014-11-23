@@ -74,6 +74,7 @@ privileges#:#Privileges
 privileges_copy_privileges#:#Copy privileges
 privileges_class_edit#:#Edit class
 privileges_class_new#:#Create new class
+privileges_class_not_available#:#No classes available
 privileges_lock#:#Lock privileges
 privileges_lock_confirm_back#:#Back to privileges
 privileges_confirm_class_lock#:#Lock class privileges
@@ -150,17 +151,21 @@ access_settings#:#Access settings
 access_settings_description#:#Access to tab &quot;Settings&quot;
 add_participant#:#Add participant
 add_participant_description#:#Add participant to a booking
-appointments_privileges_description#:#Here are the privileges for the appointments listed
-add_unlimited_bookings#:#Unlimited Bookings
+appointments_privileges_description#:#Appointment-specific privileges, including the ones for the bookings and the participations, are listed here below.
+add_unlimited_bookings#:#Unlimited book time
 add_unlimited_bookings_description#:#The booking duration is unlimited
-cancel_lower_priority#:#Cancel lower priority
-cancel_lower_priority_description#:#Other bookings, which are created by users with lower priority, are cancelable
+cancel_lower_priority#:#Cancel lower class priority
+cancel_lower_priority_description#:#Bookings created by users with a lower class priority, can be canceled
 class#:#Class
+class_added_successfully#:#Class added successfully
+class_assignment_successful#:#User(s) added
+class_deassignment_successful#:#User(s) removed
 class_back#:#Back to class properties
 class_confirm_deletion#:#Delete class
 class_confirm_deletion_header#:#Are you sure you want to delete the following class?
 class_deletion_successful#:#Class has been deleted successfully
 class_priority#:#Class priority
+class_user_already_assigned#:#The selected users are already assigned to this class.
 create#:#Create
 create_class#:#Create class
 create_class_description#:#New classes createable
@@ -181,22 +186,22 @@ edit_floorplans_description#:#Existing floorplans editable
 edit_privileges#:#Edit privileges
 edit_privileges_description#:#Privileges of all classes editable
 floorplans#:#Floorplans
-floorplans_privileges_description#:#Here are the privileges for the floorplans listed
+floorplans_privileges_description#:#The privileges for the floorplans are listed here below.
 general_privileges#:#General Privileges
-general_privileges_description#:#Here are the general privileges listed
+general_privileges_description#:#General privileges are listed here below.
 lock_privileges#:#Lock privileges
-lock_privileges_description#:#Privileges of all classes can be locked, so that the class has no more privileges
-rooms_privileges_description#:#Here are the privileges for the rooms listed
-see_booking_of_rooms#:#See bookings
-see_booking_of_rooms_description#:#Bookings of rooms in their detail-view viewable
-sequence_bookings#:#Sequence bookings
-sequence_bookings_addable#:#Sequence bookings creatable
+lock_privileges_description#:#Privileges of all classes can be locked, so in return a locked class won't possess any privileges
+rooms_privileges_description#:#Privileges for the rooms are listed here below.
+see_booking_of_rooms#:#Look up bookings
+see_booking_of_rooms_description#:#Room bookings are visible in the detail-view
+sequence_bookings#:#Recurring bookings
+sequence_bookings_addable#:#Recurring bookings creatable
 notification_tunable#:#Notification settings
-notification_tunable_description#:#Notifications can be en-/disabled
+notification_tunable_description#:#Notifications can be en- or disabled
 no_permission#:#You have no privilege to access this object
 create_edit_delete_room_attributes#:#Administrate attributes
-create_edit_delete_room_attributes_description#:#Roomattributes create-, edit- and deleteable
+create_edit_delete_room_attributes_description#:#Attributes of rooms create-, edit- and deleteable
 create_edit_delete_booking_attributes#:#Administrate attributes
-create_edit_delete_booking_attributes_description#:#Bookingattributes create-, edit- and deleteable
-see_non_public_booking_information#:#See nonpublic booking information
-see_non_public_booking_information_description#:#See information of nonpublic booking information
+create_edit_delete_booking_attributes_description#:#Attributes of bookings create-, edit- and deleteable
+see_non_public_booking_information#:#Look up non-public booking information
+see_non_public_booking_information_description#:#Look up information of non-public bookings

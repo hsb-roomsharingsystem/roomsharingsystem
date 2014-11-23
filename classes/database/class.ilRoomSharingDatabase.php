@@ -938,7 +938,7 @@ class ilRoomsharingDatabase
 		{
 			$class_ids[] = $row['id'];
 		}
-		return $class_ids;
+		return array_unique($class_ids);
 	}
 
 	public function getLockedClasses()

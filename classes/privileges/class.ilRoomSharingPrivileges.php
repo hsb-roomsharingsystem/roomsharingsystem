@@ -41,17 +41,17 @@ class ilRoomSharingPrivileges
 
 		$privilegesMatrix = array();
 
-		//Only fill the array if there are more than 0 classes
+//Only fill the array if there are more than 0 classes
 		if (ilRoomSharingNumericUtils::isPositiveNumber(count($this->getClasses())))
 		{
 
 			if ($this->rssPermission->checkPrivilege("lockPrivileges"))
 			{
-				// Locked classes
+// Locked classes
 				$privilegesMatrix[] = array("show_lock_row" => "lock", "locked_classes" => $this->getLockedClasses());
 			}
 
-			// ### Appointments ###
+// ### Appointments ###
 			$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_appointments",
 				"rep_robj_xrs_appointments_privileges_description");
 			$privilegesMatrix[] = $this->addPrivilege("accessAppointments",
@@ -81,7 +81,7 @@ class ilRoomSharingPrivileges
 				"addOwnBookings", "addSequenceBookings", "addUnlimitedBookings", "adminBookingAttributes", "cancelBookingLowerPriority",
 				"notificationSettings", "seeNonPublicBookingInformation"));
 
-			// ### Rooms ###
+// ### Rooms ###
 			$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_rooms",
 				"rep_robj_xrs_rooms_privileges_description");
 			$privilegesMatrix[] = $this->addPrivilege("accessRooms", "rep_robj_xrs_access_rooms",
@@ -101,7 +101,7 @@ class ilRoomSharingPrivileges
 				array("accessRooms", "seeBookingsOfRooms",
 				"addRooms", "editRooms", "deleteRooms", "adminRoomAttributes"));
 
-			// ### Floorplans ###
+// ### Floorplans ###
 			$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_floorplans",
 				"rep_robj_xrs_floorplans_privileges_description");
 			$privilegesMatrix[] = $this->addPrivilege("accessFloorplans", "rep_robj_xrs_access_floorplans",
@@ -116,7 +116,7 @@ class ilRoomSharingPrivileges
 				array("accessFloorplans",
 				"addFloorplans", "editFloorplans", "deleteFloorplans"));
 
-			// ### Privileges ###
+// ### Privileges ###
 			$privilegesMatrix[] = $this->addNewSection("rep_robj_xrs_general_privileges",
 				"rep_robj_xrs_general_privileges_description");
 			$privilegesMatrix[] = $this->addPrivilege("accessSettings", "rep_robj_xrs_access_settings",
@@ -203,7 +203,7 @@ class ilRoomSharingPrivileges
 	{
 		$user_classes = $this->getAssignedClassesForUser($a_user_id);
 		$priority = 0;
-		//Get the highest possible priority for the user
+//Get the highest possible priority for the user
 		foreach ($user_classes as $user_class)
 		{
 			$class_priority = $this->ilRoomsharingDatabase->getPriorityOfClass($user_class);
@@ -327,16 +327,32 @@ class ilRoomSharingPrivileges
 
 	public function setPrivileges($a_privileges)
 	{
-
-		foreach ($a_privileges as $class_id => $given_privileges)
+		if (empty($a_privileges))
 		{
-			$privileges = array();
-			foreach ($given_privileges as $given_privilege_key => $val)
+			$this->unsetAllPrivileges();
+		}
+		else
+		{
+			foreach ($a_privileges as $class_id => $given_privileges)
 			{
-				$privileges[] = $given_privilege_key;
+				$privileges = array();
+				foreach ($given_privileges as $given_privilege_key => $val)
+				{
+					$privileges[] = $given_privilege_key;
+				}
+				$no_privileges = array_diff($this->getAllPrivileges(), $privileges);
+				$this->ilRoomsharingDatabase->setPrivilegesForClass($class_id, $privileges, $no_privileges);
 			}
-			$no_privileges = array_diff($this->getAllPrivileges(), $privileges);
-			$this->ilRoomsharingDatabase->setPrivilegesForClass($class_id, $privileges, $no_privileges);
+		}
+	}
+
+	private function unsetAllPrivileges()
+	{
+		$privileges = $this->getAllPrivileges();
+		$classes = $this->getClasses();
+		foreach ($classes as $class)
+		{
+			$this->ilRoomsharingDatabase->setPrivilegesForClass($class["id"], array(), $privileges);
 		}
 	}
 

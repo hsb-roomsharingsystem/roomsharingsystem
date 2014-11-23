@@ -14,343 +14,466 @@ require_once ("Services/Utilities/classes/class.ilConfirmationGUI.php");
  */
 class ilRoomSharingClassGUI
 {
-    private $parent;
-    private $class_id;
-    private $pool_id;
-    private $ctrl;
-    private $lng;
-    private $tpl;
-    private $tabs;
-    private $privileges;
-    private $permission;
+	private $parent;
+	private $class_id;
+	private $pool_id;
+	private $ctrl;
+	private $lng;
+	private $tpl;
+	private $tabs;
+	private $privileges;
+	private $permission;
 
-    public function __construct($a_parent, $a_class_id)
-    {
-        global $ilCtrl, $lng, $tpl, $ilTabs, $rssPermission;
+	/**
+	 * Constructor of ilRoomSharingClassGUI
+	 *
+	 * @global type $ilCtrl
+	 * @global type $lng
+	 * @global type $tpl
+	 * @global type $ilTabs needed since this class represents its own distinct gui with unique tabs
+	 * @global type $rssPermission for retrieving privilege information of a user
+	 * @param type $a_parent
+	 * @param type $a_class_id id of the class for which this GUI is generated
+	 */
+	public function __construct($a_parent, $a_class_id)
+	{
+		global $ilCtrl, $lng, $tpl, $ilTabs, $rssPermission;
 
-        $this->parent = $a_parent;
-        $this->pool_id = $this->parent->getPoolId();
-        $this->ctrl = $ilCtrl;
-        $this->lng = $lng;
-        $this->tpl = $tpl;
-        $this->tabs = $ilTabs;
-        $this->class_id = $a_class_id ? $a_class_id : $_GET["class_id"];
-        $this->ctrl->saveParameter($this, "class_id");
-        $this->privileges = new ilRoomSharingPrivileges();
-        $this->permission = $rssPermission;
-    }
+		$this->ctrl = $ilCtrl;
+		$this->lng = $lng;
+		$this->tpl = $tpl;
+		$this->parent = $a_parent;
+		$this->tabs = $ilTabs;
+		$this->permission = $rssPermission;
+		$this->pool_id = $this->parent->getPoolId();
+		$this->class_id = $a_class_id ? $a_class_id : $_GET["class_id"];
+		$this->ctrl->saveParameter($this, "class_id");
+		$this->privileges = new ilRoomSharingPrivileges();
+	}
 
-    /**
-     * Executes the command given by ilCtrl.
-     */
-    public function executeCommand()
-    {
-        $this->renderPage();
-        $next_class = $this->ctrl->getNextClass($this);
-        switch ($next_class)
-        {
-            case 'ilrepositorysearchgui':
-                $rep_search = & new ilRepositorySearchGUI();
-                $rep_search->setTitle($this->lng->txt("role_add_user"));
-                $rep_search->setCallback($this, "addUsersToClass");
+	/**
+	 * Executes the command given by ilCtrl.
+	 */
+	public function executeCommand()
+	{
+		$this->renderPageWithTabs();
+		$next_class = $this->ctrl->getNextClass($this);
 
-                // Tabs
-                $this->tabs->setTabActive("user_assignment");
-                $this->ctrl->setReturn($this, "renderUserAssignment");
-                $this->ctrl->forwardCommand($rep_search);
-                break;
+		if ($next_class == "ilrepositorysearchgui")
+		{
+			$this->renderRepositorySearch();
+		}
+		else
+		{
+			$this->executeDefaultCommand();
+		}
+	}
 
-            default:
-                $cmd = $this->ctrl->getCmd("renderEditClassForm");
-                $this->$cmd();
-                break;
-        }
-        return true;
-    }
+	private function renderPageWithTabs()
+	{
+		$class_info = $this->privileges->getClassById($this->class_id);
+		$this->tpl->setTitle($class_info["name"]);
+		$description = $class_info["description"];
+		$this->tpl->setDescription($description);
+		$this->tpl->setTitleIcon(ilUtil::getImagePath("icon_role_b.png"),
+			$this->lng->txt("rep_robj_xrs_class"));
+		$this->setTabs();
+	}
 
-    private function renderPage()
-    {
-        $this->tabs->clearTargets();
-        $class_info = $this->privileges->getClassById($this->class_id);
+	private function setTabs()
+	{
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt("rep_robj_xrs_privileges"),
+			$this->ctrl->getLinkTargetByClass("ilroomsharingprivilegesgui", "showPrivileges"));
 
-        // Title
-        $this->tpl->setTitle($class_info["name"]);
-        // Description
-        $this->tpl->setDescription($class_info["description"]);
-        // Icon
-        $this->tpl->setTitleIcon(ilUtil::getImagePath("icon_role_b.png"), $this->lng->txt("rep_robj_xrs_class"));
-        $this->setTabs();
-    }
+		$this->tabs->addTab("edit_properties", $this->lng->txt("edit_properties"),
+			$this->ctrl->getLinkTarget($this, "renderEditClassForm"));
 
-    private function setTabs()
-    {
-        // Back-Link
-        $this->tabs->setBackTarget($this->lng->txt("rep_robj_xrs_privileges"), $this->ctrl->getLinkTargetByClass("ilroomsharingprivilegesgui", "showPrivileges"));
+		$this->tabs->addTab("user_assignment", $this->lng->txt("user_assignment"),
+			$this->ctrl->getLinkTarget($this, "renderUserAssignment"));
+	}
 
-        // Edit Class
-        $this->tabs->addTab("edit_properties", $this->lng->txt("edit_properties"), $this->ctrl->getLinkTarget($this, "renderEditClassForm"));
+	private function renderRepositorySearch()
+	{
+		$rep_search = & new ilRepositorySearchGUI();
+		$rep_search->setTitle($this->lng->txt("role_add_user"));
+		$rep_search->setCallback($this, "assignUsersToClass");
+		$this->tabs->setTabActive("user_assignment");
+		$this->ctrl->setReturn($this, "renderUserAssignment");
+		$this->ctrl->forwardCommand($rep_search);
+	}
 
-        // User Assignment
-        $this->tabs->addTab("user_assignment", $this->lng->txt("user_assignment"), $this->ctrl->getLinkTarget($this, "renderUserAssignment"));
-    }
+	private function executeDefaultCommand()
+	{
+		$cmd = $this->ctrl->getCmd("renderEditClassForm");
+		$this->$cmd();
+	}
 
-    private function renderEditClassForm()
-    {
-        if ($this->permission->checkPrivilege("editPrivileges"))
-        {
-            $this->tabs->setTabActive("edit_properties");
+	private function renderEditClassForm()
+	{
+		$this->tabs->setTabActive("edit_properties");
 
-            $toolbar = new ilToolbarGUI();
-            $toolbar->addButton($this->lng->txt("rep_robj_xrs_class_confirm_deletion"), $this->ctrl->getLinkTarget($this, "confirmClassDeletion"));
+		$toolbar = $this->createEditClassFormToolbar();
+		$class_form = $this->createEditClassFormWithPrivilegeCheck();
+		$this->tpl->setContent($toolbar->getHTML() . $class_form->getHTML());
+	}
 
-            $class_form = $this->createEditClassForm();
-            $this->tpl->setContent($toolbar->getHTML() . $class_form->getHTML());
-        }
-        else
-        {
-            ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission"));
-        }
-    }
+	private function createEditClassFormToolbar()
+	{
+		$toolbar = new ilToolbarGUI();
 
-    private function createEditClassForm()
-    {
-        if ($this->permission->checkPrivilege("editPrivileges"))
-        {
-            $class_info = $this->privileges->getClassById($this->class_id);
+		if ($this->permission->checkPrivilege("deleteClass"))
+		{
+			$toolbar->addButton($this->lng->txt("rep_robj_xrs_class_confirm_deletion"),
+				$this->ctrl->getLinkTarget($this, "renderConfirmClassDeletion"));
+		}
 
-            $form = new ilPropertyFormGUI();
-            $form->setFormAction($this->ctrl->getFormAction($this));
-            $form->setTitle($this->lng->txt("rep_robj_xrs_privileges_class_edit"));
-            $form->addCommandButton("saveEditedClassForm", $this->lng->txt("save"));
+		return $toolbar;
+	}
 
-            // Name
-            $name = new ilTextInputGUI($this->lng->txt("name"), "name");
-            $name->setSize(40);
-            $name->setMaxLength(70);
-            $name->setRequired(true);
-            $name->setValue($class_info["name"]);
-            $form->addItem($name);
+	private function createEditClassFormWithPrivilegeCheck()
+	{
+		if ($this->permission->checkPrivilege("editClass"))
+		{
+			$form = $this->createEditClassForm();
+			return $form;
+		}
+		else
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission"));
+		}
+	}
 
-            // Description
-            $description = new ilTextAreaInputGUI($this->lng->txt("description"), "description");
-            $description->setCols(40);
-            $description->setRows(3);
-            $description->setValue($class_info["description"]);
-            $form->addItem($description);
+	private function createEditClassForm()
+	{
+		$form = new ilPropertyFormGUI();
+		$form->setFormAction($this->ctrl->getFormAction($this));
+		$form->setTitle($this->lng->txt("rep_robj_xrs_privileges_class_edit"));
+		$form->addCommandButton("saveEditClassForm", $this->lng->txt("save"));
+		$form_items = $this->createEditClassFormItems();
 
-            // Priority
-            $priority = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_class_priority"), "priority");
-            $priority_levels = range(0, 9);
-            $priority->setOptions($priority_levels);
-            $priority->setValue($class_info["priority"]);
-            $form->addItem($priority);
+		foreach ($form_items as $item)
+		{
+			$form->addItem($item);
+		}
 
-            // Role assignment
-            $role_assignment = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_privileges_role_assignment"), "role_assignment");
-            $role_names = array($this->lng->txt("none"));
-            $global_roles = $this->privileges->getGlobalRoles();
+		return $form;
+	}
 
-            foreach ($global_roles as $role_info)
-            {
-                $role_names[] = $role_info["title"];
-            }
+	private function createEditClassFormItems()
+	{
+		$class_info = $this->privileges->getClassById($this->class_id);
 
-            $role_assignment->setOptions($role_names);
-            $selection_index = $this->getSelectionIndexForRoleAssignment($class_info);
-            $role_assignment->setValue($selection_index + ilRoomSharingPrivilegesGUI::SELECT_INPUT_NONE_OFFSET);
-            $form->addItem($role_assignment);
+		$form_items = array();
+		$form_items[] = $this->createClassNameTextInput($class_info["name"]);
+		$form_items[] = $this->createClassDescriptionTextArea($class_info["description"]);
+		$form_items[] = $this->createClassRoleAssignmentSelection($class_info["role_id"]);
+		$form_items[] = $this->createClassPrioritySelection($class_info["priority"]);
 
-            return $form;
-        }
-        else
-        {
-            ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission"));
-        }
-    }
+		return $form_items;
+	}
 
-    private function getSelectionIndexForRoleAssignment($a_class_info)
-    {
-        $global_roles = $this->privileges->getGlobalRoles();
-        $selection_index = -1;
+	private function createClassNameTextInput($a_class_name_value)
+	{
+		$name_input = new ilTextInputGUI($this->lng->txt("name"), "name");
+		$name_input->setSize(45);
+		$name_input->setMaxLength(70);
+		$name_input->setRequired(true);
+		$name_input->setValue($a_class_name_value);
 
-        foreach ($global_roles as $role_index => $role_info)
-        {
-            if ($role_info["id"] == $a_class_info["role_id"])
-            {
-                $selection_index = $role_index;
-                break;
-            }
-        }
+		return $name_input;
+	}
 
-        return $selection_index;
-    }
+	private function createClassDescriptionTextArea($a_description_value)
+	{
+		$description_area = new ilTextAreaInputGUI($this->lng->txt("description"), "description");
+		$description_area->setCols(40);
+		$description_area->setRows(3);
+		$description_area->setValue($a_description_value);
 
-    private function saveEditedClassForm()
-    {
-        if ($this->permission->checkPrivilege("editPrivileges"))
-        {
-            $class_form = $this->createEditClassForm();
-            if ($class_form->checkInput())
-            {
-                $this->evaluateClassFormEntries($class_form);
-                $this->renderPage();
-                $this->renderEditClassForm();
-            }
-            else
-            {
-                $this->renderEditClassForm();
-                $class_form->setValuesByPost();
-            }
-        }
-        else
-        {
-            ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission"));
-        }
-    }
+		return $description_area;
+	}
 
-    private function evaluateClassFormEntries($a_class_form)
-    {
-        $entries = array();
-        $entries["id"] = $this->class_id;
-        $entries["name"] = $a_class_form->getInput("name");
-        $entries["priority"] = $a_class_form->getInput("priority");
-        $entries["description"] = $a_class_form->getInput("description");
-        $entries["role_id"] = $this->getRoleIdFromSelectionInput($a_class_form);
+	private function createClassRoleAssignmentSelection($a_assigned_role_id)
+	{
+		$role_assignment_selection = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_privileges_role_assignment"),
+			"role_assignment");
 
-        $this->saveFormEntries($entries);
-    }
+		$role_options = $this->createRoleAssignmentOptions();
+		$role_assignment_selection->setOptions($role_options);
+		$selection_index = $this->determineSelectionIndex($a_assigned_role_id);
+		$role_assignment_selection->setValue($selection_index);
 
-    private function getRoleIdFromSelectionInput($a_class_form)
-    {
-        $selection = $a_class_form->getInput("role_assignment");
-        $global_roles = $this->privileges->getGlobalRoles();
+		return $role_assignment_selection;
+	}
 
-        return $global_roles[$selection - ilRoomSharingPrivilegesGUI::SELECT_INPUT_NONE_OFFSET]["id"];
-    }
+	private function createRoleAssignmentOptions()
+	{
+		$role_names = array($this->lng->txt("none"));
+		$global_roles = $this->privileges->getGlobalRoles();
 
-    private function saveFormEntries($a_entries)
-    {
-        try
-        {
-            $this->privileges->editClass($a_entries);
-        }
-        catch (ilRoomSharingPrivilegesException $exc)
-        {
-            ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
-        }
-        ilUtil::sendSuccess("EDITED CLASS FORM ENTRIES: " . implode(", ", $a_entries), true);
-    }
+		foreach ($global_roles as $role_info)
+		{
+			$role_names[] = $role_info["title"];
+		}
 
-    private function renderUserAssignment()
-    {
-        $this->tabs->setTabActive("user_assignment");
+		return $role_names;
+	}
 
-        // Toolbar
-        $toolbar = new ilToolbarGUI();
-        ilRepositorySearchGUI::fillAutoCompleteToolbar($this, $toolbar, array(
-            "auto_complete_name" => $this->lng->txt('user'),
-            "submit_name" => $this->lng->txt("add")
-            )
-        );
+	private function determineSelectionIndex($a_assigned_role_id)
+	{
+		$selection_index = $this->getSelectionIndexByRoleId($a_assigned_role_id);
+		$selection_index += ilRoomSharingPrivilegesGUI::SELECT_INPUT_NONE_OFFSET;
 
-        $toolbar->addSpacer();
+		return $selection_index;
+	}
 
-        $toolbar->addButton(
-            $this->lng->txt("search_user"), $this->ctrl->getLinkTargetByClass("ilRepositorySearchGUI", "start")
-        );
+	private function getSelectionIndexByRoleId($a_assigned_role_id)
+	{
+		$global_roles = $this->privileges->getGlobalRoles();
+		$selection_index = -1;
 
-        // Assigned Users Table
-        $table = new ilRoomSharingAssignedUsersTableGUI($this, "renderUserAssignment", $this->class_id);
-        $this->tpl->setContent($toolbar->getHTML() . $table->getHTML());
-    }
+		foreach ($global_roles as $role_index => $role_info)
+		{
+			if ($role_info["id"] == $a_assigned_role_id)
+			{
+				$selection_index = $role_index;
+				break;
+			}
+		}
 
-    public function confirmClassDeletion()
-    {
-        if ($this->permission->checkPrivilege("editPrivileges"))
-        {
-            $this->tabs->clearTargets();
-            $this->tabs->setBackTarget($this->lng->txt("rep_robj_xrs_class_back"), $this->ctrl->getLinkTarget($this, "renderEditClassForm"));
+		return $selection_index;
+	}
 
-            // create the confirmation GUI
-            $confirmation = new ilConfirmationGUI();
-            $confirmation->setFormAction($this->ctrl->getFormAction($this));
-            $confirmation->setHeaderText($this->lng->txt("rep_robj_xrs_class_confirm_deletion_header"));
+	private function createClassPrioritySelection($a_class_priority_selection_value)
+	{
+		$priority_selection = new ilSelectInputGUI($this->lng->txt("rep_robj_xrs_class_priority"),
+			"priority");
+		$priority_levels = range(0, 9);
+		$priority_selection->setOptions($priority_levels);
+		$priority_selection->setValue($a_class_priority_selection_value);
 
-            $class = $this->privileges->getClassById($this->class_id);
-            $confirmation->addItem("class_id", $this->class_id, $class["name"]);
-            $confirmation->setConfirm($this->lng->txt("rep_robj_xrs_class_confirm_deletion"), "deleteClass");
-            $confirmation->setCancel($this->lng->txt("cancel"), "renderEditClassForm");
+		return $priority_selection;
+	}
 
-            $this->tpl->setContent($confirmation->getHTML()); // display
-        }
-        else
-        {
-            ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission"));
-        }
-    }
+	private function saveEditClassForm()
+	{
+		$class_form = $this->createEditClassFormWithPrivilegeCheck();
+		if ($class_form->checkInput())
+		{
+			$this->handleValidEditClassForm($class_form);
+		}
+		else
+		{
+			$this->handleInvalidEditClassForm($class_form);
+		}
+	}
 
-    public function deleteClass()
-    {
-        if ($this->permission->checkPrivilege("editPrivileges"))
-        {
-            $this->privileges->deleteClass($this->class_id);
-            $this->ctrl->redirectByClass("ilroomsharingprivilegesgui", "showConfirmedDeletion");
-        }
-        else
-        {
-            ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission"));
-        }
-    }
+	private function handleValidEditClassForm($a_class_form)
+	{
+		$class_form_entries = $this->getClassFormEntries($a_class_form);
+		$this->saveFormEntries($class_form_entries);
 
-    public function addUsersToClass($a_user_ids)
-    {
-        if ($this->permission->checkPrivilege("editPrivileges"))
-        {
-            $this->privileges->assignUsersToClass($this->class_id, $a_user_ids);
-            ilUtil::sendSuccess($this->lng->txt("ADDED USER IDS: " . implode(", ", $a_user_ids)), true);
-            $this->ctrl->redirect($this, "renderuserassignment");
-        }
-        else
-        {
-            ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission"));
-        }
-    }
+		$this->renderPageWithTabs();
+		$this->renderEditClassForm();
+	}
 
-    public function deassignUsers()
-    {
-        if ($this->permission->checkPrivilege("editPrivileges"))
-        {
-            $selected_users = ($_POST["user_id"]) ? $_POST["user_id"] : array($_GET["user_id"]);
-            $this->privileges->deassignUsersFromClass($this->class_id, $selected_users);
-            ilUtil::sendSuccess($this->lng->txt("DEASSIGNED USERS: " . implode(", ", $selected_users)), true);
-            $this->renderUserAssignment();
-        }
-        else
-        {
-            ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission"));
-        }
-    }
+	private function getClassFormEntries($a_class_form)
+	{
+		$entries = array();
+		$entries["id"] = $this->class_id;
+		$entries["name"] = $a_class_form->getInput("name");
+		$entries["priority"] = $a_class_form->getInput("priority");
+		$entries["description"] = $a_class_form->getInput("description");
+		$entries["role_id"] = $this->getRoleIdFromSelectionInput($a_class_form->getInput("role_assignment"));
 
-    /**
-     * Returns roomsharing pool id.
-     *
-     * @return integer Pool-ID
-     */
-    function getPoolId()
-    {
-        return $this->pool_id;
-    }
+		return $entries;
+	}
 
-    /**
-     * Sets roomsharing pool id.
-     *
-     * @param integer Pool-ID
-     *
-     */
-    function setPoolId($a_pool_id)
-    {
-        $this->pool_id = $a_pool_id;
-    }
+	private function getRoleIdFromSelectionInput($a_role_assignment_selection)
+	{
+		$global_roles = $this->privileges->getGlobalRoles();
+		$role_array_index = $a_role_assignment_selection - ilRoomSharingPrivilegesGUI::SELECT_INPUT_NONE_OFFSET;
+
+		return $global_roles[$role_array_index]["id"];
+	}
+
+	private function saveFormEntries($a_entries)
+	{
+		try
+		{
+			$this->privileges->editClass($a_entries);
+			ilUtil::sendSuccess($this->lng->txt("saved_successfully"), true);
+		}
+		catch (ilRoomSharingPrivilegesException $ex)
+		{
+			ilUtil::sendFailure($this->lng->txt($ex->getMessage()), true);
+		}
+	}
+
+	private function handleInvalidEditClassForm($a_class_form)
+	{
+		$a_class_form->setValuesByPost();
+		$this->tpl->setContent($a_class_form->getHTML());
+		$this->tabs->setTabActive("edit_properties");
+		ilUtil::sendFailure($this->lng->txt("err_check_input"));
+	}
+
+	/**
+	 * Renders the confirmation dialog for a class deletion.
+	 */
+	public function renderConfirmClassDeletion()
+	{
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt("rep_robj_xrs_class_back"),
+			$this->ctrl->getLinkTarget($this, "renderEditClassForm"));
+		$confirm_dialog = $this->createClassDeletionConfirmationDialog();
+
+		$this->tpl->setContent($confirm_dialog->getHTML());
+	}
+
+	private function createClassDeletionConfirmationDialog()
+	{
+		$confirm_dialog = new ilConfirmationGUI();
+		$confirm_dialog->setFormAction($this->ctrl->getFormAction($this));
+		$confirm_dialog->setHeaderText($this->lng->txt("rep_robj_xrs_class_confirm_deletion_header"));
+
+		$class_name = $this->privileges->getClassById($this->class_id);
+		$confirm_dialog->addItem("class_id", $this->class_id, $class_name["name"]);
+		$confirm_dialog->setConfirm($this->lng->txt("rep_robj_xrs_class_confirm_deletion"), "deleteClass");
+		$confirm_dialog->setCancel($this->lng->txt("cancel"), "renderEditClassForm");
+
+		return $confirm_dialog;
+	}
+
+	/**
+	 * Deletes a class after the confirmation dialog has been confirmed.
+	 */
+	public function deleteClass()
+	{
+		$this->privileges->deleteClass($this->class_id);
+		$this->ctrl->redirectByClass("ilroomsharingprivilegesgui", "showConfirmedClassDeletion");
+	}
+
+	private function renderUserAssignment()
+	{
+		$this->tabs->setTabActive("user_assignment");
+		$user_assignment_toolbar = $this->createUserAssignmentToolbar();
+		$table = new ilRoomSharingAssignedUsersTableGUI($this, "renderUserAssignment", $this->class_id);
+
+		$this->tpl->setContent($user_assignment_toolbar->getHTML() . $table->getHTML());
+	}
+
+	private function createUserAssignmentToolbar()
+	{
+		$toolbar = new ilToolbarGUI();
+		ilRepositorySearchGUI::fillAutoCompleteToolbar($this, $toolbar,
+			array(
+			"auto_complete_name" => $this->lng->txt('user'),
+			"submit_name" => $this->lng->txt("add")
+			)
+		);
+
+		$toolbar->addSpacer();
+
+		$toolbar->addButton(
+			$this->lng->txt("search_user"),
+			$this->ctrl->getLinkTargetByClass("ilRepositorySearchGUI", "start")
+		);
+
+		return $toolbar;
+	}
+
+	/**
+	 * Assigns the given users to a class if said users aren't already assigned to that class.
+	 *
+	 * @param type $a_user_ids the ids of the users that should be assigned to the class
+	 */
+	public function assignUsersToClass($a_user_ids)
+	{
+		if ($this->areUsersAlreadyAssigned($a_user_ids))
+		{
+			ilUtil::sendInfo($this->lng->txt("rep_robj_xrs_class_user_already_assigned"), true);
+		}
+		else
+		{
+			$this->privileges->assignUsersToClass($this->class_id, $a_user_ids);
+			ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_class_assignment_successful"), true);
+		}
+
+		$this->ctrl->redirect($this, "renderuserassignment");
+	}
+
+	private function areUsersAlreadyAssigned($a_user_ids)
+	{
+		$assigned_user_ids = $this->getAssignedUserIdsForClass($this->class_id);
+		$unassigned_user_ids = array_intersect($a_user_ids, $assigned_user_ids);
+		$new_assigned_user_ids = array_diff($a_user_ids, $unassigned_user_ids);
+
+		return empty($new_assigned_user_ids);
+	}
+
+	private function getAssignedUserIdsForClass($a_class_id)
+	{
+		$assigned_user_ids = array();
+		$assigned_users = $this->privileges->getAssignedUsersForClass($a_class_id);
+
+		foreach ($assigned_users as $user)
+		{
+			$assigned_user_ids[] = $user["id"];
+		}
+
+		return $assigned_user_ids;
+	}
+
+	/**
+	 * Deassigns users from a class. The ids of the users that should be deassigned are either
+	 * delivered through POST (checkboxes: multiple users) or via GET (action link: single user).
+	 */
+	public function deassignUsersFromClass()
+	{
+		$user_ids_to_be_deassigned = $this->getUsersToBeUnassigned();
+		$this->privileges->deassignUsersFromClass($this->class_id, $user_ids_to_be_deassigned);
+		ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_class_deassignment_successful"), true);
+		$this->renderUserAssignment();
+	}
+
+	private function getUsersToBeUnassigned()
+	{
+		$many_user_ids = $_POST["user_id"];
+
+		if (isset($many_user_ids))
+		{
+			return $many_user_ids;
+		}
+		else
+		{
+			$single_user_id = array($_GET["user_id"]);
+			return $single_user_id;
+		}
+	}
+
+	/**
+	 * Returns roomsharing pool id.
+	 *
+	 * @return integer Pool-ID
+	 */
+	public function getPoolId()
+	{
+		return $this->pool_id;
+	}
+
+	/**
+	 * Sets roomsharing pool id.
+	 *
+	 * @param integer Pool-ID
+	 *
+	 */
+	public function setPoolId($a_pool_id)
+	{
+		$this->pool_id = $a_pool_id;
+	}
 
 }
+
 ?>

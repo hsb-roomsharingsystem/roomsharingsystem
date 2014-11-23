@@ -74,12 +74,13 @@ privileges#:#Privilegien
 privileges_copy_privileges#:#Privilegien kopieren
 privileges_class_edit#:#Klasse bearbeiten
 privileges_class_new#:#Neue Klasse anlegen
+privileges_class_not_available#:#Keine Klassen vorhanden
 privileges_lock#:#Privilegien sperren
 privileges_lock_confirm_back#:#Zurück zu den Privilegien
 privileges_confirm_class_lock#:#Klassenprivilegien sperren
 privileges_confirm_class_lock_question#:#Möchten Sie wirklich die Privilegien folgender Klassen sperren?
 privileges_confirm_class_self_lock_of#:#Sie beabsichtigen die Sperrung der Privilegien mindestens einer Klasse, der Sie selbst zugeordnet sind.<br />Unter Umständen sperren Sie somit Ihre eigenen Privilegien und nur ein weiterer Benutzer mit dem Privileg, andere Privilegien zu verändern, oder der Besitzer des Pools kann die Privilegien wiederherstellen.<br />Dies betrifft die Sperrung folgender, Ihnen zugeordneter Klassen:
-privileges_confirm_class_lock_info#:#Die folgenden Einstellungsänderungen werden vorgenommen:<br /><br />- Alle Privilegien für diese Klassen werden gesperrt.<br />- Benutzer, die einer gesperrten Klasse über Rollen- oder Direktzuweisung zugeordnet sind, verfügen somit über keinerlei Privilegien.
+privileges_confirm_class_lock_info#:#Die folgenden Einstellungsänderungen werden vorgenommen:<br /><br />- Alle Privilegien für diese Klassen werden gesperrt.<br />- Benutzer, die einer gesperrten Klasse über Rollen- oder Direktzuweisung zugeordnet sind, verfügen infolgedessen über keinerlei Privilegien.
 privileges_lock_desc#:#Sperrt die Privilegien für die Klasse
 privileges_role_assignment#:#Rollenzuordnung
 privileges_settings#:#Privilegieneinstellungen
@@ -135,7 +136,7 @@ xrs_read#:#Lesezugriff auf RoomSharing
 xrs_visible#:#RoomSharing ist sichtbar
 xrs_write#:#RoomSharing bearbeiten
 
-//Privileges 
+//Privileges
 access_appointments#:#Termine aufrufen
 access_appointments_description#:#Zugang zum Reiter &quot;Termine&quot;
 access_floorplans#:#Gebäudepläne aufrufen
@@ -150,17 +151,21 @@ access_settings#:#Einstellungen aufrufen
 access_settings_description#:#Zugang zum Reiter &quot;Einstellungen&quot;
 add_participant#:#Teilnehmer hinzufügen
 add_participant_description#:#Teilnehmer zu einer Buchung hinzufügbar
-appointments_privileges_description#:#Hier sind die Privilegien für die Termine aufgeführt
-add_unlimited_bookings#:#Unbegrenzte Buchungen
-add_unlimited_bookings_description#:#Unbegrenzt lange Buchungen erstellbar
-cancel_lower_priority#:#Niedrigere Priorität stornieren
-cancel_lower_priority_description#:#Fremde Buchungen, welche von Benutzern niedrigerer Priorität erstellt wurden, stornierbar
+appointments_privileges_description#:#Hier sind die Privilegien für die Termine, die sowohl Buchungen als auch Teilnahmen umfassen, aufgeführt.
+add_unlimited_bookings#:#Zeitlich unbegrenzte Buchungen
+add_unlimited_bookings_description#:#Unbegrenzt lange buchen
+cancel_lower_priority#:#Niedrigere Klassenpriorität stornieren
+cancel_lower_priority_description#:#Fremde Buchungen, die von Benutzern mit einer niedrigeren Klassenpriorität erstellt wurden, stornierbar
 class#:#Klasse
+class_added_successfully#:#Klasse erfolgreich hinzugefügt
+class_assignment_successful#:#Benutzer wurde(n) hinzugefügt.
+class_deassignment_successful#:#Benutzer wurde(n) entfernt.
 class_back#:#Zurück zu den Klasseneigenschaften
 class_confirm_deletion#:#Klasse löschen
 class_confirm_deletion_header#:#Möchten Sie wirklich die ausgewählte Klasse löschen?
 class_deletion_successful#:#Klasse wurde erfolgreich gelöscht
 class_priority#:#Klassenpriorität
+class_user_already_assigned#:#Die ausgewählten Benutzer sind dieser Klasse bereits zugeordnet.
 create#:#Erstellen
 create_class#:#Klasse anlegen
 create_class_description#:#Neue Klassen anlegbar
@@ -181,22 +186,22 @@ edit_floorplans_description#:#Vorhandene Gebäudepläne können bearbeitet werde
 edit_privileges#:#Privilegien bearbeiten
 edit_privileges_description#:#Privilegien aller Klassen bearbeiten
 floorplans#:#Gebäudepläne
-floorplans_privileges_description#:#Hier sind die Privilegien für die Gebäudepläne aufgeführt
+floorplans_privileges_description#:#Hier sind die Privilegien für die Gebäudepläne aufgeführt.
 general_privileges#:#Allgemeine Privilegien
-general_privileges_description#:#Hier sind die allgemeinen Privilegien aufgeführt
+general_privileges_description#:#Hier sind die allgemeinen Privilegien aufgeführt.
 lock_privileges#:#Privilegien sperren
-lock_privileges_description#:#Privilegien aller Klassen sperrbar, so dass diese Klassen keinerlei Privilegien haben
-rooms_privileges_description#:#Hier sind die Privilegien für die Räume aufgeführt
+lock_privileges_description#:#Privilegien aller Klassen sperrbar, sodass diese Klassen infolge über keinerlei Privilegien verfügen
+rooms_privileges_description#:#Hier sind die Privilegien für die Räume aufgeführt.
 see_booking_of_rooms#:#Buchungen einsehen
 see_booking_of_rooms_description#:#Buchungen von einzelnen Räumen in Detailansicht einsehbar
 sequence_bookings#:#Serienbuchungen
 sequence_bookings_addable#:#Serienbuchungen anlegbar
-notification_tunable#:#Benachrichtungseinstellung
-notification_tunable_description#:#Benachrichtigungen sind ein-/abschaltbar
-no_permission#:#Sie besitzen kein Privileg um auf dieses Objekt zuzugreifen
+notification_tunable#:#Benachrichtungseinstellungen
+notification_tunable_description#:#Benachrichtigungen sind ein- und abschaltbar
+no_permission#:#Sie besitzen kein Privileg, um auf dieses Objekt zuzugreifen
 create_edit_delete_room_attributes#:#Attribute administrierbar
 create_edit_delete_room_attributes_description#:#Raumattribute sind erstell-, bearbeit- und löschbar
 create_edit_delete_booking_attributes#:#Attribute administrierbar
 create_edit_delete_booking_attributes_description#:#Buchungsattribute sind erstell-, bearbeit- und löschbar
-see_non_public_booking_information#:#Nicht öffentlichen Buchenden einsehen
+see_non_public_booking_information#:#Nicht öffentliche Buchungen einsehen
 see_non_public_booking_information_description#:#Informationen von nicht öffentlichen Buchungen einsehbar
