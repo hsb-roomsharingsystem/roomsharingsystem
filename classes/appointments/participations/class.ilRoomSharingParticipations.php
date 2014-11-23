@@ -50,11 +50,11 @@ class ilRoomSharingParticipations
 			}
 		}
 		//In order to prevent unnessary prepareManip statements, use different function if only one booking shoud be left.
-		if (count($a_booking_ids) > 1)
+		if (count($a_booking_ids) == 1)
 		{
 			$this->ilRoomsharingDatabase->deleteParticipation($this->ilUser->getId(), $a_booking_ids[0]);
 		}
-		else if (count($a_booking_ids) > 0)
+		else
 		{
 			$this->ilRoomsharingDatabase->deleteParticipations($this->ilUser->getId(), $a_booking_ids);
 		}
