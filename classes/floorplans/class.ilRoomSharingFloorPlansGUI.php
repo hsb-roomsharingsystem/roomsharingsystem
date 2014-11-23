@@ -292,7 +292,27 @@ class ilRoomSharingFloorPlansGUI
 		include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
 		$cgui = new ilConfirmationGUI();
 		$cgui->setFormAction($this->ctrl->getFormAction($this));
-		$cgui->setHeaderText($this->lng->txt("info_delete_sure"));
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing"
+			. "/classes/floorplans/class.ilRoomSharingFloorPlans.php");
+		$fplan = new ilRoomSharingFloorPlans($this->pool_id);
+		$f = $fplan->getRoomsWithFloorplan((int) $_GET['file_id']);
+		$plans = "";
+		foreach ($f as $name)
+		{
+			$plans .= " " . $name["name"] . ",";
+		}
+		$countr = strlen($plans);
+		if ($countr > 0)
+		{
+			$cgui->setHeaderText($this->lng->txt("info_delete_sure") .
+				'<br>' . $this->lng->txt("rep_robj_xrs_floor_plans_room_assoc") .
+				$plans);
+		}
+		else
+		{
+			$cgui->setHeaderText($this->lng->txt("info_delete_sure"));
+		}
+
 
 		// the buttons for confirming and cancelling the deletion
 		$cgui->setCancel($this->lng->txt("cancel"), "render");

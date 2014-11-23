@@ -45,7 +45,8 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
 
 				$time_to_value = $this->getInput("time_to", false);
 				$this->writeSingleInputToSession("time_to", $time_to_value);
-			}else
+			}
+			else
 			{
 				$value = $this->getInput($field_id, false);
 				$this->writeSingleInputToSession($field_id, $value);
@@ -59,7 +60,6 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
 	public function resetFormInputs()
 	{
 		$items = $this->getInputItemsRecursive();
-
 		foreach ($items as $item)
 		{
 			if ($item->checkInput())
@@ -76,7 +76,7 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
 	 */
 	public function writeSingleInputToSession($a_id, $a_value)
 	{
-		$_SESSION["form_".$this->getId()][$a_id] = $this->serializeData($a_value);
+		$_SESSION["form_" . $this->getId()][$a_id] = $this->serializeData($a_value);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
 	 */
 	public function getInputFromSession($a_session_var)
 	{
-		return unserialize($_SESSION["form_".$this->getId()][$a_session_var]);
+		return unserialize($_SESSION["form_" . $this->getId()][$a_session_var]);
 	}
 
 }

@@ -2,6 +2,7 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingRoomException.php");
 
 /**
  * Class ilRoomSharingRoom.
@@ -10,23 +11,29 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * If the second argument of the constructor is true (bool),
  * you can create an room.
  *
- * @author Thomas Matern
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ * @author Thomas Wolscht <twolscht@stud.hs-bremen.de>
+ *
+ * @property ilRoomsharingDatabase $ilRoomsharingDatabase
  */
 class ilRoomSharingRoom
 {
-	protected $id;
-	protected $name;
-	protected $type;
-	protected $min_alloc;
-	protected $max_alloc;
-	protected $file_id;
-	protected $building_id;
-	protected $pool_id;
+	private $id;
+	private $name;
+	private $type;
+	private $min_alloc;
+	private $max_alloc;
+	private $file_id;
+	private $building_id;
+	private $pool_id;
 	// Associative. Contains arrays with id, name, count.
-	protected $attributes = array();
+	private $attributes = array();
 	// Associative. Contains arrays with id, date_from, date_to...
-	protected $booked_times = array();
-	protected $ilRoomsharingDatabase;
+	private $booked_times = array();
+	// Associative. Contains arrays with id, name,
+	private $allAvailableAttributes = array();
+	private $ilRoomsharingDatabase;
+	private $lng;
 
 	/**
 	 * Constructor for ilRoomSharingRoom.
@@ -38,15 +45,20 @@ class ilRoomSharingRoom
 	 * @param bool $a_create
 	 * 			Set true if you want to create an room.
 	 */
-	function __construct($pool_id, $a_room_id, $a_create = false)
+	public function __construct($pool_id, $a_room_id, $a_create = false)
 	{
+		global $lng;
+
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+		$this->allAvailableAttributes = $this->ilRoomsharingDatabase->getAllRoomAttributes();
+
 		if ($a_create == false)
 		{
 			$this->id = $a_room_id;
 			$this->read();
 		}
+		$this->lng = $lng;
 	}
 
 	/**
@@ -55,7 +67,7 @@ class ilRoomSharingRoom
 	 */
 	public function read()
 	{
-		if ($this->checkId())
+		if ($this->hasValidId())
 		{
 			$row = $this->ilRoomsharingDatabase->getRoom($this->id);
 			$this->setName($row['name']);
@@ -66,7 +78,7 @@ class ilRoomSharingRoom
 			$this->setBuildingId($row['building_id']);
 			$this->setPoolId($row['pool_id']);
 
-			$this->attributes = $this->getAttributesFromDB();
+			$this->loadAttributesFromDB();
 			$this->loadBookedTimes();
 		}
 	}
@@ -88,28 +100,36 @@ class ilRoomSharingRoom
 	 * @return integer The room id of the new room, if everything went fine
 	 * 		 (check!).
 	 */
-	function create()
+	public function create()
 	{
-		global $lng;
-		$numsValid = $this->checkNumProps(
-			array(
-				$this->min_alloc,
-				$this->max_alloc,
-				$this->pool_id
-		));
+		$numbersToCheck[] = $this->min_alloc;
+		$numbersToCheck[] = $this->max_alloc;
+		$numbersToCheck[] = $this->pool_id;
+
+		$numsValid = ilRoomSharingNumericUtils::allNumbersPositive($numbersToCheck, true);
 
 		$rtrn = '';
-		if ($numsValid && !empty($this->name))
+		if ($numsValid && !empty($this->name) && strlen($this->name) > 0)
 		{
 			$rtrn = $this->ilRoomsharingDatabase->insertRoom($this->name, $this->type, $this->min_alloc,
 				$this->max_alloc, $this->file_id, $this->building_id);
+			$this->id = $rtrn;
+			$this->insertAttributes();
 		}
 		else
 		{
-			ilUtil::sendFailure($lng->txt('rep_robj_xrs_room_create_failed'), true);
+			throw new ilRoomSharingRoomException('rep_robj_xrs_room_create_failed');
 		}
 
 		return $rtrn;
+	}
+
+	/**
+	 * Deletes an room and all associations to it.
+	 */
+	public function delete()
+	{
+		// TODO
 	}
 
 	/**
@@ -117,33 +137,70 @@ class ilRoomSharingRoom
 	 *
 	 * @param int $a_attr_id
 	 * @param int $a_count
-	 * @return bool True if the attribute was added successful.
 	 */
 	public function addAttribute($a_attr_id, $a_count)
 	{
-		global $lng;
 		// Check arguments
-		if (ilRoomSharingNumericUtils::isPositiveNumber($a_attr_id) &&
-			ilRoomSharingNumericUtils::isPositiveNumber($a_count))
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_attr_id, true) || !$this->isRealAttribute($a_attr_id))
 		{
-			// Check whether the attribute is real/exist.
-			$attrDB = $this->ilRoomsharingDatabase->getRoomAttribute($a_attr_id);
-
-			if (array_count_values($attrDB) == 0)
-			{
-				ilUtil::sendFailure($lng->txt('add_wrong_attribute'), true);
-				return false;
-			}
-			// Attribute can be added
-			$attrName = $attrDB['name'];
-			$this->attributes[] = array(
-				'id' => $a_attr_id,
-				'name' => $attrName,
-				'count' => $a_count
-			);
+			throw new ilRoomSharingRoomException('rep_robj_xrs_add_wrong_attribute');
 		}
-		ilUtil::sendFailure($lng->txt('add_wrong_attribute'), true);
-		return false;
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_count, true))
+		{
+			throw new ilRoomSharingRoomException('rep_robj_xrs_add_wrong_attribute_count');
+		}
+		// Attribute can be added
+		$this->attributes[] = array(
+			'id' => $a_attr_id,
+			'name' => $this->getAttributeName($a_attr_id),
+			'count' => $a_count
+		);
+	}
+
+	/**
+	 * Returns true if the given attribute exists in the database.
+	 *
+	 * @param integer $a_attr_id
+	 * @return boolean
+	 */
+	private function isRealAttribute($a_attr_id)
+	{
+		$rVal = FALSE;
+		foreach ($this->allAvailableAttributes as $availableAttribute)
+		{
+			if ($availableAttribute['id'] == $a_attr_id)
+			{
+				$rVal = TRUE;
+				break;
+			}
+		}
+		return $rVal;
+	}
+
+	/**
+	 * Returns the name of the attribute.
+	 *
+	 * @param integer $a_attr_id
+	 * @return string
+	 */
+	private function getAttributeName($a_attr_id)
+	{
+		foreach ($this->allAvailableAttributes as $availableAttribute)
+		{
+			if ($availableAttribute['id'] == $a_attr_id)
+			{
+				return $availableAttribute['name'];
+			}
+		}
+	}
+
+	/**
+	 * Resets the attributes of the room internaly.
+	 * This method does not affects the database.
+	 */
+	public function resetAttributes()
+	{
+		$this->attributes = array();
 	}
 
 	/**
@@ -152,47 +209,54 @@ class ilRoomSharingRoom
 	 *
 	 * @return array attributes which were assigned to the room.
 	 */
-	protected function getAttributesFromDB()
+	private function loadAttributesFromDB()
 	{
-		$attributes = array();
-		if ($this->checkId())
+		if ($this->hasValidId())
 		{
-			$attributes = $this->ilRoomsharingDatabase->getAttributesForRoom($this->id);
+			$this->attributes = $this->ilRoomsharingDatabase->getAttributesForRoom($this->id);
 		}
-		return $attributes;
 	}
 
 	/**
 	 * Loads booking times of the given room.
 	 */
-	protected function loadBookedTimes()
+	private function loadBookedTimes()
 	{
-		if ($this->checkId())
+		if ($this->hasValidId())
 		{
 			$this->booked_times = $this->ilRoomsharingDatabase->getBookingsForRoom($this->id);
 		}
 	}
 
 	/**
+	 * Returns all available attribtes for rooms.
+	 *
+	 * @return assoc array
+	 */
+	public function getAllAvailableAttributes()
+	{
+		return $this->allAvailableAttributes;
+	}
+
+	/**
 	 * Update main properties of a room.
 	 */
-	protected function updateMainProperties()
+	private function updateMainProperties()
 	{
-		if ($this->checkId())
+		if ($this->hasValidId())
 		{
 			$this->ilRoomsharingDatabase->updateRoomProperties($this->getId(), $this->getName(),
 				$this->getType(), $this->getMinAlloc(), $this->getMaxAlloc(), $this->getFileId(),
-				$this->getFileId());
+				$this->getBuildingId());
 		}
 	}
 
 	/**
-	 * Updates attributes of a room if such were changed.
+	 * Updates attributes of a room.
 	 */
-	protected function updateAttributes()
+	private function updateAttributes()
 	{
-		if ($this->checkId() && $this->compareAttributes() &&
-			$this->checkAttributes())
+		if ($this->hasValidId())
 		{
 			//Delete old attribute associations
 			$this->ilRoomsharingDatabase->deleteAttributesForRoom($this->id);
@@ -204,9 +268,9 @@ class ilRoomSharingRoom
 	/**
 	 * Insert attributes if such are set in the room object.
 	 */
-	protected function insertAttributes()
+	private function insertAttributes()
 	{
-		if ($this->checkId() && $this->checkAttributes())
+		if ($this->hasValidId())
 		{
 			foreach ($this->attributes as $row)
 			{
@@ -216,92 +280,81 @@ class ilRoomSharingRoom
 	}
 
 	/**
-	 * Checks the attributes of a room object.
-	 *
-	 * @return bool true if attributes are valid (data can be inserted into the
-	 * 		 database).
-	 */
-	protected function checkAttributes()
-	{
-		global $lng;
-		if (!empty($this->attributes))
-		{
-			foreach ($this->attributes as $attr_value)
-			{
-				// Check whether the number values are numeric.
-				if (!ilRoomSharingNumericUtils::isPositiveNumber($attr_value['id']) ||
-					!ilRoomSharingNumericUtils::isPositiveNumber($attr_value['count'], true))
-				{
-					ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
-					return false;
-				}
-				// Check whether the attributes are real/exist.
-				$attrDB = $this->ilRoomsharingDatabase->getRoomAttribute($attr_value['id']);
-				if (array_count_values($attrDB) === 0)
-				{
-					ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
-					return false;
-				}
-			}
-			// All attributes checked and they are fine.
-			return true;
-		}
-		ilUtil::sendFailure($lng->txt('incorrect_attributes'), true);
-		return false;
-	}
-
-	/**
-	 * Compares room attributes set and the room attributes of the database.
-	 *
-	 * @return bool true if room attributes of the object have no difference
-	 * 		 with the database.
-	 */
-	protected function compareAttributes()
-	{
-		if ($this->attributes == $this->getAttributesFromDB())
-		{
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Checks whether the room id is valid.
 	 *
 	 * @return bool True if the room id is set and the room exists in the
 	 * 		 database.
 	 */
-	protected function checkId()
+	private function hasValidId()
 	{
-		$rtrn = FALSE;
-		if (ilRoomSharingNumericUtils::isPositiveNumber($this->id))
-		{
-			$room = $this->ilRoomsharingDatabase->getRoom($this->id);
-			if (count($room) > 0)
-			{
-				$rtrn = TRUE;
-			}
-		}
-		return $rtrn;
+		return ilRoomSharingNumericUtils::isPositiveNumber($this->id, true);
 	}
 
 	/**
-	 * Checks the given array
-	 *
-	 * @param array $a_props
-	 * 			Array with properties to check.
-	 * @return bool True if all properties are not empty and numeric.
+	 * Get all floorplan title.
+	 * @return array with all floorplan title
 	 */
-	protected function checkNumProps($a_props)
+	public function getAllFloorplans()
 	{
-		foreach ($a_props as $prop)
+		$options = array();
+		$options["title"] = " - " . $this->lng->txt("rep_robj_xrs_room_no_assign") . " - ";
+
+		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
 		{
-			if (empty($prop) || !is_numeric($prop))
+			$options[$fplans["title"]] = $fplans["title"];
+		}
+		return $options;
+	}
+
+	/**
+	 * 	Searches for an attribute in already defined attributes of an room and returns its amount.
+	 *
+	 * @param integer $a_attribute_id
+	 * @return integer amount
+	 */
+	public function findAttributeAmount($a_attribute_id)
+	{
+		foreach ($this->getAttributes() as $attr)
+		{
+			if ($attr['id'] == $a_attribute_id)
 			{
-				return false;
+				$rVal = $attr['id'];
+				break;
 			}
 		}
-		return true;
+		return $rVal;
+	}
+
+	/**
+	 * Get floorplan file-id by name.
+	 * @param string name
+	 * @return integer file-id
+	 */
+	public function getFloorplanIdByName($name)
+	{
+		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
+		{
+			if ($name == $fplans["title"])
+			{
+				return (int) $fplans["file_id"];
+			}
+		}
+	}
+
+	/**
+	 * Get floorplan name by file-id.
+	 * @param file-id
+	 * @return name
+	 */
+	public function getFloorplanNameById($id)
+	{
+		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
+		{
+			if ($id == $fplans["file_id"])
+			{
+				return $fplans["title"];
+			}
+		}
 	}
 
 	/**

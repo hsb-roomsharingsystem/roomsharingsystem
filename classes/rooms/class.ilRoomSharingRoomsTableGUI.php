@@ -60,6 +60,20 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	{
 		$data = $this->rooms->getList($filter);
 
+		$old_name = $filter["room_name"];
+		if (count($data) == 0 && ($old_name || $old_name === "0"))
+		{
+			$new_name = filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT);
+			$filter["room_name"] = $new_name;
+			$data = $this->rooms->getList($filter);
+
+			$message = $this->lng->txt('rep_robj_xrs_no_match_for') . " $old_name " .
+				$this->lng->txt('rep_robj_xrs_found') . ". " .
+				$this->lng->txt('rep_robj_xrs_results_for') . " $new_name.";
+
+			ilUtil::sendInfo($message);
+		}
+
 		$this->setMaxCount(count($data));
 		$this->setData($data);
 	}
@@ -160,6 +174,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$this->tpl->parseCurrentBlock();
 			$this->tpl->setVariable('LINK_ACTION',
 				$this->ctrl->getLinkTarget($this->parent_obj, $this->parent_cmd));
+			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
+			$this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'editRoom'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
 			$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 			$this->tpl->parseCurrentBlock();
@@ -282,8 +298,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$room_attribute_input->setMaxLength(8);
 			$room_attribute_input->setSize(8);
 			$room_attribute_input->setMinValue(0);
-			$room_attribute_input->setMaxValue(
-				$this->rooms->getMaxCountForAttribute($room_attribute));
+			$max_count = $this->rooms->getMaxCountForAttribute($room_attribute);
+			$max_count_num = isset($max_count) ? $max_count : 0;
+			$room_attribute_input->setMaxValue($max_count_num);
 			$room_attribute_comb->addCombinationItem("amount", $room_attribute_input,
 				$this->lng->txt("rep_robj_xrs_amount"));
 

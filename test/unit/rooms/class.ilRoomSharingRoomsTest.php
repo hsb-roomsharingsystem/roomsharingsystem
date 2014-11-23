@@ -35,10 +35,7 @@ class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase
 
 	public function testGetRoomsBookedInDateTimeRange()
 	{
-		$key = "room_id";
-		$value = "1";
-		$expected[] = $value;
-		$array = array($key => $value);
+		$expected[] = "1";
 		$a_date_from = "2014-10-27 09:00:00";
 		$a_date_to = "2014-10-27 10:20:00";
 		self::$ilRoomSharingDatabaseStub->method("getRoomsBookedInDateTimeRange")->willReturn($expected);
@@ -49,10 +46,7 @@ class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase
 
 	public function testGetRoomsBookedInDateTimeRangeWithRoomId()
 	{
-		$key = "room_id";
-		$value = "1";
-		$expected[] = $value;
-		$array = array($key => $value);
+		$expected[] = "1";
 		$a_date_from = "2014-10-27 09:00:00";
 		$a_date_to = "2014-10-27 10:20:00";
 		$a_room_id = "1";
@@ -64,9 +58,7 @@ class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase
 
 	public function testGetMaxCountForAttribute()
 	{
-		$key = "value";
 		$expected = 1;
-		$array = array($key => $expected);
 		$a_attribute = "Beamer";
 		self::$ilRoomSharingDatabaseStub->method("getMaxCountForAttribute")->willReturn($expected);
 
@@ -76,7 +68,6 @@ class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase
 
 	public function testGetMaxSeatCount()
 	{
-		$key = "value";
 		$expected = 100;
 		self::$ilRoomSharingDatabaseStub->method("getMaxSeatCount")->willReturn($expected);
 
@@ -86,7 +77,6 @@ class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase
 
 	public function testGetAllAttributes()
 	{
-		$name = "name";
 		$beamer = "Beamer";
 		$whiteboard = "Whiteboard";
 		$expected = array($beamer, $whiteboard);

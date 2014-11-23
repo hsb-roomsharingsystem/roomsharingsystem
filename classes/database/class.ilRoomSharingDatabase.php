@@ -92,7 +92,6 @@ class ilRoomsharingDatabase
 
 	public function getAllRoomIds()
 	{
-
 		$resRoomIds = $this->ilDB->query('SELECT id FROM ' . dbc::ROOMS_TABLE);
 		$room_ids = array();
 		while ($row = $this->ilDB->fetchAssoc($resRoomIds))
@@ -608,7 +607,8 @@ class ilRoomsharingDatabase
 	public function getAllBookingAttributes()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::BOOKING_ATTRIBUTES_TABLE .
-			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer')
+			. ' ORDER BY name ASC');
 
 		$attributesRows = array();
 		while ($attributesRow = $this->ilDB->fetchAssoc($set))
@@ -694,6 +694,31 @@ class ilRoomsharingDatabase
 	{
 		return $this->ilDB->manipulate('DELETE FROM ' . dbc::FLOORPLANS_TABLE .
 				' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer'));
+	}
+
+	/**
+	 * Delete floorplan - room association if floorplan will be deleted.
+	 * @param floorplan_id
+	 * @return type
+	 */
+	public function deleteFloorplanRoomAssociation($a_file_id)
+	{
+		return $this->ilDB->manipulate('UPDATE ' . dbc::ROOMS_TABLE .
+				' SET building_id = 0 WHERE building_id = ' .
+				$this->ilDB->quote($a_file_id, 'integer'));
+	}
+
+	public function getRoomsWithFloorplan($a_file_id)
+	{
+		$set = $this->ilDB->query('SELECT name FROM ' . dbc::ROOMS_TABLE .
+			' WHERE building_id = ' . $this->ilDB->quote($a_file_id, 'integer'));
+		$rooms = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$rooms[] = $row;
+		}
+		return $rooms;
+		//return $this->ilDB->fetchAssoc($set);
 	}
 
 	/**
@@ -917,7 +942,7 @@ class ilRoomsharingDatabase
 	 *
 	 * @return type return of $ilDB->query
 	 */
-	public function getRoomAgreementIdFromDatabase()
+	public function getRoomAgreementId()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::POOLS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' order by rooms_agreement DESC');
@@ -931,7 +956,7 @@ class ilRoomsharingDatabase
 	 *
 	 * @return integer calendar-id
 	 */
-	public function getCalendarIdFromDatabase()
+	public function getCalendarId()
 	{
 		$set = $this->ilDB->query('SELECT calendar_id FROM ' . dbc::POOLS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
@@ -991,7 +1016,8 @@ class ilRoomsharingDatabase
 	public function getAllRoomAttributes()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer')
+			. ' ORDER BY name ASC');
 
 		$attributesRows = array();
 		while ($attributesRow = $this->ilDB->fetchAssoc($set))
@@ -1080,6 +1106,40 @@ class ilRoomsharingDatabase
 			'pool_id' => array('integer', $this->pool_id),
 			)
 		);
+	}
+
+	/**
+	 * Renames an room attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @param string $a_changed_attribute_name
+	 */
+	public function renameRoomAttribute($a_attribute_id, $a_changed_attribute_name)
+	{
+		$fields = array(
+			'name' => array('text', $a_changed_attribute_name),
+		);
+		$where = array(
+			'id' => array("integer", $a_attribute_id)
+		);
+		$this->ilDB->update(dbc::ROOM_ATTRIBUTES_TABLE, $fields, $where);
+	}
+
+	/**
+	 * Renames an booking attribute with given id.
+	 *
+	 * @param integer $a_attribute_id
+	 * @param string $a_changed_attribute_name
+	 */
+	public function renameBookingAttribute($a_attribute_id, $a_changed_attribute_name)
+	{
+		$fields = array(
+			'name' => array('text', $a_changed_attribute_name),
+		);
+		$where = array(
+			'id' => array("integer", $a_attribute_id)
+		);
+		$this->ilDB->update(dbc::BOOKING_ATTRIBUTES_TABLE, $fields, $where);
 	}
 
 }

@@ -2,6 +2,9 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/room/class.ilRoomSharingRoomAttributesGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/booking/class.ilRoomSharingBookingAttributesGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
+
+use ilRoomSharingAttributesConstants as ATTRC;
 
 /**
  * Class ilRoomSharingAttributesGUI
@@ -45,26 +48,28 @@ class ilRoomSharingAttributesGUI
 	function executeCommand()
 	{
 		// default cmd if none provided
-		$cmd = $this->ctrl->getCmd("showRoomAttributes");
+		$cmd = $this->ctrl->getCmd(ATTRC::SHOW_ROOM_ATTR_ACTIONS);
 
 		switch ($cmd)
 		{
 			case 'render':
 			case 'showContent':
-				$cmd = 'showRoomAttributes';
-				break;
-			case 'saveRoomAttributes':
+			case ATTRC::SHOW_ROOM_ATTR_ACTIONS:
+			case ATTRC::EXECUTE_ROOM_ATTR_ACTION:
+				$this->setSubTabs(ATTRC::ROOM_ATTRS);
 				$rooms_attributes_gui = & new ilRoomSharingRoomAttributesGUI($this);
 				$this->ctrl->forwardCommand($rooms_attributes_gui);
 				break;
-			case 'saveBookingAttributes':
+			case ATTRC::SHOW_BOOKING_ATTR_ACTIONS:
+			case ATTRC::EXECUTE_BOOKING_ATTR_ACTION:
+				$this->setSubTabs(ATTRC::BOOKING_ATTRS);
 				$bookings_attributes_gui = & new ilRoomSharingBookingAttributesGUI($this);
 				$this->ctrl->forwardCommand($bookings_attributes_gui);
 				break;
 			default:
+				$this->$cmd();
 				break;
 		}
-		$this->$cmd();
 		return true;
 	}
 
@@ -77,34 +82,14 @@ class ilRoomSharingAttributesGUI
 	protected function setSubTabs($a_active)
 	{
 		global $ilTabs;
-		$ilTabs->setTabActive('attributes');
+		$ilTabs->setTabActive(ATTRC::ATTRS);
 		// Room attributes
-		$ilTabs->addSubTab('roomAttributes', $this->lng->txt('rep_robj_xrs_attributes_for_rooms'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingroomattributesgui', 'showRoomAttributes'));
+		$ilTabs->addSubTab(ATTRC::ROOM_ATTRS, $this->lng->txt('rep_robj_xrs_attributes_for_rooms'),
+			$this->ctrl->getLinkTargetByClass(ATTRC::ROOM_ATTRS_GUI, ATTRC::SHOW_ROOM_ATTR_ACTIONS));
 		// Booking attributes
-		$ilTabs->addSubTab('bookingAttributes', $this->lng->txt('rep_robj_xrs_attributes_for_bookings'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingbookingattributesgui', 'showBookingAttributes'));
+		$ilTabs->addSubTab(ATTRC::BOOKING_ATTRS, $this->lng->txt('rep_robj_xrs_attributes_for_bookings'),
+			$this->ctrl->getLinkTargetByClass(ATTRC::BOOKING_ATTRS_GUI, ATTRC::SHOW_BOOKING_ATTR_ACTIONS));
 		$ilTabs->activateSubTab($a_active);
-	}
-
-	/**
-	 * Shows all room attributes.
-	 */
-	function showRoomAttributes()
-	{
-		$this->setSubTabs('roomAttributes');
-		$attributes_gui = & new ilRoomSharingRoomAttributesGUI($this);
-		$this->ctrl->forwardCommand($attributes_gui);
-	}
-
-	/**
-	 * Show all booking attributes.
-	 */
-	function showBookingAttributes()
-	{
-		$this->setSubTabs('bookingAttributes');
-		$attributes_gui = & new ilRoomSharingBookingAttributesGUI($this);
-		$this->ctrl->forwardCommand($attributes_gui);
 	}
 
 	/**

@@ -6,6 +6,9 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 	"RoomSharing/classes/utils/class.ilRoomSharingTimeInputGUI.php");
 include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/utils/class.ilRoomSharingCalendar.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
+
+use ilRoomSharingAttributesConstants as ATTRC;
 
 /**
  * User Interface class for RoomSharing repository object.
@@ -130,9 +133,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		switch ($next_class)
 		{
 			// Attributes for rooms and bookings
-			case 'ilroomsharingattributesgui':
-				$this->tabs_gui->setTabActive('attributes');
-				$this->pl_obj->includeClass("attributes/class.ilRoomSharingAttributesGUI.php");
+			case ATTRC::ATTRS_GUI:
+				$this->tabs_gui->setTabActive(ATTRC::ATTRS);
+				$this->pl_obj->includeClass(ATTRC::ATTRS_GUI_PATH);
 				$attributes_gui = & new ilRoomSharingAttributesGUI($this);
 				$ret = & $this->ctrl->forwardCommand($attributes_gui);
 				break;
@@ -333,8 +336,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		{
 			// Attributes for rooms and bookings
 			$ilTabs->addTab(
-				"attributes", $this->txt("attributes"),
-				$ilCtrl->getLinkTargetByClass('ilroomsharingattributesgui', "showRoomAttributes")
+				ATTRC::ATTRS, $this->txt("attributes"),
+				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, ATTRC::SHOW_ROOM_ATTR_ACTIONS)
 			);
 			// Settings
 			$this->tabs_gui->addTab(
@@ -518,7 +521,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->tabs_gui->setTabActive('rooms');
 		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
-		$room_gui->showRoomObject();
+		$room_gui->showRoom();
+	}
+
+	public function editRoom()
+	{
+		$room_id = (int) $_GET['room_id'];
+		$this->tabs_gui->setTabActive('rooms');
+		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
+		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
+		$room_gui->editRoom();
 	}
 
 	/**
@@ -606,7 +618,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 		//Initialize the Calendar
 		$this->initSeed();
-		$cal_id = $db->getCalendarIdFromDatabase();
+		$cal_id = $db->getCalendarId();
 		$this->cal = new ilRoomSharingCalendar($this->seed, $cal_id, $this);
 		if ($cal_id == 0 || $cal_id != $this->cal->getCalendarId())
 		{

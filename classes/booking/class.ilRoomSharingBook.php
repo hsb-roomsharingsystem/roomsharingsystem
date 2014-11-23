@@ -183,7 +183,7 @@ class ilRoomSharingBook
 	 */
 	public function getRoomAgreementFileId()
 	{
-		$agreement_file_id = $this->ilRoomsharingDatabase->getRoomAgreementIdFromDatabase();
+		$agreement_file_id = $this->ilRoomsharingDatabase->getRoomAgreementId();
 
 		return $agreement_file_id;
 	}
