@@ -63,8 +63,6 @@ class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 			$this->schedule[$counter]['dstart'] = $event->getStart()->get(IL_CAL_UNIX);
 			$this->schedule[$counter]['dend'] = $event->getEnd()->get(IL_CAL_UNIX);
 			$this->schedule[$counter]['fullday'] = $event->isFullday();
-			$this->schedule[$counter]['category_id'] = $cat_map[$event->getEntryId()];
-			$this->schedule[$counter]['category_type'] = $cat_types[$cat_map[$event->getEntryId()]];
 
 			if (!$event->isFullday())
 			{

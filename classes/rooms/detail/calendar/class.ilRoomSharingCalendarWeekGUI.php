@@ -6,6 +6,8 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 {
 	protected $room_id;
 	protected $pool_id;
+	// Color of appointments in week-view
+	private $color = 'lightblue';
 
 	/**
 	 * Constructor
@@ -102,9 +104,10 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 
 		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
-                
-                $this->tpl->setVariable('ROOM', $this->lng->txt('rep_robj_xrs_room_occupation_title') . " " . $room->getName());
-                
+
+		$this->tpl->setVariable('ROOM',
+			$this->lng->txt('rep_robj_xrs_room_occupation_title') . " " . $room->getName());
+
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarSchedule.php");
 		$this->scheduler = new ilRoomSharingCalendarSchedule($this->seed, ilCalendarSchedule::TYPE_WEEK,
 			$user_id, $room);
@@ -113,7 +116,6 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 
 		$counter = 0;
 		$hours = null;
-		$all_fullday = array();
 		foreach (ilCalendarUtil::_buildWeekDayList($this->seed, $this->user_settings->getWeekStart())->get() as
 				$date)
 		{
@@ -125,7 +127,6 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 
 			$num_apps[$date->get(IL_CAL_DATE)] = count($daily_apps);
 
-			$all_fullday[] = $daily_apps;
 			$counter++;
 		}
 
@@ -180,26 +181,6 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 
 			$counter++;
 		}
-
-		// show fullday events
-		$counter = 0;
-		foreach ($all_fullday as $daily_apps)
-		{
-			foreach ($daily_apps as $event)
-			{
-				if ($event['fullday'])
-				{
-					$this->showFulldayAppointment($event);
-				}
-			}
-			$this->tpl->setCurrentBlock('f_day_row');
-			$this->tpl->setVariable('COLSPAN', max($colspans[$counter], 1));
-			$this->tpl->parseCurrentBlock();
-			$counter++;
-		}
-		$this->tpl->setCurrentBlock('fullday_apps');
-		$this->tpl->setVariable('TXT_F_DAY', $lng->txt("cal_all_day"));
-		$this->tpl->parseCurrentBlock();
 
 		$new_link_counter = 0;
 		foreach ($hours as $num_hour => $hours_per_day)
@@ -337,15 +318,15 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 
 		$this->tpl->setVariable("TXT_TIME", $lng->txt("time"));
 	}
-        
-        protected function showAppointment($a_app)
+
+	protected function showAppointment($a_app)
 	{
 		global $ilUser;
-		
+
 		$this->tpl->setCurrentBlock('panel_code');
-		$this->tpl->setVariable('NUM',$this->num_appointments);
+		$this->tpl->setVariable('NUM', $this->num_appointments);
 		$this->tpl->parseCurrentBlock();
-		
+
 		if (!$ilUser->prefs["screen_reader_optimization"])
 		{
 			$this->tpl->setCurrentBLock('not_empty');
@@ -356,82 +337,84 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		}
 
 		include_once('./Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php');
-		$this->tpl->setVariable('PANEL_DATA',ilCalendarAppointmentPanelGUI::_getInstance($this->seed)->getHTML($a_app));
-		
-		$this->ctrl->clearParametersByClass('ilcalendarappointmentgui');
-		$this->ctrl->setParameterByClass('ilcalendarappointmentgui','app_id',$a_app['event']->getEntryId());
-		$this->tpl->setVariable('APP_EDIT_LINK',$this->ctrl->getLinkTargetByClass('ilcalendarappointmentgui','edit'));
+		$this->tpl->setVariable('PANEL_DATA',
+			ilCalendarAppointmentPanelGUI::_getInstance($this->seed)->getHTML($a_app));
 
-		$color = 'lightblue';
-		$style = 'background-color: '.$color.';';
-		$style .= ('color:'.ilCalendarUtil::calculateFontColor($color));
+		$this->ctrl->clearParametersByClass('ilcalendarappointmentgui');
+		$this->ctrl->setParameterByClass('ilcalendarappointmentgui', 'app_id',
+			$a_app['event']->getEntryId());
+		$this->tpl->setVariable('APP_EDIT_LINK',
+			$this->ctrl->getLinkTargetByClass('ilcalendarappointmentgui', 'edit'));
+
+
+		$style = 'background-color: ' . $this->color . ';';
+		$style .= ('color:' . ilCalendarUtil::calculateFontColor($this->color));
 		$td_style = $style;
 
-		
-		if($a_app['event']->isFullDay())
+
+		if ($a_app['event']->isFullDay())
 		{
 			$title = $a_app['event']->getPresentationTitle();
 		}
 		else
 		{
-			switch($this->user_settings->getTimeFormat())
+			switch ($this->user_settings->getTimeFormat())
 			{
 				case ilCalendarSettings::TIME_FORMAT_24:
-					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE,'H:i',$this->timezone);
+					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
 					break;
-					
+
 				case ilCalendarSettings::TIME_FORMAT_12:
-					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE,'h:ia',$this->timezone);
+					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
 					break;
 			}
 			// add end time for screen readers
 			if ($ilUser->prefs["screen_reader_optimization"])
 			{
-				switch($this->user_settings->getTimeFormat())
+				switch ($this->user_settings->getTimeFormat())
 				{
 					case ilCalendarSettings::TIME_FORMAT_24:
-						$title.= "-".$a_app['event']->getEnd()->get(IL_CAL_FKT_DATE,'H:i',$this->timezone);
+						$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
 						break;
-						
+
 					case ilCalendarSettings::TIME_FORMAT_12:
-						$title.= "-".$a_app['event']->getEnd()->get(IL_CAL_FKT_DATE,'h:ia',$this->timezone);
+						$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
 						break;
 				}
 			}
-			
-			$title .= (' '.$a_app['event']->getPresentationTitle());		
+
+			$title .= (' ' . $a_app['event']->getPresentationTitle());
 			$td_style .= $a_app['event']->getPresentationStyle();
 		}
-		
-		$this->tpl->setVariable('APP_TITLE',$title);
-		$this->tpl->setVariable('LINK_NUM',$this->num_appointments);
-		
-		$this->tpl->setVariable('LINK_STYLE',$style);
 
-		
+		$this->tpl->setVariable('APP_TITLE', $title);
+		$this->tpl->setVariable('LINK_NUM', $this->num_appointments);
+
+		$this->tpl->setVariable('LINK_STYLE', $style);
+
+
 		if (!$ilUser->prefs["screen_reader_optimization"])
 		{
 			// provide table cell attributes
 			$this->tpl->parseCurrentBlock();
-			
+
 			$this->tpl->setCurrentBlock('day_cell');
-		
-			$this->tpl->setVariable('DAY_CELL_NUM',$this->num_appointments);
-			$this->tpl->setVariable('TD_ROWSPAN',$a_app['rowspan']);
-			$this->tpl->setVariable('TD_STYLE',$td_style);
-			$this->tpl->setVariable('TD_CLASS','calevent');
-		
+
+			$this->tpl->setVariable('DAY_CELL_NUM', $this->num_appointments);
+			$this->tpl->setVariable('TD_ROWSPAN', $a_app['rowspan']);
+			$this->tpl->setVariable('TD_STYLE', $td_style);
+			$this->tpl->setVariable('TD_CLASS', 'calevent');
+
 			$this->tpl->parseCurrentBlock();
 		}
 		else
 		{
 			// screen reader: work on div attributes
-			$this->tpl->setVariable('DIV_STYLE',$style);
+			$this->tpl->setVariable('DIV_STYLE', $style);
 			$this->tpl->parseCurrentBlock();
 		}
-		
-		$this->num_appointments++;
 
+		$this->num_appointments++;
 	}
 
 }

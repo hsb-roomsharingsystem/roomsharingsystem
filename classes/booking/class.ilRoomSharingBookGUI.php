@@ -381,8 +381,9 @@ class ilRoomSharingBookGUI
 
 	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
 	{
+		//adds current calendar-id to booking information
+		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
 		$this->book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
-		$this->parent_obj->addBookingAppointment($a_common_entries);
 		$this->cleanUpAfterSuccessfulSave();
 	}
 

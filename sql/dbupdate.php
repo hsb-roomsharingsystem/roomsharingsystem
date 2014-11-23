@@ -645,3 +645,16 @@ $commentAttributes = array(
 	'length' => 4000);
 $ilDB->addTableColumn($tableBookings, $commentColumn, $commentAttributes);
 ?>
+
+<#10>
+<?php
+// Add calendar_id to booking table.
+/* @var $ilDB ilDB */
+$tableBookings = 'rep_robj_xrs_bookings';
+$calendarIdColumn = 'calendar_entry_id';
+
+$calendarIdAttributes = array(
+	'type' => 'integer',
+	'length' => 4);
+$ilDB->addTableColumn($tableBookings, $calendarIdColumn, $calendarIdAttributes);
+?>
