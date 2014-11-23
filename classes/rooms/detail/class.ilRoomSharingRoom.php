@@ -86,9 +86,12 @@ class ilRoomSharingRoom
 	/**
 	 * Saves edited data of an room.
 	 * If room id is not set, nothing happens.
+	 *
+	 * @throws ilRoomSharingRoomException
 	 */
 	public function save()
 	{
+		$this->checkMinMaxAlloc();
 		$this->updateMainProperties();
 		$this->updateAttributes();
 	}
@@ -99,6 +102,8 @@ class ilRoomSharingRoom
 	 *
 	 * @return integer The room id of the new room, if everything went fine
 	 * 		 (check!).
+	 *
+	 * @throws ilRoomSharingRoomException
 	 */
 	public function create()
 	{
@@ -107,6 +112,8 @@ class ilRoomSharingRoom
 		$numbersToCheck[] = $this->pool_id;
 
 		$numsValid = ilRoomSharingNumericUtils::allNumbersPositive($numbersToCheck, true);
+
+		$this->checkMinMaxAlloc();
 
 		$rtrn = '';
 		if ($numsValid && !empty($this->name) && strlen($this->name) > 0)
@@ -137,6 +144,8 @@ class ilRoomSharingRoom
 	 *
 	 * @param int $a_attr_id
 	 * @param int $a_count
+	 *
+	 * @throws ilRoomSharingRoomException
 	 */
 	public function addAttribute($a_attr_id, $a_count)
 	{
@@ -272,9 +281,9 @@ class ilRoomSharingRoom
 	{
 		if ($this->hasValidId())
 		{
-			foreach ($this->attributes as $row)
+			foreach ($this->attributes as $attr)
 			{
-				$this->ilRoomsharingDatabase->insertAttributeForRoom($this->id, $row['id'], $row['count']);
+				$this->ilRoomsharingDatabase->insertAttributeForRoom($this->id, $attr['id'], $attr['count']);
 			}
 		}
 	}
@@ -288,6 +297,31 @@ class ilRoomSharingRoom
 	private function hasValidId()
 	{
 		return ilRoomSharingNumericUtils::isPositiveNumber($this->id, true);
+	}
+
+	/**
+	 * Checks min and max allocation of the room.
+	 * Throws an exception on illigal values.
+	 *
+	 * @throws ilRoomSharingRoomException
+	 */
+	private function checkMinMaxAlloc()
+	{
+		if (empty($this->min_alloc) || empty($this->max_alloc))
+		{
+			throw new ilRoomSharingRoomException('rep_robj_xrs_illigal_room_min_max_alloc');
+		}
+
+		$allocs = array($this->min_alloc, $this->max_alloc);
+		if (!ilRoomSharingNumericUtils::allNumbersPositive($allocs, true))
+		{
+			throw new ilRoomSharingRoomException('rep_robj_xrs_illigal_room_min_max_alloc');
+		}
+
+		if (((int) $this->min_alloc) > ((int) $this->max_alloc))
+		{
+			throw new ilRoomSharingRoomException('rep_robj_xrs_illigal_room_min_max_alloc');
+		}
 	}
 
 	/**
@@ -318,7 +352,7 @@ class ilRoomSharingRoom
 		{
 			if ($attr['id'] == $a_attribute_id)
 			{
-				$rVal = $attr['id'];
+				$rVal = $attr['count'];
 				break;
 			}
 		}
