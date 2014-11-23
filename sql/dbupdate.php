@@ -645,3 +645,9 @@ $commentAttributes = array(
 	'length' => 4000);
 $ilDB->addTableColumn($tableBookings, $commentColumn, $commentAttributes);
 ?>
+
+<#10>
+<?php
+// Set building_ids of rooms to 0.
+$ilDB->manipulate("UPDATE rep_robj_xrs_rooms SET building_id = 0");
+?>
