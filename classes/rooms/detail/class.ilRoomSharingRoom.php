@@ -133,10 +133,21 @@ class ilRoomSharingRoom
 
 	/**
 	 * Deletes an room and all associations to it.
+	 *
+	 * @return integer Amount of deleted bookings
+	 *
+	 * @throws ilRoomSharingRoomException
 	 */
 	public function delete()
 	{
-		// TODO
+		// Check permission after permissions were implemented.
+		if (false)
+		{
+			throw new ilRoomSharingRoomException('rep_robj_xrs_deletion_not_allowed');
+		}
+		$this->ilRoomsharingDatabase->deleteRoom($this->id);
+		$this->ilRoomsharingDatabase->deleteAttributesForRoom($this->id);
+		return $this->ilRoomsharingDatabase->deleteBookingsUsesRoom($this->id);
 	}
 
 	/**
