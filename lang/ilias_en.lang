@@ -97,6 +97,7 @@ room_properties#:#Room properties
 room_public_booking#:#Display username publicly in booking
 room_type#:#Room type
 room_occupation#:#Week View
+room_occupation_title#:#Weekly occupation of room
 rooms_user_agreement_accept#:#Accept Room User Agreement
 rooms#:#Rooms
 rooms_user_agreement#:#Rooms user agreement

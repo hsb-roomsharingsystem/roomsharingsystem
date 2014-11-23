@@ -96,6 +96,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Set pool id
 		$this->pool_id = $this->object->getPoolID();
 		$cmd = $ilCtrl->getCmd();
+                $has_calendar = false;
 		if ($cmd === 'edit' || $cmd === 'editSettings' || $cmd === 'updateSettings')
 		{
 			$ilTabs->setTabActive('settings');
@@ -141,6 +142,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$this->pl_obj->includeClass("appointments/class.ilRoomSharingAppointmentsGUI.php");
 				$object_gui = & new ilRoomSharingAppointmentsGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
+                                $has_calendar = true;
 				break;
 			// Info
 			case 'ilinfoscreengui':
@@ -159,6 +161,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$this->pl_obj->includeClass("rooms/class.ilRoomSharingRoomsGUI.php");
 				$object_gui = & new ilRoomSharingRoomsGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
+                                $has_calendar = true;
 				break;
 			// Room, Called for display a single room
 			case 'ilroomsharingroomgui':
@@ -246,6 +249,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			default:
 				$cmd = $ilCtrl->getCmd('render');
 				$this->$cmd();
+                                $has_calendar = true;
 				break;
 		}
 
@@ -253,13 +257,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->addHeaderAction();
 
 		include_once('./Services/Calendar/classes/class.ilCalendarSettings.php');
-		if (ilCalendarSettings::_getInstance()->isEnabled())
+		if (ilCalendarSettings::_getInstance()->isEnabled()
+                        && $has_calendar)
 		{
 
 			//adds Minicalendar to the right if active
 			$tpl->setRightContent($this->cal->getHTML());
-			$tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'delos.css', 'Services/Calendar'));
 		}
+		$tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'delos.css', 'Services/Calendar'));
 		return true;
 	}
 

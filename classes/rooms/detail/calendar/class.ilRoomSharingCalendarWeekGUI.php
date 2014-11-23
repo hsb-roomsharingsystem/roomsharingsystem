@@ -52,10 +52,9 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	 */
 	public function show()
 	{
-		$this->setSubTabs('room');
+		$this->setSubTabs('weekview');
 
 		global $ilUser, $lng;
-
 
 		// config
 		$raster = 15;
@@ -103,7 +102,9 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 
 		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
-
+                
+                $this->tpl->setVariable('ROOM', $this->lng->txt('rep_robj_xrs_room_occupation_title') . " " . $room->getName());
+                
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarSchedule.php");
 		$this->scheduler = new ilRoomSharingCalendarSchedule($this->seed, ilCalendarSchedule::TYPE_WEEK,
 			$user_id, $room);
@@ -335,6 +336,102 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		}
 
 		$this->tpl->setVariable("TXT_TIME", $lng->txt("time"));
+	}
+        
+        protected function showAppointment($a_app)
+	{
+		global $ilUser;
+		
+		$this->tpl->setCurrentBlock('panel_code');
+		$this->tpl->setVariable('NUM',$this->num_appointments);
+		$this->tpl->parseCurrentBlock();
+		
+		if (!$ilUser->prefs["screen_reader_optimization"])
+		{
+			$this->tpl->setCurrentBLock('not_empty');
+		}
+		else
+		{
+			$this->tpl->setCurrentBLock('scrd_not_empty');
+		}
+
+		include_once('./Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php');
+		$this->tpl->setVariable('PANEL_DATA',ilCalendarAppointmentPanelGUI::_getInstance($this->seed)->getHTML($a_app));
+		
+		$this->ctrl->clearParametersByClass('ilcalendarappointmentgui');
+		$this->ctrl->setParameterByClass('ilcalendarappointmentgui','app_id',$a_app['event']->getEntryId());
+		$this->tpl->setVariable('APP_EDIT_LINK',$this->ctrl->getLinkTargetByClass('ilcalendarappointmentgui','edit'));
+
+		$color = 'lightblue';
+		$style = 'background-color: '.$color.';';
+		$style .= ('color:'.ilCalendarUtil::calculateFontColor($color));
+		$td_style = $style;
+
+		
+		if($a_app['event']->isFullDay())
+		{
+			$title = $a_app['event']->getPresentationTitle();
+		}
+		else
+		{
+			switch($this->user_settings->getTimeFormat())
+			{
+				case ilCalendarSettings::TIME_FORMAT_24:
+					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE,'H:i',$this->timezone);
+					break;
+					
+				case ilCalendarSettings::TIME_FORMAT_12:
+					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE,'h:ia',$this->timezone);
+					break;
+			}
+			// add end time for screen readers
+			if ($ilUser->prefs["screen_reader_optimization"])
+			{
+				switch($this->user_settings->getTimeFormat())
+				{
+					case ilCalendarSettings::TIME_FORMAT_24:
+						$title.= "-".$a_app['event']->getEnd()->get(IL_CAL_FKT_DATE,'H:i',$this->timezone);
+						break;
+						
+					case ilCalendarSettings::TIME_FORMAT_12:
+						$title.= "-".$a_app['event']->getEnd()->get(IL_CAL_FKT_DATE,'h:ia',$this->timezone);
+						break;
+				}
+			}
+			
+			$title .= (' '.$a_app['event']->getPresentationTitle());		
+			$td_style .= $a_app['event']->getPresentationStyle();
+		}
+		
+		$this->tpl->setVariable('APP_TITLE',$title);
+		$this->tpl->setVariable('LINK_NUM',$this->num_appointments);
+		
+		$this->tpl->setVariable('LINK_STYLE',$style);
+
+		
+		if (!$ilUser->prefs["screen_reader_optimization"])
+		{
+			// provide table cell attributes
+			$this->tpl->parseCurrentBlock();
+			
+			$this->tpl->setCurrentBlock('day_cell');
+		
+			$this->tpl->setVariable('DAY_CELL_NUM',$this->num_appointments);
+			$this->tpl->setVariable('TD_ROWSPAN',$a_app['rowspan']);
+			$this->tpl->setVariable('TD_STYLE',$td_style);
+			$this->tpl->setVariable('TD_CLASS','calevent');
+		
+			$this->tpl->parseCurrentBlock();
+		}
+		else
+		{
+			// screen reader: work on div attributes
+			$this->tpl->setVariable('DIV_STYLE',$style);
+			$this->tpl->parseCurrentBlock();
+		}
+		
+		$this->num_appointments++;
+
 	}
 
 }
