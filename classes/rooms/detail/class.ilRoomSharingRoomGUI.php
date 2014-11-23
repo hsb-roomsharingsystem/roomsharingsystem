@@ -16,7 +16,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 /**
  * Class ilRoomSharingRoomGUI.
  *
- * The caller must implemente method getPoolId().
+ * The caller must implement method getPoolId().
  * Second argument of the constructor is a room id.
  *
  * @author Thomas Matern <tmatern@stud.hs-bremen.de>
@@ -350,7 +350,7 @@ class ilRoomSharingRoomGUI
 	 */
 	public function deleteRoom()
 	{
-		// TODO call confirmation
+		// TODO call confirmation and rediredct to confirmDeleteRoom()
 		$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');
 	}
 

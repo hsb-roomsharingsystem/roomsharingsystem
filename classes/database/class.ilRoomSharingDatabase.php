@@ -1010,6 +1010,30 @@ class ilRoomsharingDatabase
 	}
 
 	/**
+	 * Deletes all bookings which uses the given room.
+	 *
+	 * @param integer $a_room_id
+	 * @return integer Affected rows
+	 */
+	public function deleteBookingsUsesRoom($a_room_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKINGS_TABLE .
+				' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer'));
+	}
+
+	/**
+	 * Deletes a room with given room id.
+	 *
+	 * @param integer $a_room_id
+	 * @return integer Affected rows
+	 */
+	public function deleteRoom($a_room_id)
+	{
+		return $this->ilDB->manipulate('DELETE FROM ' . dbc::ROOMS_TABLE .
+				' WHERE id = ' . $this->ilDB->quote($a_room_id, 'integer'));
+	}
+
+	/**
 	 * Inserts new booking attribute.
 	 *
 	 * @param string $a_attribute_name
