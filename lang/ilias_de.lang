@@ -157,3 +157,6 @@ rooms_were_updated#:#Räume wurden aktualisiert.
 no_match_for#:#Keine Ergebnisse für
 found#:#gefunden
 results_for#:#Ergebnisse für
+add_wrong_attribute#:#Es wurden fehlerhafte Daten für die Attribute gesendet.
+add_wrong_attribute_count#:#Es wurden fehlerhafte Daten für die Attributanzahl gesendet.
+illigal_room_min_max_alloc#:#Es wurde falsche Belegungsspanne (Min/Max) angegeben.

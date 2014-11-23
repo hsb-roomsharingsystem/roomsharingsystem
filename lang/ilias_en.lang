@@ -157,3 +157,6 @@ rooms_were_updated#:#rooms were updated.
 no_match_for#:#No match for
 found#:#found
 results_for#:#Results for
+add_wrong_attribute#:#Incorrect data for the attributes were sent.
+add_wrong_attribute_count#:#Incorrect data for the attribute count were sent.
+illigal_room_min_max_alloc#:#Incorrect data for the occupation range were sent.
