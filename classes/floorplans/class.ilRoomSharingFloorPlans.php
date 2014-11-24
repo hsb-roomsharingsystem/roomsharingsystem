@@ -10,21 +10,22 @@ include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
  * This class represents the backend of the RoomSharing floor plans.
  *
  * @author Thomas Wolscht <t.wolscht@googlemail.com>
+ * @author Christopher Marks <Deamp_dev@yahoo.de>
  */
 class ilRoomSharingFloorPlans
 {
 	protected $pool_id;
-	protected $ilRoomsharingDatabase;
+	private $ilRoomsharingDatabase;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlans.
 	 *
 	 * @param type $a_pool_id the pool id of the plugin instance
 	 */
-	public function __construct($a_pool_id = 1)
+	public function __construct($a_pool_id, $ilRoomsharingDatabase)
 	{
 		$this->pool_id = $a_pool_id;
-		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+		$this->ilRoomsharingDatabase = $ilRoomsharingDatabase;
 	}
 
 	/**
@@ -100,7 +101,7 @@ class ilRoomSharingFloorPlans
 	 * @param type $a_title the new title of the floor plan
 	 * @param type $a_desc the new description for the floor plan
 	 */
-	public function updateFpInfos($a_file_id, $a_title, $a_desc)
+	public function updateFloorPlanInfos($a_file_id, $a_title, $a_desc)
 	{
 		$mediaObj = new ilObjMediaObject($a_file_id);
 		$mediaObj->setTitle($a_title);
@@ -118,34 +119,17 @@ class ilRoomSharingFloorPlans
 	 * @param type $a_desc the new description
 	 * @param type $a_newfile the new image
 	 */
-	public function updateFpInfosAndFile($a_file_id, $a_title, $a_desc, $a_newfile = null)
+	public function updateFloorPlanInfosAndFile($a_file_id, $a_title, $a_desc, $a_newfile = null)
 	{
-		$mediaObj = new ilObjMediaObject($a_file_id);
-		$mediaObj->setTitle($a_title);
-		$mediaObj->setDescription($a_desc);
-		$mediaObj->removeAllMediaItems();
+		$mediaObj = $this->createMediaObject($a_title, $a_desc, $a_file_id);
+		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
-		$mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
-		$media_item = new ilMediaItem();
-		$mediaObj->addMediaItem($media_item);
-		$media_item->setPurpose("Standard");
-
-		$file_name = ilUtil::getASCIIFilename($a_newfile["name"]);
-		$file_name_mod = str_replace(" ", "_", $file_name);
-		$file = $mob_dir . "/" . $file_name_mod; // construct file path
-		ilUtil::moveUploadedFile($a_newfile["tmp_name"], $file_name_mod, $file);
-		ilUtil::renameExecutables($mob_dir);
-		$format = ilObjMediaObject::getMimeType($file);
-
-		if ($this->checkImageType($format) == false)
+		if ($this->checkImageType($fileinfo["format"]) == false)
 		{
 			return false;
 		}
 
-		$media_item->setFormat($format);
-		$media_item->setLocation($file_name_mod);
-		$media_item->setLocationType("LocalFile");
-		$mediaObj->update();
+		$this->updateMediaObject($mediaObj, $fileinfo);
 
 		return true;
 	}
@@ -153,6 +137,7 @@ class ilRoomSharingFloorPlans
 	/**
 	 * Creates a new floor plan by using the ILIAS MediaObject Service
 	 * and leaves a database entry.
+	 *
 	 * @param type $a_title the title of the floor plan
 	 * @param type $a_desc the floor plan description
 	 * @param type $a_newfile an array containing the input values of the form
@@ -160,40 +145,84 @@ class ilRoomSharingFloorPlans
 	 */
 	public function addFloorPlan($a_title, $a_desc, $a_newfile)
 	{
-		$mediaObj = new ilObjMediaObject();
-		$mediaObj->setTitle($a_title);
-		$mediaObj->setDescription($a_desc);
-		$mediaObj->create();
-		$mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
-		if (!is_dir($mob_dir))
-		{  // if the directory doesn't exist, create one
-			$mediaObj->createDirectory();
-		}
-		$media_item = new ilMediaItem();
-		$mediaObj->addMediaItem($media_item);
-		$media_item->setPurpose("Standard");
+		$mediaObj = $this->createMediaObject($a_title, $a_desc, null);
+		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
-		$file_name = ilUtil::getASCIIFilename($a_newfile["name"]);
-		$file_name_mod = str_replace(" ", "_", $file_name);
-		$file = $mob_dir . "/" . $file_name_mod;
-		ilUtil::moveUploadedFile($a_newfile["tmp_name"], $file_name_mod, $file);
-		ilUtil::renameExecutables($mob_dir);
-		$format = ilObjMediaObject::getMimeType($file);
-
-		if ($this->checkImageType($format) == false)
+		if ($this->checkImageType($fileinfo["format"]) == false)
 		{
 			return false;
 		}
 
-		$media_item->setFormat($format);
-		$media_item->setLocation($file_name_mod);
-		$media_item->setLocationType("LocalFile");
-		$mediaObj->update();
+		$this->updateMediaObject($mediaObj, $fileinfo);
 
-		$result = $this->fileToDatabase($mediaObj->getId());
-		return $result;
+		return $this->fileToDatabase($mediaObj->getId());
 	}
 
+	/**
+	 * Creates the media object for the updateFloorPlanInfosWithFile and addFloorPlan function
+	 *
+	 * @param type $a_title
+	 * @param type $a_desc
+	 * @param type $a_file_id
+	 * @return \ilObjMediaObject
+	 */
+	private function createMediaObject($a_title, $a_desc, $a_file_id = null)
+	{
+		if (is_null($a_file_id))
+		{
+			$mediaObj = new ilObjMediaObject();
+			$mediaObj->create();
+		}
+		else
+		{
+			$mediaObj = new ilObjMediaObject($a_file_id);
+		}
+
+		$mediaObj->setTitle($a_title);
+		$mediaObj->setDescription($a_desc);
+		$mediaObj->removeAllMediaItems();
+
+		$media_item = new ilMediaItem();
+		$media_item->setPurpose("Standard");
+		$mediaObj->addMediaItem($media_item);
+
+		return $mediaObj;
+	}
+
+	/**
+	 * Configures the file for the updateFloorPlanInfosWithFile and addFloorPlan function
+	 *
+	 * @param type $mediaObj
+	 * @param type $a_newfile
+	 * @return type
+	 */
+	private function configureFile($mediaObj, $a_newfile = null)
+	{
+		$mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
+
+		if (!is_dir($mob_dir))
+		{
+			$mediaObj->createDirectory();
+		}
+		$file_name = ilUtil::getASCIIFilename($a_newfile["name"]);
+		$file_name_mod = str_replace(" ", "_", $file_name);
+		$file = $mob_dir . "/" . $file_name_mod; // construct file path
+		ilUtil::moveUploadedFile($a_newfile["tmp_name"], $file_name_mod, $file);
+		ilUtil::renameExecutables($mob_dir);
+		$format = ilObjMediaObject::getMimeType($file);
+
+		return array(
+			"format" => $format,
+			"filename" => $file_name_mod
+		);
+	}
+
+	/**
+	 * Checks if the ImageType is valid
+	 *
+	 * @param type $a_mimeType
+	 * @return boolean
+	 */
 	public function checkImageType($a_mimeType)
 	{
 		//Check for image format
@@ -232,6 +261,22 @@ class ilRoomSharingFloorPlans
 			default:
 				return false;
 		}
+	}
+
+	/**
+	 * Updates the media object with the file informations for the updateFloorPlanInfosWithFile
+	 * and addFloorPlan function
+	 *
+	 * @param type $mediaObj
+	 * @param type $fileinfo
+	 */
+	private function updateMediaObject($mediaObj, $fileinfo)
+	{
+		$media_item = $mediaObj->getMediaItem("Standard");
+		$media_item->setFormat($fileinfo["format"]);
+		$media_item->setLocation($fileinfo["filename"]);
+		$media_item->setLocationType("LocalFile");
+		$mediaObj->update();
 	}
 
 }

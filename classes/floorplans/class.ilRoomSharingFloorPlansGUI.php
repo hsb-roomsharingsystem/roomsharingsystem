@@ -154,7 +154,7 @@ class ilRoomSharingFloorPlansGUI
 		// look for floor plan infos and set the input entries accordingly
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing"
 			. "/classes/floorplans/class.ilRoomSharingFloorPlans.php");
-		$fplan = new ilRoomSharingFloorPlans($this->pool_id);
+		$fplan = new ilRoomSharingFloorPlans($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 		$fplaninfo = $fplan->getFloorPlanInfo($a_file_id);
 		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 		if ($fplaninfo)
@@ -257,7 +257,7 @@ class ilRoomSharingFloorPlansGUI
 		{
 			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject"
 				. "/RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlans.php");
-			$fplan = new ilRoomSharingFloorPlans($this->pool_id);
+			$fplan = new ilRoomSharingFloorPlans($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");
 			$file_new = $form->getInput("upload_file");
@@ -294,7 +294,8 @@ class ilRoomSharingFloorPlansGUI
 		$cgui->setFormAction($this->ctrl->getFormAction($this));
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing"
 			. "/classes/floorplans/class.ilRoomSharingFloorPlans.php");
-		$fplan = new ilRoomSharingFloorPlans($this->pool_id);
+		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id,
+			new ilRoomsharingDatabase($this->pool_id));
 		$f = $fplan->getRoomsWithFloorplan((int) $_GET['file_id']);
 		$plans = "";
 		foreach ($f as $name)
@@ -335,7 +336,8 @@ class ilRoomSharingFloorPlansGUI
 	{
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/"
 			. "classes/floorplans/class.ilRoomSharingFloorPlans.php");
-		$fplan = new ilRoomSharingFloorPlans($this->pool_id);
+		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id,
+			new ilRoomsharingDatabase($this->pool_id));
 		$result = $fplan->deleteFloorPlan((int) $_POST['file_id']);
 		if ($result)
 		{
@@ -381,19 +383,19 @@ class ilRoomSharingFloorPlansGUI
 		{
 			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/"
 				. "RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlans.php");
-			$fplan = new ilRoomSharingFloorPlans($this->pool_id);
+			$fplan = new ilRoomSharingFloorPlans($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");
 
 			if ($form->getInput("file_mode") === "keep")
 			{
-				$fplan->updateFpInfos($file_id, $title_new, $desc_new);
+				$fplan->updateFloorPlanInfos($file_id, $title_new, $desc_new);
 				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_edited"), true);
 			}
 			else // create a new file, if the current floor plan shouldn't be kept
 			{
 				$file_new = $form->getInput("upload_file");
-				$result = $fplan->updateFpInfosAndFile($file_id, $title_new, $desc_new, $file_new);
+				$result = $fplan->updateFloorPlanInfosAndFile($file_id, $title_new, $desc_new, $file_new);
 				if ($result)
 				{
 					ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_edited"), true);
