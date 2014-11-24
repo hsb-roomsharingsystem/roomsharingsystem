@@ -71,6 +71,18 @@ class ilRoomSharingPermissionUtils
 	}
 
 	/**
+	 * Checks if a user has a higher priority than another user
+	 *
+	 * @param integer $a_user_id1 user-id 1
+	 * @param integer $a_user_id2 user-id 2
+	 * @return boolean true if user with user-id 1 has a higher priority
+	 */
+	public function checkForHigherPriority($a_user_id1, $a_user_id2)
+	{
+		return ($this->getUserPriority($a_user_id1) > $this->getUserPriority($a_user_id2));
+	}
+
+	/**
 	 * Gets all privileges that the logged in user has
 	 *
 	 * @param integer $a_pool_id Pool ID
