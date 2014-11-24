@@ -249,6 +249,7 @@ class ilRoomSharingRoomGUI
 	public function createRoom()
 	{
 		$this->form_gui = $this->initForm("create");
+		$this->form_gui->setValuesByPost();
 		$this->form_gui->clearCommandButtons();
 		$this->form_gui->addCommandButton("createRoom", $this->lng->txt("save"));
 		if ($this->form_gui->checkInput())
@@ -281,6 +282,7 @@ class ilRoomSharingRoomGUI
 			{
 				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_room_added"));
 				$this->room_obj->setId($newRoomId);
+				$this->setSessRoomId($newRoomId);
 				$this->room_obj = new ilRoomSharingRoom($this->pool_id, $newRoomId);
 
 				$toolbar = new ilToolbarGUI();
