@@ -2,6 +2,9 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingAssignedUsersTableGUI.php");
 require_once ("Services/Utilities/classes/class.ilConfirmationGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingClassGUI
@@ -69,6 +72,9 @@ class ilRoomSharingClassGUI
 		}
 	}
 
+	/**
+	 * Renders the Class GUI with its icons, title, subtitle and the tabs.
+	 */
 	private function renderPageWithTabs()
 	{
 		$class_info = $this->privileges->getClassById($this->class_id);
@@ -93,6 +99,9 @@ class ilRoomSharingClassGUI
 			$this->ctrl->getLinkTarget($this, "renderUserAssignment"));
 	}
 
+	/**
+	 * Renders the RepositorySearchGUI which is used for assigning users to a class.
+	 */
 	private function renderRepositorySearch()
 	{
 		$rep_search = & new ilRepositorySearchGUI();
@@ -109,6 +118,9 @@ class ilRoomSharingClassGUI
 		$this->$cmd();
 	}
 
+	/**
+	 * Renders a form for editing the properties of a class.
+	 */
 	private function renderEditClassForm()
 	{
 		$this->tabs->setTabActive("edit_properties");
@@ -118,11 +130,17 @@ class ilRoomSharingClassGUI
 		$this->tpl->setContent($toolbar->getHTML() . $class_form->getHTML());
 	}
 
+	/**
+	 * Creates a toolbar for the form which is used for editing class properties. A button for
+	 * deleting the corresponding class is added if a user has the privilege of doing so.
+	 *
+	 * @return \ilToolbarGUI
+	 */
 	private function createEditClassFormToolbar()
 	{
 		$toolbar = new ilToolbarGUI();
 
-		if ($this->permission->checkPrivilege("deleteClass"))
+		if ($this->permission->checkPrivilege(PRIVC::DELETE_CLASS))
 		{
 			$toolbar->addButton($this->lng->txt("rep_robj_xrs_class_confirm_deletion"),
 				$this->ctrl->getLinkTarget($this, "renderConfirmClassDeletion"));
@@ -133,7 +151,7 @@ class ilRoomSharingClassGUI
 
 	private function createEditClassFormWithPrivilegeCheck()
 	{
-		if ($this->permission->checkPrivilege("editClass"))
+		if ($this->permission->checkPrivilege(PRIVC::EDIT_CLASS))
 		{
 			$form = $this->createEditClassForm();
 			return $form;
@@ -144,6 +162,12 @@ class ilRoomSharingClassGUI
 		}
 	}
 
+	/**
+	 * Creates the form for editing class properties, appends items to it and returns it for
+	 * displaying.
+	 *
+	 * @return \ilPropertyFormGUI
+	 */
 	private function createEditClassForm()
 	{
 		$form = new ilPropertyFormGUI();
@@ -160,6 +184,9 @@ class ilRoomSharingClassGUI
 		return $form;
 	}
 
+	/**
+	 * Creates and collects all form items and returns them so that they can be added to the form.
+	 */
 	private function createEditClassFormItems()
 	{
 		$class_info = $this->privileges->getClassById($this->class_id);
@@ -207,10 +234,13 @@ class ilRoomSharingClassGUI
 		return $role_assignment_selection;
 	}
 
+	/**
+	 * Creates and returns the option entries for the role assignment.
+	 */
 	private function createRoleAssignmentOptions()
 	{
 		$role_names = array($this->lng->txt("none"));
-		$global_roles = $this->privileges->getGlobalRoles();
+		$global_roles = $this->privileges->getParentRoles();
 
 		foreach ($global_roles as $role_info)
 		{
@@ -220,6 +250,14 @@ class ilRoomSharingClassGUI
 		return $role_names;
 	}
 
+	/**
+	 * Determines the selection index for role assignment selection by getting the index through
+	 * the role id and adding a value of 1 to it. This is required because a "none"-value is
+	 * added to the options, which makes the index off by one value.
+	 *
+	 * @param $a_assigned_role_id the role id for which the selection index should be determined
+	 * @return the selection index
+	 */
 	private function determineSelectionIndex($a_assigned_role_id)
 	{
 		$selection_index = $this->getSelectionIndexByRoleId($a_assigned_role_id);
@@ -228,12 +266,18 @@ class ilRoomSharingClassGUI
 		return $selection_index;
 	}
 
+	/**
+	 * Gets the selection index for the role assignment by iterating through all parent roles.
+	 *
+	 * @param $a_assigned_role_id the role id for which the selection index should be determined
+	 * @return the index of the array where the id was found
+	 */
 	private function getSelectionIndexByRoleId($a_assigned_role_id)
 	{
-		$global_roles = $this->privileges->getGlobalRoles();
+		$parent_roles = $this->privileges->getParentRoles();
 		$selection_index = -1;
 
-		foreach ($global_roles as $role_index => $role_info)
+		foreach ($parent_roles as $role_index => $role_info)
 		{
 			if ($role_info["id"] == $a_assigned_role_id)
 			{
@@ -256,6 +300,9 @@ class ilRoomSharingClassGUI
 		return $priority_selection;
 	}
 
+	/**
+	 * Tries to save the inputs of the class form and acts accordingly.
+	 */
 	private function saveEditClassForm()
 	{
 		$class_form = $this->createEditClassFormWithPrivilegeCheck();
@@ -269,6 +316,12 @@ class ilRoomSharingClassGUI
 		}
 	}
 
+	/**
+	 * Saves the new properties of the class if the form inputs were valid and displays the class
+	 * form with the newly set properties.
+	 *
+	 * @param $a_class_form the class form for which the values should be saved.
+	 */
 	private function handleValidEditClassForm($a_class_form)
 	{
 		$class_form_entries = $this->getClassFormEntries($a_class_form);
@@ -278,6 +331,12 @@ class ilRoomSharingClassGUI
 		$this->renderEditClassForm();
 	}
 
+	/**
+	 * Gathers and returns the inputs of the form.
+	 *
+	 * @param $a_class_form the class form for which the inputs should be gathered
+	 * @return array the entries as in the shape of an associative array
+	 */
 	private function getClassFormEntries($a_class_form)
 	{
 		$entries = array();
@@ -290,14 +349,26 @@ class ilRoomSharingClassGUI
 		return $entries;
 	}
 
+	/**
+	 * Since the selection index of the selection input is off by 1, the real index of the selection
+	 * and thus the id of the role must be determined.
+	 *
+	 * @param string $a_role_assignment_selection index of the selection
+	 * @return string the id of the role that was selected
+	 */
 	private function getRoleIdFromSelectionInput($a_role_assignment_selection)
 	{
-		$global_roles = $this->privileges->getGlobalRoles();
+		$global_roles = $this->privileges->getParentRoles();
 		$role_array_index = $a_role_assignment_selection - ilRoomSharingPrivilegesGUI::SELECT_INPUT_NONE_OFFSET;
 
 		return $global_roles[$role_array_index]["id"];
 	}
 
+	/**
+	 * Tries to save the form entries and displays an error message if this was not possible.
+	 *
+	 * @param array $a_entries the entries that need to be saved
+	 */
 	private function saveFormEntries($a_entries)
 	{
 		try
@@ -311,6 +382,12 @@ class ilRoomSharingClassGUI
 		}
 	}
 
+	/**
+	 * In case the form was empty an error message and the class form with its non erroneous
+	 * entries will be displayed.
+	 *
+	 * @param ilPropertyFormGUI $a_class_form the class for which the invalid input should be handled
+	 */
 	private function handleInvalidEditClassForm($a_class_form)
 	{
 		$a_class_form->setValuesByPost();
@@ -355,6 +432,10 @@ class ilRoomSharingClassGUI
 		$this->ctrl->redirectByClass("ilroomsharingprivilegesgui", "showConfirmedClassDeletion");
 	}
 
+	/**
+	 * Renders the GUI for the assignment of class users. The GUI consists of a toolbar and a table
+	 * which holgs the assigned users.
+	 */
 	private function renderUserAssignment()
 	{
 		$this->tabs->setTabActive("user_assignment");
@@ -364,6 +445,13 @@ class ilRoomSharingClassGUI
 		$this->tpl->setContent($user_assignment_toolbar->getHTML() . $table->getHTML());
 	}
 
+	/**
+	 * Creates the toolbar for assigning users. The Toolbar consists of an autocompletion text input
+	 * for ILIAS-Users and a button for assigning them to the class. Furthermore a button for
+	 * an extended search (groups, courses, ...) is added.
+	 *
+	 * @return \ilToolbarGUI
+	 */
 	private function createUserAssignmentToolbar()
 	{
 		$toolbar = new ilToolbarGUI();
@@ -386,12 +474,17 @@ class ilRoomSharingClassGUI
 
 	/**
 	 * Assigns the given users to a class if said users aren't already assigned to that class.
+	 * This is a callback function from ilRepositorySearchGUI.
 	 *
 	 * @param type $a_user_ids the ids of the users that should be assigned to the class
 	 */
 	public function assignUsersToClass($a_user_ids)
 	{
-		if ($this->areUsersAlreadyAssigned($a_user_ids))
+		if (empty($a_user_ids))
+		{
+			ilUtil::sendFailure($this->lng->txt('search_err_user_not_exist'), true);
+		}
+		else if ($this->areUsersAlreadyAssigned($a_user_ids))
 		{
 			ilUtil::sendInfo($this->lng->txt("rep_robj_xrs_class_user_already_assigned"), true);
 		}
@@ -404,6 +497,12 @@ class ilRoomSharingClassGUI
 		$this->ctrl->redirect($this, "renderuserassignment");
 	}
 
+	/**
+	 * In case users are already assigned to class this class returns true and false otherwise.
+	 *
+	 * @param array $a_user_ids the user ids for which the assignment should be checked
+	 * @return boolean true if already assigned; false otherwise.
+	 */
 	private function areUsersAlreadyAssigned($a_user_ids)
 	{
 		$assigned_user_ids = $this->getAssignedUserIdsForClass($this->class_id);
@@ -413,6 +512,13 @@ class ilRoomSharingClassGUI
 		return empty($new_assigned_user_ids);
 	}
 
+	/**
+	 * Returns all users that are assigned to a class in order to check if they are already
+	 * assigned.
+	 *
+	 * @param string $a_class_id the id of the class for which the assigned users should be returned
+	 * @return array the user ids of the users that are assigned to that very class.
+	 */
 	private function getAssignedUserIdsForClass($a_class_id)
 	{
 		$assigned_user_ids = array();
@@ -438,6 +544,12 @@ class ilRoomSharingClassGUI
 		$this->renderUserAssignment();
 	}
 
+	/**
+	 * Since both, a multi deassign and a single deassign are possible, a choice of those two
+	 * options has to be made. That choice is made here.
+	 *
+	 * @return array the user ids that should be deassigned from the class
+	 */
 	private function getUsersToBeUnassigned()
 	{
 		$many_user_ids = $_POST["user_id"];

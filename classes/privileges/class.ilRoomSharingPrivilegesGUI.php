@@ -2,8 +2,11 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingClassPrivilegesTableGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingClassGUI.php");
-require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/Search/classes/class.ilRepositorySearchGUI.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingPrivilegesGUI
@@ -77,6 +80,9 @@ class ilRoomSharingPrivilegesGUI
 		}
 	}
 
+	/**
+	 * Renders the GUI of the class the users wants to edit.
+	 */
 	private function renderClassGui()
 	{
 		$class_id = (int) $_GET["class_id"];
@@ -104,11 +110,16 @@ class ilRoomSharingPrivilegesGUI
 		$this->tpl->setContent($toolbar->getHTML() . $class_privileges_table->getHTML());
 	}
 
+	/**
+	 * The toolbar basically consists a button for adding new classes to the table. The button is
+	 * only disabled if the creation of new classes is granted.
+	 * @return \ilToolbarGUI
+	 */
 	private function createToolbar()
 	{
 		$toolbar = new ilToolbarGUI();
 
-		if ($this->permission->checkPrivilege("addClass"))
+		if ($this->permission->checkPrivilege(PRIVC::ADD_CLASS))
 		{
 			$target = $this->ctrl->getLinkTarget($this, "renderAddClassForm");
 			$toolbar->addButton($this->lng->txt("rep_robj_xrs_privileges_class_new"), $target);
@@ -117,6 +128,9 @@ class ilRoomSharingPrivilegesGUI
 		return $toolbar;
 	}
 
+	/**
+	 * Renders a form for adding a new class.
+	 */
 	private function renderAddClassForm()
 	{
 		$this->tabs->clearTargets();
@@ -124,6 +138,12 @@ class ilRoomSharingPrivilegesGUI
 		$this->tpl->setContent($class_form->getHTML());
 	}
 
+	/**
+	 * Creates the form for adding new classes, appends items to it and returns it for
+	 * displaying.
+	 *
+	 * @return \ilPropertyFormGUI
+	 */
 	private function createAddClassForm()
 	{
 		$form = new ilPropertyFormGUI();
@@ -141,6 +161,9 @@ class ilRoomSharingPrivilegesGUI
 		return $form;
 	}
 
+	/**
+	 * Creates and collects all form items and returns them so that they can be added to the form.
+	 */
 	private function createAddClassFormItems()
 	{
 		$form_items = array();
@@ -185,9 +208,9 @@ class ilRoomSharingPrivilegesGUI
 	private function createRoleAssignmentOptions()
 	{
 		$role_names = array($this->lng->txt("none"));
-		$global_roles = $this->privileges->getGlobalRoles();
+		$parent_roles = $this->privileges->getParentRoles();
 
-		foreach ($global_roles as $role_info)
+		foreach ($parent_roles as $role_info)
 		{
 			$role_names[] = $role_info["title"];
 		}
@@ -205,6 +228,12 @@ class ilRoomSharingPrivilegesGUI
 		return $priority_selection;
 	}
 
+	/**
+	 * In case classes exist, a form input will be created, which allows the user to copy the
+	 * privileges of the class of choice.
+	 *
+	 * @return ilRadioGroupInputGUI the input GUI for copying class privileges
+	 */
 	private function createClassCopyPrivilegesRadioGroupIfClassesExist()
 	{
 		$classes = $this->privileges->getClasses();
@@ -231,6 +260,9 @@ class ilRoomSharingPrivilegesGUI
 		return $class_to_copy;
 	}
 
+	/**
+	 * Tries to save the inputs of the class form and acts accordingly.
+	 */
 	private function addClass()
 	{
 		$class_form = $this->createAddClassForm();
@@ -244,12 +276,25 @@ class ilRoomSharingPrivilegesGUI
 		}
 	}
 
+	/**
+	 * Saves the new properties of the class if the form inputs were valid and displays the
+	 * privileges with the newly created class.
+	 *
+	 * @param $a_class_form the class form for which the values should be saved.
+	 */
 	private function handleValidAddClassForm($a_class_form)
 	{
-		$this->evaluateClassFormEntries($a_class_form);
+		$class_form_entries = $this->getClassFormEntries($a_class_form);
+		$this->saveFormEntries($class_form_entries);
 		$this->showPrivileges();
 	}
 
+	/**
+	 * In case the form input for the name of the class was empty an error message and the class
+	 * form with its non erroneous entries will be displayed.
+	 *
+	 * @param ilPropertyFormGUI $a_class_form the class for which the invalid input should be handled
+	 */
 	private function handleInvalidAddClassForm($a_class_form)
 	{
 		$this->tabs->clearTargets();
@@ -257,7 +302,13 @@ class ilRoomSharingPrivilegesGUI
 		$this->tpl->setContent($a_class_form->getHTML());
 	}
 
-	private function evaluateClassFormEntries($a_class_form)
+	/**
+	 * Gathers and returns the inputs of the form.
+	 *
+	 * @param $a_class_form the class form for which the inputs should be gathered
+	 * @return array the entries as an associative array
+	 */
+	private function getClassFormEntries($a_class_form)
 	{
 		$entries = array();
 		$entries["name"] = $a_class_form->getInput("name");
@@ -266,17 +317,29 @@ class ilRoomSharingPrivilegesGUI
 		$entries["role_id"] = $this->getRoleIdFromSelectionInput($a_class_form->getInput("role_assignment"));
 		$entries["copied_class_privileges"] = $a_class_form->getInput("copied_class_privileges");
 
-		$this->saveFormEntries($entries);
+		return $entries;
 	}
 
+	/**
+	 * Since the selection index of the selection input is off by 1, the real index of the selection
+	 * and thus the id of the role must be determined.
+	 *
+	 * @param string $a_role_assignment_selection index of the selection
+	 * @return string the id of the role that was selected
+	 */
 	private function getRoleIdFromSelectionInput($a_role_assignment_selection)
 	{
-		$global_roles = $this->privileges->getGlobalRoles();
+		$global_roles = $this->privileges->getParentRoles();
 		$role_array_index = $a_role_assignment_selection - self::SELECT_INPUT_NONE_OFFSET;
 
 		return $global_roles[$role_array_index]["id"];
 	}
 
+	/**
+	 * Tries to save the form entries and displays an error message if this was not possible.
+	 *
+	 * @param array $a_entries the entries that need to be saved
+	 */
 	private function saveFormEntries($a_entries)
 	{
 		try

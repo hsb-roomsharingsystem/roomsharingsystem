@@ -3,6 +3,10 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingPrivilegesException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("Services/AccessControl/classes/class.ilObjRole.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingPrivileges
@@ -45,7 +49,7 @@ class ilRoomSharingPrivileges
 		if (ilRoomSharingNumericUtils::isPositiveNumber(count($this->getClasses())))
 		{
 
-			if ($this->rssPermission->checkPrivilege("lockPrivileges"))
+			if ($this->rssPermission->checkPrivilege(PRIVC::LOCK_PRIVILEGES))
 			{
 				// Locked classes
 				$privilegesMatrix[] = array("show_lock_row" => "lock", "locked_classes" => $this->getLockedClasses());
@@ -181,7 +185,7 @@ class ilRoomSharingPrivileges
 		foreach ($classes as $class)
 		{
 			$cls_values = $class;
-			$cls_values['role'] = $this->getGlobalRoleTitle($class['role_id']);
+			$cls_values['role'] = $this->getParentRoleTitle($class['role_id']);
 			$cls[] = $cls_values;
 		}
 
@@ -257,21 +261,35 @@ class ilRoomSharingPrivileges
 		return $assigned_users;
 	}
 
-	public function getGlobalRoles()
+	public function getParentRoles()
 	{
 		$roles = $this->rbacreview->getParentRoleIds($_GET['ref_id']);
-
 		$global_roles = array();
 		foreach ($roles as $role)
 		{
-			$global_roles[] = array('id' => $role['rol_id'], 'title' => $role['title']);
+			$role_id = $role['rol_id'];
+			$role_type = $role['role_type'];
+			$role_title = $role['title'];
+
+			if ($role_type == "local")
+			{
+				$transl_role_title = ilObjRole::_getTranslation($role['title']);
+				$object_id_of_role = $this->rbacreview->getObjectOfRole($role_id);
+				$object_title_of_role = ilObject::_lookupTitle($object_id_of_role);
+				$role_and_group_title = $transl_role_title . " (" . $object_title_of_role . ")";
+				$global_roles[] = array('id' => $role_id, 'title' => $role_and_group_title);
+			}
+			else
+			{
+				$global_roles[] = array('id' => $role_id, 'title' => $role_title);
+			}
 		}
 		return $global_roles;
 	}
 
-	public function getGlobalRoleTitle($a_role_id)
+	public function getParentRoleTitle($a_role_id)
 	{
-		$roles = $this->getGlobalRoles();
+		$roles = $this->getParentRoles();
 		$roleName = null;
 		foreach ($roles as $role)
 		{
