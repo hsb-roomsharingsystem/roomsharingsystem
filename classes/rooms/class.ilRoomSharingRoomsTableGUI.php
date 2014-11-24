@@ -61,9 +61,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$data = $this->rooms->getList($filter);
 
 		$old_name = $filter["room_name"];
-		if (count($data) == 0 && ($old_name || $old_name === "0"))
+		$new_name = filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT);
+		if (count($data) == 0 && ($old_name || $old_name === "0") && $old_name != $new_name)
 		{
-			$new_name = filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT);
 			$filter["room_name"] = $new_name;
 			$data = $this->rooms->getList($filter);
 
@@ -175,7 +175,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$this->tpl->setVariable('LINK_ACTION',
 				$this->ctrl->getLinkTarget($this->parent_obj, $this->parent_cmd));
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
-			$this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'editRoom'));
+			$this->tpl->setVariable('LINK_ACTION',
+				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'editRoom'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
 			$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 			$this->tpl->parseCurrentBlock();
