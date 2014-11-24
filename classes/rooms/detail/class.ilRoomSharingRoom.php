@@ -337,7 +337,8 @@ class ilRoomSharingRoom
 
 	/**
 	 * Get all floorplan title.
-	 * @return array with all floorplan title
+	 *
+	 * @return assoc array with all floorplans
 	 */
 	public function getAllFloorplans()
 	{
@@ -346,7 +347,7 @@ class ilRoomSharingRoom
 
 		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
 		{
-			$options[$fplans["title"]] = $fplans["title"];
+			$options[$fplans["file_id"]] = $fplans["title"];
 		}
 		return $options;
 	}
@@ -368,38 +369,6 @@ class ilRoomSharingRoom
 			}
 		}
 		return $rVal;
-	}
-
-	/**
-	 * Get floorplan file-id by name.
-	 * @param string name
-	 * @return integer file-id
-	 */
-	public function getFloorplanIdByName($name)
-	{
-		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
-		{
-			if ($name == $fplans["title"])
-			{
-				return (int) $fplans["file_id"];
-			}
-		}
-	}
-
-	/**
-	 * Get floorplan name by file-id.
-	 * @param file-id
-	 * @return name
-	 */
-	public function getFloorplanNameById($id)
-	{
-		foreach ($this->ilRoomsharingDatabase->getAllFloorplans() as $fplans)
-		{
-			if ($id == $fplans["file_id"])
-			{
-				return $fplans["title"];
-			}
-		}
 	}
 
 	/**

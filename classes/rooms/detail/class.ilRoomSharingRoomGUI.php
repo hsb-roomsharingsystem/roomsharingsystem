@@ -222,7 +222,7 @@ class ilRoomSharingRoomGUI
 			$type->setValue($this->room_obj->getType());
 			$minAlloc->setValue($this->room_obj->getMinAlloc());
 			$maxAlloc->setValue($this->room_obj->getMaxAlloc());
-			$buildingId->setValue($this->room_obj->getFloorplanNameById($this->room_obj->getBuildingId()));
+			$buildingId->setValue($this->room_obj->getBuildingId());
 			if ($a_mode == "show")
 			{
 				$buildingId->setDisabled(true);
@@ -262,7 +262,7 @@ class ilRoomSharingRoomGUI
 				$this->room_obj->setType($this->form_gui->getInput("type"));
 				$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 				$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-				$this->room_obj->setBuildingId($this->room_obj->getFloorplanIdByName($this->form_gui->getInput("building_id")));
+				$this->room_obj->setBuildingId($this->form_gui->getInput("building_id"));
 
 				foreach ($this->getUserWishedAttributes() as $userWishedAttribute)
 				{
@@ -321,7 +321,7 @@ class ilRoomSharingRoomGUI
 				$this->room_obj->setType($this->form_gui->getInput("type"));
 				$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 				$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-				$this->room_obj->setBuildingId($this->room_obj->getFloorplanIdByName($this->form_gui->getInput("building_id")));
+				$this->room_obj->setBuildingId($this->form_gui->getInput("building_id"));
 
 				$this->room_obj->resetAttributes();
 
