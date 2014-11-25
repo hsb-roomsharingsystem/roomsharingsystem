@@ -75,15 +75,15 @@ found#:#gefunden
 from#:#von
 illigal_room_min_max_alloc#:#Es wurde falsche Belegungsspanne (Min/Max) angegeben.
 leave#:#Austreten
-mail_booking_creator_linktext#:#Du findest deine Buchung unter folgendem Link:
-mail_booking_creator_message#:#Du hast erfolgreich einen Raum gebucht. Du hast folgendes gebucht:
-mail_booking_creator_subject#:#Du hast einen Raum gebucht.
-mail_booking_participant_message#:#Jemand hat eine Raum-Buchung erstellt und du wurdest als Teilnehmer eingetragen. Du bist für die folgende Buchung eingetragen worden:
-mail_booking_participant_subject#:#Jemand hat dich bei einer Raum-Buchung als Teilnehmer eingetragen.
-mail_cancellation_creator_message#:#Deine Raum-Buchung wurde storniert. Der folgende Raum ist jetzt wieder frei:
-mail_cancellation_creator_subject#:#Deine Raum-Buchung wurde storniert.
-mail_cancellation_participant_message#:#Eine Raum-Buchung an der als Teilnehmer eingetragen bist, wurde storniert. Folgende Buchung wurde storniert:
-mail_cancellation_participant_subject#:#Eine Raum-Buchung an der als Teilnehmer eingetragen bist, wurde storniert.
+mail_booking_creator_linktext#:#Sie finden ihre Buchung unter folgendem Link:
+mail_booking_creator_message#:#Sie haben erfolgreich einen Raum gebucht. Folgendes wurde gebucht:
+mail_booking_creator_subject#:#Sie haben einen Raum gebucht.
+mail_booking_participant_message#:#Jemand hat eine Raum-Buchung erstellt und Sie wurden als Teilnehmer eingetragen. Sie sind jetzt Teilnehmer bei folgender Buchung:
+mail_booking_participant_subject#:#Jemand hat Sie bei einer Raum-Buchung als Teilnehmer eingetragen.
+mail_cancellation_creator_message#:#Ihre Raum-Buchung wurde storniert. Der folgende Raum ist jetzt wieder frei:
+mail_cancellation_creator_subject#:#Ihre Raum-Buchung wurde storniert.
+mail_cancellation_participant_message#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert. Folgende Buchung ist storniert worden:
+mail_cancellation_participant_subject#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert.
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
 missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.
