@@ -151,6 +151,16 @@ class ilRoomSharingRoom
 	}
 
 	/**
+	 * Returns amount of affected bookings when the user wants to delete a room.
+	 *
+	 * @return integer
+	 */
+	public function getAffectedAmountBeforeDelete()
+	{
+		return count($this->ilRoomsharingDatabase->getBookingsForRoom($this->id));
+	}
+
+	/**
 	 * Adds an attribute to the room.
 	 *
 	 * @param int $a_attr_id

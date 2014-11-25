@@ -141,6 +141,7 @@ room_name#:#Room Name
 room_no_assign#:#No assignment
 room_prop_description#:#The choosen room has following properties -
 room_properties#:#Room properties
+room_attributes_info#:#For the attribute values you can enter integers from 0. If not specified, the respective assignments will be resolved.
 room_public_booking#:#Display username publicly in booking
 room_type#:#Room type
 rooms#:#Rooms

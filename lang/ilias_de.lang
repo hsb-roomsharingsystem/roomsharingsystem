@@ -141,6 +141,7 @@ room_name#:#Raumbezeichnung
 room_no_assign#:#Keine Zuordnung
 room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
 room_properties#:#Raumeigenschaften
+room_attributes_info#:#Für die Attributwerte können ganze Zahlen ab 0 eingegeben werden. Bei keiner Angabe werden die jeweiligen Zuweisungen aufgelöst.
 room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
 room_type#:#Raumtyp
 rooms#:#Räume
