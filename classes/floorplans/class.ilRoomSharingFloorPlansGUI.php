@@ -296,25 +296,24 @@ class ilRoomSharingFloorPlansGUI
 			. "/classes/floorplans/class.ilRoomSharingFloorPlans.php");
 		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id,
 			new ilRoomsharingDatabase($this->pool_id));
-		$f = $fplan->getRoomsWithFloorplan((int) $_GET['file_id']);
-		$plans = "";
-		foreach ($f as $name)
+
+		// check if floorplan is associated to a room
+		$allRooms = $fplan->getRoomsWithFloorplan((int) $_GET['file_id']);
+		foreach ($allRooms as $room)
 		{
-			$plans .= " " . $name["name"] . ",";
+			$rooms[] = $room["name"];
 		}
-		$countr = strlen($plans);
-		if ($countr > 0)
-		{
-			$cgui->setHeaderText($this->lng->txt("info_delete_sure") .
-				'<br>' . $this->lng->txt("rep_robj_xrs_floor_plans_room_assoc") .
-				$plans);
-		}
-		else
+		if (empty($rooms))
 		{
 			$cgui->setHeaderText($this->lng->txt("info_delete_sure"));
 		}
-
-
+		else
+		{
+			$roomsWithPlan = implode(", ", $rooms);
+			$cgui->setHeaderText($this->lng->txt("info_delete_sure") .
+				'<br>' . $this->lng->txt("rep_robj_xrs_floor_plans_room_assoc") .
+				' ' . $roomsWithPlan);
+		}
 		// the buttons for confirming and cancelling the deletion
 		$cgui->setCancel($this->lng->txt("cancel"), "render");
 		$cgui->setConfirm($this->lng->txt("confirm"), "removeFloorplan");

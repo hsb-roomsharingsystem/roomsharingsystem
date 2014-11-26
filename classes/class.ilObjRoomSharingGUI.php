@@ -512,6 +512,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$room_gui->showRoom();
 	}
 
+	/**
+	 * Create GUI to edit a room.
+	 */
 	public function editRoom()
 	{
 		$room_id = (int) $_GET['room_id'];
@@ -519,6 +522,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
 		$room_gui->editRoom();
+	}
+
+	/**
+	 * Create GUI to confirm a room deletion.
+	 */
+	public function confirmDeleteRoom()
+	{
+		$room_id = (int) $_GET['room_id'];
+		$this->tabs_gui->setTabActive('rooms');
+		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
+		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
+		$room_gui->confirmDeleteRoom();
 	}
 
 	/**

@@ -86,6 +86,8 @@ room_attributes#:#Raumattribute
 room_book#:#Buchen
 room_create_failed#:#Der Raum konnte nicht angelegt werden.
 room_date_recurrence#:#Serientermin
+room_delete#:#Möchten Sie wirklich den ausgewählten Raum löschen?
+room_delete_success#:#Raum erfolgreich gelöscht
 room_edit#:#Editieren
 room_file_id#:#Lageplan
 room_floor_plans#:#Gebäudeplan

@@ -81,7 +81,7 @@ class ilRoomSharingFloorPlans
 			$mediaObj->delete();
 			if ($res = $this->ilRoomsharingDatabase->deleteFloorplan($a_file_id))
 			{
-				$res = $this->ilRoomsharingDatabase->deleteFloorplanRoomAssociation($a_file_id);
+				$this->ilRoomsharingDatabase->deleteFloorplanRoomAssociation($a_file_id);
 			}
 		}
 		return $res;

@@ -86,6 +86,8 @@ room_attributes#:#Room Attributes
 room_book#:#Book
 room_create_failed#:#The room could not be created.
 room_date_recurrence#:#Date Recurrence
+room_delete#:#Do you really want to delete the following room?
+room_delete_success#:#Room successfully deleted
 room_edit#:#Edit Room
 room_file_id#:#Map
 room_floor_plans#:#Floor Plans

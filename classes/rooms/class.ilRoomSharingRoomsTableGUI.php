@@ -175,12 +175,13 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$this->tpl->setVariable('LINK_ACTION',
 				$this->ctrl->getLinkTarget($this->parent_obj, $this->parent_cmd));
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
-			$this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'editRoom'));
+			$this->tpl->setVariable('LINK_ACTION',
+				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'editRoom'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
 			$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 			$this->tpl->parseCurrentBlock();
 			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTarget($this->parent_obj, $this->parent_cmd));
+				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'confirmDeleteRoom'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('delete'));
 			$this->tpl->parseCurrentBlock();
 		}
