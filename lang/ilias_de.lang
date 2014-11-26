@@ -136,6 +136,7 @@ room_create_failed#:#Der Raum konnte nicht angelegt werden.
 room_date_recurrence#:#Serientermin
 room_delete#:#Möchten Sie wirklich den ausgewählten Raum löschen?
 room_delete_success#:#Raum erfolgreich gelöscht
+room_delete_booking#:#Beim Löschen des Raums ist folgende Anzahl an Buchungen betroffen, die dabei storniert werden:
 room_edit#:#Editieren
 room_file_id#:#Lageplan
 room_floor_plans#:#Gebäudeplan

@@ -355,25 +355,12 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
-	 * Execute deletion of a room after cofirmation.
+	 * Execute deletion of an room after cofirmation.
 	 */
 	public function deleteRoom()
 	{
-		// Amount of bookings which will be deleted
-		$amountOfBookings = $this->room_obj->getAffectedAmountBeforeDelete();
-
-		// TODO call confirmation and rediredct to confirmDeleteRoom()
-		$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');
-	}
-
-	/**
-	 * Execute deletion of an room after cofirmation.
-	 */
-	public function confirmDeleteRoom()
-	{
 		try
 		{
-
 			$this->room_obj->delete();
 			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_room_delete_success'), true);
 		}
@@ -398,7 +385,16 @@ class ilRoomSharingRoomGUI
 		$cgui->setFormAction($this->ctrl->getFormAction($this));
 		$cgui->setCancel($this->lng->txt("cancel"), "showRooms");
 		$cgui->setConfirm($this->lng->txt("confirm"), 'deleteRoom');
-		$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
+		$amountOfBookings = $this->room_obj->getAffectedAmountBeforeDelete();
+		if ($amountOfBookings > 0)
+		{
+			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_delete_booking') . " <b>" . $amountOfBookings . "</b>");
+		}
+		else
+		{
+			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
+		}
 		$cgui->addItem('booking_id', $this->room_id, $this->room_obj->getName());
 		$this->tpl->setContent($cgui->getHTML());
 	}
