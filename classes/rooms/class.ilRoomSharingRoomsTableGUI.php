@@ -61,9 +61,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$data = $this->rooms->getList($filter);
 
 		$old_name = $filter["room_name"];
-		if (count($data) == 0 && ($old_name || $old_name === "0"))
+		$new_name = filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT);
+		if (count($data) == 0 && ($old_name || $old_name === "0") && $old_name != $new_name)
 		{
-			$new_name = filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT);
 			$filter["room_name"] = $new_name;
 			$data = $this->rooms->getList($filter);
 

@@ -4,10 +4,19 @@
 
 <!-- language file start -->
 add_room#:#Add Room
+add_wrong_attribute#:#Incorrect data for the attributes were sent.
+add_wrong_attribute_count#:#Incorrect data for the attribute count were sent.
 advanced_search#:#Advanced Search
 amount#:#Amount
 appointments#:#Appointments
 at_most#:#At most
+attribute_already_exists#:#The attribute is already exists!
+attributes#:#Attributes
+attributes_change_not_allowed#:#You are not allowed to administrate the attributes.
+attributes_for_bookings#:#Attributes for bookings
+attributes_for_bookings_desc#:#Here you can define the attributes for the bookings.
+attributes_for_rooms#:#Attributes for rooms
+attributes_for_rooms_desc#:#Here you can define the attributes for the rooms.
 back_to_list#:#Back to floorplans
 back_to_rooms#:#Back to all rooms
 between#:#Between
@@ -25,16 +34,29 @@ booking_sequence_deleted#:#This booking and all following sequence bookings has 
 bookings#:#Bookings
 bookings_confirm#:#Are you sure you want to cancel the following bookings?
 bookings_deleted#:#Bookings deleted! (possible sequence bookings are not affected)
+bookings_were_updated#:#bookings were updated.
 cancel#:#Cancel
+choose_action#:#Choose the wished action:
+choose_attribute#:#Choose an existing attribute
+class_id_incorrect#:#Class-ID incorrect
+class_not_created#:#Class could not be created
+comment#:#Comment
 content#:#Content
 course#:#Course
+create_attribute#:#Create a new attribute
+create_attribute_info#:#With this option you can create new attributes.
 current_rooms_user_agreement#:#Current rooms user agreement
 date#:#Date
-datefrom_bigger_dateto#:#"From" is later or equal "to"
-datefrom_is_earlier_than_now#:#"From" lies in the past
+datefrom_bigger_dateto#:#&quot;From&quot; is later or equal &quot;to&quot;
+datefrom_is_earlier_than_now#:#&quot;From&quot; lies in the past
+delete_attribute#:#Delete an existing attribute
+delete_booking_attribute_info#:#With this option you can delete an existing booking attribute. <br>Deletion of an attribute causes an update of the linked bookings.
+delete_room_attribute_info#:#With this option you can delete an existing room attribute. <br>Deletion of an attribute causes an update of the linked rooms.
 description#:#Description
 edit#:#Edit
+edit_attributes#:#Changing of attributes
 edit_properties#:#Edit Properties
+fake_attribute_id_provided#:#Some incorrect data was provided. Try again.
 floor_plans_add#:#Add floorplan
 floor_plans_added#:#Floorplan added
 floor_plans_delete#:#Delete floorplan
@@ -49,24 +71,30 @@ floor_plans_replace_info#:#The existing floorplan will be replaced
 floor_plans_room_assoc#:#Following room-floorplan associations of these rooms will be deleted:
 floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
+found#:#found
 from#:#from
+illigal_room_min_max_alloc#:#Incorrect data for the occupation range were sent.
 leave#:#Leave
 mail_booking_creator_linktext#:#You can see your booking via the following link:
 mail_booking_creator_message#:#You have successfully booked a room. This is what you've booked:
 mail_booking_creator_subject#:#You booked a room.
-mail_booking_participant_subject#:#Someone booked a room and added you as a participant.
 mail_booking_participant_message#:#Someone booked a room and added you as a participant. You have been added for the following booking:
-mail_cancellation_creator_subject#:#Your booking has been canceled.
+mail_booking_participant_subject#:#Someone booked a room and added you as a participant.
 mail_cancellation_creator_message#:#Your booking has been canceled. The following room is no longer yours:
-mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
+mail_cancellation_creator_subject#:#Your booking has been canceled.
 mail_cancellation_participant_message#:#A booking in which you participated has been canceled. The following booking has been canceled:
+mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
 manage#:#Manage
 max_book_time#:#Maximal time of a booking
 missing_agreement_entries#:#The Rooms use agreement is not accepted.
 missing_required_entries#:#Some entries have a wrong or missing value. Please correct it.
 module#:#Module
+must_be_unique#:#Attribute name must be unique!
+name_of_new_attribute#:#Name of the new attribute.
+new_attribute_name#:#New name for the attribute
 no_delete_permission#:#No permission, to delete this booking
 no_id_submitted#:#None or not a numeric ID submitted
+no_match_for#:#No match for
 not_yet_implemented#:#This function has not yet been implemented.
 obj_xrs#:#RoomSharing
 on#:#On
@@ -77,7 +105,27 @@ person_responsible#:#Person Responsible
 plan#:#Plan
 pool#:#RoomSharing Pool
 pools#:#RoomSharing Pools
+privileges#:#Privileges
+privileges_class_edit#:#Edit class
+privileges_class_new#:#Create new class
+privileges_class_not_available#:#No classes available
+privileges_confirm_class_lock#:#Lock class privileges
+privileges_confirm_class_lock_info#:#The following operations will be performed:<br /><br />-all privileges of this class will be locked.<br />-users that are directly assigned to a class or through a corresponding role will be denied of all privileges.
+privileges_confirm_class_lock_question#:#Are you sure you want to lock the privileges of the following classes?
+privileges_confirm_class_self_lock_of#:#You are about to lock the privileges of at least one class you are assigned to.<br />You could lock your own privileges, which is why only a user with the privilege of changing privileges or the owner of the pool can restore these privileges.<br />This change applies to the following classes that you are assigned to:
+privileges_confirm_privilege_revoking_info#:#You are about to revoke the privilege &quot;Access privileges&quot; and/or the privilege &quot;Edit privileges&quot; of at least one class you are assigned to. If you proceed only a user with the privilege of changing privileges or the owner of the pool can restore said privileges.
+privileges_confirm_privilege_revoking_question#:#Are you sure you want to revoke the privileges &quot;Access privileges&quot; and/or &quot;Edit privileges&quot; of the following classes you are assigned to?
+privileges_confirm_privilege_revoking#:#Revoke privileges
+privileges_copy_privileges#:#Copy privileges
+privileges_lock#:#Lock privileges
+privileges_lock_confirm_back#:#Back to privileges
+privileges_lock_desc#:#Locks privileges for class
+privileges_role_assignment#:#Role assignment
+privileges_settings#:#Privilege settings
 quick_search#:#Quick Search
+rename_attribute#:#Rename an existing attribute
+rename_attribute_info#:#With this option you can rename an existing attribute.
+results_for#:#Results for
 room#:#Room
 room_add#:#Add Room
 room_added#:#Room was added.
@@ -98,11 +146,13 @@ room_name#:#Room Name
 room_no_assign#:#No assignment
 room_prop_description#:#The choosen room has following properties -
 room_properties#:#Room properties
+room_attributes_info#:#For the attribute values you can enter integers from 0. If not specified, the respective assignments will be resolved.
 room_public_booking#:#Display username publicly in booking
 room_type#:#Room type
-rooms_user_agreement_accept#:#Accept Room User Agreement
 rooms#:#Rooms
 rooms_user_agreement#:#Rooms user agreement
+rooms_user_agreement_accept#:#Accept Room User Agreement
+rooms_were_updated#:#rooms were updated.
 roomsharing_plugin_config_not_required#:#There is no configuration required
 roomsharing_plugin_configuration#:#RoomSharing Plugin Configuration
 save#:#Save
@@ -118,11 +168,11 @@ settings#:#Settings
 status#:#Status
 subject#:#Subject
 time_range#:#Time Range
-time_range#:#Time Range
 title#:#Title
 to#:#to
 view#:#View
 warning_missing_rooms#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
+wrong_attribute_name_provided#:#The name of the attribute is incorrect!
 wrong_input#:#Wrong input. Check it please.
 xrs_add#:#Add RoomSharing
 xrs_delete#:#Delete RoomSharing
@@ -131,34 +181,73 @@ xrs_new#:#Add New RoomSharing
 xrs_read#:#Read access to RoomSharing
 xrs_visible#:#RoomSharing is visible
 xrs_write#:#Edit RoomSharing
-comment#:#Comment
-attributes#:#Attributes
-attributes_for_rooms#:#Attributes for rooms
-attributes_for_bookings#:#Attributes for bookings
-edit_attributes#:#Changing of attributes
-attributes_for_rooms_desc#:#Here you can define the attributes for the rooms.
-attributes_for_bookings_desc#:#Here you can define the attributes for the bookings.
-must_be_unique#:#Attribute name must be unique!
-choose_action#:#Choose the wished action:
-create_attribute#:#Create a new attribute
-create_attribute_info#:#With this option you can create new attributes.
-name_of_new_attribute#:#Name of the new attribute.
-rename_attribute#:#Rename an existing attribute
-rename_attribute_info#:#With this option you can rename an existing attribute.
-delete_attribute#:#Delete an existing attribute
-choose_attribute#:#Choose an existing attribute
-new_attribute_name#:#New name for the attribute
-delete_room_attribute_info#:#With this option you can delete an existing room attribute. <br>Deletion of an attribute causes an update of the linked rooms.
-delete_booking_attribute_info#:#With this option you can delete an existing booking attribute. <br>Deletion of an attribute causes an update of the linked bookings.
-fake_attribute_id_provided#:#Some incorrect data was provided. Try again.
-attribute_already_exists#:#The attribute is already exists!
-wrong_attribute_name_provided#:#The name of the attribute is incorrect!
-attributes_change_not_allowed#:#You are not allowed to administrate the attributes.
-bookings_were_updated#:#bookings were updated.
-rooms_were_updated#:#rooms were updated.
-no_match_for#:#No match for
-found#:#found
-results_for#:#Results for
-add_wrong_attribute#:#Incorrect data for the attributes were sent.
-add_wrong_attribute_count#:#Incorrect data for the attribute count were sent.
-illigal_room_min_max_alloc#:#Incorrect data for the occupation range were sent.
+
+//Privileges
+access_appointments#:#Access Appointments
+access_appointments_description#:#Access to tab &quot;Appointments&quot;
+access_floorplans#:#Access floorplans
+access_floorplans_description#:#Access to tab &quot;Floorplans&quot;
+access_privileges#:#Access privileges
+access_privileges_description#:#Access to tab &quot;Privileges&quot;
+access_rooms#:#Access rooms
+access_rooms_description#:#Access to tab &quot;Rooms&quot;
+access_search#:#Access Search
+access_search_description#:#Access to tab &quot;Search&quot;
+access_settings#:#Access settings
+access_settings_description#:#Access to tab &quot;Settings&quot;
+add_participant#:#Add participant
+add_participant_description#:#Add participant to a booking
+add_unlimited_bookings#:#Unlimited book time
+add_unlimited_bookings_description#:#The booking duration is unlimited
+appointments_privileges_description#:#Appointment-specific privileges, including the ones for the bookings and the participations, are listed here below.
+cancel_lower_priority#:#Cancel lower class priority
+cancel_lower_priority_description#:#Bookings created by users with a lower class priority, can be canceled
+class#:#Class
+class_added_successfully#:#Class added successfully
+class_assignment_successful#:#User(s) added
+class_back#:#Back to class properties
+class_confirm_deletion#:#Delete class
+class_confirm_deletion_header#:#Are you sure you want to delete the following class?
+class_deassignment_successful#:#User(s) removed
+class_deletion_successful#:#Class has been deleted successfully
+class_priority#:#Class priority
+class_user_already_assigned#:#The selected users are already assigned to this class.
+create#:#Create
+create_class#:#Create class
+create_class_description#:#New classes createable
+create_delete_rooms_description#:#Existing rooms deleteable
+create_edit_delete#:#Create, edit, cancel
+create_edit_delete_booking_attributes#:#Administrate attributes
+create_edit_delete_booking_attributes_description#:#Attributes of bookings create-, edit- and deleteable
+create_edit_delete_description#:#Own bookings can be created, edited and canceled
+create_edit_delete_room_attributes#:#Administrate attributes
+create_edit_delete_room_attributes_description#:#Attributes of rooms create-, edit- and deleteable
+create_edit_rooms_description#:#Existing rooms editable
+create_floorplans_description#:#New floorplans creatable
+create_rooms_description#:#New rooms creatable
+delete#:#Delete
+delete_class#:#Delete class
+delete_class_description#:#Existing classes deleteable
+delete_floorplans_description#:#Existing floorplans deleteable
+edit#:#Edit
+edit_class#:#Edit class
+edit_class_description#:#Existing classes editable
+edit_floorplans_description#:#Existing floorplans editable
+edit_privileges#:#Edit privileges
+edit_privileges_description#:#Privileges of all classes editable
+floorplans#:#Floorplans
+floorplans_privileges_description#:#The privileges for the floorplans are listed here below.
+general_privileges#:#General Privileges
+general_privileges_description#:#General privileges are listed here below.
+lock_privileges#:#Lock privileges
+lock_privileges_description#:#Privileges of all classes can be locked, so in return a locked class won't possess any privileges
+no_permission#:#You have no privilege to access this object
+notification_tunable#:#Notification settings
+notification_tunable_description#:#Notifications can be en- or disabled
+rooms_privileges_description#:#Privileges for the rooms are listed here below.
+see_booking_of_rooms#:#Look up bookings
+see_booking_of_rooms_description#:#Room bookings are visible in the detail-view
+see_non_public_booking_information#:#Look up non-public booking information
+see_non_public_booking_information_description#:#Look up information of non-public bookings
+sequence_bookings#:#Recurring bookings
+sequence_bookings_addable#:#Recurring bookings creatable

@@ -8,25 +8,25 @@
 // ##########################
 $table_name = 'rep_robj_xrs_rattr';
 $fields = array(
-	'id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'name' => array(
-		'type' => 'text',
-		'length' => 45,
-		'notnull' => true
-	),
-	'pool_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	)
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 45,
+        'notnull' => true
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -41,47 +41,47 @@ $ilDB->addIndex($table_name, array('pool_id'), 'i1');
 // ##########################
 $table_name = "rep_robj_xrs_bookings";
 $fields = array(
-	'id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'date_from' => array(
-		'type' => 'timestamp',
-		'notnull' => true
-	),
-	'date_to' => array(
-		'type' => 'timestamp',
-		'notnull' => true
-	),
-	'seq_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'default' => null
-	),
-	'room_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	),
-	'pool_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	),
-	'user_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	),
-	'subject' => array(
-		'type' => 'text',
-		'length' => 255
-	)
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'date_from' => array(
+        'type' => 'timestamp',
+        'notnull' => true
+    ),
+    'date_to' => array(
+        'type' => 'timestamp',
+        'notnull' => true
+    ),
+    'seq_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'default' => null
+    ),
+    'room_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'user_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'subject' => array(
+        'type' => 'text',
+        'length' => 255
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -99,24 +99,24 @@ $ilDB->addIndex($table_name, array('user_id'), 'i4');
 // ##########################
 $table_name = "rep_robj_xrs_book_seqe";
 $fields = array(
-	'id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'type' => array(
-		'type' => 'text',
-		'length' => 45
-	),
-	'pool_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	)
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'type' => array(
+        'type' => 'text',
+        'length' => 45
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -131,19 +131,19 @@ $ilDB->addIndex($table_name, array('pool_id'), 'i1');
 // ##########################
 $table_name = "rep_robj_xrs_book_user";
 $fields = array(
-	'booking_id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'user_id' => array(
-		'type' => 'integer',
-		'length' => 4
-	)
+    'booking_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'user_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -154,24 +154,24 @@ $ilDB->addPrimaryKey($table_name, array("booking_id", "user_id"));
 // ##########################
 $table_name = "rep_robj_xrs_buildings";
 $fields = array(
-	'id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'name' => array(
-		'type' => 'text',
-		'length' => 45
-	),
-	'pool_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	)
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 45
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -186,24 +186,24 @@ $ilDB->addIndex($table_name, array('pool_id'), 'i1');
 // ##########################
 $table_name = "rep_robj_xrs_pools";
 $fields = array(
-	'id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'short_description' => array(
-		'type' => 'text',
-		'length' => 1000
-	),
-	'pool_online' => array(
-		'type' => 'integer',
-		'length' => 1,
-		'default' => 0
-	)
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'short_description' => array(
+        'type' => 'text',
+        'length' => 1000
+    ),
+    'pool_online' => array(
+        'type' => 'integer',
+        'length' => 1,
+        'default' => 0
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -216,48 +216,48 @@ $ilDB->createSequence($table_name);
 // ##########################
 $table_name = "rep_robj_xrs_rooms";
 $fields = array(
-	'id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'name' => array(
-		'type' => 'text',
-		'length' => 45,
-		'notnull' => true
-	),
-	'type' => array(
-		'type' => 'text',
-		'length' => 45
-	),
-	'min_alloc' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true,
-		'default' => 1
-	),
-	'max_alloc' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	),
-	'file_id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'building_id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'pool_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	)
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 45,
+        'notnull' => true
+    ),
+    'type' => array(
+        'type' => 'text',
+        'length' => 45
+    ),
+    'min_alloc' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true,
+        'default' => 1
+    ),
+    'max_alloc' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'file_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'building_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -273,23 +273,23 @@ $ilDB->addIndex($table_name, array('pool_id'), 'i2');
 // ##########################
 $table_name = "rep_robj_xrs_room_attr";
 $fields = array(
-	'room_id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'att_id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'count' => array(
-		'type' => 'integer',
-		'length' => 4
-	)
+    'room_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'att_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'count' => array(
+        'type' => 'integer',
+        'length' => 4
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -305,25 +305,25 @@ $ilDB->addPrimaryKey($table_name, array("room_id", "att_id"));
 // ##########################
 $table_name = 'rep_robj_xrs_battr';
 $fields = array(
-	'id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'name' => array(
-		'type' => 'text',
-		'length' => 45,
-		'notnull' => true
-	),
-	'pool_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	)
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 45,
+        'notnull' => true
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -338,25 +338,25 @@ $ilDB->addIndex($table_name, array('pool_id'), 'i1');
 // ##########################
 $table_name = "rep_robj_xrs_book_attr";
 $fields = array(
-	'booking_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	),
-	'attr_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	),
-	'value' => array(
-		'type' => 'text',
-		'length' => 250
-	)
+    'booking_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'attr_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'value' => array(
+        'type' => 'text',
+        'length' => 250
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -372,20 +372,20 @@ $ilDB->addPrimaryKey($table_name, array("booking_id"));
 // ##########################
 $table_name = 'rep_robj_xrs_fplans';
 $fields = array(
-	'file_id' => array(
-		'type' => 'integer',
-		'length' => 4
-	),
-	'pool_id' => array(
-		'type' => 'integer',
-		'length' => 4,
-		'notnull' => true
-	)
+    'file_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
 );
 //delete Table, if exists
 if ($ilDB->tableExists($table_name))
 {
-	$ilDB->dropTable($table_name);
+    $ilDB->dropTable($table_name);
 }
 $ilDB->createTable($table_name, $fields);
 // add primary key
@@ -410,38 +410,30 @@ $ilDB->manipulate("DELETE FROM rep_robj_xrs_room_attr");
 
 // Raumbuchungspool Einfügen und die ID in einer Variable abspeichern
 $resultPoolID = $ilDB->nextId("rep_robj_xrs_pools");
-$ilDB->manipulateF("INSERT INTO rep_robj_xrs_pools (id, short_description) VALUES (%s, %s)",
-	array("integer", "text"), array($resultPoolID, "Raumbuchungssystem vom ZIMT"));
+$ilDB->manipulateF("INSERT INTO rep_robj_xrs_pools (id, short_description) VALUES (%s, %s)", array("integer", "text"), array($resultPoolID, "Raumbuchungssystem vom ZIMT"));
 
 // Gebäude Einfügen und die ID in einer Variable abspeichern
 $resultBuildingID = $ilDB->nextId("rep_robj_xrs_buildings");
-$ilDB->manipulateF("INSERT INTO rep_robj_xrs_buildings (id, name, pool_id) VALUES (%s, %s, %s)",
-	array("integer", "text", "integer"), array($resultBuildingID, "ZIMT", $resultPoolID));
+$ilDB->manipulateF("INSERT INTO rep_robj_xrs_buildings (id, name, pool_id) VALUES (%s, %s, %s)", array("integer", "text", "integer"), array($resultBuildingID, "ZIMT", $resultPoolID));
 
 // Raumattribut Beamer Einfügen und die ID in einer Variable abspeichern
 $resultBeamerID = $ilDB->nextId("rep_robj_xrs_rattr");
-$ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)",
-	array("integer", "text", "integer"), array($resultBeamerID, "Beamer", $resultPoolID));
+$ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)", array("integer", "text", "integer"), array($resultBeamerID, "Beamer", $resultPoolID));
 
 // Raumattribut Tageslichprojektor Einfügen und die ID in einer Variable abspeichern
 $resultTageslichtprojektorID = $ilDB->nextId("rep_robj_xrs_rattr");
-$ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)",
-	array("integer", "text", "integer"),
-	array($resultTageslichtprojektorID, "Tageslichtprojektor", $resultPoolID));
+$ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)", array("integer", "text", "integer"), array($resultTageslichtprojektorID, "Tageslichtprojektor", $resultPoolID));
 
 // Raumattribut Whiteboard Einfügen und die ID in einer Variable abspeichern
 $resultWhiteboardID = $ilDB->nextId("rep_robj_xrs_rattr");
-$ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)",
-	array("integer", "text", "integer"), array($resultWhiteboardID, "Whiteboard", $resultPoolID));
+$ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)", array("integer", "text", "integer"), array($resultWhiteboardID, "Whiteboard", $resultPoolID));
 
 // Raumattribut Soundanlage Einfügen und die ID in einer Variable abspeichern
 $resultSoundanlageID = $ilDB->nextId("rep_robj_xrs_rattr");
-$ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)",
-	array("integer", "text", "integer"), array($resultSoundanlageID, "Soundanlage", $resultPoolID));
+$ilDB->manipulateF("INSERT INTO rep_robj_xrs_rattr (id, name, pool_id) VALUES (%s, %s, %s)", array("integer", "text", "integer"), array($resultSoundanlageID, "Soundanlage", $resultPoolID));
 
 // Statement für das Einfügen von Räumen erstellen
-$statementRoom = $ilDB->prepareManip("INSERT INTO rep_robj_xrs_rooms (id, name, type, min_alloc, max_alloc, file_id, building_id, pool_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-	array("integer", "text", "text", "integer", "integer", "integer", "integer", "integer"));
+$statementRoom = $ilDB->prepareManip("INSERT INTO rep_robj_xrs_rooms (id, name, type, min_alloc, max_alloc, file_id, building_id, pool_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", array("integer", "text", "text", "integer", "integer", "integer", "integer", "integer"));
 
 // Daten erfassen für das Statement
 $resultRoomID012 = $ilDB->nextId("rep_robj_xrs_rooms");
@@ -486,72 +478,71 @@ $dataRoom[] = array($resultRoomID305, "305", "Seminar", 1, 20, NULL, $resultBuil
 $ilDB->executeMultiple($statementRoom, $dataRoom);
 
 // Allgemeines Statement für das Hinzufügen von Räumen erstellen
-$statementRoomAttributes = $ilDB->prepareManip("INSERT INTO rep_robj_xrs_room_attr (room_id, att_id, count) VALUES(?, ?, ?)",
-	array("integer", "integer", "integer"));
+$statementRoomAttributes = $ilDB->prepareManip("INSERT INTO rep_robj_xrs_room_attr (room_id, att_id, count) VALUES(?, ?, ?)", array("integer", "integer", "integer"));
 
 $dataRoomAttributes012 = array(
-	array($resultRoomID012, $resultBeamerID, 1),
-	array($resultRoomID012, $resultTageslichtprojektorID, 1),
-	array($resultRoomID012, $resultWhiteboardID, 1),
-	array($resultRoomID012, $resultSoundanlageID, 1));
+    array($resultRoomID012, $resultBeamerID, 1),
+    array($resultRoomID012, $resultTageslichtprojektorID, 1),
+    array($resultRoomID012, $resultWhiteboardID, 1),
+    array($resultRoomID012, $resultSoundanlageID, 1));
 
 $dataRoomAttributes032A = array(
-	array($resultRoomID032A, $resultBeamerID, 1),
-	array($resultRoomID032A, $resultTageslichtprojektorID, 1),
-	array($resultRoomID032A, $resultWhiteboardID, 1));
+    array($resultRoomID032A, $resultBeamerID, 1),
+    array($resultRoomID032A, $resultTageslichtprojektorID, 1),
+    array($resultRoomID032A, $resultWhiteboardID, 1));
 
 $dataRoomAttributes032B = array(
-	array($resultRoomID032B, $resultBeamerID, 1),
-	array($resultRoomID032B, $resultTageslichtprojektorID, 1),
-	array($resultRoomID032B, $resultWhiteboardID, 1));
+    array($resultRoomID032B, $resultBeamerID, 1),
+    array($resultRoomID032B, $resultTageslichtprojektorID, 1),
+    array($resultRoomID032B, $resultWhiteboardID, 1));
 
 $dataRoomAttributes032C = array(
-	array($resultRoomID032C, $resultBeamerID, 1),
-	array($resultRoomID032C, $resultTageslichtprojektorID, 1),
-	array($resultRoomID032C, $resultWhiteboardID, 1));
+    array($resultRoomID032C, $resultBeamerID, 1),
+    array($resultRoomID032C, $resultTageslichtprojektorID, 1),
+    array($resultRoomID032C, $resultWhiteboardID, 1));
 
 $dataRoomAttributes037 = array(
-	array($resultRoomID037, $resultWhiteboardID, 1));
+    array($resultRoomID037, $resultWhiteboardID, 1));
 
 $dataRoomAttributes106 = array(
-	array($resultRoomID106, $resultWhiteboardID, 1));
+    array($resultRoomID106, $resultWhiteboardID, 1));
 
 $dataRoomAttributes116 = array(
-	array($resultRoomID116, $resultBeamerID, 1),
-	array($resultRoomID116, $resultTageslichtprojektorID, 1),
-	array($resultRoomID116, $resultWhiteboardID, 1));
+    array($resultRoomID116, $resultBeamerID, 1),
+    array($resultRoomID116, $resultTageslichtprojektorID, 1),
+    array($resultRoomID116, $resultWhiteboardID, 1));
 
 $dataRoomAttributes117 = array(
-	array($resultRoomID117, $resultBeamerID, 1),
-	array($resultRoomID117, $resultTageslichtprojektorID, 1),
-	array($resultRoomID117, $resultWhiteboardID, 1));
+    array($resultRoomID117, $resultBeamerID, 1),
+    array($resultRoomID117, $resultTageslichtprojektorID, 1),
+    array($resultRoomID117, $resultWhiteboardID, 1));
 
 $dataRoomAttributes119 = array(
-	array($resultRoomID119, $resultBeamerID, 1),
-	array($resultRoomID119, $resultTageslichtprojektorID, 1),
-	array($resultRoomID119, $resultWhiteboardID, 1));
+    array($resultRoomID119, $resultBeamerID, 1),
+    array($resultRoomID119, $resultTageslichtprojektorID, 1),
+    array($resultRoomID119, $resultWhiteboardID, 1));
 
 $dataRoomAttributes122 = array(
-	array($resultRoomID122, $resultBeamerID, 1),
-	array($resultRoomID122, $resultTageslichtprojektorID, 1),
-	array($resultRoomID122, $resultWhiteboardID, 1));
+    array($resultRoomID122, $resultBeamerID, 1),
+    array($resultRoomID122, $resultTageslichtprojektorID, 1),
+    array($resultRoomID122, $resultWhiteboardID, 1));
 
 $dataRoomAttributes123 = array(
-	array($resultRoomID123, $resultBeamerID, 1),
-	array($resultRoomID123, $resultTageslichtprojektorID, 1),
-	array($resultRoomID123, $resultWhiteboardID, 1));
+    array($resultRoomID123, $resultBeamerID, 1),
+    array($resultRoomID123, $resultTageslichtprojektorID, 1),
+    array($resultRoomID123, $resultWhiteboardID, 1));
 
 $dataRoomAttributes213 = array(
-	array($resultRoomID213, $resultWhiteboardID, 1));
+    array($resultRoomID213, $resultWhiteboardID, 1));
 
 $dataRoomAttributes235 = array(
-	array($resultRoomID235, $resultWhiteboardID, 1));
+    array($resultRoomID235, $resultWhiteboardID, 1));
 
 $dataRoomAttributes245 = array(
-	array($resultRoomID245, $resultWhiteboardID, 1));
+    array($resultRoomID245, $resultWhiteboardID, 1));
 
 $dataRoomAttributes305 = array(
-	array($resultRoomID305, $resultWhiteboardID, 1));
+    array($resultRoomID305, $resultWhiteboardID, 1));
 
 // Statement mit den Daten für die einzelnen Räume ausführen
 $ilDB->executeMultiple($statementRoomAttributes, $dataRoomAttributes012);
@@ -580,13 +571,13 @@ $ilDB->addPrimaryKey("rep_robj_xrs_book_attr", array('booking_id', 'attr_id'));
 //Testattributes for Roomsharing Bookings
 $resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
 $ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
-	. "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Modul', 1)");
+    . "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Modul', 1)");
 $resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
 $ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
-	. "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Kurs', 1)");
+    . "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Kurs', 1)");
 $resultNextId = $ilDB->nextId("rep_robj_xrs_battr");
 $ilDB->manipulate("INSERT INTO rep_robj_xrs_battr (id, name, pool_id) VALUES "
-	. "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Semester', 1)");
+    . "(" . $ilDB->quote($resultNextId, 'integer') . ", 'Semester', 1)");
 ?>
 
 <#7>
@@ -597,17 +588,17 @@ $table = 'rep_robj_xrs_pools';
 
 $agreementColumn = 'rooms_agreement';
 $agreementAttributes = array(
-	'type' => 'integer',
-	"length" => 4,
-	"default" => "0",
-	'notnull' => true);
+    'type' => 'integer',
+    "length" => 4,
+    "default" => "0",
+    'notnull' => true);
 $ilDB->addTableColumn($table, $agreementColumn, $agreementAttributes);
 
 $bookTimeColumn = 'max_book_time';
 $bookTimeAttributes = array(
-	'type' => 'timestamp',
-	"default" => "1970-01-01 03:00:00.000000",
-	'notnull' => true);
+    'type' => 'timestamp',
+    "default" => "1970-01-01 03:00:00.000000",
+    'notnull' => true);
 $ilDB->addTableColumn($table, $bookTimeColumn, $bookTimeAttributes);
 ?>
 
@@ -620,16 +611,16 @@ $tablePools = 'rep_robj_xrs_pools';
 
 $calendarColumn = 'calendar_id';
 $calendarAttributes = array(
-	'type' => 'integer',
-	"length" => 4,
-	"default" => "0",
-	'notnull' => true);
+    'type' => 'integer',
+    "length" => 4,
+    "default" => "0",
+    'notnull' => true);
 $ilDB->addTableColumn($tablePools, $calendarColumn, $calendarAttributes);
 
 $tableBookings = 'rep_robj_xrs_bookings';
 $bookPublicColumn = 'public_booking';
 $bookPublicAttributes = array(
-	'type' => 'boolean');
+    'type' => 'boolean');
 $ilDB->addTableColumn($tableBookings, $bookPublicColumn, $bookPublicAttributes);
 ?>
 
@@ -641,8 +632,8 @@ $tableBookings = 'rep_robj_xrs_bookings';
 $commentColumn = 'bookingcomment';
 
 $commentAttributes = array(
-	'type' => 'text',
-	'length' => 4000);
+    'type' => 'text',
+    'length' => 4000);
 $ilDB->addTableColumn($tableBookings, $commentColumn, $commentAttributes);
 ?>
 
@@ -650,4 +641,610 @@ $ilDB->addTableColumn($tableBookings, $commentColumn, $commentAttributes);
 <?php
 // Set building_ids of rooms to 0.
 $ilDB->manipulate("UPDATE rep_robj_xrs_rooms SET building_id = 0");
+?>
+
+<#11>
+<?php
+//Additional of local group assignment
+// Author: R. Heimsoth
+// ##########################
+// 'rep_robj_xrs_groups'
+// ##########################
+$tableGroups = 'rep_robj_xrs_groups';
+
+$fieldsGroups = array(
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 75,
+        'notnull' => true
+    ),
+    'description' => array(
+        'type' => 'text',
+        'length' => 1000
+    ),
+    'role_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableGroups))
+{
+    $ilDB->dropTable($tableGroups);
+}
+$ilDB->createTable($tableGroups, $fieldsGroups);
+// add primary key
+$ilDB->addPrimaryKey($tableGroups, array("id"));
+// add sequence
+$ilDB->createSequence($tableGroups);
+// add index
+$ilDB->addIndex($tableGroups, array('pool_id'), 'i1');
+
+// Author: R. Heimsoth
+// ##########################
+// 'rep_robj_xrs_grp_user'
+// ##########################
+$tableGroupUser = "rep_robj_xrs_grp_user";
+$fieldsGroupUser = array(
+    'group_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'user_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableGroupUser))
+{
+    $ilDB->dropTable($tableGroupUser);
+}
+$ilDB->createTable($tableGroupUser, $fieldsGroupUser);
+// add primary key
+$ilDB->addPrimaryKey($tableGroupUser, array("group_id"));
+?>
+
+<#12>
+<?php
+//Additional of local group to right assignment
+// Author: R. Heimsoth
+// ##########################
+// 'rep_robj_xrs_groups'
+// 'rep_robj_xrs_grp_priv'
+// ##########################
+//Add lock attribute for group
+
+$tableGroups = 'rep_robj_xrs_groups';
+
+$fieldsGroups = array(
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 75,
+        'notnull' => true
+    ),
+    'description' => array(
+        'type' => 'text',
+        'length' => 1000
+    ),
+    'role_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'locked' => array(
+        'type' => 'integer',
+        'length' => 1,
+        'default' => 0
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableGroups))
+{
+    $ilDB->dropTable($tableGroups);
+}
+$ilDB->createTable($tableGroups, $fieldsGroups);
+// add primary key
+$ilDB->addPrimaryKey($tableGroups, array("id"));
+// add sequence
+$ilDB->createSequence($tableGroups);
+// add index
+$ilDB->addIndex($tableGroups, array('pool_id'), 'i1');
+
+$tableGroupPriv = 'rep_robj_xrs_grp_priv';
+
+$fieldsGroupPriv = array(
+    'group_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'accessappointments' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accesssearch' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addownbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addparticipants' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addsequencebookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'cancelbookinglowerpriority' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'seebookingsofrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deleterooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deletefloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accesssettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addgroup' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'lockprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableGroupPriv))
+{
+    $ilDB->dropTable($tableGroupPriv);
+}
+$ilDB->createTable($tableGroupPriv, $fieldsGroupPriv);
+// add primary key
+$ilDB->addPrimaryKey($tableGroupPriv, array("group_id"));
+?>
+
+<#13>
+<?php
+// Author: R. Heimsoth
+// Drop Primary Key
+// ##########################
+// 'rep_robj_xrs_grp_user'
+// ##########################
+
+$tableGroupUser = "rep_robj_xrs_grp_user";
+$ilDB->dropPrimaryKey($tableGroupUser);
+?>
+
+<#14>
+<?php
+// Author: R. Heimsoth
+// Rename groups to classes
+// ##########################
+// 'rep_robj_xrs_classes'
+// 'rep_robj_xrs_cls_user'
+// 'rep_robj_xrs_cls_priv'
+// ##########################
+
+$tableClasses = 'rep_robj_xrs_classes';
+
+$fieldsClasses = array(
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 75,
+        'notnull' => true
+    ),
+    'description' => array(
+        'type' => 'text',
+        'length' => 1000
+    ),
+    'role_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClasses))
+{
+    $ilDB->dropTable($tableClasses);
+}
+$ilDB->createTable($tableClasses, $fieldsClasses);
+// add primary key
+$ilDB->addPrimaryKey($tableClasses, array("id"));
+// add sequence
+$ilDB->createSequence($tableClasses);
+// add index
+$ilDB->addIndex($tableClasses, array('pool_id'), 'i1');
+
+$tableClassUser = "rep_robj_xrs_cls_user";
+$fieldsClassUser = array(
+    'class_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'user_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassUser))
+{
+    $ilDB->dropTable($tableClassUser);
+}
+$ilDB->createTable($tableClassUser, $fieldsClassUser);
+
+$tableClassPriv = 'rep_robj_xrs_cls_priv';
+
+$fieldsClassPriv = array(
+    'class_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'accessappointments' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accesssearch' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addownbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addparticipants' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addsequencebookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'cancelbookinglowerpriority' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'seebookingsofrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deleterooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deletefloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accesssettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deleteclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'lockprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassPriv))
+{
+    $ilDB->dropTable($tableClassPriv);
+}
+$ilDB->createTable($tableClassPriv, $fieldsClassPriv);
+
+// add primary key
+$ilDB->addPrimaryKey($tableClassPriv, array("class_id"));
+?>
+
+<#15>
+<?php
+// Author: R. Heimsoth
+// Delete old group tables
+// ##########################
+// 'rep_robj_xrs_groups'
+// 'rep_robj_xrs_grp_user'
+// 'rep_robj_xrs_grp_priv'
+// ##########################
+$tableGroups = "rep_robj_xrs_groups";
+$tableGroupUser = "rep_robj_xrs_grp_user";
+$tableGroupPriv = "rep_robj_xrs_grp_priv";
+if ($ilDB->tableExists($tableGroupPriv))
+{
+    $ilDB->dropTable($tableGroupPriv);
+}
+if ($ilDB->tableExists($tableGroupUser))
+{
+    $ilDB->dropTable($tableGroupUser);
+}
+if ($ilDB->tableExists($tableGroups))
+{
+    $ilDB->dropTable($tableGroups);
+}
+?>
+
+<#16>
+<?php
+// Author: R. Heimsoth
+// Add locked
+// ##########################
+// 'rep_robj_xrs_groups'
+// ##########################
+$tableClasses = 'rep_robj_xrs_classes';
+
+$fieldsClasses = array(
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 75,
+        'notnull' => true
+    ),
+    'description' => array(
+        'type' => 'text',
+        'length' => 1000
+    ),
+    'role_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'locked' => array(
+        'type' => 'integer',
+        'length' => 1,
+        'default' => 0
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClasses))
+{
+    $ilDB->dropTable($tableClasses);
+}
+$ilDB->createTable($tableClasses, $fieldsClasses);
+// add primary key
+$ilDB->addPrimaryKey($tableClasses, array("id"));
+// add sequence
+$ilDB->createSequence($tableClasses);
+// add index
+$ilDB->addIndex($tableClasses, array('pool_id'), 'i1');
+?>
+
+<#17>
+<?php
+// Author: R. Heimsoth
+// Add new privilege "addUnlimitedBookings", "notificationSetting",
+// "adminRoomAttributes", "adminBookingAttributes"
+// ##########################
+// 'rep_robj_xrs_grp_priv'
+// ##########################
+$tableClassPriv = 'rep_robj_xrs_cls_priv';
+
+$fieldsClassPriv = array(
+    'class_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'accessappointments' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accesssearch' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addownbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addparticipants' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addsequencebookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addunlimitedbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'notificationsettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'adminbookingattributes' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'cancelbookinglowerpriority' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'seebookingsofrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deleterooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'adminroomattributes' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deletefloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accesssettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deleteclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'lockprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassPriv))
+{
+    $ilDB->dropTable($tableClassPriv);
+}
+$ilDB->createTable($tableClassPriv, $fieldsClassPriv);
+
+// add primary key
+$ilDB->addPrimaryKey($tableClassPriv, array("class_id"));
+?>
+
+<#18>
+<?php
+// Author: R. Heimsoth
+// Add priority
+// ##########################
+// 'rep_robj_xrs_groups'
+// ##########################
+$tableClasses = 'rep_robj_xrs_classes';
+
+$fieldsClasses = array(
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 75,
+        'notnull' => true
+    ),
+    'description' => array(
+        'type' => 'text',
+        'length' => 1000
+    ),
+    'priority' => array(
+        'type' => 'integer',
+        'length' => 2,
+        'default' => 0
+    ),
+    'role_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'locked' => array(
+        'type' => 'integer',
+        'length' => 1,
+        'default' => 0
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClasses))
+{
+    $ilDB->dropTable($tableClasses);
+}
+$ilDB->createTable($tableClasses, $fieldsClasses);
+// add primary key
+$ilDB->addPrimaryKey($tableClasses, array("id"));
+// add sequence
+$ilDB->createSequence($tableClasses);
+// add index
+$ilDB->addIndex($tableClasses, array('pool_id'), 'i1');
+?>
+
+<#19>
+<?php
+// Author: R. Heimsoth
+// Add new privilege "seeNonPublicBookingInformation"
+// ##########################
+// 'rep_robj_xrs_grp_priv'
+// ##########################
+$tableClassPriv = 'rep_robj_xrs_cls_priv';
+
+$fieldsClassPriv = array(
+    'class_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'accessappointments' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accesssearch' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addownbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addparticipants' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addsequencebookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addunlimitedbookings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'seenonpublicbookinginformation' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'notificationsettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'adminbookingattributes' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'cancelbookinglowerpriority' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'seebookingsofrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editrooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deleterooms' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'adminroomattributes' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editfloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deletefloorplans' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accesssettings' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'accessprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'addclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'deleteclass' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'editprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0),
+    'lockprivileges' => array('type' => 'integer', 'length' => 1, 'default' => 0)
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassPriv))
+{
+    $ilDB->dropTable($tableClassPriv);
+}
+$ilDB->createTable($tableClassPriv, $fieldsClassPriv);
+
+// add primary key
+$ilDB->addPrimaryKey($tableClassPriv, array("class_id"));
+?>
+
+<#20>
+<?php
+// Author: R. Heimsoth
+// Remove classes
+// ##########################
+// 'rep_robj_xrs_classes'
+// ##########################
+$tableClasses = 'rep_robj_xrs_classes';
+
+$fieldsClasses = array(
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'name' => array(
+        'type' => 'text',
+        'length' => 75,
+        'notnull' => true
+    ),
+    'description' => array(
+        'type' => 'text',
+        'length' => 1000
+    ),
+    'priority' => array(
+        'type' => 'integer',
+        'length' => 2,
+        'default' => 0
+    ),
+    'role_id' => array(
+        'type' => 'integer',
+        'length' => 4
+    ),
+    'locked' => array(
+        'type' => 'integer',
+        'length' => 1,
+        'default' => 0
+    ),
+    'pool_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClasses))
+{
+    $ilDB->dropTable($tableClasses);
+}
+$ilDB->createTable($tableClasses, $fieldsClasses);
+// add primary key
+$ilDB->addPrimaryKey($tableClasses, array("id"));
+// add sequence
+$ilDB->createSequence($tableClasses);
+// add index
+$ilDB->addIndex($tableClasses, array('pool_id'), 'i1');
+
+//Remove assigned users
+$tableClassUser = "rep_robj_xrs_cls_user";
+$fieldsClassUser = array(
+    'class_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'user_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    )
+);
+//delete Table, if exists
+if ($ilDB->tableExists($tableClassUser))
+{
+    $ilDB->dropTable($tableClassUser);
+}
+$ilDB->createTable($tableClassUser, $fieldsClassUser);
 ?>
