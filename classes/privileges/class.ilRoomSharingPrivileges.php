@@ -425,7 +425,7 @@ class ilRoomSharingPrivileges
 		);
 	}
 
-	private function getAllClassPrivileges()
+	public function getAllClassPrivileges()
 	{
 		$privileges = array();
 		$classes = $this->ilRoomsharingDatabase->getClasses();

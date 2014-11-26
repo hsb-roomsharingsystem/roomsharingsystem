@@ -111,8 +111,11 @@ privileges_class_new#:#Create new class
 privileges_class_not_available#:#No classes available
 privileges_confirm_class_lock#:#Lock class privileges
 privileges_confirm_class_lock_info#:#The following operations will be performed:<br /><br />-all privileges of this class will be locked.<br />-users that are directly assigned to a class or through a corresponding role will be denied of all privileges.
-privileges_confirm_class_lock_question#:##Are you sure you want to lock the privileges of the following classes?
+privileges_confirm_class_lock_question#:#Are you sure you want to lock the privileges of the following classes?
 privileges_confirm_class_self_lock_of#:#You are about to lock the privileges of at least one class you are assigned to.<br />You could lock your own privileges, which is why only a user with the privilege of changing privileges or the owner of the pool can restore these privileges.<br />This change applies to the following classes that you are assigned to:
+privileges_confirm_privilege_revoking_info#:#You are about to revoke the privilege &quot;Access privileges&quot; and/or the privilege &quot;Edit privileges&quot; of at least one class you are assigned to. If you proceed only a user with the privilege of changing privileges or the owner of the pool can restore said privileges.
+privileges_confirm_privilege_revoking_question#:#Are you sure you want to revoke the privileges &quot;Access privileges&quot; and/or &quot;Edit privileges&quot; of the following classes you are assigned to?
+privileges_confirm_privilege_revoking#:#Revoke privileges
 privileges_copy_privileges#:#Copy privileges
 privileges_lock#:#Lock privileges
 privileges_lock_confirm_back#:#Back to privileges
@@ -162,7 +165,6 @@ setting_2#:#Setting 2
 settings#:#Settings
 status#:#Status
 subject#:#Subject
-time_range#:#Time Range
 time_range#:#Time Range
 title#:#Title
 to#:#to
