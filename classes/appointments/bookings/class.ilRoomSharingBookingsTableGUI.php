@@ -492,9 +492,9 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 						$url = $ilCtrl->getLinkTarget($this->parent_obj, $this->parent_cmd);
 						$ilCtrl->setParameter($this->parent_obj, $this->prefix . "_xpt", "");
 						$caption = $lng->txt($caption_lng_id);
-						//this part is necessary, because the labels for xls- and csv-Export are fetched from the ilias-lang-files, while the label for pdf-export is fetched from the lang-file of the plugin
+						//this part is necessary, because the labels for xls- and csv-Export are fetched from the ilias-lang-files, while the label for pdf-export is fetched from the lang-file of the plugin. If the ilias-lang-file does not contain a translation for the caption_lng_id, it will set it into '-'es. In that case the caption comes from the plugin and we just use the string that is there.
 						if (strpos($caption, '-') === 0 && strpos($caption, '-', strlen($caption) - 1) === strlen($caption)
-							- 1)
+							- 1) //caption starts and ends with '-'
 						{
 							$alist->addItem($caption_lng_id, $format, $url);
 						}
@@ -514,6 +514,92 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 					$this->tpl->setVariable("BLK_CLASS", "Block");
 				}
 				$this->tpl->parseCurrentBlock();
+			}
+		}
+	}
+
+	public function exportData($format, $send = false)
+	{
+		if ($this->dataExists())
+		{
+			// #9640: sort
+			if (!$this->getExternalSorting() && $this->enabled["sort"])
+			{
+				$this->determineOffsetAndOrder(true);
+
+				$this->row_data = ilUtil::sortArray($this->row_data, $this->getOrderField(),
+						$this->getOrderDirection(), $this->numericOrdering($this->getOrderField()));
+			}
+
+			$filename = "export";
+
+			switch ($format)
+			{
+				case self::EXPORT_EXCEL:
+					include_once "./Services/Excel/classes/class.ilExcelUtils.php";
+					include_once "./Services/Excel/classes/class.ilExcelWriterAdapter.php";
+					$adapter = new ilExcelWriterAdapter($filename . ".xls", $send);
+					$workbook = $adapter->getWorkbook();
+					$worksheet = $workbook->addWorksheet();
+					$row = 0;
+
+					ob_start();
+					$this->fillMetaExcel($worksheet, $row);
+					$this->fillHeaderExcel($worksheet, $row);
+					foreach ($this->row_data as $set)
+					{
+						$row++;
+						$this->fillRowExcel($worksheet, $row, $set);
+					}
+					ob_end_clean();
+
+					$workbook->close();
+					break;
+
+				case self::EXPORT_CSV:
+					include_once "./Services/Utilities/classes/class.ilCSVWriter.php";
+					$csv = new ilCSVWriter();
+					$csv->setSeparator(";");
+
+					ob_start();
+					$this->fillMetaCSV($csv);
+					$this->fillHeaderCSV($csv);
+					foreach ($this->row_data as $set)
+					{
+						$this->fillRowCSV($csv, $set);
+					}
+					ob_end_clean();
+
+					if ($send)
+					{
+						$filename .= ".csv";
+						header("Content-type: text/comma-separated-values");
+						header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+						header("Expires: 0");
+						header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
+						header("Pragma: public");
+						echo $csv->getCSVString();
+					}
+					else
+					{
+						file_put_contents($filename, $csv->getCSVString());
+					}
+					break;
+				case self::EXPORT_PDF:
+					include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsExportTableGUI.php");
+					$exportTable = new ilRoomSharingBookingsExportTableGUI($this->parent_obj, 'showBookings',
+						$this->ref_id);
+					include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharingPDFCreator.php");
+
+					$staff = $exportTable->getTableHTML();
+					ilObjRoomSharingPDFCreator::generatePDF($exportTable->getTableHTML(), 'D', 'file.pdf');
+
+					break;
+			}
+
+			if ($send)
+			{
+				exit();
 			}
 		}
 	}
