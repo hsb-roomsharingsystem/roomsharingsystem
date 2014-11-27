@@ -33,6 +33,7 @@ description#:#Beschreibung
 edit#:#Bearbeiten
 edit_properties#:#Einstellungen bearbeiten
 exportPDF#:#Exportieren
+export_pdf#:#.pdf exportieren
 floor_plans_add#:#Gebäudeplan hinzufügen
 floor_plans_added#:#Gebäudeplan hinzugefügt
 floor_plans_delete#:#Gebäudeplan löschen

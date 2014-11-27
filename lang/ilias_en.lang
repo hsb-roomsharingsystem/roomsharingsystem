@@ -33,6 +33,7 @@ description#:#Description
 edit#:#Edit
 edit_properties#:#Edit Properties
 exportPDF#:#Export
+export_pdf#:#Export .pdf
 floor_plans_add#:#Add floorplan
 floor_plans_added#:#Floorplan added
 floor_plans_delete#:#Delete floorplan
