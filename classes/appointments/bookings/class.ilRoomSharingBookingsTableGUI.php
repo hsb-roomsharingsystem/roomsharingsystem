@@ -589,10 +589,10 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 					include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsExportTableGUI.php");
 					$exportTable = new ilRoomSharingBookingsExportTableGUI($this->parent_obj, 'showBookings',
 						$this->ref_id);
-					include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharingPDFCreator.php");
+					include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/export/class.ilRoomSharingPDFCreator.php");
 
 					$staff = $exportTable->getTableHTML();
-					ilObjRoomSharingPDFCreator::generatePDF($exportTable->getTableHTML(), 'D', 'file.pdf');
+					ilRoomSharingPDFCreator::generatePDF($exportTable->getTableHTML(), 'D', 'file.pdf');
 
 					break;
 			}

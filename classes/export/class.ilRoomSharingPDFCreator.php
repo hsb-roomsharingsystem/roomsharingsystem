@@ -35,7 +35,7 @@ class ilObjRoomSharingPDFCreator
 			$filename .= '.pdf';
 		}
 
-		require_once './Services/PDFGeneration/classes/class.ilPDFGeneration.php';
+		require_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/export/class.ilRoomSharingPDFGeneration.php';
 
 		$job = new ilPDFGenerationJob();
 		$job->setAutoPageBreak(true)
@@ -48,7 +48,7 @@ class ilObjRoomSharingPDFCreator
 			->setOutputMode($output_mode)
 			->addPage($html_input);
 
-		ilPDFGeneration::doJob($job);
+		ilRoomSharingPDFGeneration::doJob($job);
 	}
 
 	/**
@@ -59,7 +59,7 @@ class ilObjRoomSharingPDFCreator
 	 */
 	public static function preprocessHTML($html)
 	{
-		$pdf_css_path = self::getTemplatePath('test_pdf.css');
+		$pdf_css_path = self::getTemplatePath('appointments_pdf.css');
 		return '<style>' . file_get_contents($pdf_css_path) . '</style>' . $html;
 	}
 
