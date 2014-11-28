@@ -13,7 +13,7 @@
  *
  * @author MartinDoser
  */
-class ilObjRoomSharingPDFCreator
+class ilRoomSharingPDFCreator
 {
 	/**
 	 * Methode zur Erstellung von PDFs
