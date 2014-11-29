@@ -350,7 +350,8 @@ class ilRoomsharingDatabase
 	 * @param integer $a_booking_attr_key
 	 * @param string $a_booking_attr_value
 	 */
-	public function insertBookingAttributeAssign($a_insertedId, $a_booking_attr_key, $a_booking_attr_value)
+	public function insertBookingAttributeAssign($a_insertedId, $a_booking_attr_key,
+		$a_booking_attr_value)
 	{
 		$this->ilDB->insert(dbc::BOOKING_TO_ATTRIBUTE_TABLE,
 			array(
@@ -790,6 +791,26 @@ class ilRoomsharingDatabase
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc:: BOOKINGS_TABLE .
 			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer'));
+		$bookings = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$bookings[] = $row;
+		}
+		return $bookings;
+	}
+
+	/**
+	 * Gets all actual bookings for a room.
+	 *
+	 * @param integer $a_room_id
+	 * @return type return of $this->ilDB->query
+	 */
+	public function getActualBookingsForRoom($a_room_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc:: BOOKINGS_TABLE .
+			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') .
+			' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
+			' OR date_to >= "' . date('Y-m-d H:i:s') . '")' . ' ORDER BY date_from ASC');
 		$bookings = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{

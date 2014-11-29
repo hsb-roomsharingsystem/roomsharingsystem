@@ -157,7 +157,7 @@ class ilRoomSharingRoom
 	 */
 	public function getAffectedAmountBeforeDelete()
 	{
-		return count($this->ilRoomsharingDatabase->getBookingsForRoom($this->id));
+		return count($this->ilRoomsharingDatabase->getActualBookingsForRoom($this->id));
 	}
 
 	/**
