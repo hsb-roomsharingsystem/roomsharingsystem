@@ -30,5 +30,4 @@ class ilRoomSharingAttributesConstants
 	const DELETE_MODE = 'delete_attribute';
 
 }
-
 ?>
