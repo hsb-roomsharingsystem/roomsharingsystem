@@ -281,7 +281,7 @@ class ilRoomsharingDatabase
 			// Only insert the attribute value, if a value was submitted by the user
 			if ($booking_attr_value !== "")
 			{
-				$this->insertBookingAttribute($a_insertedId, $booking_attr_key, $booking_attr_value);
+				$this->insertBookingAttributeAssign($a_insertedId, $booking_attr_key, $booking_attr_value);
 			}
 		}
 	}
@@ -350,7 +350,7 @@ class ilRoomsharingDatabase
 	 * @param integer $a_booking_attr_key
 	 * @param string $a_booking_attr_value
 	 */
-	public function insertBookingAttribute($a_insertedId, $a_booking_attr_key, $a_booking_attr_value)
+	public function insertBookingAttributeAssign($a_insertedId, $a_booking_attr_key, $a_booking_attr_value)
 	{
 		$this->ilDB->insert(dbc::BOOKING_TO_ATTRIBUTE_TABLE,
 			array(
@@ -1303,7 +1303,7 @@ class ilRoomsharingDatabase
 	 *
 	 * @param string $a_attribute_name
 	 */
-	public function insertBookingAttribut($a_attribute_name)
+	public function insertBookingAttribute($a_attribute_name)
 	{
 		$this->ilDB->insert(dbc::BOOKING_ATTRIBUTES_TABLE,
 			array(
