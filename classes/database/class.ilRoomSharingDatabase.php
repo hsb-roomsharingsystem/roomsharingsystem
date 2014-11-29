@@ -566,7 +566,7 @@ class ilRoomsharingDatabase
 	public function getParticipantsForBookingShort($a_booking_id)
 	{
 		$set = $this->ilDB->query('SELECT  users.login AS login' .
-			' FROM ' . dbc::USER_TABLE . ' participants ' .
+			' FROM ' . dbc::BOOK_USER_TABLE . ' participants ' .
 			' INNER JOIN usr_data AS users ON users.usr_id = participants.user_id' .
 			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
 			' ORDER BY users.lastname, users.firstname ASC');
