@@ -121,8 +121,8 @@ class ilRoomSharingCalendarEntry extends ilCalendarEntry
 			//$this->setMilestone($row->is_milestone);
 			$this->enableNotification(false);
 
-			$this->start = new ilDateTime($row->date_from, IL_CAL_DATETIME, 'UTC');
-			$this->end = new ilDateTime($row->date_to, IL_CAL_DATETIME, 'UTC');
+			$this->start = new ilDateTime($row->date_from, IL_CAL_DATETIME);
+			$this->end = new ilDateTime($row->date_to, IL_CAL_DATETIME);
 		}
 	}
 
