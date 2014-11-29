@@ -453,7 +453,7 @@ class ilRoomsharingDatabase
 	{
 		$this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
-		$this->ilDB->manipulate('DELETE FROM ' . dbc::USER_TABLE .
+		$this->ilDB->manipulate('DELETE FROM ' . dbc::BOOK_USER_TABLE .
 			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
 
@@ -544,7 +544,7 @@ class ilRoomsharingDatabase
 	{
 		$set = $this->ilDB->query('SELECT users.firstname AS firstname,' .
 			' users.lastname AS lastname, users.login AS login,' .
-			' users.usr_id AS id FROM ' . dbc::USER_TABLE . ' user ' .
+			' users.usr_id AS id FROM ' . dbc::BOOK_USER_TABLE . ' user ' .
 			' LEFT JOIN usr_data AS users ON users.usr_id = user.user_id' .
 			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
 			' ORDER BY users.lastname, users.firstname ASC');
@@ -731,8 +731,8 @@ class ilRoomsharingDatabase
 	public function deleteParticipation($a_user_id, $a_booking_id)
 	{
 		return $this->ilDB->manipulate(
-				'DELETE FROM ' . dbc::USER_TABLE . ' WHERE user_id = ' .
-				$this->ilDB->quote($a_user_id, 'integer') .
+				'DELETE FROM ' . dbc::BOOK_USER_TABLE . ' WHERE user_id = ' .
+				$this->ilDB->quote($a_user_id(), 'integer') .
 				' AND booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
 
@@ -759,7 +759,7 @@ class ilRoomsharingDatabase
 	public function getParticipationsForUser($a_user_id)
 	{
 		$set = $this->ilDB->query(
-			'SELECT booking_id FROM ' . dbc::USER_TABLE .
+			'SELECT booking_id FROM ' . dbc::BOOK_USER_TABLE .
 			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
 
 		$participations = array();
@@ -1006,6 +1006,271 @@ class ilRoomsharingDatabase
 			"id" => array("integer", $a_id)
 		);
 		return $this->ilDB->update(dbc::ROOMS_TABLE, $fields, $where);
+	}
+
+	public function getClasses()
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASSES_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+		$classes = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$classes[] = $row;
+		}
+		return $classes;
+	}
+
+	public function getClassById($a_class_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASSES_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($a_class_id, 'integer'));
+		$row = $this->ilDB->fetchAssoc($set);
+
+		return $row;
+	}
+
+	public function getPrivilegesOfClass($a_class_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASS_PRIVILEGES_TABLE .
+			' WHERE class_id = ' . $this->ilDB->quote($a_class_id, 'integer'));
+
+		$row = $this->ilDB->fetchAssoc($set);
+		//Remove class_id from resultlist, so that only the privileges are in the array
+		unset($row['class_id']);
+		return $row;
+	}
+
+	public function setLockedClasses($a_class_ids)
+	{
+		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_class_ids)))
+		{
+			$positive_where = "";
+			$negative_where = "";
+			foreach ($a_class_ids as $class_id => $val)
+			{
+				$positive_where .= " OR id = " . $this->ilDB->quote($class_id, 'integer');
+				$negative_where .= " AND id != " . $this->ilDB->quote($class_id, 'integer');
+			}
+			//Cut the where strings, to avoid e.g. WHERE OR id=1 OR id=2
+			if (strlen($positive_where) > 0)
+			{
+				$positive_where = substr($positive_where, 3);
+			}
+			if (strlen($negative_where) > 0)
+			{
+				$negative_where = substr($negative_where, 4);
+			}
+			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
+				' SET locked = 1 WHERE ' . $positive_where);
+			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
+				' SET locked = 0 WHERE ' . $negative_where);
+		}
+		else
+		{
+			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
+				' SET locked = 0');
+		}
+	}
+
+	public function getAssignedClassesForUser($a_user_id, $a_user_role_ids)
+	{
+		$set = $this->ilDB->query('SELECT class_id FROM ' . dbc::CLASS_USER_TABLE .
+			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
+
+		$class_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$class_ids[] = $row['class_id'];
+		}
+
+		$where = "";
+		foreach ($a_user_role_ids as $user_role_id)
+		{
+			$where .= " OR role_id = " . $this->ilDB->quote($user_role_id);
+		}
+		if (strlen($where) > 3)
+		{
+			$where = substr($where, 3);
+		}
+
+		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
+			' WHERE ' . $where);
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$class_ids[] = $row['id'];
+		}
+		return array_unique($class_ids);
+	}
+
+	public function getLockedClasses()
+	{
+		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
+			' AND locked = 1');
+		$locked_class_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$locked_class_ids[] = $row['id'];
+		}
+		return $locked_class_ids;
+	}
+
+	public function getUnlockedClasses()
+	{
+		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
+			' AND locked = 0');
+		$unlocked_class_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$unlocked_class_ids[] = $row['id'];
+		}
+		return $unlocked_class_ids;
+	}
+
+	public function getPriorityOfClass($a_class_id)
+	{
+		$set = $this->ilDB->query('SELECT priority FROM ' . dbc::CLASSES_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($a_class_id, 'integer'));
+		$row = $this->ilDB->fetchAssoc($set);
+		return $row['priority'];
+	}
+
+	public function setPrivilegesForClass($a_class_id, $a_privileges, $a_no_privileges)
+	{
+		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_class_id)))
+		{
+			$positive_set = "";
+			$negative_set = "";
+			foreach ($a_privileges as $privilege)
+			{
+				$positive_set .= "," . strtolower($privilege) . " = 1";
+			}
+			foreach ($a_no_privileges as $no_privilege)
+			{
+				$negative_set .= "," . strtolower($no_privilege) . " = 0";
+			}
+			if (strlen($positive_set) > 0)
+			{
+				$positive_set = substr($positive_set, 1);
+			}
+			if (strlen($negative_set) > 0 && strlen($positive_set) == 0)
+			{
+				$negative_set = substr($negative_set, 1);
+			}
+			$this->ilDB->manipulate('UPDATE ' . dbc::CLASS_PRIVILEGES_TABLE .
+				' SET ' . $positive_set . $negative_set . ' WHERE class_id = ' . $this->ilDB->quote($a_class_id,
+					'integer'));
+		}
+	}
+
+	public function insertClass($a_name, $a_description, $a_role_id, $a_priority, $a_copy_class_id)
+	{
+		$this->ilDB->insert(dbc::CLASSES_TABLE,
+			array(
+			'id' => array('integer', $this->ilDB->nextId(dbc::CLASSES_TABLE)),
+			'name' => array('text', $a_name),
+			'description' => array('text', $a_description),
+			'priority' => array('integer', $a_priority),
+			'role_id' => array('integer', $a_role_id),
+			'pool_id' => array('integer', $this->pool_id)
+		));
+		$insertedID = $this->ilDB->getLastInsertId();
+
+		if (ilRoomSharingNumericUtils::isPositiveNumber($insertedID))
+		{
+			//Should privileges of another class should be copied?
+			if (ilRoomSharingNumericUtils::isPositiveNumber($a_copy_class_id))
+			{
+				$privilege_array = array('class_id' => array('integer', $insertedID));
+
+				//Get privileges of the class, which should be copied
+				$copied_privileges = $this->getPrivilegesOfClass($a_copy_class_id);
+				foreach ($copied_privileges as $privilege_key => $privilege_value)
+				{
+					$privilege_array[$privilege_key] = array('integer', $privilege_value);
+				}
+				$this->ilDB->insert(dbc::CLASS_PRIVILEGES_TABLE, $privilege_array);
+			}
+			//else add empty privileges
+			else
+			{
+				$this->ilDB->insert(dbc::CLASS_PRIVILEGES_TABLE,
+					array('class_id' => array('integer', $insertedID)));
+			}
+		}
+
+		return $insertedID;
+	}
+
+	public function updateClass($a_class_id, $a_name, $a_description, $a_role_id, $a_priority)
+	{
+		$fields = array('name' => array('text', $a_name),
+			'description' => array('text', $a_description),
+			'priority' => array('integer', $a_priority),
+			'role_id' => array('integer', $a_role_id),
+			'pool_id' => array('integer', $this->pool_id));
+		$where = array('id' => array('integer', $a_class_id));
+		return $this->ilDB->update(dbc::CLASSES_TABLE, $fields, $where);
+	}
+
+	public function assignUserToClass($a_class_id, $a_user_id)
+	{
+		if (!$this->isUserInClass($a_class_id, $a_user_id))
+		{
+			$this->ilDB->insert(dbc::CLASS_USER_TABLE,
+				array(
+				'class_id' => array('integer', $a_class_id),
+				'user_id' => array('integer', $a_user_id)
+			));
+		}
+	}
+
+	public function getUsersForClass($a_class_id)
+	{
+		$set = $this->ilDB->query('SELECT user_id FROM ' . dbc::CLASS_USER_TABLE .
+			' WHERE class_id = ' . $this->ilDB->quote($a_class_id, 'integer'));
+		$assigned_user_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$assigned_user_ids[] = $row['user_id'];
+		}
+		return $assigned_user_ids;
+	}
+
+	public function deassignUserFromClass($a_class_id, $a_user_id)
+	{
+		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_USER_TABLE .
+			" WHERE class_id = " . $this->ilDB->quote($a_class_id, 'integer') .
+			" AND user_id = " . $this->ilDB->quote($a_user_id, 'integer'));
+	}
+
+	public function clearUsersInClass($a_class_id)
+	{
+		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_USER_TABLE .
+			" WHERE class_id = " . $this->ilDB->quote($a_class_id, 'integer'));
+	}
+
+	public function deleteClassPrivileges($a_class_id)
+	{
+		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_PRIVILEGES_TABLE .
+			" WHERE class_id = " . $this->ilDB->quote($a_class_id, 'integer'));
+	}
+
+	public function deleteClass($a_class_id)
+	{
+		$this->clearUsersInClass($a_class_id);
+		$this->deleteClassPrivileges($a_class_id);
+		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASSES_TABLE .
+			" WHERE id = " . $this->ilDB->quote($a_class_id, 'integer'));
+	}
+
+	public function isUserInClass($a_class_id, $a_user_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASS_USER_TABLE .
+			' WHERE class_id = ' . $this->ilDB->quote($a_class_id, 'integer') .
+			' AND user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
+		return ($this->ilDB->numRows($set) != 0);
 	}
 
 	/**

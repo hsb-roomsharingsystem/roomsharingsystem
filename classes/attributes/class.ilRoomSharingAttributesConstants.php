@@ -27,5 +27,5 @@ class ilRoomSharingAttributesConstants
 	const EXECUTE_BOOKING_ATTR_ACTION = 'executeBookingAttributeAction';
 
 }
-?>
 
+?>
