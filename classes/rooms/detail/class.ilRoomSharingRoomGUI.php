@@ -90,11 +90,38 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
+	 * Adds SubTabs for the MainTab "Rooms".
+	 *
+	 * @param type $a_active
+	 *        	SubTab which should be activated after method call.
+	 */
+	protected function setSubTabs($a_active)
+	{
+		global $ilTabs;
+		$ilTabs->setTabActive('rooms');
+
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
+
+		// Roominfo
+		$ilTabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'showRoom'));
+
+		// week-view
+		$ilTabs->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'),
+			$this->ctrl->getLinkTargetByClass('ilRoomSharingCalendarWeekGUI', 'show'));
+		$ilTabs->activateSubTab($a_active);
+	}
+
+	/**
 	 * Show room.
 	 */
 	public function showRoom()
 	{
+		$this->setSubTabs('room');
+
 		global $ilAccess;
+
+		$this->room_obj = new IlRoomSharingRoom($this->pool_id, $this->room_id);
 
 		if ($ilAccess->checkAccess('write', '', $this->ref_id))
 		{
@@ -130,6 +157,7 @@ class ilRoomSharingRoomGUI
 	 */
 	public function editRoom()
 	{
+		$this->room_obj = new IlRoomSharingRoom($this->pool_id, (int) $_GET['room_id']);
 		$toolbar = new ilToolbarGUI();
 		$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
 			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));

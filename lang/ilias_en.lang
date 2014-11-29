@@ -150,6 +150,8 @@ room_properties#:#Room properties
 room_attributes_info#:#For the attribute values you can enter integers from 0. If not specified, the respective assignments will be resolved.
 room_public_booking#:#Display username publicly in booking
 room_type#:#Room type
+room_occupation#:#Week View
+room_occupation_title#:#Weekly occupation of room
 rooms#:#Rooms
 rooms_user_agreement#:#Rooms user agreement
 rooms_user_agreement_accept#:#Accept Room User Agreement
