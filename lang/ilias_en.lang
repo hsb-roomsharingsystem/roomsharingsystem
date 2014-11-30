@@ -21,14 +21,14 @@ back_to_list#:#Back to floorplans
 back_to_rooms#:#Back to all rooms
 between#:#Between
 booking_add#:#Add Booking
-booking_add_error#:#Booking couldn't been added
+booking_add_error#:#Booking could not been added
 booking_added#:#Booking added
 booking_back#:#Back to bookings
 booking_cancel#:#Cancel
 booking_confirm#:#Are you sure you want to cancel the following booking?
 booking_confirm_cancel#:#Cancel booking
 booking_deleted#:#Booking deleted! (following sequence bookings are not affected)
-booking_doesnt_exists#:#This booking doesn't exist any more!
+booking_doesnt_exists#:#This booking does not exist any more!
 booking_no_cancel_ids#:#Tick at least one booking to cancel.
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
 bookings#:#Bookings
@@ -70,13 +70,13 @@ floor_plans_replace#:#Replace floorplan
 floor_plans_replace_info#:#The existing floorplan will be replaced
 floor_plans_room_assoc#:#Following room-floorplan associations of these rooms will be deleted:
 floor_plans_show#:#Show floorplans
-floor_plans_upload_error#:#Error while uploading floorplan. Possibel reason for this is the using of unsupported data format
+floor_plans_upload_error#:#Error while uploading floorplan. Possible reason for this is the using of unsupported data format
 found#:#found
 from#:#from
 illigal_room_min_max_alloc#:#Incorrect data for the occupation range were sent.
 leave#:#Leave
 mail_booking_creator_linktext#:#You can see your booking via the following link:
-mail_booking_creator_message#:#You have successfully booked a room. This is what you've booked:
+mail_booking_creator_message#:#You have successfully booked a room. This is what you have booked:
 mail_booking_creator_subject#:#You booked a room.
 mail_booking_participant_message#:#Someone booked a room and added you as a participant. You have been added for the following booking:
 mail_booking_participant_subject#:#Someone booked a room and added you as a participant.
@@ -147,7 +147,7 @@ room_max_allocation_exceeded#:#Maximum room allocation exceeded
 room_min_alloc#:#Min. allocation
 room_name#:#Room Name
 room_no_assign#:#No assignment
-room_prop_description#:#The choosen room has following properties -
+room_prop_description#:#The chosen room has following properties -
 room_properties#:#Room properties
 room_attributes_info#:#For the attribute values you can enter integers from 0. If not specified, the respective assignments will be resolved.
 room_public_booking#:#Display username publicly in booking
@@ -220,21 +220,21 @@ class_priority#:#Class priority
 class_user_already_assigned#:#The selected users are already assigned to this class.
 create#:#Create
 create_class#:#Create class
-create_class_description#:#New classes createable
-create_delete_rooms_description#:#Existing rooms deleteable
+create_class_description#:#New classes creatable
+create_delete_rooms_description#:#Existing rooms deletable
 create_edit_delete#:#Create, edit, cancel
 create_edit_delete_booking_attributes#:#Administrate attributes
-create_edit_delete_booking_attributes_description#:#Attributes of bookings create-, edit- and deleteable
+create_edit_delete_booking_attributes_description#:#Attributes of bookings create-, edit- and deletable
 create_edit_delete_description#:#Own bookings can be created, edited and canceled
 create_edit_delete_room_attributes#:#Administrate attributes
-create_edit_delete_room_attributes_description#:#Attributes of rooms create-, edit- and deleteable
+create_edit_delete_room_attributes_description#:#Attributes of rooms create-, edit- and deletable
 create_edit_rooms_description#:#Existing rooms editable
 create_floorplans_description#:#New floorplans creatable
 create_rooms_description#:#New rooms creatable
 delete#:#Delete
 delete_class#:#Delete class
-delete_class_description#:#Existing classes deleteable
-delete_floorplans_description#:#Existing floorplans deleteable
+delete_class_description#:#Existing classes deletable
+delete_floorplans_description#:#Existing floorplans deletable
 edit#:#Edit
 edit_class#:#Edit class
 edit_class_description#:#Existing classes editable
@@ -257,7 +257,7 @@ see_non_public_booking_information#:#Look up non-public booking information
 see_non_public_booking_information_description#:#Look up information of non-public bookings
 sequence_bookings#:#Recurring bookings
 sequence_bookings_addable#:#Recurring bookings creatable
-singular_field_input_value_too_high_beginn#:#The value of the field
-plural_field_input_value_too_high_beginn#:#The values of the fields
-singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter resetet to last valid request.
-plural_field_input_value_too_high_end#:#are bigger then the maximum value and because of this the values are ignored or the filter resetet to last valid request.
+singular_field_input_value_too_high_begin#:#The value of the field
+plural_field_input_value_too_high_begin#:#The values of the fields
+singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter is reseted to the last valid request.
+plural_field_input_value_too_high_end#:#are bigger then the maximum value and because of this the values are ignored or the filter is reseted to the last valid request.

@@ -14,7 +14,7 @@ include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  */
 class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 {
-	protected $rooms;
+	private $rooms;
 	private $message = '';
 	private $messageNeeded = false;
 	private $messagePlural = false;
@@ -363,13 +363,13 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		{
 			if (!$this->messagePlural)
 			{
-				$msg = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_beginn');
+				$msg = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_begin');
 				$msg = $msg . ' "' . $this->message;
 				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_end');
 			}
 			else
 			{
-				$msg = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_beginn');
+				$msg = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_begin');
 				$msg = $msg . ' "' . $this->message;
 				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_end');
 			}
