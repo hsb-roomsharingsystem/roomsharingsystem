@@ -138,6 +138,7 @@ room_add#:#Raum hinzufügen
 room_added#:#Raum wurde hinzugefügt.
 room_already_booked#:#Der Raum ist in dem Zeitraum bereits gebucht
 room_attributes#:#Raumattribute
+room_back#:#Zurück zur Raumansicht
 room_book#:#Buchen
 room_create_failed#:#Der Raum konnte nicht angelegt werden.
 room_date_recurrence#:#Serientermin

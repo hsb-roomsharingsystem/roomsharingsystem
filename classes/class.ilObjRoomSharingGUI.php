@@ -624,8 +624,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$book->renderBookingForm();
 		// the back button which links to where the user came from
 		$this->tabs_gui->setBackTarget(
-			$this->lng->txt("rep_robj_xrs_search_back"), $this->ctrl->getLinkTarget($this, $last_cmd)
+			$this->lng->txt($last_cmd == "showRooms" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+			$this->ctrl->getLinkTarget($this, $last_cmd)
 		);
+	}
+
+	/**
+	 * If this function is called from bookGUI opened from calendarWeekGUI,
+	 * then go back to roomGUI.
+	 *
+	 * (still looking for a better way)
+	 */
+	public function showSearchResults()
+	{
+		$this->showRoom();
 	}
 
 	/**

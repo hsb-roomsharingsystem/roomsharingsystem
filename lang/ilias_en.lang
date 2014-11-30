@@ -133,6 +133,7 @@ room_add#:#Add Room
 room_added#:#Room was added.
 room_already_booked#:#Room is already booked
 room_attributes#:#Room Attributes
+room_back#:#Back to room view
 room_book#:#Book
 room_create_failed#:#The room could not be created.
 room_date_recurrence#:#Date Recurrence
