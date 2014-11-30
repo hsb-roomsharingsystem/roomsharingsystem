@@ -15,6 +15,9 @@ include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 {
 	protected $rooms;
+	private $message = '';
+	private $messageNeeded = false;
+	private $messagePlural = false;
 
 	/**
 	 * Constructor for the class ilRoomSharingRoomsTableGUI
@@ -225,12 +228,17 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	 */
 	public function initFilter()
 	{
+		$this->message = '';
+		$this->messageNeeded = false;
+		$this->messagePlural = false;
 		// Room
 		$this->createRoomFormItem();
 		// Seats
 		$this->createSeatsFormItem();
 		// Room Attributes
 		$this->createRoomAttributeFormItem();
+		// generate info Message if needed
+		$this->generateMessageIfNeeded();
 	}
 
 	/**
@@ -278,6 +286,18 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->addFilterItem($seats_comb);
 		$seats_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["seats"] = $seats_comb->getValue();
+
+		$value = $_POST[$room_seats_input->getPostVar()];
+		if ($value !== "" && $value > $room_seats_input->getMaxValue())
+		{
+			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_seats");
+
+			if ($this->messagePlural == false && $this->messageNeeded == true)
+			{
+				$this->messagePlural = true;
+			}
+			$this->messageNeeded = true;
+		}
 	}
 
 	/**
@@ -309,6 +329,49 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$room_attribute_comb->readFromSession();
 
 			$this->filter ["attributes"] [$room_attribute] = $room_attribute_comb->getValue();
+
+			$value = $_POST[$room_attribute_input->getPostVar()];
+			if ($value !== "" && $value > $room_attribute_input->getMaxValue())
+			{
+				if ($this->message != '')
+				{
+					$this->message = $this->message . ', ' . $room_attribute;
+				}
+				else
+				{
+					$this->message = $this->message . $room_attribute;
+				}
+
+				if ($this->messagePlural == false && $this->messageNeeded == true)
+				{
+					$this->messagePlural = true;
+				}
+				$this->messageNeeded = true;
+			}
+		}
+	}
+
+	/**
+	 * Generate and show a infomessage if the private variables $message and $messageNeeded are set.
+	 * They are set if one input value is bigger then the maxvalue.
+	 */
+	private function generateMessageIfNeeded()
+	{
+		if ($this->messageNeeded)
+		{
+			if (!$this->messagePlural)
+			{
+				$msg = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_beginn');
+				$msg = $msg . ' "' . $this->message;
+				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_end');
+			}
+			else
+			{
+				$msg = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_beginn');
+				$msg = $msg . ' "' . $this->message;
+				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_end');
+			}
+			ilUtil::sendInfo($msg);
 		}
 	}
 

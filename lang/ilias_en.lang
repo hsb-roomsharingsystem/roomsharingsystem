@@ -256,3 +256,7 @@ see_non_public_booking_information#:#Look up non-public booking information
 see_non_public_booking_information_description#:#Look up information of non-public bookings
 sequence_bookings#:#Recurring bookings
 sequence_bookings_addable#:#Recurring bookings creatable
+singular_field_input_value_too_high_beginn#:#The value of the field
+plural_field_input_value_too_high_beginn#:#The values of the fields
+singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter resetet to last valid request.
+plural_field_input_value_too_high_end#:#are bigger then the maximum value and because of this the values are ignored or the filter resetet to last valid request.

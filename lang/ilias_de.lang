@@ -256,3 +256,7 @@ see_non_public_booking_information#:#Nicht öffentliche Buchungen einsehen
 see_non_public_booking_information_description#:#Informationen von nicht öffentlichen Buchungen einsehbar
 sequence_bookings#:#Serienbuchungen
 sequence_bookings_addable#:#Serienbuchungen anlegbar
+singular_field_input_value_too_high_beginn#:#Der Werte für das Feld
+plural_field_input_value_too_high_beginn#:#Die Werte für die Felder
+singular_field_input_value_too_high_end#:#ist höher als der maximal verfügbare Wert und daher wurde der Wert ignoriert oder der Filter auf den letzten gültigen Filter zurückgesetzt.
+plural_field_input_value_too_high_end#:#sind höher als der maximal verfügbare Wert und daher wurden die Werte ignoriert oder der Filter auf den letzten gültigen Zustand zurückgesetzt.
