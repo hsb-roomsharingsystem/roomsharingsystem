@@ -6,9 +6,11 @@ require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
 require_once("Services/Form/classes/class.ilSubEnabledFormPropertyGUI.php");
 require_once("Services/Form/classes/class.ilMultiSelectInputGUI.php");
+require_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRoomsGUI.php");
 require_once('Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php');
 require_once("Services/MediaObjects/classes/class.ilObjMediaObject.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingRoomException.php");
@@ -88,11 +90,38 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
+	 * Adds SubTabs for the MainTab "Rooms".
+	 *
+	 * @param type $a_active
+	 *        	SubTab which should be activated after method call.
+	 */
+	protected function setSubTabs($a_active)
+	{
+		global $ilTabs;
+		$ilTabs->setTabActive('rooms');
+
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
+
+		// Roominfo
+		$ilTabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'showRoom'));
+
+		// week-view
+		$ilTabs->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'),
+			$this->ctrl->getLinkTargetByClass('ilRoomSharingCalendarWeekGUI', 'show'));
+		$ilTabs->activateSubTab($a_active);
+	}
+
+	/**
 	 * Show room.
 	 */
 	public function showRoom()
 	{
+		$this->setSubTabs('room');
+
 		global $ilAccess;
+
+		$this->room_obj = new IlRoomSharingRoom($this->pool_id, $this->room_id);
 
 		if ($ilAccess->checkAccess('write', '', $this->ref_id))
 		{
@@ -128,6 +157,7 @@ class ilRoomSharingRoomGUI
 	 */
 	public function editRoom()
 	{
+		$this->room_obj = new IlRoomSharingRoom($this->pool_id, (int) $_GET['room_id']);
 		$toolbar = new ilToolbarGUI();
 		$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
 			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
@@ -234,7 +264,7 @@ class ilRoomSharingRoomGUI
 				{
 					$med = $mobj->getMediaItem("Standard");
 					$target = $med->getThumbnailTarget();
-					$imageWithLink = "<a target = '_blank' href = '" . $mobj->getDataDirectory() . "/" . $med->getLocation() . "' > " . ilUtil::img($target) . "</a>";
+					$imageWithLink = "<br><a target='_blank' href='" . $mobj->getDataDirectory() . "/" . $med->getLocation() . "'>" . ilUtil::img($target) . "</a>";
 					$buildingId->setInfo($imageWithLink);
 				}
 			}
@@ -353,32 +383,48 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
-	 * Delete room command.
+	 * Execute deletion of an room after cofirmation.
 	 */
 	public function deleteRoom()
 	{
-		// Amount of bookings which will be deleted
-		$amountOfBookings = $this->room_obj->getAffectedAmountBeforeDelete();
-
-		// TODO call confirmation and rediredct to confirmDeleteRoom()
-		$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');
-	}
-
-	/**
-	 * Execute deletion of an room after cofirmation.
-	 */
-	public function confirmDeleteRoom()
-	{
 		try
 		{
-
 			$this->room_obj->delete();
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_room_delete_success'), true);
 		}
 		catch (ilRoomSharingRoomException $exc)
 		{
 			ilUtil::sendFailure($this->lng->txt($exc->getMessage()));
 			$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');
 		}
+		$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');
+	}
+
+	/**
+	 * 	Show confirmation dialog, before deleting a room.
+	 */
+	public function confirmDeleteRoom()
+	{
+		global $ilTabs;
+		$ilTabs->clearTargets();
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		$cgui = new ilConfirmationGUI();
+		$cgui->setFormAction($this->ctrl->getFormAction($this));
+		$cgui->setCancel($this->lng->txt("cancel"), "showRooms");
+		$cgui->setConfirm($this->lng->txt("confirm"), 'deleteRoom');
+		$amountOfBookings = $this->room_obj->getAffectedAmountBeforeDelete();
+		if ($amountOfBookings > 0)
+		{
+			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_delete_booking') . " <b>" . $amountOfBookings . "</b>");
+		}
+		else
+		{
+			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
+		}
+		$cgui->addItem('booking_id', $this->room_id, $this->room_obj->getName());
+		$this->tpl->setContent($cgui->getHTML());
 	}
 
 	/**
@@ -402,6 +448,11 @@ class ilRoomSharingRoomGUI
 			}
 		}
 		return $userWishedAttributes;
+	}
+
+	private function showRooms()
+	{
+		$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');
 	}
 
 	/**

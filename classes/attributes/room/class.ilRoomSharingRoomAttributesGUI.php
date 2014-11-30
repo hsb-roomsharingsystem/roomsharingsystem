@@ -3,10 +3,8 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/room/class.ilRoomSharingRoomAttributes.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingAttributesException.php");
 require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesActionModes.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
 
-use ilRoomSharingAttributesActionModes as MODES;
 use ilRoomSharingAttributesConstants as ATTRC;
 
 /**
@@ -112,12 +110,8 @@ class ilRoomSharingRoomAttributesGUI
 	 */
 	private function createDeletionMessage($a_updated_rooms_amount)
 	{
-		$message[] = $this->lng->txt('msg_obj_modified');
-		$message[] = ' ';
-		$message[] = $a_updated_rooms_amount;
-		$message[] = ' ';
-		$message[] = $this->lng->txt('rep_robj_xrs_rooms_were_updated');
-		return implode($message);
+		return $this->lng->txt('msg_obj_modified') . ' ' . $a_updated_rooms_amount
+			. ' ' . $this->lng->txt('rep_robj_xrs_rooms_were_updated');
 	}
 
 	/**
@@ -132,18 +126,18 @@ class ilRoomSharingRoomAttributesGUI
 
 		switch ($this->attributesForm->getInput(ATTRC::ACTION_MODE))
 		{
-			case MODES::CREATE_MODE:
+			case ATTRC::CREATE_MODE:
 				$newName = $this->attributesForm->getInput(ATTRC::NEW_NAME);
 				$roomSharingRoomAttributes->createAttribute($newName);
 				break;
 
-			case MODES::RENAME_MODE:
+			case ATTRC::RENAME_MODE:
 				$attributeId = $this->attributesForm->getInput(ATTRC::RENAME_ATTR_ID);
 				$changedName = $this->attributesForm->getInput(ATTRC::CHANGED_NAME);
 				$roomSharingRoomAttributes->renameAttribute($attributeId, $changedName);
 				break;
 
-			case MODES::DELETE_MODE:
+			case ATTRC::DELETE_MODE:
 				$attributeId = $this->attributesForm->getInput(ATTRC::DEL_ATTR_ID);
 				return $roomSharingRoomAttributes->deleteAttribute($attributeId);
 			default:
@@ -172,7 +166,7 @@ class ilRoomSharingRoomAttributesGUI
 		$attributes = $roomSharingRoomAttributes->getAllAvailableAttributesWithIdAndName();
 
 		// Create
-		$create = new ilRadioOption($this->lng->txt('rep_robj_xrs_create_attribute'), MODES::CREATE_MODE,
+		$create = new ilRadioOption($this->lng->txt('rep_robj_xrs_create_attribute'), ATTRC::CREATE_MODE,
 			$this->lng->txt('rep_robj_xrs_create_attribute_info'));
 		$new_name = new ilTextInputGUI($this->lng->txt('rep_robj_xrs_name_of_new_attribute'),
 			ATTRC::NEW_NAME);
@@ -183,7 +177,7 @@ class ilRoomSharingRoomAttributesGUI
 		$radioGroup->addOption($create);
 
 		//Rename
-		$rename = new ilRadioOption($this->lng->txt('rep_robj_xrs_rename_attribute'), MODES::RENAME_MODE,
+		$rename = new ilRadioOption($this->lng->txt('rep_robj_xrs_rename_attribute'), ATTRC::RENAME_MODE,
 			$this->lng->txt('rep_robj_xrs_rename_attribute_info'));
 		$toRename = new ilSelectInputGUI($this->lng->txt('rep_robj_xrs_choose_attribute'),
 			ATTRC::RENAME_ATTR_ID);
@@ -199,7 +193,7 @@ class ilRoomSharingRoomAttributesGUI
 		$radioGroup->addOption($rename);
 
 		//Delete
-		$delete = new ilRadioOption($this->lng->txt('rep_robj_xrs_delete_attribute'), MODES::DELETE_MODE,
+		$delete = new ilRadioOption($this->lng->txt('rep_robj_xrs_delete_attribute'), ATTRC::DELETE_MODE,
 			$this->lng->txt('rep_robj_xrs_delete_room_attribute_info'));
 		$toDelete = new ilSelectInputGUI($this->lng->txt('rep_robj_xrs_choose_attribute'),
 			ATTRC::DEL_ATTR_ID);

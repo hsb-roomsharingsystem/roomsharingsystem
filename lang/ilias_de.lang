@@ -113,6 +113,9 @@ privileges_confirm_class_lock#:#Klassenprivilegien sperren
 privileges_confirm_class_lock_info#:#Die folgenden Einstellungsänderungen werden vorgenommen:<br /><br />- Alle Privilegien für diese Klassen werden gesperrt.<br />- Benutzer, die einer gesperrten Klasse über Rollen- oder Direktzuweisung zugeordnet sind, verfügen infolgedessen über keinerlei Privilegien.
 privileges_confirm_class_lock_question#:#Möchten Sie wirklich die Privilegien folgender Klassen sperren?
 privileges_confirm_class_self_lock_of#:#Sie beabsichtigen die Sperrung der Privilegien mindestens einer Klasse, der Sie selbst zugeordnet sind.<br />Unter Umständen sperren Sie somit Ihre eigenen Privilegien und nur ein weiterer Benutzer mit dem Privileg, andere Privilegien zu verändern, oder der Besitzer des Pools kann die Privilegien wiederherstellen.<br />Dies betrifft die Sperrung folgender, Ihnen zugeordneter Klassen:
+privileges_confirm_privilege_revoking_info#:#Sie beabsichtigen das Privileg &quot;Privilegien aufrufen&quot; und/oder das Privileg &quot;Privilegien bearbeiten&quot; mindestens einer Klasse zu entziehen, der Sie selbst zugeordnet sind. Wenn Sie fortfahren kann nur ein weiterer Benutzer mit dem Privileg, andere Privilegien zu verändern, oder der Besitzer des Pools besagte Privilegien wiederherstellen.
+privileges_confirm_privilege_revoking_question#:#Möchten Sie wirklich den folgenden, Ihnen zugeordneten Klassen die Privilegien &quot;Privilegien bearbeiten&quot; und/oder &quot;Privilegien bearbeiten&quot; entziehen?
+privileges_confirm_privilege_revoking#:#Privilegien entziehen
 privileges_copy_privileges#:#Privilegien kopieren
 privileges_lock#:#Privilegien sperren
 privileges_lock_confirm_back#:#Zurück zu den Privilegien
@@ -131,6 +134,9 @@ room_attributes#:#Raumattribute
 room_book#:#Buchen
 room_create_failed#:#Der Raum konnte nicht angelegt werden.
 room_date_recurrence#:#Serientermin
+room_delete#:#Möchten Sie wirklich den ausgewählten Raum löschen?
+room_delete_success#:#Raum erfolgreich gelöscht
+room_delete_booking#:#Beim Löschen des Raums ist folgende Anzahl an Buchungen betroffen, die dabei storniert werden:
 room_edit#:#Editieren
 room_file_id#:#Lageplan
 room_floor_plans#:#Gebäudeplan
@@ -144,6 +150,8 @@ room_properties#:#Raumeigenschaften
 room_attributes_info#:#Für die Attributwerte können ganze Zahlen ab 0 eingegeben werden. Bei keiner Angabe werden die jeweiligen Zuweisungen aufgelöst.
 room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
 room_type#:#Raumtyp
+room_occupation#:#Wochenansicht
+room_occupation_title#:#Wochenansicht von Raum
 rooms#:#Räume
 rooms_user_agreement#:#Raumnutzungsordnung
 rooms_user_agreement_accept#:#Raumnutzungsordnung akzeptieren
@@ -162,7 +170,6 @@ setting_2#:#Einstellung 2
 settings#:#Einstellungen
 status#:#Status
 subject#:#Betreff
-time_range#:#Zeitbereich
 time_range#:#Zeitbereich
 title#:#Titel
 to#:#bis

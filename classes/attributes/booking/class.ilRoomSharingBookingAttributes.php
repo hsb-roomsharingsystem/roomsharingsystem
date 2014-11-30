@@ -125,7 +125,7 @@ class ilRoomSharingBookingAttributes
 		$this->checkAttributeNameLength($a_attribute_name);
 		$this->checkAttributeNameIsFree($a_attribute_name);
 
-		$this->ilRoomsharingDatabase->insertBookingAttribut($a_attribute_name);
+		$this->ilRoomsharingDatabase->insertBookingAttribute($a_attribute_name);
 	}
 
 	/**

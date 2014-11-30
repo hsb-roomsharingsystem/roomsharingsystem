@@ -25,7 +25,9 @@ class ilRoomSharingAttributesConstants
 	const BOOKING_ATTRS_GUI = 'ilroomsharingbookingattributesgui';
 	const SHOW_BOOKING_ATTR_ACTIONS = 'showBookingAttributeActions';
 	const EXECUTE_BOOKING_ATTR_ACTION = 'executeBookingAttributeAction';
+	const CREATE_MODE = 'create_attribute';
+	const RENAME_MODE = 'rename_attribute';
+	const DELETE_MODE = 'delete_attribute';
 
 }
 ?>
-
