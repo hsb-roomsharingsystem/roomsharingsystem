@@ -103,6 +103,11 @@ on#:#Am
 participants#:#Teilnehmer
 participants_list#:#Teilnehmerliste
 participations#:#Teilnahmen
+participations_back#:#Zurück zu den Teilnahmen
+participations_confirm#:#Möchten Sie diese Buchung(en) wirklich verlassen?
+participations_confirm_leave#:#Buchung(en) verlassen
+participations_left#:#Teilnahmen wurden verlassen!
+participations_no_leave_ids#:#Markieren Sie bitte mindestens eine Buchung zum Verlassen.
 person_responsible#:#Verantwortlicher
 plan#:#Plan
 pool#:#Roomsharingpool
