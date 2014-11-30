@@ -19,6 +19,7 @@ attributes_for_rooms#:#Attributes for rooms
 attributes_for_rooms_desc#:#Here you can define the attributes for the rooms.
 back_to_list#:#Back to floorplans
 back_to_rooms#:#Back to all rooms
+back_to_search#:#Back to quicksearch
 between#:#Between
 booking_add#:#Add Booking
 booking_add_error#:#Booking could not been added

@@ -19,6 +19,7 @@ attributes_for_rooms#:#Attribute für Räume
 attributes_for_rooms_desc#:#Hier können Attribute für Räume festgelegt werden.
 back_to_list#:#Zurück zu den Gebäudeplänen
 back_to_rooms#:#Zurück zu allen Räumen
+back_to_search#:#Zurück zur Schnellsuche
 between#:#Zwischen
 booking_add#:#Buchung hinzufügen
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
