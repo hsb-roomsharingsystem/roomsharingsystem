@@ -235,7 +235,7 @@ class ilRoomSharingSearchQuickGUI
 		include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		include_once("./Customizing/global/plugins/Services/Repository/" .
 			"RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
-		$room_seats_input = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_seats") .
+		$room_seats_input = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_needed_seats") .
 			" (" . $this->lng->txt("rep_robj_xrs_amount") . ")", "room_seats");
 		$room_seats_input->setParent($a_qsearch_form);
 		$room_seats_input->setMaxLength(8);

@@ -277,7 +277,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 			"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
-		$seats_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_seats"), "seats");
+		$seats_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_needed_seats"), "seats");
 		$room_seats_input = new ilRoomSharingNumberInputGUI("", "room_seats");
 		$room_seats_input->setMaxLength(8);
 		$room_seats_input->setSize(8);
@@ -292,7 +292,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$value = $_POST[$room_seats_input->getPostVar()];
 		if ($value !== "" && $value > $room_seats_input->getMaxValue())
 		{
-			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_seats");
+			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_needed_seats");
 
 			if ($this->messagePlural == false && $this->messageNeeded == true)
 			{
