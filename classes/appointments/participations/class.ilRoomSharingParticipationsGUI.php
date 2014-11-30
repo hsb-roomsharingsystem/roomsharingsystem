@@ -44,14 +44,96 @@ class ilRoomSharingParticipationsGUI
 	 */
 	function executeCommand()
 	{
-		$this->showParticipations();
+		//$this->showParticipations();
+		$cmd = $this->ctrl->getCmd("showParticipations");
+
+		if ($cmd == 'render')
+		{
+			$cmd = 'showParticipations';
+		}
+
+		$cmd .= 'Object';
+		$this->$cmd();
 		return true;
+	}
+
+	/**
+	 * Leaves multiple Participations which are given via $_POST['booking_ids'] and the
+	 * current user.
+	 */
+	public function leaveMultipleParticipationsObject()
+	{
+		$bookings = new ilRoomSharingParticipations($this->pool_id);
+		try
+		{
+			$bookings->removeParticipations($_POST["booking_ids"]);
+		}
+		catch (ilRoomSharingBookingsException $exc)
+		{
+			ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+			$this->showParticipationsObject();
+		}
+		$this->showParticipationsObject();
+	}
+
+	/**
+	 * Shows Confirmation Dialog for leaving multiple bookings. Usually called by clicking the leave-Button.
+	 */
+	function confirmLeaveMultipleParticipationsObject()
+	{
+		$this->showConfirmLeaveDialog($_POST['participations']);
+	}
+
+	/**
+	 * Shows Confirmation Dialog for leaving a signle booking. Usually called by clicking the leave-Link.
+	 */
+	function confirmLeaveParticipationObject()
+	{
+		$this->showConfirmLeaveDialog(array($_GET['booking_id'] . '_' . $_GET['booking_subject']));
+	}
+
+	/**
+	 * Shows a confirmation dialog for leaving one or more participations
+	 * @global type $ilTabs
+	 * @param array $a_ids Array of IDs. Each ID has to contain a subject in this form: %id%_%subject%
+	 */
+	private function showConfirmLeaveDialog($a_ids)
+	{
+		global $ilTabs;
+		if (!empty($a_ids))
+		{
+			$ilTabs->clearTargets();
+			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_participations_back'),
+				$this->ctrl->getLinkTarget($this, 'showParticipations'));
+
+			// create the confirmation GUI
+			$confirmation = new ilConfirmationGUI();
+			$confirmation->setFormAction($this->ctrl->getFormAction($this));
+			$confirmation->setHeaderText($this->lng->txt('rep_robj_xrs_participations_confirm'));
+
+			foreach ($a_ids as $num => $a_booking_info)
+			{
+				$parts = explode('_', $a_booking_info, 2);
+				$confirmation->addItem('booking_ids[' . $num . ']', $parts[0], $parts[1]);
+			}
+
+			$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_participations_confirm_leave'),
+				'leaveMultipleParticipations'); // cancel the bookings
+			$confirmation->setCancel($this->lng->txt('cancel'), 'showParticipations'); // cancel the confirmation dialog
+
+			$this->tpl->setContent($confirmation->getHTML()); // display
+		}
+		else
+		{
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_participations_no_leave_ids'));
+			$this->showParticipationsObject();
+		}
 	}
 
 	/**
 	 * Show all participations.
 	 */
-	function showParticipations()
+	function showParticipationsObject()
 	{
 		$participationsTable = new ilRoomSharingParticipationsTableGUI($this, 'showParticipations',
 			$this->ref_id);

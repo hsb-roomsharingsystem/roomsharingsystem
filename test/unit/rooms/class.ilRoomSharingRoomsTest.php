@@ -209,6 +209,21 @@ class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
+	public function testGetListWithNoRooms()
+	{
+		$filter = Array('room_name' => 111);
+
+		$expected = Array();
+		self::$ilRoomSharingDatabaseStub->method("getAllRoomIDs")->willReturn(Array('0' => 0, '1' => 1));
+		self::$ilRoomSharingDatabaseStub->method("getMatchingRooms")->willReturn(Array());
+
+		$roomAttr = Array();
+		self::$ilRoomSharingDatabaseStub->method("getAttributesForRooms")->willReturn($roomAttr);
+
+		$actual = self::$rooms->getList($filter);
+		$this->assertEquals($expected, $actual);
+	}
+
 }
 
 ?>

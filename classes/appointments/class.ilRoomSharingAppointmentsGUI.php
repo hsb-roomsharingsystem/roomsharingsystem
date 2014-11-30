@@ -59,6 +59,11 @@ class ilRoomSharingAppointmentsGUI
 			case 'confirmCancel':
 				$cmd = 'showBookings';
 				break;
+			case 'confirmLeaveParticipation':
+			case 'confirmLeaveMultipleParticipations':
+			case 'leaveMultipleParticipations':
+				$cmd = 'showParticipations';
+				break;
 			default:
 				break;
 		}

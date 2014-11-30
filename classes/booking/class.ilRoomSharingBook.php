@@ -8,18 +8,25 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * Backend-Class for the booking form.
  *
  * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
- * @author Christopher Marks <deamp_marks@yahoo.d>
+ * @author Christopher Marks <deamp_marks@yahoo.de>
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  */
 class ilRoomSharingBook
 {
-	protected $pool_id;
+	private $pool_id;
 	private $ilRoomsharingDatabase;
 	private $date_from;
 	private $date_to;
 	private $room_id;
 	private $participants;
 
+	/**
+	 * Constructor
+	 *
+	 * @global type $lng
+	 * @global type $ilUser
+	 * @param type $a_pool_id
+	 */
 	public function __construct($a_pool_id)
 	{
 		global $lng, $ilUser;
@@ -33,20 +40,20 @@ class ilRoomSharingBook
 	/**
 	 * Method to add a new booking into the database
 	 *
-	 * @param type $booking_values Array with the values of the booking
-	 * @param type $booking_attr_values Array with the values of the booking-attributes
-	 * @param type $booking_participants Array with the values of the participants
+	 * @param type $a_booking_values Array with the values of the booking
+	 * @param type $a_booking_attr_values Array with the values of the booking-attributes
+	 * @param type $a_booking_participants Array with the values of the participants
 	 * @throws ilRoomSharingBookException
 	 */
-	public function addBooking($booking_values, $booking_attr_values, $booking_participants)
+	public function addBooking($a_booking_values, $a_booking_attr_values, $a_booking_participants)
 	{
-		$this->date_from = $booking_values ['from'] ['date'] . " " . $booking_values ['from'] ['time'];
-		$this->date_to = $booking_values ['to'] ['date'] . " " . $booking_values ['to'] ['time'];
-		$this->room_id = $booking_values ['room'];
-		$this->participants = $booking_participants;
+		$this->date_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
+		$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
+		$this->room_id = $a_booking_values ['room'];
+		$this->participants = $a_booking_participants;
 
 		$this->validateBookingInput();
-		$success = $this->insertBooking($booking_attr_values, $booking_values, $booking_participants);
+		$success = $this->insertBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants);
 
 		if ($success)
 		{
@@ -152,31 +159,29 @@ class ilRoomSharingBook
 	/**
 	 * Sets the pool-id
 	 *
-	 * @param integer $pool_id
+	 * @param integer $a_pool_id
 	 *        	The pool id which should be set
 	 */
-	public function setPoolId($pool_id)
+	public function setPoolId($a_pool_id)
 	{
-		$this->pool_id = $pool_id;
+		$this->pool_id = $a_pool_id;
 	}
 
 	/**
-	 * Generate a booking acknowledgement via mail.
+	 * Generates a booking acknowledgement via mail.
 	 *
 	 * @return array $recipient_ids List of recipients.
 	 */
 	private function sendBookingNotification()
 	{
-            $room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
 
-            $mailer = new ilRoomSharingMailer($this->lng);
-            $mailer->setRoomname($room_name);
-            $mailer->setDateStart($this->date_from);
-            $mailer->setDateEnd($this->date_to);
-            $mailer->sendBookingMail($this->user->getId(), $this->participants);
-            
+		$mailer = new ilRoomSharingMailer($this->lng);
+		$mailer->setRoomname($room_name);
+		$mailer->setDateStart($this->date_from);
+		$mailer->setDateEnd($this->date_to);
+		$mailer->sendBookingMail($this->user->getId(), $this->participants);
 	}
-
 
 	/**
 	 * Returns the room user agreement file id.
