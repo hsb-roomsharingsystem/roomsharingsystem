@@ -309,7 +309,8 @@ class ilRoomSharingBookings
 		$mailer->setRoomname($room_name);
 		$mailer->setDateStart($date_from);
 		$mailer->setDateEnd($date_to);
-		$mailer->sendCancellationMail($user_id, $participants);
+                $mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
+		$mailer->sendCancellationMailWithReason($user_id, $participants);
 	}
 
 }

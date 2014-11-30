@@ -84,6 +84,8 @@ mail_cancellation_creator_message#:#Your booking has been canceled. The followin
 mail_cancellation_creator_subject#:#Your booking has been canceled.
 mail_cancellation_participant_message#:#A booking in which you participated has been canceled. The following booking has been canceled:
 mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
+mail_cancellation_reason_prefix#:#The booking has been cancelled due to the following reason:
+mail_cancellation_reason_manually#:#Manual cancellation by user.
 manage#:#Manage
 max_book_time#:#Maximal time of a booking
 missing_agreement_entries#:#The Rooms use agreement is not accepted.
