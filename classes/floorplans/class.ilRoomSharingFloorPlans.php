@@ -14,22 +14,23 @@ include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
  */
 class ilRoomSharingFloorPlans
 {
-	protected $pool_id;
+	private $pool_id;
 	private $ilRoomsharingDatabase;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlans.
 	 *
 	 * @param type $a_pool_id the pool id of the plugin instance
+	 * @param type $a_ilRoomsharingDatabase the Database
 	 */
-	public function __construct($a_pool_id, $ilRoomsharingDatabase)
+	public function __construct($a_pool_id, $a_ilRoomsharingDatabase)
 	{
 		$this->pool_id = $a_pool_id;
-		$this->ilRoomsharingDatabase = $ilRoomsharingDatabase;
+		$this->ilRoomsharingDatabase = $a_ilRoomsharingDatabase;
 	}
 
 	/**
-	 * Get an array that contains all floor plans.
+	 * Gets an array that contains all floor plans.
 	 *
 	 * @return type array containing all of the floor plans
 	 */
@@ -87,9 +88,15 @@ class ilRoomSharingFloorPlans
 		return $res;
 	}
 
-	public function getRoomsWithFloorplan($fplan_id)
+	/**
+	 * Gets the Rooms with the specific floorplan
+	 *
+	 * @param type $a_floorplan_id
+	 * @return type
+	 */
+	public function getRoomsWithFloorplan($a_floorplan_id)
 	{
-		return $this->ilRoomsharingDatabase->getRoomsWithFloorplan($fplan_id);
+		return $this->ilRoomsharingDatabase->getRoomsWithFloorplan($a_floorplan_id);
 	}
 
 	/**
@@ -192,17 +199,17 @@ class ilRoomSharingFloorPlans
 	/**
 	 * Configures the file for the updateFloorPlanInfosWithFile and addFloorPlan function
 	 *
-	 * @param type $mediaObj
+	 * @param type $a_mediaObj
 	 * @param type $a_newfile
 	 * @return type
 	 */
-	private function configureFile($mediaObj, $a_newfile = null)
+	private function configureFile($a_mediaObj, $a_newfile = null)
 	{
-		$mob_dir = ilObjMediaObject::_getDirectory($mediaObj->getId());
+		$mob_dir = ilObjMediaObject::_getDirectory($a_mediaObj->getId());
 
 		if (!is_dir($mob_dir))
 		{
-			$mediaObj->createDirectory();
+			$a_mediaObj->createDirectory();
 		}
 		$file_name = ilUtil::getASCIIFilename($a_newfile["name"]);
 		$file_name_mod = str_replace(" ", "_", $file_name);
@@ -267,16 +274,16 @@ class ilRoomSharingFloorPlans
 	 * Updates the media object with the file informations for the updateFloorPlanInfosWithFile
 	 * and addFloorPlan function
 	 *
-	 * @param type $mediaObj
-	 * @param type $fileinfo
+	 * @param type $a_mediaObj
+	 * @param type $a_fileinfo
 	 */
-	private function updateMediaObject($mediaObj, $fileinfo)
+	private function updateMediaObject($a_mediaObj, $a_fileinfo)
 	{
-		$media_item = $mediaObj->getMediaItem("Standard");
-		$media_item->setFormat($fileinfo["format"]);
-		$media_item->setLocation($fileinfo["filename"]);
+		$media_item = $a_mediaObj->getMediaItem("Standard");
+		$media_item->setFormat($a_fileinfo["format"]);
+		$media_item->setLocation($a_fileinfo["filename"]);
 		$media_item->setLocationType("LocalFile");
-		$mediaObj->update();
+		$a_mediaObj->update();
 	}
 
 }

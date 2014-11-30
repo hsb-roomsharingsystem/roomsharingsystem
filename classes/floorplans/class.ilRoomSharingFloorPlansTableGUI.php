@@ -16,10 +16,11 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
  */
 class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 {
-	protected $pool_id;
+	private $pool_id;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlansTableGUI
+	 *
 	 * @global type $ilCtrl the ilias control structure
 	 * @global type $lng the translation instance of ilias
 	 * @param type $a_parent_obj the parent object for retrieving information
@@ -40,18 +41,17 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 
 		$this->setTitle($this->lng->txt("rep_robj_xrs_floor_plans_show"));
 		$this->setLimit(10);   // max no. of rows
-		$this->addColumns(); // set column headings
+		$this->addColumns();
 		$this->setEnableHeader(true);
 		$this->setRowTemplate("tpl.room_floorplans.html",
-			"Customizing/global/plugins/Services/"
-			. "Repository/RepositoryObject/RoomSharing");
+			"Customizing/global/plugins/Services/" . "Repository/RepositoryObject/RoomSharing");
 		$this->getItems();
 	}
 
 	/**
 	 * Retrieves the data that should be populated into the table.
 	 */
-	public function getItems()
+	private function getItems()
 	{
 		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing'
 			. '/classes/floorplans/class.ilRoomSharingFloorPlans.php';
@@ -63,7 +63,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	}
 
 	/**
-	 * Add columns and column headings to the table.
+	 * Adds columns and column headings to the table.
 	 */
 	private function addColumns()
 	{
@@ -78,7 +78,6 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	 *
 	 * -- Thumbnail -- Title -- Description -- Actions --
 	 *
-	 * @global type $ilAccess used for actions
 	 * @param type $a_set the row that needs to be populated
 	 */
 	public function fillRow($a_set)
@@ -94,59 +93,57 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	/**
 	 * Populates the Image Thumbnail in the row
 	 *
-	 * @param type $mediaObject the media object
-	 * @param type $type the image type
+	 * @param type $a_mediaObject the media object
+	 * @param type $a_type the image type
 	 */
-	private function fillRowImage($mediaObject, $type)
+	private function fillRowImage($a_mediaObject, $a_type)
 	{
-		$med = $mediaObject->getMediaItem("Standard");
+		$med = $a_mediaObject->getMediaItem("Standard");
 
-		$this->tpl->setVariable("LINK_VIEW", $mediaObject->getDataDirectory() . "/" . $med->getLocation());
+		$this->tpl->setVariable("LINK_VIEW",
+			$a_mediaObject->getDataDirectory() . "/" . $med->getLocation());
 
 		$target = $med->getThumbnailTarget();
-		// Thumbnail
-		if ($target !== "")  // if the file meets the criteria of an image
+		if ($target !== "")
 		{
 			$this->tpl->setVariable("IMG", ilUtil::img($target));
 		}
-		else // the file is corrupt but will still be displayed
+		else
 		{
-			$this->tpl->setVariable("IMG", ilUtil::img(ilUtil::getImagePath("icon_" . $type . ".png")));
+			$this->tpl->setVariable("IMG", ilUtil::img(ilUtil::getImagePath("icon_" . $a_type . ".png")));
 		}
 	}
 
 	/**
 	 * Populates the title and description in the row
 	 *
-	 * @param type $mediaObject the media object
-	 * @param type $title the title
+	 * @param type $a_mediaObject the media object
+	 * @param type $a_title the title
 	 */
-	private function fillRowTitleAndDescription($mediaObject, $title)
+	private function fillRowTitleAndDescription($a_mediaObject, $a_title)
 	{
-		// Title
-		$this->tpl->setVariable('TXT_TITLE', $title);
-		// Description
-		$this->tpl->setVariable('TXT_DESCRIPTION', $mediaObject->getDescription());
+		$this->tpl->setVariable('TXT_TITLE', $a_title);
+		$this->tpl->setVariable('TXT_DESCRIPTION', $a_mediaObject->getDescription());
 	}
 
 	/**
 	 * Populates the actions in the row
 	 *
 	 * @global type $ilAccess
-	 * @param type $file_id the file id
+	 * @param type $a_file_id the file id
 	 */
-	private function fillRowActions($file_id)
+	private function fillRowActions($a_file_id)
 	{
 		global $ilAccess;
 		include_once("./Services/UIComponent/AdvancedSelectionList/classes"
 			. "/class.ilAdvancedSelectionListGUI.php");
 		$alist = new ilAdvancedSelectionListGUI();
-		$alist->setId($file_id);
+		$alist->setId($a_file_id);
 		$alist->setListTitle($this->lng->txt("actions"));
 
 		if ($ilAccess->checkAccess('write', '', $this->ref_id))
 		{
-			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $file_id);
+			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $a_file_id);
 			$alist->addItem($this->lng->txt('edit'), 'edit',
 				$this->ctrl->getLinkTarget($this->parent_obj, 'editFloorplan'));
 

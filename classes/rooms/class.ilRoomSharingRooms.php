@@ -13,27 +13,27 @@ include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  */
 class ilRoomSharingRooms
 {
-	protected $pool_id;
-	protected $ilRoomsharingDatabase;
+	private $pool_id;
+	private $ilRoomsharingDatabase;
 	private $filter;
 	private $roomsMatchingAttributeFilters;
-	private $debug = false;
 
 	/**
-	 * constructor ilRoomSharingRooms
+	 * Constructor ilRoomSharingRooms
 	 *
 	 * @param integer $a_pool_id
+	 * @param type $a_ilRoomsharingDatabase the roomsharing database
 	 */
-	public function __construct($a_pool_id, $ilRoomsharingDatabase)
+	public function __construct($a_pool_id, $a_ilRoomsharingDatabase)
 	{
 		$this->pool_id = $a_pool_id;
-		$this->ilRoomsharingDatabase = $ilRoomsharingDatabase;
+		$this->ilRoomsharingDatabase = $a_ilRoomsharingDatabase;
 	}
 
 	/**
-	 * Get the rooms for a given pool_id from database
+	 * Gets the rooms for a given pool_id from database
 	 *
-	 * @param array $filter optional room-filter
+	 * @param array $a_filter optional room-filter
 	 * @return array Rooms and Attributes in the following format:
 	 *         array (
 	 *         array (
@@ -46,18 +46,9 @@ class ilRoomSharingRooms
 	 *         )
 	 *         )
 	 */
-	public function getList(array $filter = null)
+	public function getList(array $a_filter = null)
 	{
-		$this->filter = $filter;
-
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "Entered getList() with filter-array:";
-			echo "<br />";
-			print_r($this->filter);
-			echo "<br />";
-		}
+		$this->filter = $a_filter;
 
 		if ($this->filter ['attributes'])
 		{
@@ -68,27 +59,9 @@ class ilRoomSharingRooms
 			$this->roomsMatchingAttributeFilters = $this->getAllRooms();
 		}
 
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "roomsMatchingAttributeFilters Array after getAllRooms/getFilteredRooms";
-			echo "<br />";
-			print_r($this->roomsMatchingAttributeFilters);
-			echo "<br />";
-		}
-
 		if ($this->filter ["date"] && $this->filter ["time_from"] && $this->filter ["time_to"])
 		{
 			$this->removeRoomsNotInTimeRange();
-		}
-
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "roomsMatchingAttributeFilters Array after remove Rooms not in time range sdasdasd";
-			echo "<br />";
-			print_r($this->roomsMatchingAttributeFilters);
-			echo "<br />";
 		}
 
 		$this->roomsMatchingAttributeFilters = $this->removeRoomsNotMatchingNameAndSeats();
@@ -96,20 +69,11 @@ class ilRoomSharingRooms
 		$res_attribute = $this->getAttributes($this->roomsMatchingAttributeFilters[0]);
 		$res = $this->formatDataForGui($this->roomsMatchingAttributeFilters[1], $res_attribute);
 
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "output:";
-			echo "<br />";
-			print_r($res);
-			echo "<br />";
-		}
-
 		return $res;
 	}
 
 	/**
-	 * Get Rooms with matching Attributes
+	 * Gets Rooms with matching Attributes
 	 *
 	 * @param type $a_attribute_filter
 	 * @return array()
@@ -137,43 +101,35 @@ class ilRoomSharingRooms
 	}
 
 	/**
+	 * Gets rooms matching an attribute
 	 *
 	 * @param type $a_attribute
 	 * @param type $a_count
-	 * @param type $roomsWithAttrib
+	 * @param type $a_roomsWithAttrib
 	 * @return type
 	 */
-	private function getMatchingRoomsForAttributeAsArray($a_attribute, $a_count, $roomsWithAttrib)
+	private function getMatchingRoomsForAttributeAsArray($a_attribute, $a_count, $a_roomsWithAttrib)
 	{
 		$matching = $this->ilRoomsharingDatabase->
 			getRoomIdsWithMatchingAttribute($a_attribute, $a_count);
 
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "MATCHING";
-			echo "<br />";
-			print_r($matching);
-			echo "<br />";
-		}
 		foreach ($matching as $key => $room_id)
 		{
-			if (!array_key_exists($room_id, $roomsWithAttrib))
+			if (!array_key_exists($room_id, $a_roomsWithAttrib))
 			{
-				$roomsWithAttrib [$room_id] = 1;
+				$a_roomsWithAttrib [$room_id] = 1;
 			}
 			else
 			{
-				$roomsWithAttrib [$room_id] = $roomsWithAttrib [$room_id] + 1;
+				$a_roomsWithAttrib [$room_id] = $a_roomsWithAttrib [$room_id] + 1;
 			}
 		}
 
-		return $roomsWithAttrib;
+		return $a_roomsWithAttrib;
 	}
 
 	/**
-	 * Get all Rooms
-	 *
+	 * Gets all Rooms
 	 */
 	private function getAllRooms()
 	{
@@ -188,7 +144,7 @@ class ilRoomSharingRooms
 	}
 
 	/**
-	 * Remove all rooms that are booked in time range
+	 * Removes all rooms that are booked in time range
 	 */
 	private function removeRoomsNotInTimeRange()
 	{
@@ -198,14 +154,6 @@ class ilRoomSharingRooms
 		$roomsMatchingAttributeFilters_Temp = $this->roomsMatchingAttributeFilters;
 		$this->roomsMatchingAttributeFilters = array();
 
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "remove RoomsNot in Time Range";
-			echo "<br />";
-			print_r($roomsBookedInTimeRange);
-			echo "<br />";
-		}
 		foreach ($roomsMatchingAttributeFilters_Temp as $key => $value)
 		{
 			if (array_search($key, $roomsBookedInTimeRange) > -1)
@@ -219,33 +167,19 @@ class ilRoomSharingRooms
 		}
 	}
 
+	/**
+	 * Removes the rooms not mathing name and seats
+	 *
+	 * @return type array with room_ids, $res_room
+	 */
 	private function removeRoomsNotMatchingNameAndSeats()
 	{
 		$res_room = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
 			$this->filter ["room_name"], $this->filter ["room_seats"]);
 
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "get Matching Rooms response";
-			echo "<br />";
-			print_r($res_room);
-			echo "<br />";
-		}
-
 		foreach ($res_room as $key => $value)
 		{
 			$room_ids [] = $value ['id'];
-		}
-
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "get Matching Rooms response";
-			echo "<br />";
-			print_r(array(
-				$room_ids, $res_room));
-			echo "<br />";
 		}
 
 		return array(
@@ -274,25 +208,16 @@ class ilRoomSharingRooms
 	 */
 	protected function getAttributes(array $room_ids = null)
 	{
-		$res_attribute = $this->ilRoomsharingDatabase->getAttributesForRooms($room_ids);
-		if ($this->debug)
-		{
-			echo "<br />";
-			echo "room atts";
-			echo "<br />";
-			print_r($res_attribute);
-			echo "<br />";
-		}
-		return $res_attribute;
+		return $this->ilRoomsharingDatabase->getAttributesForRooms($room_ids);
 	}
 
 	/**
 	 * Formats the loaded data for the gui.
 	 *
 	 *
-	 * @param array $res_room
+	 * @param array $a_res_room
 	 *        	list of rooms
-	 * @param array $res_attribute
+	 * @param array $a_res_attribute
 	 *        	list of attributes
 	 * @return array Rooms and Attributes in the following format:
 	 *         array (
@@ -306,13 +231,13 @@ class ilRoomSharingRooms
 	 *         )
 	 *         )
 	 */
-	protected function formatDataForGui(array $res_room, array $res_attribute)
+	protected function formatDataForGui(array $a_res_room, array $a_res_attribute)
 	{
 		$res = array();
-		foreach ($res_room as $room)
+		foreach ($a_res_room as $room)
 		{
 			$attr = array();
-			foreach ($res_attribute as $attribute)
+			foreach ($a_res_attribute as $attribute)
 			{
 				if ($attribute ['room_id'] == $room ['id'])
 				{
@@ -378,10 +303,10 @@ class ilRoomSharingRooms
 	 *        	(optional)
 	 * @return array values = room ids booked in given range
 	 */
-	public function getRoomsBookedInDateTimeRange($date_from, $date_to, $room_id = null)
+	public function getRoomsBookedInDateTimeRange($date_from, $date_to, $a_room_id = null)
 	{
 		return $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($date_from, $date_to,
-				$room_id = null);
+				$a_room_id);
 	}
 
 }
