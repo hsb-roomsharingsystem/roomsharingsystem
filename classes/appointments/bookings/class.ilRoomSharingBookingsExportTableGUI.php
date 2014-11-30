@@ -66,22 +66,21 @@ class ilRoomSharingBookingsExportTableGUI extends ilTable2GUI
 	 */
 	private function _addColumns()
 	{
-		//berechnung der Spaltenbreite
-                //Kann noch optimiert werden
-                $firstColInPro= 3;
-                $tmpNum = (100-$firstColInPro)/(count($this->getSelectedColumns())+4);
-                $tmpString = (string)$tmpNum . '%';
-            
+		//calculation of Columnwidth - can still be optimized
+		$firstColInPro = 3;
+		$tmpNum = (100 - $firstColInPro) / (count($this->getSelectedColumns()) + 4);
+		$tmpString = (string) $tmpNum . '%';
+
 		$this->addColumn('', '', $firstColInPro . '%'); // icons
-		$this->addColumn($this->lng->txt("rep_robj_xrs_date"),'',$tmpString);
-		$this->addColumn($this->lng->txt("rep_robj_xrs_room"),'',$tmpString);
-		$this->addColumn($this->lng->txt("rep_robj_xrs_subject"),'',$tmpString);
-		$this->addColumn($this->lng->txt("rep_robj_xrs_participants"),'',$tmpString);
+		$this->addColumn($this->lng->txt("rep_robj_xrs_date"), '', $tmpString);
+		$this->addColumn($this->lng->txt("rep_robj_xrs_room"), '', $tmpString);
+		$this->addColumn($this->lng->txt("rep_robj_xrs_subject"), '', $tmpString);
+		$this->addColumn($this->lng->txt("rep_robj_xrs_participants"), '', $tmpString);
 
 		// Add the selected optional columns to the table
 		foreach ($this->getSelectedColumns() as $c)
 		{
-			$this->addColumn($c,'',$tmpString);
+			$this->addColumn($c, '', $tmpString);
 		}
 	}
 
