@@ -98,7 +98,7 @@ class ilRoomsharingDatabase
 		$room_ids = array();
 		while ($row = $this->ilDB->fetchAssoc($resRoomIds))
 		{
-			$room_ids[] = $row['room_id'];
+			$room_ids[] = $row['id'];
 		}
 		return $room_ids;
 	}

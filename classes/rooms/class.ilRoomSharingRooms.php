@@ -135,10 +135,10 @@ class ilRoomSharingRooms
 	{
 		$rooms = array();
 		$room_ids = $this->ilRoomsharingDatabase->getAllRoomIds();
-		$rooms [] = 0;
+
 		foreach ($room_ids as $room_id)
 		{
-			$rooms [] = $room_id;
+			$rooms [$room_id] = 1;
 		}
 		return $rooms;
 	}
@@ -158,7 +158,7 @@ class ilRoomSharingRooms
 		{
 			if (array_search($key, $roomsBookedInTimeRange) > -1)
 			{
-				//nocht nicht vollständig?
+				//noch nicht vollständig?
 			}
 			else
 			{
@@ -168,23 +168,23 @@ class ilRoomSharingRooms
 	}
 
 	/**
-	 * Removes the rooms not mathing name and seats
+	 * Removes the rooms not matching name and seats
 	 *
 	 * @return type array with room_ids, $res_room
 	 */
 	private function removeRoomsNotMatchingNameAndSeats()
 	{
-		$res_room = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
+		$res_rooms = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
 			$this->filter ["room_name"], $this->filter ["room_seats"]);
 
-		foreach ($res_room as $key => $value)
+		foreach ($res_rooms as $res_room)
 		{
-			$room_ids [] = $value ['id'];
+			$room_ids [] = $res_room ['id'];
 		}
 
 		return array(
 			$room_ids,
-			$res_room
+			$res_rooms
 		);
 	}
 
