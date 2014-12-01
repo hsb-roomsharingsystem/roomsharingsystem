@@ -1,11 +1,17 @@
 <?php
 
-include_once("./Services/Repository/classes/class.ilObjectPluginGUI.php");
-include_once('Services/Form/classes/class.ilPropertyFormGUI.php');
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+require_once("Services/Repository/classes/class.ilObjectPluginGUI.php");
+require_once('Services/Form/classes/class.ilPropertyFormGUI.php');
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/utils/class.ilRoomSharingTimeInputGUI.php");
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/utils/class.ilRoomSharingCalendar.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingAttributesConstants as ATTRC;
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * User Interface class for RoomSharing repository object.
@@ -27,7 +33,8 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI, ilRoomSharingBookingsExport
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingCalendarWeekGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingPrivilegesGUI, ilRoomSharingAttributesGUI
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarDayGUI, ilCalendarAppointmentGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
@@ -45,6 +52,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 {
 	var $object;
 	var $lng;
+	private $permission;
 	protected $settingsForm;
 	protected $pool_id;
 	protected $pl_obj;
@@ -58,8 +66,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		if ($this->object != null)
 		{
-			//Cannot initialize the user-calendar before the actual object is created because of missing poolID
+			global $rssPermission;
+
+			//Cannot initialize the user-calendar and permission utils before the actual object is created because of missing poolID
 			$this->initCalendar();
+			$rssPermission = new ilRoomSharingPermissionUtils($this->object->getPoolId(),
+				$this->object->getOwner());
+			$this->permission = $rssPermission;
 		}
 	}
 
@@ -89,13 +102,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	function performCommand($cmd)
 	{
-		global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd;
+		global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd, $rssPermission;
 		$next_class = $ilCtrl->getNextClass($this);
 		$this->pl_obj = new ilRoomSharingPlugin();
 		$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
 		// Set pool id
 		$this->pool_id = $this->object->getPoolID();
 		$cmd = $ilCtrl->getCmd();
+		$has_calendar = false;
 		if ($cmd === 'edit' || $cmd === 'editSettings' || $cmd === 'updateSettings')
 		{
 			$ilTabs->setTabActive('settings');
@@ -112,27 +126,36 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		 * showSearchResults is needed because otherwise the wrong $next_class
 		 * would be called
 		 */
-		else if ($cmd === 'showSearchQuick' || $cmd === 'showSearchResults')
+		else if ($cmd === 'showSearchQuick' || $cmd === 'showBookSearchResults')
 		{
-			$next_class = ilroomsharingsearchgui;
+			$next_class = empty($next_class) ? ilroomsharingsearchgui : $next_class;
 		}
 		// the special handling of the commands addRoom and editRoom
 		else if ($cmd === 'addRoom' || $cmd === 'editRoom')
 		{
 			$next_class = ilroomsharingroomgui;
 		}
+
 		// Extend list of last visited objects by this pool.
 		$ilNavigationHistory->addItem($this->ref_id, "./goto.php?target=xrs_" . $this->ref_id, "xrs");
 
 		// Main switch for cmdClass.
 		switch ($next_class)
 		{
+			// Attributes for rooms and bookings
+			case ATTRC::ATTRS_GUI:
+				$this->tabs_gui->setTabActive(ATTRC::ATTRS);
+				$this->pl_obj->includeClass(ATTRC::ATTRS_GUI_PATH);
+				$attributes_gui = & new ilRoomSharingAttributesGUI($this);
+				$ret = & $this->ctrl->forwardCommand($attributes_gui);
+				break;
 			// Appointments
 			case 'ilroomsharingappointmentsgui':
 				$this->tabs_gui->setTabActive('appointments');
 				$this->pl_obj->includeClass("appointments/class.ilRoomSharingAppointmentsGUI.php");
 				$object_gui = & new ilRoomSharingAppointmentsGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
+				$has_calendar = true;
 				break;
 			// Info
 			case 'ilinfoscreengui':
@@ -151,6 +174,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$this->pl_obj->includeClass("rooms/class.ilRoomSharingRoomsGUI.php");
 				$object_gui = & new ilRoomSharingRoomsGUI($this);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
+				$has_calendar = true;
 				break;
 			// Room, Called for display a single room
 			case 'ilroomsharingroomgui':
@@ -158,6 +182,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$room_id = (int) $_GET['room_id'];
 				$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 				$object_gui = & new ilRoomSharingRoomGUI($this, $room_id);
+				$ret = & $this->ctrl->forwardCommand($object_gui);
+				break;
+			// CalendarWeek, Called for display a weekly view for a single room
+			case 'ilroomsharingcalendarweekgui':
+				$this->tabs_gui->setTabActive('rooms');
+				$room_id = (int) $_GET['room_id'];
+				$this->pl_obj->includeClass("rooms/detail/calendar/class.ilRoomSharingCalendarWeekGUI.php");
+				$object_gui = & new ilRoomSharingCalendarWeekGUI($this->seed, $this->pool_id, $room_id);
 				$ret = & $this->ctrl->forwardCommand($object_gui);
 				break;
 			// Book
@@ -183,6 +215,20 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				include_once("Services/AccessControl/classes/class.ilPermissionGUI.php");
 				$perm_gui = & new ilPermissionGUI($this);
 				$ret = & $this->ctrl->forwardCommand($perm_gui);
+				break;
+			// Privileges
+			case 'ilroomsharingprivilegesgui':
+				if ($this->permission->checkPrivilege(PRIVC::ACCESS_PRIVILEGES))
+				{
+					$this->tabs_gui->setTabActive('privileges');
+					$this->pl_obj->includeClass("privileges/class.ilRoomSharingPrivilegesGUI.php");
+					$privileges_gui = & new ilRoomSharingPrivilegesGUI($this);
+					$ret = & $this->ctrl->forwardCommand($privileges_gui);
+				}
+				else
+				{
+					ilUtil::sendFailure($this->txt("no_permission"));
+				}
 				break;
 			// Userprofile GUI
 			case 'ilpublicuserprofilegui':
@@ -230,6 +276,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			default:
 				$cmd = $ilCtrl->getCmd('render');
 				$this->$cmd();
+				$has_calendar = true;
 				break;
 		}
 
@@ -237,13 +284,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->addHeaderAction();
 
 		include_once('./Services/Calendar/classes/class.ilCalendarSettings.php');
-		if (ilCalendarSettings::_getInstance()->isEnabled())
+		if (ilCalendarSettings::_getInstance()->isEnabled() && $has_calendar)
 		{
 
 			//adds Minicalendar to the right if active
 			$tpl->setRightContent($this->cal->getHTML());
-			$tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'delos.css', 'Services/Calendar'));
 		}
+		$tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'delos.css', 'Services/Calendar'));
 		return true;
 	}
 
@@ -286,40 +333,82 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $ilTabs, $ilCtrl, $ilAccess;
 
-		// Appointments
-		$ilTabs->addTab(
-			"appointments", $this->txt("appointments"),
-			$ilCtrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings")
-		);
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_APPOINTMENTS))
+		{
+			// Appointments
+			$ilTabs->addTab(
+				"appointments", $this->txt("appointments"),
+				$ilCtrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings")
+			);
+		}
 		// Standard info screen tab
 		$this->addInfoTab();
-		// Search
-		$this->tabs_gui->addTab(
-			"search", $this->lng->txt("search"),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
-		);
-		// Rooms
-		$this->tabs_gui->addTab(
-			"rooms", $this->txt("rooms"),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms")
-		);
-		// Floorplans
-		$this->tabs_gui->addTab(
-			"floor_plans", $this->txt("room_floor_plans"),
-			$this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render")
-		);
-		// Show permissions and settings tabs if the user has write permissions.
-		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
+
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_SEARCH))
 		{
+			// Search
+			$this->tabs_gui->addTab(
+				"search", $this->lng->txt("search"),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
+			);
+		}
+
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			// Rooms
+			$this->tabs_gui->addTab(
+				"rooms", $this->txt("rooms"),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms")
+			);
+		}
+
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_FLOORPLANS))
+		{
+			// Floorplans
+			$this->tabs_gui->addTab(
+				"floor_plans", $this->txt("room_floor_plans"),
+				$this->ctrl->getLinkTargetByClass("ilroomsharingfloorplansgui", "render")
+			);
+		}
+
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			// Attributes for rooms and bookings
+			$ilTabs->addTab(
+				ATTRC::ATTRS, $this->txt("attributes"),
+				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, ATTRC::SHOW_ROOM_ATTR_ACTIONS)
+			);
 			// Settings
 			$this->tabs_gui->addTab(
 				'settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings')
 			);
+		}
+
+		if ($ilAccess->checkAccess('write', '', $this->object->getRefId()))
+		{
 			// Permission
 			$this->addPermissionTab();
 		}
-		//show first tab per default
-		$this->tabs_gui->activateTab('appointments');
+
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_PRIVILEGES))
+		{
+			// Privileges
+			$this->tabs_gui->addTab(
+				"privileges", $this->txt("privileges"),
+				$this->ctrl->getLinkTargetByClass("ilroomsharingprivilegesgui", "showPrivileges")
+			);
+		}
+
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_APPOINTMENTS))
+		{
+			//show first tab per default
+			$this->tabs_gui->activateTab('appointments');
+		}
+		else
+		{
+			//TODO GEHT DAS SO??
+			$this->tabs_gui->activateTab("info");
+		}
 	}
 
 	/**
@@ -493,7 +582,31 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$this->tabs_gui->setTabActive('rooms');
 		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
 		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
-		$room_gui->showRoomObject();
+		$room_gui->showRoom();
+	}
+
+	/**
+	 * Create GUI to edit a room.
+	 */
+	public function editRoom()
+	{
+		$room_id = (int) $_GET['room_id'];
+		$this->tabs_gui->setTabActive('rooms');
+		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
+		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
+		$room_gui->editRoom();
+	}
+
+	/**
+	 * Create GUI to confirm a room deletion.
+	 */
+	public function confirmDeleteRoom()
+	{
+		$room_id = (int) $_GET['room_id'];
+		$this->tabs_gui->setTabActive('rooms');
+		$this->pl_obj->includeClass("rooms/detail/class.ilRoomSharingRoomGUI.php");
+		$room_gui = new ilRoomSharingRoomGUI($this, $room_id);
+		$room_gui->confirmDeleteRoom();
 	}
 
 	/**
@@ -581,7 +694,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 		//Initialize the Calendar
 		$this->initSeed();
-		$cal_id = $db->getCalendarIdFromDatabase();
+		$cal_id = $db->getCalendarId();
 		$this->cal = new ilRoomSharingCalendar($this->seed, $cal_id, $this);
 		if ($cal_id == 0 || $cal_id != $this->cal->getCalendarId())
 		{
@@ -591,12 +704,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		}
 	}
 
-	/**
-	 *  Creates an appointment in the calendar based on an confirmed booking
-	 */
-	public function addBookingAppointment($booking_values_array)
+	public function getCalendarId()
 	{
-		$this->cal->addAppointment($booking_values_array);
+		return $this->cal->getCalendarId();
 	}
 
 }

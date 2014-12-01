@@ -4,10 +4,11 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBookException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookException.php");
 require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
 require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/User/classes/class.ilUserAutoComplete.php");
+include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
  * Class ilRoomSharingBookGUI
@@ -107,7 +108,7 @@ class ilRoomSharingBookGUI
 		$room_id = empty($this->room_id) ? $_POST['room_id'] : $this->room_id;
 		$this->room_id = $room_id;
 
-		$rooms = new ilRoomSharingRooms();
+		$rooms = new ilRoomSharingRooms($this->poolID, new ilRoomsharingDatabase($this->poolID));
 		return $rooms->getRoomName($room_id);
 	}
 
@@ -115,6 +116,7 @@ class ilRoomSharingBookGUI
 	{
 		$form_items = array();
 		$form_items[] = $this->createSubjectTextInput();
+		$form_items[] = $this->createCommentTextInput();
 		$booking_attributes = $this->createBookingAttributeTextInputs();
 		$form_items = array_merge($form_items, $booking_attributes);
 		$form_items[] = $this->createTimeRangeInput();
@@ -125,6 +127,16 @@ class ilRoomSharingBookGUI
 		$form_items[] = $this->createParticipantsMultiTextInput();
 
 		return array_filter($form_items);
+	}
+
+	private function createCommentTextInput()
+	{
+		$comment = new ilTextInputGUI($this->lng->txt("comment"), "comment");
+		$comment->setRequired(false);
+		$comment->setSize(40);
+		$comment->setMaxLength(4000);
+
+		return $comment;
 	}
 
 	private function createSubjectTextInput()
@@ -337,6 +349,7 @@ class ilRoomSharingBookGUI
 		$common_entries['book_public'] = $a_form->getInput('book_public');
 		$common_entries['accept_room_rules'] = $a_form->getInput('accept_room_rules');
 		$common_entries['room'] = $a_form->getInput('room_id');
+		$common_entries['comment'] = $a_form->getInput('comment');
 
 		return $common_entries;
 	}
@@ -368,8 +381,9 @@ class ilRoomSharingBookGUI
 
 	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
 	{
+		//adds current calendar-id to booking information
+		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
 		$this->book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
-		$this->parent_obj->addBookingAppointment($a_common_entries);
 		$this->cleanUpAfterSuccessfulSave();
 	}
 

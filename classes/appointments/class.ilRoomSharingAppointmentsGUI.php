@@ -1,16 +1,29 @@
 <?php
 
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
+require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
+
 /**
  * Class ilRoomSharingAppointmentsGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
  * @version $Id$
  *
  * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI, ilRoomSharingBookingsExport
  *
+ * @property ilCtrl $ctrl
+ * @property ilLanguage $lng
  */
 class ilRoomSharingAppointmentsGUI
 {
+	public $ref_id;
+	protected $ctrl;
+	protected $lng;
+	private $pool_id;
+
 	/**
 	 * Constructor of ilRoomSharingAppointmentsGUI
 	 *
@@ -26,6 +39,9 @@ class ilRoomSharingAppointmentsGUI
 
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
+
+		$this->ref_id = $a_parent_obj->ref_id;
+		$this->pool_id = $a_parent_obj->getPoolId();
 	}
 
 	/**
@@ -48,19 +64,31 @@ class ilRoomSharingAppointmentsGUI
 		global $ilCtrl, $tpl;
 
 		// set cmd to 'showBookings' if no cmd can be found
-		$cmd = $ilCtrl->getCmd("showBookings");
+		$cmd = $this->ctrl->getCmd("showBookings");
 
-		if ($cmd === 'render' || $cmd === 'showContent')
+		switch ($cmd)
 		{
-			$cmd = 'showBookings';
-		}
-		else if ($cmd === 'cancelBooking' || $cmd === 'confirmCancel')
-		{
-			$next_class = 'ilroomsharingbookingsgui';
-		}
-		else if ($cmd === 'exportBooking')
-		{
-			$next_class = 'ilroomsharingbookingsgui';
+			case 'render':
+			case 'showContent':
+			case 'cancelBooking':
+				$next_class = 'ilroomsharingbookingsgui';
+				break;
+			case 'confirmMultipleCancels':
+			case 'cancelMultipleBookings':
+			case 'confirmCancel':
+				$next_class = 'ilroomsharingbookingsgui';
+				$cmd = 'showBookings';
+				break;
+			case 'confirmLeaveParticipation':
+			case 'confirmLeaveMultipleParticipations':
+			case 'exportBooking':
+				$next_class = 'ilroomsharingbookingsgui';
+				break;
+			case 'leaveMultipleParticipations':
+				$cmd = 'showParticipations';
+				break;
+			default:
+				break;
 		}
 
 		$ilCtrl->setReturn($this, "showBookings");
@@ -93,10 +121,10 @@ class ilRoomSharingAppointmentsGUI
 	 */
 	protected function setSubTabs($a_active)
 	{
-		global $ilTabs, $lng;
+		global $ilTabs;
 		$ilTabs->setTabActive('appointments');
 		// Bookings
-		$ilTabs->addSubTab('bookings', $lng->txt('rep_robj_xrs_bookings'),
+		$ilTabs->addSubTab('bookings', $this->lng->txt('rep_robj_xrs_bookings'),
 			$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBookings'));
 
 		// Participations
@@ -111,7 +139,6 @@ class ilRoomSharingAppointmentsGUI
 	function showBookings()
 	{
 		$this->setSubTabs('bookings');
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
 		$object_gui = & new ilRoomSharingBookingsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}
@@ -130,7 +157,6 @@ class ilRoomSharingAppointmentsGUI
 	function showParticipations()
 	{
 		$this->setSubTabs('participations');
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
 		$object_gui = & new ilRoomSharingParticipationsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}

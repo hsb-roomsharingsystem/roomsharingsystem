@@ -78,39 +78,4 @@ class ilRoomSharingCalendar extends ilMiniCalendarGUI
 		}
 	}
 
-	/*
-	 * Creates an appointment in the RoomSharing-Calendar.
-	 *
-	 * @param $title string appointment-title
-	 * @param $time_start start-time
-	 * @param $time_end end-time
-	 */
-	public function addAppointment($booking_values_array)
-	{
-		include_once('Services/Calendar/classes/class.ilDate.php');
-		$time_start = new ilDateTime($booking_values_array ['from']['date'] . ' ' . $booking_values_array ['from']['time'],
-			1);
-		$time_end = new ilDateTime($booking_values_array ['to']['date'] . ' ' . $booking_values_array ['to']['time'],
-			1);
-		$title = $booking_values_array['subject'];
-
-		$room = $booking_values_array['room_name'];
-
-
-		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
-		include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
-		$app = new ilCalendarEntry();
-		$app->setStart($time_start);
-		$app->setEnd($time_end);
-		$app->setFullday(false);
-		$app->setTitle($title);
-		$app->setLocation($room);
-		$app->validate();
-		$app->save();
-
-		include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
-		$ass = new ilCalendarCategoryAssignments($app->getEntryId());
-		$ass->addAssignment($this->cal_cat_id);
-	}
-
 }

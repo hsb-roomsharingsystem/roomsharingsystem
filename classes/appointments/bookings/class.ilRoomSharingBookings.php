@@ -3,18 +3,30 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingDateUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 
 /**
  * Class ilRoomSharingBookings
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
  * @version $Id$
+ * @property ilRoomsharingDatabase $ilRoomsharingDatabase
+ * @property ilDB $ilDB
+ * @property ilUser $ilUser
+ * @property ilLanguage $lng
  */
 class ilRoomSharingBookings
 {
 	protected $pool_id;
 	protected $ilRoomsharingDatabase;
+	private $ilDB;
+	private $ilUser;
+	private $lng;
 
 	/**
 	 * constructor ilRoomSharingBookings
@@ -23,6 +35,10 @@ class ilRoomSharingBookings
 	 */
 	function __construct($pool_id = 1)
 	{
+		global $ilDB, $ilUser, $lng;
+		$this->ilDB = $ilDB;
+		$this->ilUser = $ilUser;
+		$this->lng = $lng;
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
@@ -30,154 +46,210 @@ class ilRoomSharingBookings
 	/**
 	 * Remove a booking
 	 *
-	 * @param int $booking_id
+	 * @param int $a_booking_id
 	 *        	The id of the booking
-	 * @param bool $seq
+	 * @param bool $a_seq
 	 *        	True if the all sequence bookings should be deleted
-	 * @global type $ilUser
+	 * @global ilLanguage $lng
 	 */
 	public function removeBooking($a_booking_id, $a_seq = false)
 	{
-		global $ilUser, $lng;
+		$this->checkBookingId($a_booking_id);
+		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
+		$booking_details = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
+		$participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
 
-		if (ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
+
+		$this->checkResultNotEmpty($row);
+		$this->checkDeletePermission($row ['user_id']);
+
+		// Check whether only the specific booking should be deleted
+		if (!$a_seq || ilRoomSharingNumericUtils::isPositiveNumber($row ['seq_id']))
 		{
-			$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
-
-			// Check if there is a result (so the booking with the ID exists)
-			if ($row != NULL)
-			{
-				// Check if the current user is the author of the booking
-				if ($row ['user_id'] == $ilUser->getId())
-				{
-					// Check whether only the specific booking should be deleted
-					if (!$a_seq || $row ['seq_id'] == NULL || !is_numeric($row ['seq_id']))
-					{
-						$this->ilRoomsharingDatabase->deleteBooking($a_booking_id);
-						ilUtil::sendSuccess($lng->txt('rep_robj_xrs_booking_deleted'), true);
-					}
-					else //delete every booking in the sequence
-					{
-						// Get every booking which is in the specific sequence
-						$booking_ids = $this->ilRoomsharingDatabase->getAllBookingIdsForSequence($row ['seq']);
-						foreach ($booking_ids as $booking_id)
-						{
-							$this->ilRoomsharingDatabase->deleteBooking($booking_id);
-							ilUtil::sendSuccess($lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
-						}
-					}
-				}
-				else
-				{
-					ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_delete_permission"), true);
-				}
-			}
-			else
-			{
-				ilUtil::sendFailure($lng->txt("rep_robj_xrs_booking_doesnt_exist"), true);
-			}
+			$this->ilRoomsharingDatabase->deleteCalendarEntryOfBooking($a_booking_id);
+			$this->ilRoomsharingDatabase->deleteBooking($a_booking_id);
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_bookings_deleted'), true);
 		}
-		else
+		else //delete every booking in the sequence
 		{
-			ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
+			$this->deleteBookingSequence($row['seq']);
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
+		}
+		$this->sendCancellationNotification($booking_details, $participants);
+	}
+
+	/**
+	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal 1 and exists as booking ID.
+         * Sends all participants a cancellation notice.
+	 * @param array $a_booking_ids nummerical array of booking_ids to delete
+	 */
+	public function removeMultipleBookings(array $a_booking_ids)
+	{
+		foreach ($a_booking_ids as $booking_id)
+		{
+			$this->checkBookingId($booking_id);
+                        $booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
+                        $participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
+                        $this->sendCancellationNotification($booking_details, $participants); 
+		}
+		$this->ilRoomsharingDatabase->deleteCalendarEntriesOfBookings($a_booking_ids);
+		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
+		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
+	}
+
+	/**
+	 * Checks the permission of this user to delete this booking
+	 *
+	 * @param integer $a_userId
+	 * @throws ilRoomSharingBookingsException
+	 */
+	private function checkDeletePermission($a_userId)
+	{
+		if ($a_userId != $this->ilUser->getId())
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
 		}
 	}
 
 	/**
-	 * Get's the bookings from the database
+	 * Checks if a resultset has results
 	 *
-	 * @global type $ilUser
-	 * @return type
+	 * @param array $a_row
+	 * @throws ilRoomSharingBookingsException
+	 */
+	private function checkResultNotEmpty($a_row)
+	{
+		if (!ilRoomSharingNumericUtils::isPositiveNumber(count($a_row)))
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_booking_doesnt_exist");
+		}
+	}
+
+	/**
+	 * Checks if the booking id is valid
+	 *
+	 * @param integer $a_booking_id
+	 * @throws ilRoomSharingBookingsException
+	 */
+	private function checkBookingId($a_booking_id)
+	{
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_id_submitted");
+		}
+	}
+
+	/**
+	 * Deletes all bookings of the given sequence-id
+	 *
+	 * @param integer $a_seq_id
+	 */
+	private function deleteBookingSequence($a_seq_id)
+	{
+		$seq_rows = $this->ilRoomsharingDatabase->getAllBookingIdsForSequence($a_seq_id);
+		foreach ($seq_rows as $seq_row)
+		{
+			$this->ilRoomsharingDatabase->deleteBooking($seq_row['id']);
+		}
+	}
+
+	/**
+	 * Gets the bookings from the database.
+	 *
+	 * @return array with bookings
 	 */
 	public function getList()
 	{
-		global $ilUser;
-		$all_bookings = $this->ilRoomsharingDatabase->getBookingsForUser($ilUser->getId());
-		$res = array();
-		foreach ($all_bookings as $row)
+		$bookingDatas = $this->ilRoomsharingDatabase->getBookingsForUser($this->ilUser->getId());
+		$allBookings = array();
+		foreach ($bookingDatas as $bookingData)
 		{
-			$one_booking = array();
-			if (ilRoomSharingNumericUtils::isPositiveNumber($row ['seq_id'])) // Is it a recurring appointment?
-			{
-				$one_booking ['recurrence'] = true;
-			}
-			else
-			{
-				$date_from = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_from']);
-				$date_to = DateTime::createFromFormat("Y-m-d H:i:s", $row ['date_to']);
+			$allBookings [] = $this->readBookingData($bookingData);
+		}
+		return $allBookings;
+	}
 
-				$date = ilRoomSharingDateUtils::getPrintedDateTime($date_from);
+	/**
+	 * Reads a booking
+	 *
+	 * @param array $a_bookingData
+	 * @return array Booking-Information
+	 */
+	private function readBookingData($a_bookingData)
+	{
+		$one_booking = array();
 
-				$date .= " - ";
+		$one_booking ['recurrence'] = ilRoomSharingNumericUtils::isPositiveNumber($a_bookingData ['seq_id']);
+		$one_booking ['date'] = ilRoomSharingBookingUtils::readBookingDate($a_bookingData);
 
-				// Check whether the date_from differs from the date_to
-				if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
-				{
-					//Display the date_to in the next line
-					$date .= '<br>';
+		$one_booking ['room'] = $this->ilRoomsharingDatabase->getRoomName($a_bookingData ['room_id']);
+		$one_booking ['room_id'] = $a_bookingData ['room_id'];
 
-					$date .= ilRoomSharingDateUtils::getPrintedDate($date_to);
+		$participants = $this->readBookingParticipants($a_bookingData);
 
-					$date .= ', ';
-				}
-				$date .= ilRoomSharingDateUtils::getPrintedTime($date_to);
-			}
-			$one_booking ['date'] = $date;
+		$one_booking ['participants'] = $participants['names'];
+		$one_booking ['participants_ids'] = $participants['ids'];
 
-			// Get the name of the booked room
-			$one_booking ['room'] = $this->ilRoomsharingDatabase->getRoomName($row ['room_id']);
-			$one_booking ['room_id'] = $row ['room_id'];
-			$participants = array();
-			$participants_ids = array();
+		$one_booking ['subject'] = $a_bookingData ['subject'];
+		$one_booking ['comment'] = $a_bookingData ['bookingcomment'];
 
-			// Get the participants
-			$participantsRows = $this->ilRoomsharingDatabase->getParticipantsForBooking($row ['id']);
-			foreach ($participantsRows as $participantRow)
-			{// Check if the user has a firstname and lastname
-				if (empty($userRow ['firstname']) || empty($userRow ['lastname']))
-				{
-					$participants [] = $participantRow ['firstname'] . ' ' . $participantRow ['lastname'];
-				}
-				else // ...if not, use the username
-				{
-					$participants [] = $participantRow ['login'];
-				}
-				$participants_ids [] = $participantRow ['id'];
-			}
-			$one_booking ['participants'] = $participants;
-			$one_booking ['participants_ids'] = $participants_ids;
-			$one_booking ['subject'] = $row ['subject'];
-
-			// Get variable attributes of a booking
-			$attributes = $this->ilRoomsharingDatabase->getAttributesForBooking($row ['id']);
-			foreach ($attributes as $attributesRow)
-			{
-				$one_booking [$attributesRow ['name']] = $attributesRow ['value'];
-			}
-
-			// The booking id
-			$one_booking ['id'] = $row ['id'];
-			$res [] = $one_booking;
+		$attributes = $this->readBookingAttributes($a_bookingData);
+		foreach ($attributes as $attribute_name => $attribute_value)
+		{
+			$one_booking[$attribute_name] = $attribute_value;
 		}
 
-		// Dummy-Data
-		$res [] = array(
-			'recurrence' => true, 'date' => "7. März 2014, 9:00 - 13:00",
-			'id' => 1, 'room' => "117", 'room_id' => 3,
-			'subject' => "HARDKODIERT Tutorium",
-			'participants' => array("Tim Lehr", "Philipp Hörmann"),
-			'participants_ids' => array("6"),
-			'Modul' => "MATHE2",
-			'Kurs' => "Technische Informatik (TI Bsc.)"
-		);
+		$one_booking ['id'] = $a_bookingData ['id'];
+		return $one_booking;
+	}
 
-		$res [] = array(
-			'recurrence' => false, 'date' => "3. April 2014, 15:00 - 17:00",
-			'id' => 2, 'room' => "118", 'room_id' => 4,
-			'subject' => "HARDKODIERT Vorbereitung Präsentation",
-			'Semester' => "6"
-		);
-		return $res;
+	/**
+	 * Reads attributes of a booking
+	 *
+	 * @param array $a_bookingData
+	 * @return array with attributes
+	 */
+	private function readBookingAttributes($a_bookingData)
+	{
+		$attributes = array();
+
+		$attributesRows = $this->ilRoomsharingDatabase->getAttributesForBooking($a_bookingData ['id']);
+		foreach ($attributesRows as $attributeRow)
+		{
+			$attributes [$attributeRow ['name']] = $attributeRow ['value'];
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * 	Reads the participants (names and ids) for a booking
+	 *
+	 * @param array $a_bookingData
+	 * @return array with names and ids
+	 */
+	private function readBookingParticipants($a_bookingData)
+	{
+		$participantsData = array();
+
+		$participantRows = $this->ilRoomsharingDatabase->getParticipantsForBooking($a_bookingData ['id']);
+		foreach ($participantRows as $participantRow)
+		{
+			// Check if the user has a firstname and lastname
+			if (!empty($participantRow ['firstname']) && !empty($participantRow ['lastname']))
+			{
+				$participants [] = $participantRow ['firstname'] . ' ' . $participantRow ['lastname'];
+			}
+			else // ...if not, use the username
+			{
+				$participants [] = $participantRow ['login'];
+			}
+			$participants_ids [] = $participantRow ['id'];
+		}
+
+		$participantsData ['names'] = $participants;
+		$participantsData ['ids'] = $participants_ids;
+		return $participantsData;
 	}
 
 	/**
@@ -188,23 +260,17 @@ class ilRoomSharingBookings
 	 */
 	public function getAdditionalBookingInfos()
 	{
-		$cols = $this->ilRoomsharingDatabase->getAllBookingAttributes();
+		$attributes = array();
+		$attributesRows = $this->ilRoomsharingDatabase->getAllBookingAttributes();
 
-		// Dummy-Data
-		$cols ["Modul"] = array(
-			"txt" => "Modul",
-			"id" => 1
-		);
-		$cols ["Kurs"] = array(
-			"txt" => "Kurs",
-			"id" => 2
-		);
-		$cols ["Semester"] = array(
-			"txt" => "Semester",
-			"id" => 3
-		);
-
-		return $cols;
+		foreach ($attributesRows as $attributesRow)
+		{
+			$attributes [$attributesRow ['name']] = array(
+				"txt" => $attributesRow ['name'],
+				"id" => $attributesRow ['id']
+			);
+		}
+		return $attributes;
 	}
 
 	/**
@@ -226,6 +292,25 @@ class ilRoomSharingBookings
 	public function getPoolId()
 	{
 		return (int) $this->pool_id;
+	}
+
+	/**
+	 * Send cancellation email.
+	 */
+	public function sendCancellationNotification($booking_details, $participants)
+	{
+		$room_id = $booking_details[0]['room_id'];
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($room_id);
+		$user_id = $booking_details[0]['user_id'];
+		$date_from = $booking_details[0]['date_from'];
+		$date_to = $booking_details[0]['date_to'];
+
+		$mailer = new ilRoomSharingMailer($this->lng);
+		$mailer->setRoomname($room_name);
+		$mailer->setDateStart($date_from);
+		$mailer->setDateEnd($date_to);
+                $mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
+		$mailer->sendCancellationMailWithReason($user_id, $participants);
 	}
 
 }
