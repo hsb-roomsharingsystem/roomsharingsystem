@@ -61,8 +61,8 @@ fake_attribute_id_provided#:#Some incorrect data was provided. Try again.
 floor_plans_add#:#Add floorplan
 floor_plans_added#:#Floorplan added
 floor_plans_delete#:#Delete floorplan
-floor_plans_deleted#:#Error while deleting floorplan
 floor_plans_deleted#:#Floorplan deleted
+floor_plans_deleted_error#:#Error while deleting floorplan
 floor_plans_edit#:#Edit floorplan
 floor_plans_edited#:#Floorplan updated
 floor_plans_keep#:#Keep floorplan
@@ -85,8 +85,8 @@ mail_cancellation_creator_message#:#Your booking has been canceled. The followin
 mail_cancellation_creator_subject#:#Your booking has been canceled.
 mail_cancellation_participant_message#:#A booking in which you participated has been canceled. The following booking has been canceled:
 mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
-mail_cancellation_reason_prefix#:#The booking has been cancelled due to the following reason:
 mail_cancellation_reason_manually#:#Manual cancellation by user.
+mail_cancellation_reason_prefix#:#The booking has been cancelled due to the following reason:
 manage#:#Manage
 max_book_time#:#Maximal time of a booking
 missing_agreement_entries#:#The Rooms use agreement is not accepted.
@@ -94,18 +94,27 @@ missing_required_entries#:#Some entries have a wrong or missing value. Please co
 module#:#Module
 must_be_unique#:#Attribute name must be unique!
 name_of_new_attribute#:#Name of the new attribute.
+needed_seats#:#Needed Seats
 new_attribute_name#:#New name for the attribute
 no_delete_permission#:#No permission, to delete this booking
 no_id_submitted#:#None or not a numeric ID submitted
 no_match_for#:#No match for
 not_yet_implemented#:#This function has not yet been implemented.
 obj_xrs#:#RoomSharing
+objs_xrs#:#RoomSharing Pools
 on#:#On
 participants#:#Participants
 participants_list#:#Participants list
 participations#:#Participations
+participations_back#:#Back to participations
+participations_confirm#:#Are you sure you want to leave the booking(s)?
+participations_confirm_leave#:#Leave booking(s)
+participations_left#:#Participations quitted!
+participations_no_leave_ids#:#Please mark at least one booking that you want to quit.
 person_responsible#:#Person Responsible
 plan#:#Plan
+plural_field_input_value_too_high_begin#:#The values of the fields
+plural_field_input_value_too_high_end#:#are bigger than the maximum value and because of this the values are ignored or the filter is reset to the last valid request.
 pool#:#RoomSharing Pool
 pools#:#RoomSharing Pools
 privileges#:#Privileges
@@ -116,9 +125,9 @@ privileges_confirm_class_lock#:#Lock class privileges
 privileges_confirm_class_lock_info#:#The following operations will be performed:<br /><br />-all privileges of this class will be locked.<br />-users that are directly assigned to a class or through a corresponding role will be denied of all privileges.
 privileges_confirm_class_lock_question#:#Are you sure you want to lock the privileges of the following classes?
 privileges_confirm_class_self_lock_of#:#You are about to lock the privileges of at least one class you are assigned to.<br />You could lock your own privileges, which is why only a user with the privilege of changing privileges or the owner of the pool can restore these privileges.<br />This change applies to the following classes that you are assigned to:
+privileges_confirm_privilege_revoking#:#Revoke privileges
 privileges_confirm_privilege_revoking_info#:#You are about to revoke the privilege &quot;Access privileges&quot; and/or the privilege &quot;Edit privileges&quot; of at least one class you are assigned to. If you proceed only a user with the privilege of changing privileges or the owner of the pool can restore said privileges.
 privileges_confirm_privilege_revoking_question#:#Are you sure you want to revoke the privileges &quot;Access privileges&quot; and/or &quot;Edit privileges&quot; of the following classes you are assigned to?
-privileges_confirm_privilege_revoking#:#Revoke privileges
 privileges_copy_privileges#:#Copy privileges
 privileges_lock#:#Lock privileges
 privileges_lock_confirm_back#:#Back to privileges
@@ -134,13 +143,14 @@ room_add#:#Add Room
 room_added#:#Room was added.
 room_already_booked#:#Room is already booked
 room_attributes#:#Room Attributes
+room_attributes_info#:#For the attribute values you can enter integers from 0. If not specified, the respective assignments will be resolved.
 room_back#:#Back to room view
 room_book#:#Book
 room_create_failed#:#The room could not be created.
 room_date_recurrence#:#Date Recurrence
 room_delete#:#Do you really want to delete the following room?
-room_delete_success#:#Room successfully deleted
 room_delete_booking#:#Following amount of bookings will be deleted, if room deletion will be submitted:
+room_delete_success#:#Room successfully deleted
 room_edit#:#Edit Room
 room_file_id#:#Map
 room_floor_plans#:#Floor Plans
@@ -149,13 +159,12 @@ room_max_allocation_exceeded#:#Maximum room allocation exceeded
 room_min_alloc#:#Min. allocation
 room_name#:#Room Name
 room_no_assign#:#No assignment
-room_prop_description#:#The chosen room has following properties -
-room_properties#:#Room properties
-room_attributes_info#:#For the attribute values you can enter integers from 0. If not specified, the respective assignments will be resolved.
-room_public_booking#:#Display username publicly in booking
-room_type#:#Room type
 room_occupation#:#Week View
 room_occupation_title#:#Weekly occupation of room
+room_prop_description#:#The chosen room has following properties -
+room_properties#:#Room properties
+room_public_booking#:#Display username publicly in booking
+room_type#:#Room type
 rooms#:#Rooms
 rooms_user_agreement#:#Rooms user agreement
 rooms_user_agreement_accept#:#Accept Room User Agreement
@@ -168,11 +177,12 @@ search#:#Search
 search_back#:#Back to search results
 search_results#:#Search Results
 seats#:#Seats
-needed_seats#:#Needed Seats
 semester#:#Semester
 setting_1#:#Setting 1
 setting_2#:#Setting 2
 settings#:#Settings
+singular_field_input_value_too_high_begin#:#The value of the field
+singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter is reset to the last valid request.
 status#:#Status
 subject#:#Subject
 time_range#:#Time Range
@@ -259,7 +269,3 @@ see_non_public_booking_information#:#Look up non-public booking information
 see_non_public_booking_information_description#:#Look up information of non-public bookings
 sequence_bookings#:#Recurring bookings
 sequence_bookings_addable#:#Recurring bookings creatable
-singular_field_input_value_too_high_begin#:#The value of the field
-plural_field_input_value_too_high_begin#:#The values of the fields
-singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter is reset to the last valid request.
-plural_field_input_value_too_high_end#:#are bigger then the maximum value and because of this the values are ignored or the filter is reset to the last valid request.
