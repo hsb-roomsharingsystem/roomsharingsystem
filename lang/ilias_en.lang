@@ -261,5 +261,5 @@ sequence_bookings#:#Recurring bookings
 sequence_bookings_addable#:#Recurring bookings creatable
 singular_field_input_value_too_high_begin#:#The value of the field
 plural_field_input_value_too_high_begin#:#The values of the fields
-singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter is reseted to the last valid request.
-plural_field_input_value_too_high_end#:#are bigger then the maximum value and because of this the values are ignored or the filter is reseted to the last valid request.
+singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter is reset to the last valid request.
+plural_field_input_value_too_high_end#:#are bigger then the maximum value and because of this the values are ignored or the filter is reset to the last valid request.

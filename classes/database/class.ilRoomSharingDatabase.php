@@ -1150,6 +1150,7 @@ class ilRoomsharingDatabase
 		{
 			$class_ids[] = $row['id'];
 		}
+
 		return array_unique($class_ids);
 	}
 
