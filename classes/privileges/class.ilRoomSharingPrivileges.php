@@ -205,17 +205,7 @@ class ilRoomSharingPrivileges
 
 	public function getPriorityOfUser($a_user_id)
 	{
-		$user_classes = $this->getAssignedClassesForUser($a_user_id);
-		$priority = 0;
-		// Get the highest possible priority for the user
-		foreach ($user_classes as $user_class)
-		{
-			$class_priority = $this->ilRoomsharingDatabase->getPriorityOfClass($user_class);
-			if ($priority < $class_priority)
-			{
-				$priority = $class_priority;
-			}
-		}
+		$priority = $this->ilRoomsharingDatabase->getUserPriority($a_user_id);
 		return $priority;
 	}
 
@@ -246,7 +236,6 @@ class ilRoomSharingPrivileges
 		$assigned_users = array();
 		foreach ($assigned_user_ids as $assigned_user_id)
 		{
-
 			$user_name = ilObjUser::_lookupName($assigned_user_id);
 
 			$user_data = array();

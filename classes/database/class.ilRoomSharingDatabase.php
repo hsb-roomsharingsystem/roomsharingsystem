@@ -1087,26 +1087,13 @@ class ilRoomsharingDatabase
 	{
 		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_class_ids)))
 		{
-			$positive_where = "";
-			$negative_where = "";
-			foreach ($a_class_ids as $class_id => $val)
-			{
-				$positive_where .= " OR id = " . $this->ilDB->quote($class_id, 'integer');
-				$negative_where .= " AND id != " . $this->ilDB->quote($class_id, 'integer');
-			}
-			//Cut the where strings, to avoid e.g. WHERE OR id=1 OR id=2
-			if (strlen($positive_where) > 0)
-			{
-				$positive_where = substr($positive_where, 3);
-			}
-			if (strlen($negative_where) > 0)
-			{
-				$negative_where = substr($negative_where, 4);
-			}
-			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
-				' SET locked = 1 WHERE ' . $positive_where);
-			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
-				' SET locked = 0 WHERE ' . $negative_where);
+			$st = $this->ilDB->prepareManip('UPDATE ' . dbc::CLASSES_TABLE .
+				' SET locked = 1 WHERE ' . $this->ilDB->in('id', $a_class_ids));
+			$this->ilDB->execute($st, array_keys($a_class_ids));
+
+			$st2 = $this->ilDB->prepareManip('UPDATE ' . dbc::CLASSES_TABLE .
+				' SET locked = 0 WHERE ' . $this->ilDB->in('id NOT', $a_class_ids));
+			$this->ilDB->execute($st2, array_keys($a_class_ids));
 		}
 		else
 		{
@@ -1117,31 +1104,17 @@ class ilRoomsharingDatabase
 
 	public function getAssignedClassesForUser($a_user_id, $a_user_role_ids)
 	{
-		$set = $this->ilDB->query('SELECT class_id FROM ' . dbc::CLASS_USER_TABLE .
-			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
+		$st = $this->ilDB->prepare('SELECT id from ' . dbc::CLASSES_TABLE . ' RIGHT JOIN ' .
+			dbc::CLASS_USER_TABLE . ' ON id = class_id WHERE user_id = ' .
+			$this->ilDB->quote($a_user_id, 'integer') . ' OR ' .
+			$this->ilDB->in("role_id", $a_user_role_ids));
+		$set = $this->ilDB->execute($st, $a_user_role_ids);
 
-		$class_ids = array();
-		while ($row = $this->ilDB->fetchAssoc($set))
-		{
-			$class_ids[] = $row['class_id'];
-		}
-
-		$where = "";
-		foreach ($a_user_role_ids as $user_role_id)
-		{
-			$where .= " OR role_id = " . $this->ilDB->quote($user_role_id);
-		}
-		if (strlen($where) > 3)
-		{
-			$where = substr($where, 3);
-		}
-
-		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
-			' WHERE ' . $where);
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
 			$class_ids[] = $row['id'];
 		}
+
 		return array_unique($class_ids);
 	}
 
@@ -1478,6 +1451,15 @@ class ilRoomsharingDatabase
 			'pool_id' => array("integer", $this->pool_id)
 		);
 		$this->ilDB->update(dbc::BOOKING_ATTRIBUTES_TABLE, $fields, $where);
+	}
+
+	public function getUserPriority($a_user_id)
+	{
+		$set = $this->ilDB->query('SELECT MAX(priority) FROM ' . dbc::CLASSES_TABLE . ' JOIN ' .
+			dbc::CLASS_USER_TABLE . ' ON id = class_id WHERE user_id = ' .
+			$this->ilDB->quote($a_user_id, 'integer'));
+		$userPriorityRow = $this->ilDB->fetchAssoc($set);
+		return $userPriorityRow ['max(priority)'];
 	}
 
 }
