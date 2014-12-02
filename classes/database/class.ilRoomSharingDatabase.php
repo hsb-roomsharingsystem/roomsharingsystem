@@ -47,7 +47,8 @@ class ilRoomsharingDatabase
 		$st = $this->ilDB->prepare('SELECT room_id, att.name, count FROM ' .
 			dbc::ROOM_TO_ATTRIBUTE_TABLE . ' as rta LEFT JOIN ' .
 			dbc::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id WHERE '
-			. $this->ilDB->in("room_id", $a_room_ids) . ' ORDER BY room_id, att.name');
+			. $this->ilDB->in("room_id", $a_room_ids) . ' AND pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer') . ' ORDER BY room_id, att.name');
 		$set = $this->ilDB->execute($st, $a_room_ids);
 		$res_attribute = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
@@ -79,7 +80,7 @@ class ilRoomsharingDatabase
 			'LEFT JOIN ' . dbc::ROOM_ATTRIBUTES_TABLE .
 			' attr ON ra.att_id = attr.id WHERE name = ' . $this->ilDB->quote($a_attribute, 'text') .
 			' AND count >= ' . $this->ilDB->quote($a_count, 'integer') .
-			' AND pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' ';
+			' AND pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer');
 
 		$matching = array();
 		$resAttr = $this->ilDB->query($queryString);
@@ -92,11 +93,12 @@ class ilRoomsharingDatabase
 
 	public function getAllRoomIds()
 	{
-		$resRoomIds = $this->ilDB->query('SELECT id FROM ' . dbc::ROOMS_TABLE);
+		$resRoomIds = $this->ilDB->query('SELECT id FROM ' . dbc::ROOMS_TABLE . ' WHERE pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer') . ' ');
 		$room_ids = array();
 		while ($row = $this->ilDB->fetchAssoc($resRoomIds))
 		{
-			$room_ids[] = $row['room_id'];
+			$room_ids[] = $row['id'];
 		}
 		return $room_ids;
 	}
@@ -132,8 +134,8 @@ class ilRoomsharingDatabase
 
 	public function getAllAttributeNames()
 	{
-		$set = $this->ilDB->query('SELECT name FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-			' ORDER BY name');
+		$set = $this->ilDB->query('SELECT name FROM ' . dbc::ROOM_ATTRIBUTES_TABLE . ' WHERE pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer') . ' ORDER BY name');
 		$attributes = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
@@ -181,7 +183,8 @@ class ilRoomsharingDatabase
 	public function getRoomName($a_room_id)
 	{
 		$roomNameSet = $this->ilDB->query(' SELECT name FROM ' . dbc::ROOMS_TABLE .
-			' WHERE id = ' . $this->ilDB->quote($a_room_id, 'integer'));
+			' WHERE id = ' . $this->ilDB->quote($a_room_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$roomNameRow = $this->ilDB->fetchAssoc($roomNameSet);
 		return $roomNameRow ['name'];
 	}
@@ -205,7 +208,8 @@ class ilRoomsharingDatabase
 				$this->ilDB->quote($a_room_id, 'text') . ' AND ';
 		}
 
-		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE . ' WHERE ' .
+		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE .
+			' WHERE pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
 			$roomQuery . ' (' . $this->ilDB->quote($a_date_from, 'timestamp') .
 			' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_date_to, 'timestamp') .
 			' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
@@ -311,7 +315,8 @@ class ilRoomsharingDatabase
 		//update bookings-table afterwards
 		$this->ilDB->manipulate('UPDATE ' . dbc::BOOKINGS_TABLE .
 			' SET calendar_entry_id = ' . $this->ilDB->quote($app->getEntryId(), 'integer') .
-			' WHERE id = ' . $this->ilDB->quote($insertedId, 'integer'));
+			' WHERE id = ' . $this->ilDB->quote($insertedId, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	/**
@@ -419,7 +424,8 @@ class ilRoomsharingDatabase
 	{
 		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
 		$set = $this->ilDB->query('SELECT calendar_entry_id FROM ' . dbc::BOOKINGS_TABLE .
-			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
+			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 
 		while ($a_entry_id = $this->ilDB->fetchAssoc($set))
 		{
@@ -436,7 +442,8 @@ class ilRoomsharingDatabase
 	{
 		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
 		$set = $this->ilDB->prepare('SELECT calendar_entry_id FROM ' . dbc::BOOKINGS_TABLE .
-			' WHERE ' . $this->ilDB->in("id", $a_booking_ids));
+			' WHERE ' . $this->ilDB->in("id", $a_booking_ids) .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 
 		$result = $this->ilDB->execute($set, $a_booking_ids);
 		while ($a_entry_id = $this->ilDB->fetchAssoc($result))
@@ -453,7 +460,8 @@ class ilRoomsharingDatabase
 	public function deleteBooking($a_booking_id)
 	{
 		$this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKINGS_TABLE .
-			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
+			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$this->ilDB->manipulate('DELETE FROM ' . dbc::BOOK_USER_TABLE .
 			' WHERE booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
@@ -466,9 +474,10 @@ class ilRoomsharingDatabase
 	public function deleteBookings($booking_ids)
 	{
 		$st = $this->ilDB->prepareManip('DELETE FROM ' . dbc::BOOKINGS_TABLE .
-			' WHERE ' . $this->ilDB->in("id", $booking_ids));
+			' WHERE ' . $this->ilDB->in("id", $booking_ids) .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$this->ilDB->execute($st, $booking_ids);
-		$st2 = $this->ilDB->prepareManip('DELETE FROM ' . dbc::USER_TABLE .
+		$st2 = $this->ilDB->prepareManip('DELETE FROM ' . dbc::BOOK_USER_TABLE .
 			' WHERE ' . $this->ilDB->in("booking_id", $booking_ids));
 		$this->ilDB->execute($st2, $booking_ids);
 	}
@@ -502,7 +511,8 @@ class ilRoomsharingDatabase
 	public function getSequenceAndUserForBooking($a_booking_id)
 	{
 		$set = $this->ilDB->query('SELECT seq_id, user_id  FROM ' . dbc::BOOKINGS_TABLE .
-			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
+			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		if ($this->ilDB->numRows($set) > 0)
 		{
 			$result = $this->ilDB->fetchAssoc($set);
@@ -590,7 +600,8 @@ class ilRoomsharingDatabase
 			' FROM ' . dbc::BOOKING_TO_ATTRIBUTE_TABLE . ' bta ' .
 			' LEFT JOIN ' . dbc::BOOKING_ATTRIBUTES_TABLE . ' attr ' .
 			' ON attr.id = bta.attr_id' . ' WHERE booking_id = ' .
-			$this->ilDB->quote($a_booking_id, 'integer'));
+			$this->ilDB->quote($a_booking_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 
 		$attributes = array();
 		while ($attributesRow = $this->ilDB->fetchAssoc($set))
@@ -654,8 +665,8 @@ class ilRoomsharingDatabase
 	public function getFloorplan($a_file_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::FLOORPLANS_TABLE .
-			' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer') . ' AND pool_id = '
-			. $this->ilDB->quote($this->pool_id, 'integer'));
+			' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer') .
+			' AND pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
 
 		$floorplan = array();
 		$row = $this->ilDB->fetchAssoc($set);
@@ -694,7 +705,8 @@ class ilRoomsharingDatabase
 	public function deleteFloorplan($a_file_id)
 	{
 		return $this->ilDB->manipulate('DELETE FROM ' . dbc::FLOORPLANS_TABLE .
-				' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer'));
+				' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer') .
+				' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	/**
@@ -706,13 +718,15 @@ class ilRoomsharingDatabase
 	{
 		return $this->ilDB->manipulate('UPDATE ' . dbc::ROOMS_TABLE .
 				' SET building_id = 0 WHERE building_id = ' .
-				$this->ilDB->quote($a_file_id, 'integer'));
+				$this->ilDB->quote($a_file_id, 'integer') .
+				' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	public function getRoomsWithFloorplan($a_file_id)
 	{
 		$set = $this->ilDB->query('SELECT name FROM ' . dbc::ROOMS_TABLE .
-			' WHERE building_id = ' . $this->ilDB->quote($a_file_id, 'integer'));
+			' WHERE building_id = ' . $this->ilDB->quote($a_file_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$rooms = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
@@ -745,7 +759,7 @@ class ilRoomsharingDatabase
 	 */
 	public function deleteParticipations($a_user_id, $a_booking_ids)
 	{
-		$st = $this->ilDB->prepareManip('DELETE FROM ' . dbc::USER_TABLE .
+		$st = $this->ilDB->prepareManip('DELETE FROM ' . dbc::BOOK_USER_TABLE .
 			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer') .
 			' AND ' . $this->ilDB->in("booking_id", $a_booking_ids));
 		$this->ilDB->execute($st, $a_booking_ids);
@@ -781,6 +795,7 @@ class ilRoomsharingDatabase
 	{
 		$set = $this->ilDB->query('SELECT *' . ' FROM ' . dbc::BOOKINGS_TABLE . ' WHERE id = ' .
 			$this->ilDB->quote($a_booking_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') .
 			' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
 			' OR date_to >= "' . date('Y-m-d H:i:s') . '")' .
 			' ORDER BY date_from ASC');
@@ -826,7 +841,8 @@ class ilRoomsharingDatabase
 	public function getRoom($a_room_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::ROOMS_TABLE . ' WHERE id = ' .
-			$this->ilDB->quote($a_room_id, 'integer'));
+			$this->ilDB->quote($a_room_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 
 		return $this->ilDB->fetchAssoc($set);
 	}
@@ -840,7 +856,8 @@ class ilRoomsharingDatabase
 	public function getRoomAttribute($a_attribute_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-			' WHERE id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+			' WHERE id = ' . $this->ilDB->quote($a_attribute_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		return $this->ilDB->fetchAssoc($set);
 	}
 
@@ -855,7 +872,8 @@ class ilRoomsharingDatabase
 		$set = $this->ilDB->query('SELECT id, att.name, count FROM ' .
 			dbc::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
 			dbc::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id' .
-			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') . ' ORDER BY att.name');
+			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') . ' ORDER BY att.name');
 		$attributes = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
@@ -873,7 +891,8 @@ class ilRoomsharingDatabase
 	public function getBookingsForRoom($a_room_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc:: BOOKINGS_TABLE .
-			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer'));
+			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$bookings = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
@@ -892,6 +911,7 @@ class ilRoomsharingDatabase
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc:: BOOKINGS_TABLE .
 			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') .
 			' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
 			' OR date_to >= "' . date('Y-m-d H:i:s') . '")' . ' ORDER BY date_from ASC');
 		$bookings = array();
@@ -1024,11 +1044,17 @@ class ilRoomsharingDatabase
 			"building_id" => array("integer", $a_building_id)
 		);
 		$where = array(
-			"id" => array("integer", $a_id)
+			"id" => array("integer", $a_id),
+			"pool_id" => array("integer", $this->pool_id)
 		);
 		return $this->ilDB->update(dbc::ROOMS_TABLE, $fields, $where);
 	}
 
+	/**
+	 * Gets all classes for the pool-id
+	 *
+	 * @return array Array with classes
+	 */
 	public function getClasses()
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASSES_TABLE .
@@ -1041,15 +1067,28 @@ class ilRoomsharingDatabase
 		return $classes;
 	}
 
+	/**
+	 * Gets a specific class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @return array Array with the class data of the selected class
+	 */
 	public function getClassById($a_class_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASSES_TABLE .
-			' WHERE id = ' . $this->ilDB->quote($a_class_id, 'integer'));
+			' WHERE id = ' . $this->ilDB->quote($a_class_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$row = $this->ilDB->fetchAssoc($set);
 
 		return $row;
 	}
 
+	/**
+	 * Gets all privileges of a class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @return array Array with the setted privileges of the selectec class
+	 */
 	public function getPrivilegesOfClass($a_class_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASS_PRIVILEGES_TABLE .
@@ -1061,30 +1100,24 @@ class ilRoomsharingDatabase
 		return $row;
 	}
 
+	/**
+	 * Sets the locked classes
+	 *
+	 * @param array $a_class_ids Array with the class ids which should be locked. Classes which are not in the array will be unlocked
+	 */
 	public function setLockedClasses($a_class_ids)
 	{
 		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_class_ids)))
 		{
-			$positive_where = "";
-			$negative_where = "";
-			foreach ($a_class_ids as $class_id => $val)
-			{
-				$positive_where .= " OR id = " . $this->ilDB->quote($class_id, 'integer');
-				$negative_where .= " AND id != " . $this->ilDB->quote($class_id, 'integer');
-			}
-			//Cut the where strings, to avoid e.g. WHERE OR id=1 OR id=2
-			if (strlen($positive_where) > 0)
-			{
-				$positive_where = substr($positive_where, 3);
-			}
-			if (strlen($negative_where) > 0)
-			{
-				$negative_where = substr($negative_where, 4);
-			}
-			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
-				' SET locked = 1 WHERE ' . $positive_where);
-			$this->ilDB->manipulate('UPDATE ' . dbc::CLASSES_TABLE .
-				' SET locked = 0 WHERE ' . $negative_where);
+			$st = $this->ilDB->prepareManip('UPDATE ' . dbc::CLASSES_TABLE .
+				' SET locked = 1 WHERE ' . $this->ilDB->in('id', $a_class_ids));
+
+			$this->ilDB->execute($st, array_keys($a_class_ids));
+
+			$st2 = $this->ilDB->prepareManip('UPDATE ' . dbc::CLASSES_TABLE .
+				' SET locked = 0 WHERE ' . $this->ilDB->in('id NOT', $a_class_ids));
+
+			$this->ilDB->execute($st2, array_keys($a_class_ids));
 		}
 		else
 		{
@@ -1093,36 +1126,39 @@ class ilRoomsharingDatabase
 		}
 	}
 
+	/**
+	 * Get all assigned classes (directly or over role-assignment) for a user
+	 *
+	 * @param integer $a_user_id User-ID
+	 * @param array $a_user_role_ids Role-Ids which the user is assigned to
+	 * @return array Array with class ids the user is assigned to
+	 */
 	public function getAssignedClassesForUser($a_user_id, $a_user_role_ids)
 	{
 		$set = $this->ilDB->query('SELECT class_id FROM ' . dbc::CLASS_USER_TABLE .
 			' WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
 
 		$class_ids = array();
-		while ($row = $this->ilDB->fetchAssoc($set))
-		{
-			$class_ids[] = $row['class_id'];
-		}
+		$st = $this->ilDB->prepare('SELECT id from ' . dbc::CLASSES_TABLE . ' RIGHT JOIN ' .
+			dbc::CLASS_USER_TABLE . ' ON id = class_id WHERE user_id = ' .
+			$this->ilDB->quote($a_user_id, 'integer') . ' OR ' .
+			$this->ilDB->in("role_id", $a_user_role_ids));
 
-		$where = "";
-		foreach ($a_user_role_ids as $user_role_id)
-		{
-			$where .= " OR role_id = " . $this->ilDB->quote($user_role_id);
-		}
-		if (strlen($where) > 3)
-		{
-			$where = substr($where, 3);
-		}
+		$set = $this->ilDB->execute($st, $a_user_role_ids);
 
-		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
-			' WHERE ' . $where);
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
 			$class_ids[] = $row['id'];
 		}
+
 		return array_unique($class_ids);
 	}
 
+	/**
+	 * Gets all classes that are currently locked
+	 *
+	 * @return array Array with class ids currently locked
+	 */
 	public function getLockedClasses()
 	{
 		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
@@ -1136,6 +1172,11 @@ class ilRoomsharingDatabase
 		return $locked_class_ids;
 	}
 
+	/**
+	 * Gets all classes that are currently unlocked
+	 *
+	 * @return array Array with class ids currently unlocked
+	 */
 	public function getUnlockedClasses()
 	{
 		$set = $this->ilDB->query('SELECT id FROM ' . dbc::CLASSES_TABLE .
@@ -1149,6 +1190,12 @@ class ilRoomsharingDatabase
 		return $unlocked_class_ids;
 	}
 
+	/**
+	 * Gets the priority of a specific class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @return integer Priority of the class
+	 */
 	public function getPriorityOfClass($a_class_id)
 	{
 		$set = $this->ilDB->query('SELECT priority FROM ' . dbc::CLASSES_TABLE .
@@ -1157,6 +1204,13 @@ class ilRoomsharingDatabase
 		return $row['priority'];
 	}
 
+	/**
+	 * Sets every privilege of a specific class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @param array $a_privileges Array with privileges which should be assigned
+	 * @param array $a_no_privileges Array with privileges that are deassigned
+	 */
 	public function setPrivilegesForClass($a_class_id, $a_privileges, $a_no_privileges)
 	{
 		if (ilRoomSharingNumericUtils::isPositiveNumber(count($a_class_id)))
@@ -1185,6 +1239,16 @@ class ilRoomsharingDatabase
 		}
 	}
 
+	/**
+	 * Adds a new class to the database
+	 *
+	 * @param string $a_name Name of the class
+	 * @param string $a_description Description of the class
+	 * @param integer $a_role_id Role-ID of a possible assigned role
+	 * @param integer $a_priority Priority of the class
+	 * @param integer $a_copy_class_id Possible class-ID of which the privileges should be copied
+	 * @return integer New ID of the inserted class
+	 */
 	public function insertClass($a_name, $a_description, $a_role_id, $a_priority, $a_copy_class_id)
 	{
 		$this->ilDB->insert(dbc::CLASSES_TABLE,
@@ -1224,6 +1288,15 @@ class ilRoomsharingDatabase
 		return $insertedID;
 	}
 
+	/**
+	 * Edits the values of an already created class
+	 *
+	 * @param integer $a_class_id Class-ID which should be edited
+	 * @param string $a_name New name
+	 * @param string $a_description New description
+	 * @param string $a_role_id New role-id of the possible assigned role
+	 * @param integer $a_priority New priority
+	 */
 	public function updateClass($a_class_id, $a_name, $a_description, $a_role_id, $a_priority)
 	{
 		$fields = array('name' => array('text', $a_name),
@@ -1232,9 +1305,15 @@ class ilRoomsharingDatabase
 			'role_id' => array('integer', $a_role_id),
 			'pool_id' => array('integer', $this->pool_id));
 		$where = array('id' => array('integer', $a_class_id));
-		return $this->ilDB->update(dbc::CLASSES_TABLE, $fields, $where);
+		$this->ilDB->update(dbc::CLASSES_TABLE, $fields, $where);
 	}
 
+	/**
+	 * Assign a user directly to a class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @param integer $a_user_id User-ID of the user which should be assigned
+	 */
 	public function assignUserToClass($a_class_id, $a_user_id)
 	{
 		if (!$this->isUserInClass($a_class_id, $a_user_id))
@@ -1247,6 +1326,12 @@ class ilRoomsharingDatabase
 		}
 	}
 
+	/**
+	 * Gets all users directly assigned to a class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @return array Array with the assigned user-ids
+	 */
 	public function getUsersForClass($a_class_id)
 	{
 		$set = $this->ilDB->query('SELECT user_id FROM ' . dbc::CLASS_USER_TABLE .
@@ -1259,6 +1344,12 @@ class ilRoomsharingDatabase
 		return $assigned_user_ids;
 	}
 
+	/**
+	 * Deassign a user from a class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @param integer $a_user_id User-ID which should be deassigned from the class
+	 */
 	public function deassignUserFromClass($a_class_id, $a_user_id)
 	{
 		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_USER_TABLE .
@@ -1266,32 +1357,73 @@ class ilRoomsharingDatabase
 			" AND user_id = " . $this->ilDB->quote($a_user_id, 'integer'));
 	}
 
+	/**
+	 * Deassign all directly assigned users from a class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 */
 	public function clearUsersInClass($a_class_id)
 	{
 		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_USER_TABLE .
 			" WHERE class_id = " . $this->ilDB->quote($a_class_id, 'integer'));
 	}
 
+	/**
+	 * Delete all privileges of a specific class
+	 *
+	 * @param integer $a_class_id Class-ID of which the privileges should be deleted
+	 */
 	public function deleteClassPrivileges($a_class_id)
 	{
 		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASS_PRIVILEGES_TABLE .
 			" WHERE class_id = " . $this->ilDB->quote($a_class_id, 'integer'));
 	}
 
+	/**
+	 * Deletes a class with all its privileges and assignments
+	 *
+	 * @param integer $a_class_id Class-ID of the class which should be deleted
+	 */
 	public function deleteClass($a_class_id)
 	{
 		$this->clearUsersInClass($a_class_id);
 		$this->deleteClassPrivileges($a_class_id);
 		$this->ilDB->manipulate("DELETE FROM " . dbc::CLASSES_TABLE .
-			" WHERE id = " . $this->ilDB->quote($a_class_id, 'integer'));
+			" WHERE id = " . $this->ilDB->quote($a_class_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
+	/**
+	 * Checks if a specific user is in a specific class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @param integer $a_user_id User-ID
+	 *
+	 * @return boolean true if user is in class, false otherwise
+	 */
 	public function isUserInClass($a_class_id, $a_user_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::CLASS_USER_TABLE .
 			' WHERE class_id = ' . $this->ilDB->quote($a_class_id, 'integer') .
 			' AND user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
-		return ($this->ilDB->numRows($set) != 0);
+		return ($this->ilDB->numRows($set) > 0);
+	}
+
+	/**
+	 * Gets a priority of a specific user
+	 *
+	 * @param integer $a_user_id User-ID
+	 * @return integer Priority of the user
+	 */
+	public function getUserPriority($a_user_id)
+	{
+		$set = $this->ilDB->query('SELECT MAX(priority) AS max_priority FROM ' .
+			dbc::CLASSES_TABLE . ' JOIN ' . dbc::CLASS_USER_TABLE .
+			' ON id = class_id WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
+
+		$userPriorityRow = $this->ilDB->fetchAssoc($set);
+
+		return $userPriorityRow ['max_priority'];
 	}
 
 	/**
@@ -1323,7 +1455,8 @@ class ilRoomsharingDatabase
 	public function deleteRoomAttribute($a_attribute_id)
 	{
 		return $this->ilDB->manipulate('DELETE FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-				' WHERE id = ' . $this->ilDB->quote($a_attribute_id, 'integer'));
+				' WHERE id = ' . $this->ilDB->quote($a_attribute_id, 'integer') .
+				' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	/**
@@ -1387,7 +1520,8 @@ class ilRoomsharingDatabase
 	public function deleteBookingsUsesRoom($a_room_id)
 	{
 		return $this->ilDB->manipulate('DELETE FROM ' . dbc::BOOKINGS_TABLE .
-				' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer'));
+				' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') .
+				' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	/**
@@ -1399,7 +1533,8 @@ class ilRoomsharingDatabase
 	public function deleteRoom($a_room_id)
 	{
 		return $this->ilDB->manipulate('DELETE FROM ' . dbc::ROOMS_TABLE .
-				' WHERE id = ' . $this->ilDB->quote($a_room_id, 'integer'));
+				' WHERE id = ' . $this->ilDB->quote($a_room_id, 'integer') .
+				' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
 	/**
@@ -1430,7 +1565,8 @@ class ilRoomsharingDatabase
 			'name' => array('text', $a_changed_attribute_name),
 		);
 		$where = array(
-			'id' => array("integer", $a_attribute_id)
+			'id' => array("integer", $a_attribute_id),
+			'pool_id' => array("integer", $this->pool_id)
 		);
 		$this->ilDB->update(dbc::ROOM_ATTRIBUTES_TABLE, $fields, $where);
 	}
@@ -1447,7 +1583,8 @@ class ilRoomsharingDatabase
 			'name' => array('text', $a_changed_attribute_name),
 		);
 		$where = array(
-			'id' => array("integer", $a_attribute_id)
+			'id' => array("integer", $a_attribute_id),
+			'pool_id' => array("integer", $this->pool_id)
 		);
 		$this->ilDB->update(dbc::BOOKING_ATTRIBUTES_TABLE, $fields, $where);
 	}

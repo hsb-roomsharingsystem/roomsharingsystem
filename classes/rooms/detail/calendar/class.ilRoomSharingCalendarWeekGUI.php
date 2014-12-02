@@ -35,6 +35,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		$ilTabs->setTabActive('rooms');
 
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showroom');
 
 		// Roominfo
 		$ilTabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
@@ -242,7 +243,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 					$this->tpl->setVariable('DAY_NEW_APP_LINK', $this->lng->txt('rep_robj_xrs_room_book'));
 					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $room->getName());
 					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room->getId());
-					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', $this->parent_cmd);
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showroom');
 
 					$date = $this->weekdays[$num_day]->get(IL_CAL_DATE);
 

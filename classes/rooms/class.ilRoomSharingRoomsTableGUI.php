@@ -14,7 +14,10 @@ include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  */
 class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 {
-	protected $rooms;
+	private $rooms;
+	private $message = '';
+	private $messageNeeded = false;
+	private $messagePlural = false;
 
 	/**
 	 * Constructor for the class ilRoomSharingRoomsTableGUI
@@ -61,8 +64,10 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$data = $this->rooms->getList($filter);
 
 		$old_name = $filter["room_name"];
-		$new_name = filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT);
-		if (count($data) == 0 && ($old_name || $old_name === "0") && $old_name != $new_name)
+		$new_name = preg_replace('/\D/', '', filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT));
+
+		if (count($data) == 0 && ($new_name || $new_name === "0") && ($old_name || $old_name === "0") && $old_name
+			!== $new_name)
 		{
 			$filter["room_name"] = $new_name;
 			$data = $this->rooms->getList($filter);
@@ -225,12 +230,17 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	 */
 	public function initFilter()
 	{
+		$this->message = '';
+		$this->messageNeeded = false;
+		$this->messagePlural = false;
 		// Room
 		$this->createRoomFormItem();
 		// Seats
 		$this->createSeatsFormItem();
 		// Room Attributes
 		$this->createRoomAttributeFormItem();
+		// generate info Message if needed
+		$this->generateMessageIfNeeded();
 	}
 
 	/**
@@ -267,7 +277,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 			"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
-		$seats_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_seats"), "seats");
+		$seats_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_needed_seats"), "seats");
 		$room_seats_input = new ilRoomSharingNumberInputGUI("", "room_seats");
 		$room_seats_input->setMaxLength(8);
 		$room_seats_input->setSize(8);
@@ -278,6 +288,18 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->addFilterItem($seats_comb);
 		$seats_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["seats"] = $seats_comb->getValue();
+
+		$value = $_POST[$room_seats_input->getPostVar()];
+		if ($value !== "" && $value > $room_seats_input->getMaxValue())
+		{
+			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_needed_seats");
+
+			if ($this->messagePlural == false && $this->messageNeeded == true)
+			{
+				$this->messagePlural = true;
+			}
+			$this->messageNeeded = true;
+		}
 	}
 
 	/**
@@ -309,6 +331,49 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$room_attribute_comb->readFromSession();
 
 			$this->filter ["attributes"] [$room_attribute] = $room_attribute_comb->getValue();
+
+			$value = $_POST[$room_attribute_input->getPostVar()];
+			if ($value !== "" && $value > $room_attribute_input->getMaxValue())
+			{
+				if ($this->message != '')
+				{
+					$this->message = $this->message . ', ' . $room_attribute;
+				}
+				else
+				{
+					$this->message = $this->message . $room_attribute;
+				}
+
+				if ($this->messagePlural == false && $this->messageNeeded == true)
+				{
+					$this->messagePlural = true;
+				}
+				$this->messageNeeded = true;
+			}
+		}
+	}
+
+	/**
+	 * Generate and show a infomessage if the private variables $message and $messageNeeded are set.
+	 * They are set if one input value is bigger then the maxvalue.
+	 */
+	private function generateMessageIfNeeded()
+	{
+		if ($this->messageNeeded)
+		{
+			if (!$this->messagePlural)
+			{
+				$msg = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_begin');
+				$msg = $msg . ' "' . $this->message;
+				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_end');
+			}
+			else
+			{
+				$msg = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_begin');
+				$msg = $msg . ' "' . $this->message;
+				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_end');
+			}
+			ilUtil::sendInfo($msg);
 		}
 	}
 

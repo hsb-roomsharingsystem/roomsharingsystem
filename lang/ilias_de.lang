@@ -19,6 +19,7 @@ attributes_for_rooms#:#Attribute für Räume
 attributes_for_rooms_desc#:#Hier können Attribute für Räume festgelegt werden.
 back_to_list#:#Zurück zu den Gebäudeplänen
 back_to_rooms#:#Zurück zu allen Räumen
+back_to_search#:#Zurück zur Schnellsuche
 between#:#Zwischen
 booking_add#:#Buchung hinzufügen
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
@@ -84,8 +85,8 @@ mail_cancellation_creator_message#:#Ihre Raum-Buchung wurde storniert. Der folge
 mail_cancellation_creator_subject#:#Ihre Raum-Buchung wurde storniert.
 mail_cancellation_participant_message#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert. Folgende Buchung ist storniert worden:
 mail_cancellation_participant_subject#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert.
-mail_cancellation_reason_prefix#:#Die Buchung wurde aus folgendem Grund storniert:
 mail_cancellation_reason_manually#:#Manuelle Stornierung durch den Benutzer.
+mail_cancellation_reason_prefix#:#Die Buchung wurde aus folgendem Grund storniert:
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
 missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.
@@ -93,12 +94,14 @@ missing_required_entries#:#Einige Angaben sind unvollständig oder ungültig. Bi
 module#:#Modul
 must_be_unique#:#Attributname muss eindeutig sein!
 name_of_new_attribute#:#Name des neuen Attributs
+needed_seats#:#Benötigte Sitzplätze
 new_attribute_name#:#Neuer Name des Attributs
 no_delete_permission#:#Keine Berechtigung, diese Buchung zu löschen
 no_id_submitted#:#Keine oder nicht numerische ID übergeben
 no_match_for#:#Keine Ergebnisse für
 not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
 obj_xrs#:#RoomSharing
+objs_xrs#:#RoomSharing Pools
 on#:#Am
 participants#:#Teilnehmer
 participants_list#:#Teilnehmerliste
@@ -110,6 +113,8 @@ participations_left#:#Teilnahmen wurden verlassen!
 participations_no_leave_ids#:#Markieren Sie bitte mindestens eine Buchung zum Verlassen.
 person_responsible#:#Verantwortlicher
 plan#:#Plan
+plural_field_input_value_too_high_begin#:#Die Werte für die Felder
+plural_field_input_value_too_high_end#:#sind höher als der maximal verfügbare Wert und daher wurden die Werte ignoriert oder der Filter auf den letzten gültigen Zustand zurückgesetzt.
 pool#:#Roomsharingpool
 pools#:#Roomsharingpools
 privileges#:#Privilegien
@@ -120,9 +125,9 @@ privileges_confirm_class_lock#:#Klassenprivilegien sperren
 privileges_confirm_class_lock_info#:#Die folgenden Einstellungsänderungen werden vorgenommen:<br /><br />- Alle Privilegien für diese Klassen werden gesperrt.<br />- Benutzer, die einer gesperrten Klasse über Rollen- oder Direktzuweisung zugeordnet sind, verfügen infolgedessen über keinerlei Privilegien.
 privileges_confirm_class_lock_question#:#Möchten Sie wirklich die Privilegien folgender Klassen sperren?
 privileges_confirm_class_self_lock_of#:#Sie beabsichtigen die Sperrung der Privilegien mindestens einer Klasse, der Sie selbst zugeordnet sind.<br />Unter Umständen sperren Sie somit Ihre eigenen Privilegien und nur ein weiterer Benutzer mit dem Privileg, andere Privilegien zu verändern, oder der Besitzer des Pools kann die Privilegien wiederherstellen.<br />Dies betrifft die Sperrung folgender, Ihnen zugeordneter Klassen:
+privileges_confirm_privilege_revoking#:#Privilegien entziehen
 privileges_confirm_privilege_revoking_info#:#Sie beabsichtigen das Privileg &quot;Privilegien aufrufen&quot; und/oder das Privileg &quot;Privilegien bearbeiten&quot; mindestens einer Klasse zu entziehen, der Sie selbst zugeordnet sind. Wenn Sie fortfahren kann nur ein weiterer Benutzer mit dem Privileg, andere Privilegien zu verändern, oder der Besitzer des Pools besagte Privilegien wiederherstellen.
 privileges_confirm_privilege_revoking_question#:#Möchten Sie wirklich den folgenden, Ihnen zugeordneten Klassen die Privilegien &quot;Privilegien bearbeiten&quot; und/oder &quot;Privilegien bearbeiten&quot; entziehen?
-privileges_confirm_privilege_revoking#:#Privilegien entziehen
 privileges_copy_privileges#:#Privilegien kopieren
 privileges_lock#:#Privilegien sperren
 privileges_lock_confirm_back#:#Zurück zu den Privilegien
@@ -138,12 +143,14 @@ room_add#:#Raum hinzufügen
 room_added#:#Raum wurde hinzugefügt.
 room_already_booked#:#Der Raum ist in dem Zeitraum bereits gebucht
 room_attributes#:#Raumattribute
+room_attributes_info#:#Für die Attributwerte können ganze Zahlen ab 0 eingegeben werden. Bei keiner Angabe werden die jeweiligen Zuweisungen aufgelöst.
+room_back#:#Zurück zur Raumansicht
 room_book#:#Buchen
 room_create_failed#:#Der Raum konnte nicht angelegt werden.
 room_date_recurrence#:#Serientermin
 room_delete#:#Möchten Sie wirklich den ausgewählten Raum löschen?
-room_delete_success#:#Raum erfolgreich gelöscht
 room_delete_booking#:#Beim Löschen des Raums ist folgende Anzahl an Buchungen betroffen, die dabei storniert werden:
+room_delete_success#:#Raum erfolgreich gelöscht
 room_edit#:#Editieren
 room_file_id#:#Lageplan
 room_floor_plans#:#Gebäudeplan
@@ -152,13 +159,12 @@ room_max_allocation_exceeded#:#Maximale Raumbelegung überschritten
 room_min_alloc#:#Min. Belegung
 room_name#:#Raumbezeichnung
 room_no_assign#:#Keine Zuordnung
-room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
-room_properties#:#Raumeigenschaften
-room_attributes_info#:#Für die Attributwerte können ganze Zahlen ab 0 eingegeben werden. Bei keiner Angabe werden die jeweiligen Zuweisungen aufgelöst.
-room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
-room_type#:#Raumtyp
 room_occupation#:#Wochenansicht
 room_occupation_title#:#Wochenansicht von Raum
+room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
+room_properties#:#Raumeigenschaften
+room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
+room_type#:#Raumtyp
 rooms#:#Räume
 rooms_user_agreement#:#Raumnutzungsordnung
 rooms_user_agreement_accept#:#Raumnutzungsordnung akzeptieren
@@ -170,11 +176,13 @@ saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Ro
 search#:#Suchen
 search_back#:#Zurück zu den Suchresultaten
 search_results#:#Suchresultate
-seats#:#Benötigte Sitzplätze
+seats#:#Sitzplätze
 semester#:#Semester
 setting_1#:#Einstellung 1
 setting_2#:#Einstellung 2
 settings#:#Einstellungen
+singular_field_input_value_too_high_begin#:#Der Werte für das Feld
+singular_field_input_value_too_high_end#:#ist höher als der maximal verfügbare Wert und daher wurde der Wert ignoriert oder der Filter auf den letzten gültigen Filter zurückgesetzt.
 status#:#Status
 subject#:#Betreff
 time_range#:#Zeitbereich
