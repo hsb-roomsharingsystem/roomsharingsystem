@@ -149,6 +149,7 @@ class ilRoomSharingBookingsGUI
 		try
 		{
 			$bookings->removeMultipleBookings($_POST ["booking_ids"]);
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
 		}
 		catch (ilRoomSharingBookingsException $exc)
 		{

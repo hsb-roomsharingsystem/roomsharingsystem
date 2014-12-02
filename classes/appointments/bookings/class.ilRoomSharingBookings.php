@@ -80,7 +80,7 @@ class ilRoomSharingBookings
 
 	/**
 	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal 1 and exists as booking ID.
-         * Sends all participants a cancellation notice.
+	 * Sends all participants a cancellation notice.
 	 * @param array $a_booking_ids nummerical array of booking_ids to delete
 	 */
 	public function removeMultipleBookings(array $a_booking_ids)
@@ -88,13 +88,12 @@ class ilRoomSharingBookings
 		foreach ($a_booking_ids as $booking_id)
 		{
 			$this->checkBookingId($booking_id);
-                        $booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
-                        $participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
-                        $this->sendCancellationNotification($booking_details, $participants); 
+			$booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
+			$participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
+			$this->sendCancellationNotification($booking_details, $participants);
 		}
 		$this->ilRoomsharingDatabase->deleteCalendarEntriesOfBookings($a_booking_ids);
 		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
-		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
 	}
 
 	/**
@@ -309,7 +308,7 @@ class ilRoomSharingBookings
 		$mailer->setRoomname($room_name);
 		$mailer->setDateStart($date_from);
 		$mailer->setDateEnd($date_to);
-                $mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
+		$mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
 		$mailer->sendCancellationMailWithReason($user_id, $participants);
 	}
 
