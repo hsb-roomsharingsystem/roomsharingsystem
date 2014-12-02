@@ -1417,10 +1417,9 @@ class ilRoomsharingDatabase
 	 */
 	public function getUserPriority($a_user_id)
 	{
-
-		$set = $this->ilDB->query('SELECT MAX(priority) AS max_priority FROM ' . dbc::CLASSES_TABLE . ' JOIN ' .
-			dbc::CLASS_USER_TABLE . ' ON id = class_id WHERE user_id = ' .
-			$this->ilDB->quote($a_user_id, 'integer'));
+		$set = $this->ilDB->query('SELECT MAX(priority) AS max_priority FROM ' .
+			dbc::CLASSES_TABLE . ' JOIN ' . dbc::CLASS_USER_TABLE .
+			' ON id = class_id WHERE user_id = ' . $this->ilDB->quote($a_user_id, 'integer'));
 
 		$userPriorityRow = $this->ilDB->fetchAssoc($set);
 
