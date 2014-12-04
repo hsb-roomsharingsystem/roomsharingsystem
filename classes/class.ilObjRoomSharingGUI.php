@@ -368,13 +368,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			);
 		}
 
-		if ($this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		$adminRoomAttrs = $this->permission->checkPrivilege(PRIVC::ADMIN_ROOM_ATTRIBUTES);
+		if ($adminRoomAttrs || $this->permission->checkPrivilege(PRIVC::ADMIN_BOOKING_ATTRIBUTES))
 		{
-			// Attributes for rooms and bookings
+			$specifiedActions = $adminRoomAttrs ? ATTRC::SHOW_ROOM_ATTR_ACTIONS : ATTRC::SHOW_BOOKING_ATTR_ACTIONS;
+			// Attributes for rooms or bookings
 			$ilTabs->addTab(
 				ATTRC::ATTRS, $this->txt("attributes"),
-				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, ATTRC::SHOW_ROOM_ATTR_ACTIONS)
+				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, $specifiedActions)
 			);
+		}
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
 			// Settings
 			$this->tabs_gui->addTab(
 				'settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings')

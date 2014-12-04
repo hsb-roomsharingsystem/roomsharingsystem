@@ -4,8 +4,11 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingAttributesException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
 
 use ilRoomSharingAttributesConstants as ATTRC;
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingRoomAttributes for room attributes administration.
@@ -14,6 +17,7 @@ use ilRoomSharingAttributesConstants as ATTRC;
  *
  * @version $Id$
  * @property ilRoomsharingDatabase $ilRoomsharingDatabase
+ * @property ilRoomSharingPermissionUtils $permission
  * @property ilDB $ilDB
  */
 class ilRoomSharingRoomAttributes
@@ -22,6 +26,7 @@ class ilRoomSharingRoomAttributes
 	private $allAvailableAttributes = array();
 	private $ilRoomsharingDatabase;
 	private $ilDB;
+	private $permission;
 
 	/**
 	 * Constructor of ilRoomSharingRoomAttributes
@@ -30,8 +35,9 @@ class ilRoomSharingRoomAttributes
 	 */
 	public function __construct($a_pool_id = 1)
 	{
-		global $ilDB;
+		global $ilDB, $rssPermission;
 		$this->ilDB = $ilDB;
+		$this->permission = $rssPermission;
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($a_pool_id);
 		$this->allAvailableAttributes = $this->ilRoomsharingDatabase->getAllRoomAttributes();
@@ -169,8 +175,7 @@ class ilRoomSharingRoomAttributes
 	 */
 	private function checkUserPrivileges()
 	{
-		// TODO Change this after privileges functions are implemented!
-		if (false)
+		if (!$this->permission->checkPrivilege(PRIVC::ADMIN_ROOM_ATTRIBUTES))
 		{
 			throw new ilRoomSharingAttributesException('rep_robj_xrs_attributes_change_not_allowed');
 		}

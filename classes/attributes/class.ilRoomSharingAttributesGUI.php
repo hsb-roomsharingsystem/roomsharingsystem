@@ -3,8 +3,11 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/room/class.ilRoomSharingRoomAttributesGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/booking/class.ilRoomSharingBookingAttributesGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
 
 use ilRoomSharingAttributesConstants as ATTRC;
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingAttributesGUI
@@ -17,12 +20,14 @@ use ilRoomSharingAttributesConstants as ATTRC;
  *
  * @property ilCtrl $ctrl
  * @property ilLanguage $lng
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingAttributesGUI
 {
 	public $ref_id;
 	protected $ctrl;
 	protected $lng;
+	private $permission;
 	private $pool_id;
 
 	/**
@@ -32,9 +37,10 @@ class ilRoomSharingAttributesGUI
 	 */
 	function __construct($a_parent_obj)
 	{
-		global $ilCtrl, $lng;
+		global $ilCtrl, $lng, $rssPermission;
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
+		$this->permission = $rssPermission;
 
 		$this->ref_id = $a_parent_obj->ref_id;
 		$this->pool_id = $a_parent_obj->getPoolId();
@@ -83,12 +89,18 @@ class ilRoomSharingAttributesGUI
 	{
 		global $ilTabs;
 		$ilTabs->setTabActive(ATTRC::ATTRS);
-		// Room attributes
-		$ilTabs->addSubTab(ATTRC::ROOM_ATTRS, $this->lng->txt('rep_robj_xrs_attributes_for_rooms'),
-			$this->ctrl->getLinkTargetByClass(ATTRC::ROOM_ATTRS_GUI, ATTRC::SHOW_ROOM_ATTR_ACTIONS));
-		// Booking attributes
-		$ilTabs->addSubTab(ATTRC::BOOKING_ATTRS, $this->lng->txt('rep_robj_xrs_attributes_for_bookings'),
-			$this->ctrl->getLinkTargetByClass(ATTRC::BOOKING_ATTRS_GUI, ATTRC::SHOW_BOOKING_ATTR_ACTIONS));
+		if ($this->permission->checkPrivilege(PRIVC::ADMIN_ROOM_ATTRIBUTES))
+		{
+			// Room attributes
+			$ilTabs->addSubTab(ATTRC::ROOM_ATTRS, $this->lng->txt('rep_robj_xrs_attributes_for_rooms'),
+				$this->ctrl->getLinkTargetByClass(ATTRC::ROOM_ATTRS_GUI, ATTRC::SHOW_ROOM_ATTR_ACTIONS));
+		}
+		if ($this->permission->checkPrivilege(PRIVC::ADMIN_BOOKING_ATTRIBUTES))
+		{
+			// Booking attributes
+			$ilTabs->addSubTab(ATTRC::BOOKING_ATTRS, $this->lng->txt('rep_robj_xrs_attributes_for_bookings'),
+				$this->ctrl->getLinkTargetByClass(ATTRC::BOOKING_ATTRS_GUI, ATTRC::SHOW_BOOKING_ATTR_ACTIONS));
+		}
 		$ilTabs->activateSubTab($a_active);
 	}
 
