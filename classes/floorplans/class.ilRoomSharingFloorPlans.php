@@ -110,10 +110,11 @@ class ilRoomSharingFloorPlans
 	 */
 	public function updateFloorPlanInfos($a_file_id, $a_title, $a_desc)
 	{
-		$mediaObj = new ilObjMediaObject($a_file_id);
-		$mediaObj->setTitle($a_title);
-		$mediaObj->setDescription($a_desc);
-		$mediaObj->update();
+		$media_obj = new ilObjMediaObject($a_file_id);
+		$media_obj->setTitle($a_title);
+		$media_item = $media_obj->getMediaItem("Standard");
+		$media_item->setCaption($a_desc);
+		$media_obj->update();
 	}
 
 	/**
@@ -186,11 +187,11 @@ class ilRoomSharingFloorPlans
 		}
 
 		$mediaObj->setTitle($a_title);
-		$mediaObj->setDescription($a_desc);
 		$mediaObj->removeAllMediaItems();
 
 		$media_item = new ilMediaItem();
 		$media_item->setPurpose("Standard");
+		$media_item->setCaption($a_desc);
 		$mediaObj->addMediaItem($media_item);
 
 		return $mediaObj;
@@ -280,6 +281,7 @@ class ilRoomSharingFloorPlans
 	private function updateMediaObject($a_mediaObj, $a_fileinfo)
 	{
 		$media_item = $a_mediaObj->getMediaItem("Standard");
+
 		$media_item->setFormat($a_fileinfo["format"]);
 		$media_item->setLocation($a_fileinfo["filename"]);
 		$media_item->setLocationType("LocalFile");

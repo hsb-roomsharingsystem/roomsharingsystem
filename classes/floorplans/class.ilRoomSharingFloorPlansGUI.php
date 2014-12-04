@@ -161,7 +161,7 @@ class ilRoomSharingFloorPlansGUI
 		{
 			$mobj = new ilObjMediaObject($fplaninfo[0]["file_id"]);
 			$title->setValue($mobj->getTitle());
-			$desc->setValue($mobj->getDescription());
+			$desc->setValue($mobj->getMediaItem("Standard")->getCaption());
 		}
 
 		$edit_form->addCommandButton("update", $this->lng->txt("save"));
@@ -316,7 +316,7 @@ class ilRoomSharingFloorPlansGUI
 		}
 		// the buttons for confirming and cancelling the deletion
 		$cgui->setCancel($this->lng->txt("cancel"), "render");
-		$cgui->setConfirm($this->lng->txt("confirm"), "removeFloorplan");
+		$cgui->setConfirm($this->lng->txt("delete"), "removeFloorplan");
 
 		// the table which includes the thumbnail picture and the title
 		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");

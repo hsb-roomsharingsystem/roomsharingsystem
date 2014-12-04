@@ -123,7 +123,7 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	private function fillRowTitleAndDescription($a_mediaObject, $a_title)
 	{
 		$this->tpl->setVariable('TXT_TITLE', $a_title);
-		$this->tpl->setVariable('TXT_DESCRIPTION', $a_mediaObject->getDescription());
+		$this->tpl->setVariable('TXT_DESCRIPTION', $a_mediaObject->getMediaItem("Standard")->getCaption());
 	}
 
 	/**
