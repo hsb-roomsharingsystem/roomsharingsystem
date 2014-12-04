@@ -6,6 +6,10 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/R
 require_once ("Services/PermanentLink/classes/class.ilPermanentLinkGUI.php");
 require_once ("Services/Utilities/classes/class.ilConfirmationGUI.php");
 require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingBookingsGUI
@@ -18,11 +22,13 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/R
  * @property ilCtrl $ctrl
  * @property ilLanguage $lng
  * @property ilTemplate $tpl
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingBookingsGUI
 {
 	protected $ref_id;
 	protected $pool_id;
+	private $permission;
 	private $ctrl;
 	private $lng;
 	private $tpl;
@@ -37,10 +43,11 @@ class ilRoomSharingBookingsGUI
 	 */
 	function __construct(ilRoomSharingAppointmentsGUI $a_parent_obj)
 	{
-		global $ilCtrl, $lng, $tpl;
+		global $ilCtrl, $lng, $tpl, $rssPermission;
 
 		$this->ref_id = $a_parent_obj->ref_id;
 		$this->pool_id = $a_parent_obj->getPoolId();
+		$this->permission = $rssPermission;
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
@@ -74,12 +81,16 @@ class ilRoomSharingBookingsGUI
 	function showBookingsObject()
 	{
 		$toolbar = new ilToolbarGUI();
-		$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
-			$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
+
+		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
+		{
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
+				$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
+		}
 
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
 
-		$plink = new ilPermanentLinkGUI('room', $this->ref_id);
+		$plink = new ilPermanentLinkGUI('xrs', $this->ref_id);
 
 		$this->tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
 	}

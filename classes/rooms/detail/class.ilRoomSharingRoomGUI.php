@@ -123,9 +123,9 @@ class ilRoomSharingRoomGUI
 
 		$this->room_obj = new IlRoomSharingRoom($this->pool_id, $this->room_id);
 
+		$toolbar = new ilToolbarGUI();
 		if ($ilAccess->checkAccess('write', '', $this->ref_id))
 		{
-			$toolbar = new ilToolbarGUI();
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_room_edit'),
 				$this->ctrl->getLinkTarget($this, "editRoom"));
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'),

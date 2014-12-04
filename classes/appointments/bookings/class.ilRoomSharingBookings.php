@@ -6,6 +6,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 
 /**
  * Class ilRoomSharingBookings
@@ -16,6 +17,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  *
  * @version $Id$
  * @property ilRoomsharingDatabase $ilRoomsharingDatabase
+ * @property ilRoomSharingPermissionUtils $permission
  * @property ilDB $ilDB
  * @property ilUser $ilUser
  * @property ilLanguage $lng
@@ -24,6 +26,7 @@ class ilRoomSharingBookings
 {
 	protected $pool_id;
 	protected $ilRoomsharingDatabase;
+	private $permission;
 	private $ilDB;
 	private $ilUser;
 	private $lng;
@@ -35,10 +38,11 @@ class ilRoomSharingBookings
 	 */
 	function __construct($pool_id = 1)
 	{
-		global $ilDB, $ilUser, $lng;
+		global $ilDB, $ilUser, $lng, $rssPermission;
 		$this->ilDB = $ilDB;
 		$this->ilUser = $ilUser;
 		$this->lng = $lng;
+		$this->permission = $rssPermission;
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
@@ -58,7 +62,6 @@ class ilRoomSharingBookings
 		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
 		$booking_details = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
 		$participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
-
 
 		$this->checkResultNotEmpty($row);
 		$this->checkDeletePermission($row ['user_id']);
@@ -89,11 +92,13 @@ class ilRoomSharingBookings
 		{
 			$this->checkBookingId($booking_id);
 			$booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
+			$this->checkDeletePermission($booking_details['user_id']);
 			$participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
 			$this->sendCancellationNotification($booking_details, $participants);
 		}
 		$this->ilRoomsharingDatabase->deleteCalendarEntriesOfBookings($a_booking_ids);
 		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
+		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
 	}
 
 	/**
@@ -104,7 +109,12 @@ class ilRoomSharingBookings
 	 */
 	private function checkDeletePermission($a_userId)
 	{
-		if ($a_userId != $this->ilUser->getId())
+		$currentUserId = $this->ilUser->getId();
+		if ($a_userId == $currentUserId)
+		{
+			return TRUE;
+		}
+		else if (!$this->permission->checkForHigherPriority($currentUserId, $a_userId))
 		{
 			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
 		}

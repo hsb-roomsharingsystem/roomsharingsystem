@@ -3,6 +3,10 @@
 require_once("Services/Table/classes/class.ilTable2GUI.php");
 require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingBookingsTableGUI
@@ -17,12 +21,14 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/"
  * @property ilCtrl $ctrl
  * @property ilRoomSharingBookings $bookings
  * @property ilRoomSharingAppointmentsGUI $parent_obj
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 {
 	protected $lng;
 	protected $ctrl;
 	protected $parent_obj;
+	private $permission;
 	private $bookings;
 	private $ref_id;
 
@@ -35,7 +41,8 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
 	{
-		global $ilCtrl, $lng;
+		global $ilCtrl, $lng, $rssPermission;
+		$this->permission = $rssPermission;
 		$this->lng = $lng;
 		$this->ctrl = $ilCtrl;
 
@@ -60,7 +67,10 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->setRowTemplate("tpl.room_appointment_row.html",
 			"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
 		// command for cancelling bookings
-		$this->addMultiCommand('confirmMultipleCancels', $this->lng->txt('rep_robj_xrs_booking_cancel'));
+		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS) || $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY))
+		{
+			$this->addMultiCommand('confirmMultipleCancels', $this->lng->txt('rep_robj_xrs_booking_cancel'));
+		}
 
 		$this->getItems();
 	}
@@ -169,10 +179,13 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		// ### Appointment ###
 		$this->tpl->setVariable('TXT_DATE', $a_rowData ['date']);
 		// link for the date overview
-		// $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $a_set['id']);
-		// $this->tpl->setVariable('HREF_DATE', $this->ctrl->getLinkTargetByClass(
-		// 'ilobjroomsharinggui', 'showBooking'));
-		// $this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', '');
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_APPOINTMENTS))
+		{
+			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $a_rowData['id']);
+			$this->tpl->setVariable('HREF_DATE',
+				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showBooking'));
+			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', '');
+		}
 	}
 
 	/**
@@ -184,10 +197,13 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	{
 		// ### Room ###
 		$this->tpl->setVariable('TXT_ROOM', $a_rowData ['room']);
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_rowData ['room_id']);
-		$this->tpl->setVariable('HREF_ROOM',
-			$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_rowData ['room_id']);
+			$this->tpl->setVariable('HREF_ROOM',
+				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
+			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
+		}
 	}
 
 	/**
@@ -265,18 +281,24 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	private function setActions($a_rowData)
 	{
 		$this->tpl->setCurrentBlock("actions");
-		$this->tpl->setVariable('LINK_ACTION',
-			$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
+		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
+		{
+			$this->tpl->setVariable('LINK_ACTION',
+				$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
+			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
+		}
 		$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 		$this->tpl->parseCurrentBlock();
 
 		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_rowData ['id']);
 		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject',
 			$a_rowData ['subject']);
-		$this->tpl->setVariable('LINK_ACTION',
-			$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'confirmCancel'));
-		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_cancel'));
+		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS) || $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY))
+		{
+			$this->tpl->setVariable('LINK_ACTION',
+				$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'confirmCancel'));
+			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_cancel'));
+		}
 		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', '');
 		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', '');
 	}

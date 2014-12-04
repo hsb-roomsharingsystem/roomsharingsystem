@@ -301,11 +301,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	public function render()
 	{
-		global $ilTabs, $ilCtrl;
-		$ilTabs->setTabActive('appointments');
-		$this->pl_obj->includeClass("appointments/class.ilRoomSharingAppointmentsGUI.php");
-		$object_gui = & new ilRoomSharingAppointmentsGUI($this);
-		$ilCtrl->forwardCommand($object_gui);
+		$this->setActiveTabRegardingPrivilege();
 		return true;
 	}
 
@@ -399,16 +395,22 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$this->ctrl->getLinkTargetByClass("ilroomsharingprivilegesgui", "showPrivileges")
 			);
 		}
+	}
 
+	private function setActiveTabRegardingPrivilege()
+	{
+		global $ilCtrl;
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_APPOINTMENTS))
 		{
 			//show first tab per default
 			$this->tabs_gui->activateTab('appointments');
+			$this->pl_obj->includeClass('appointments/class.ilRoomSharingAppointmentsGUI.php');
+			$object_gui = & new ilRoomSharingAppointmentsGUI($this);
+			$ilCtrl->forwardCommand($object_gui);
 		}
 		else
 		{
-			//TODO GEHT DAS SO??
-			$this->tabs_gui->activateTab("info");
+			$ilCtrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 		}
 	}
 
@@ -417,7 +419,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	function showContent()
 	{
-		$this->tabs_gui->activateTab('appointments');
+		$this->setActiveTabRegardingPrivilege();
 	}
 
 	/**
