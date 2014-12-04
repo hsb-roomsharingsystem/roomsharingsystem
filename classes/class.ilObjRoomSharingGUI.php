@@ -64,11 +64,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function afterConstructor()
 	{
+		//Cannot initialize the user-calendar and permission utils before the actual object is created because of missing poolID
 		if ($this->object != null)
 		{
 			global $rssPermission;
 
-			//Cannot initialize the user-calendar and permission utils before the actual object is created because of missing poolID
 			$this->initCalendar();
 			$rssPermission = new ilRoomSharingPermissionUtils($this->object->getPoolId(),
 				$this->object->getOwner());
@@ -103,6 +103,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	function performCommand($cmd)
 	{
 		global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd, $rssPermission;
+		$tpl->setDescription($this->object->getLongDescription());
 		$next_class = $ilCtrl->getNextClass($this);
 		$this->pl_obj = new ilRoomSharingPlugin();
 		$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
@@ -484,9 +485,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 		// Title and description (Standard)
 		$titleField = new ilTextInputGUI($this->lng->txt('title'), 'title');
+		$titleField->setMaxLength(128);
 		$titleField->setRequired(true);
 		$this->settingsForm->addItem($titleField);
 		$descField = new ilTextAreaInputGUI($this->lng->txt('description'), 'desc');
+		$descField->setCols(50);
+		$descField->setRows(5);
 		$this->settingsForm->addItem($descField);
 
 		// Online flag
@@ -520,7 +524,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		// Title and description (Standard)
 		$values ['title'] = $this->object->getTitle();
-		$values ['desc'] = $this->object->getDescription();
+		$values ['desc'] = $this->object->getLongDescription();
 
 		// Online flag
 		$values ['online'] = $this->object->isOnline();
