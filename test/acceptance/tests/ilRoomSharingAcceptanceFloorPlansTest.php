@@ -1,7 +1,7 @@
 <?php
 
 include_once './acceptance/php-webdriver/__init__.php';
-include_once './acceptance/tests/SeleniumHelper.php';
+include_once './acceptance/tests/ilRoomSharingAcceptanceSeleniumHelper.php';
 
 /**
  * This class represents the gui-testing for the RoomSharing System
@@ -30,7 +30,7 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 		self::$webDriver->manage()->timeouts()->implicitlyWait(3); // implicitly wait time => 3 sec.
 		self::$webDriver->manage()->window()->maximize();  // maxize browser window
 		self::$webDriver->get(self::$url); // go to RoomSharing System
-		self::$helper = new SeleniumHelper(self::$webDriver, self::$rssObjectName);
+		self::$helper = new ilRoomSharingAcceptanceSeleniumHelper(self::$webDriver, self::$rssObjectName);
 	}
 
 	public function setUp()

@@ -1,7 +1,7 @@
 <?php
 
 include_once './acceptance/php-webdriver/__init__.php';
-include_once './acceptance/tests/SeleniumHelper.php';
+include_once './acceptance/tests/ilRoomSharingAcceptanceSeleniumHelper.php';
 
 /**
  * This class represents the gui-testing for the RoomSharing System
@@ -30,7 +30,7 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 		self::$webDriver->manage()->timeouts()->implicitlyWait(3); // implicitly wait time => 3 sec.
 		self::$webDriver->manage()->window()->maximize();  // maxize browser window
 		self::$webDriver->get(self::$url); // go to RoomSharing System
-		self::$helper = new SeleniumHelper(self::$webDriver, self::$rssObjectName);
+		self::$helper = new ilRoomSharingAcceptanceSeleniumHelper(self::$webDriver, self::$rssObjectName);
 	}
 
 	public function setUp()
@@ -60,7 +60,7 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 		}
 		// Search for room "123" with date (today).
 		self::$helper->searchForRoomByAll("123", "", date("d"), self::$helper->getCurrentMonth(),
-			date("Y"), date("H"), (date("i") + (60 * 5)), "23", "55", "", "", "", "");
+			date("Y"), date("H"), (date("i") + (60 * 5)), "23", "55", array("Beamer" => 1));
 		if (self::$helper->getNoOfResults() == 1)
 		{
 			$this->assertEquals("123", self::$helper->getFirstResult());
@@ -79,11 +79,12 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals("0", self::$helper->getNoOfResults());
 		// Search for room with invalid date
 		self::$helper->searchForRoomByAll("123", "", date("d"), self::$helper->getCurrentMonth(),
-			date("Y"), date("H"), date("i"), "01", "00", "", "", "", "");
+			date("Y"), date("H"), date("i"), "01", "00", array());
 		$this->assertContains("unvollständig oder ungültig", self::$helper->getErrMessage());
 		// Search for room with invalid search parameter
 		self::$helper->searchForRoomByAll("123", "", date("d"), self::$helper->getCurrentMonth(),
-			date("Y"), date("H"), date("i"), "23", "55", "999", "999", "999", "");
+			date("Y"), date("H"), date("i"), "23", "55",
+			array("Beamer" => 999, "Soundanlage" => "", "Tageslichprojektor" => 999, "Whiteboard" => 999));
 		$this->assertContains("unvollständig oder ungültig", self::$helper->getErrMessage());
 	}
 

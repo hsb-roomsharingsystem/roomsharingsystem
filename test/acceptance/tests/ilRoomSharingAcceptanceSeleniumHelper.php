@@ -3,23 +3,23 @@
 /**
  * This class holds different methods to help creating readable Selenium tests.
  *
- * created by: Thomas Wolscht
+ * @author Thomas Wolscht
+ * @author Dan Sörgel
  */
 class ilRoomSharingAcceptanceSeleniumHelper
 {
 	private $webDriver;
 	private $rssObjectName;
 
-	public function SeleniumHelper($driver, $rss)
+	public function __construct($driver, $rss)
 	{
-
 		$this->webDriver = $driver;
 		$this->rssObjectName = $rss;
 	}
 
 	/**
 	 * Search for room by room name.
-	 * @param type $roomName Room name
+	 * @param string $roomName Room name
 	 */
 	public function searchForRoomByName($roomName)
 	{
@@ -31,26 +31,28 @@ class ilRoomSharingAcceptanceSeleniumHelper
 
 	/**
 	 * Search for room by all possible informations.
-	 * @param type $roomName	Room name
-	 * @param type $seats		Amount of seats
-	 * @param type $day			Day of booking
-	 * @param type $month		Month of booking
-	 * @param type $year		Year of booking
-	 * @param type $h_from		Hour (from)
-	 * @param type $m_from		Minutes (from)
-	 * @param type $h_to		Hour (to)
-	 * @param type $m_to		Minutes (to)
-	 * @param type $beamer		Amount of beamer
-	 * @param type $sound		Amount of sound systems
-	 * @param type $proj		Amount of projectors
-	 * @param type $white		Amount of whiteboards
+	 * @param string $roomName			Room name
+	 * @param int $seats				Amount of seats
+	 * @param int $day					Day of booking
+	 * @param int $month				Month of booking
+	 * @param int $year		    		Year of booking
+	 * @param int $h_from				Hour (from)
+	 * @param int $m_from				Minutes (from)
+	 * @param int $h_to					Hour (to)
+	 * @param int $m_to					Minutes (to)
+	 * @param array $room_attributes	roomattributes as [name of attribute] => [amount]
 	 */
 	public function searchForRoomByAll($roomName, $seats, $day, $month, $year, $h_from, $m_from, $h_to,
-		$m_to, $beamer, $sound, $proj, $white)
+		$m_to, array $room_attributes)
 	{
 		$this->webDriver->findElement(WebDriverBy::linkText('Suche'))->click();
+
 		$this->webDriver->findElement(WebDriverBy::id('room_name'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($roomName);
+
+		$this->webDriver->findElement(WebDriverBy::id('room_seats'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('room_seats'))->sendKeys($seats);
+
 		$this->webDriver->findElement(WebDriverBy::id('date[date]_d'))->sendKeys($day);
 		$this->webDriver->findElement(WebDriverBy::id('date[date]_m'))->sendKeys($month);
 		$this->webDriver->findElement(WebDriverBy::id('date[date]_y'))->sendKeys($year);
@@ -58,16 +60,18 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::id('time_from[time]_m'))->sendKeys($m_from);
 		$this->webDriver->findElement(WebDriverBy::id('time_to[time]_h'))->sendKeys($h_to);
 		$this->webDriver->findElement(WebDriverBy::id('time_to[time]_m'))->sendKeys($m_to);
-		$this->webDriver->findElement(WebDriverBy::id('attribute_Beamer_amount'))->sendKeys($beamer);
-		$this->webDriver->findElement(WebDriverBy::id('attribute_Soundanlage_amount'))->sendKeys($sound);
-		$this->webDriver->findElement(WebDriverBy::id('attribute_Tageslichprojektor_amount'))->sendKeys($proj);
-		$this->webDriver->findElement(WebDriverBy::id('attribute_Whiteboard_amount'))->sendKeys($white);
+
+		foreach ($room_attributes as $name => $amount)
+		{
+			$this->webDriver->findElement(WebDriverBy::id('attribute_' . $name . '_amount'))->clear();
+			$this->webDriver->findElement(WebDriverBy::id('attribute_' . $name . '_amount'))->sendKeys($amount);
+		}
 		$this->webDriver->findElement(WebDriverBy::name('cmd[applySearch]'))->click();
 	}
 
 	/**
 	 * Get current Month
-	 * @return current month
+	 * @return string current month
 	 */
 	public function getCurrentMonth()
 	{
@@ -89,8 +93,8 @@ class ilRoomSharingAcceptanceSeleniumHelper
 
 	/**
 	 * Login to RoomSharing
-	 * @param type $user
-	 * @param type $pass
+	 * @param string $user User
+	 * @param string $pass Password
 	 */
 	public function login($user, $pass)
 	{
@@ -111,7 +115,7 @@ class ilRoomSharingAcceptanceSeleniumHelper
 
 	/**
 	 * Get current day
-	 * @return day
+	 * @return string day
 	 */
 	public function getCurrentDay()
 	{
@@ -120,7 +124,7 @@ class ilRoomSharingAcceptanceSeleniumHelper
 
 	/**
 	 * Get current year
-	 * @return year
+	 * @return string year
 	 */
 	public function getCurrentYear()
 	{
@@ -129,7 +133,7 @@ class ilRoomSharingAcceptanceSeleniumHelper
 
 	/**
 	 * Get amount of search results.
-	 * @return search results
+	 * @return string search results
 	 */
 	public function getNoOfResults()
 	{
@@ -164,25 +168,56 @@ class ilRoomSharingAcceptanceSeleniumHelper
 
 	/**
 	 * This method creates a booking.
+	 * @param string $subject	Subject
+	 * @param type $f_day		From day
+	 * @param type $f_month		From Month
+	 * @param type $f_year		From Year
+	 * @param type $f_hour		From Hour
+	 * @param type $f_minute	From Minute
+	 * @param type $t_day		To Day
+	 * @param type $t_month		To Month
+	 * @param type $t_year		To Year
+	 * @param type $t_hour		To Hour
+	 * @param type $t_minute	To Minute
+	 * @param bool $acc			Tick "Accept room using agreement" (Agreement must be there)
+	 * @param string $comment	Comment
+	 * @param bool $public		Tick "Booking is public"
+	 * @param array $participants List of Participants (Must be User Names)
 	 */
-	public function doABooking($subject, $f_d, $f_m, $f_y, $f_h, $f_m, $t_d, $t_m, $t_y, $t_h, $t_m,
-		$acc)
+	public function doABooking($subject, $f_day, $f_month, $f_year, $f_hour, $f_minute, $t_day,
+		$t_month, $t_year, $t_hour, $t_minute, $acc, $comment = "", $public = false,
+		array $participants = array())
 	{
 		$this->webDriver->findElement(WebDriverBy::id('subject'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('subject'))->sendKeys($subject);
-		$this->webDriver->findElement(WebDriverBy::id('from[date]_d'))->sendKeys($f_d);
-		$this->webDriver->findElement(WebDriverBy::id('from[date]_m'))->sendKeys($f_m);
-		$this->webDriver->findElement(WebDriverBy::id('from[date]_y'))->sendKeys($f_y);
-		$this->webDriver->findElement(WebDriverBy::id('from[time]_h'))->sendKeys($f_h);
-		$this->webDriver->findElement(WebDriverBy::id('from[time]_m'))->sendKeys($f_m);
-		$this->webDriver->findElement(WebDriverBy::id('to[date]_d'))->sendKeys($t_d);
-		$this->webDriver->findElement(WebDriverBy::id('to[date]_m'))->sendKeys($t_m);
-		$this->webDriver->findElement(WebDriverBy::id('to[date]_y'))->sendKeys($t_y);
-		$this->webDriver->findElement(WebDriverBy::id('to[time]_h'))->sendKeys($t_h);
-		$this->webDriver->findElement(WebDriverBy::id('to[time]_m'))->sendKeys($t_m);
-		//if ($acc == true) {
-		//	$this->webDriver->findElement(WebDriverBy::id('accept_room_rules'))->click();
-		//}
+
+		$this->webDriver->findElement(WebDriverBy::id('comment'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('comment'))->sendKeys($comment);
+
+		$this->webDriver->findElement(WebDriverBy::id('from[date]_d'))->sendKeys($f_day);
+		$this->webDriver->findElement(WebDriverBy::id('from[date]_m'))->sendKeys($f_month);
+		$this->webDriver->findElement(WebDriverBy::id('from[date]_y'))->sendKeys($f_year);
+		$this->webDriver->findElement(WebDriverBy::id('from[time]_h'))->sendKeys($f_hour);
+		$this->webDriver->findElement(WebDriverBy::id('from[time]_m'))->sendKeys($f_minute);
+
+		$this->webDriver->findElement(WebDriverBy::id('to[date]_d'))->sendKeys($t_day);
+		$this->webDriver->findElement(WebDriverBy::id('to[date]_m'))->sendKeys($t_month);
+		$this->webDriver->findElement(WebDriverBy::id('to[date]_y'))->sendKeys($t_year);
+		$this->webDriver->findElement(WebDriverBy::id('to[time]_h'))->sendKeys($t_hour);
+		$this->webDriver->findElement(WebDriverBy::id('to[time]_m'))->sendKeys($t_minute);
+		if ($acc == true)
+		{
+			$this->webDriver->findElement(WebDriverBy::id('accept_room_rules'))->click();
+		}
+		if ($public == true)
+		{
+			$this->webDriver->findElement(WebDriverBy::id('book_public'))->click();
+		}
+		foreach ($participants as $num => $participant)
+		{
+			$this->webDriver->findElement(WebDriverBy::id('ilMultiAdd~participants~0'))->click();
+			$this->webDriver->findElement(WebDriverBy::id('participants~' . $num))->sendKeys($participant);
+		}
 		$this->webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 	}
 
