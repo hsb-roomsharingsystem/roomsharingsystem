@@ -433,6 +433,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function editSettings()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			$this->setActiveTabRegardingPrivilege();
+			return FALSE;
+		}
 		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm();
 		$this->getSettingsValues();
@@ -446,6 +451,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function updateSettings()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			$this->setActiveTabRegardingPrivilege();
+			return FALSE;
+		}
 		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm();
 
