@@ -1,8 +1,12 @@
 <?php
 
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+require_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingFloorPlans
@@ -11,11 +15,18 @@ include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
  *
  * @author Thomas Wolscht <t.wolscht@googlemail.com>
  * @author Christopher Marks <Deamp_dev@yahoo.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
+ * @property ilCtrl $ctrl;
+ * @property ilRoomSharingPermissionUtils $permission
+ * @property ilRoomsharingDatabase $ilRoomsharingDatabase
  */
 class ilRoomSharingFloorPlans
 {
 	private $pool_id;
 	private $ilRoomsharingDatabase;
+	private $permission;
+	private $ctrl;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlans.
@@ -25,6 +36,9 @@ class ilRoomSharingFloorPlans
 	 */
 	public function __construct($a_pool_id, $a_ilRoomsharingDatabase)
 	{
+		global $ilCtrl, $rssPermission;
+		$this->ctrl = $ilCtrl;
+		$this->permission = $rssPermission;
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = $a_ilRoomsharingDatabase;
 	}
@@ -74,6 +88,12 @@ class ilRoomSharingFloorPlans
 	 */
 	public function deleteFloorPlan($a_file_id)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::DELETE_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$res = null;
 		if ($a_file_id)
 		{
@@ -110,6 +130,12 @@ class ilRoomSharingFloorPlans
 	 */
 	public function updateFloorPlanInfos($a_file_id, $a_title, $a_desc)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$media_obj = new ilObjMediaObject($a_file_id);
 		$media_obj->setTitle($a_title);
 		$media_item = $media_obj->getMediaItem("Standard");
@@ -129,6 +155,12 @@ class ilRoomSharingFloorPlans
 	 */
 	public function updateFloorPlanInfosAndFile($a_file_id, $a_title, $a_desc, $a_newfile = null)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, $a_file_id);
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
@@ -153,6 +185,12 @@ class ilRoomSharingFloorPlans
 	 */
 	public function addFloorPlan($a_title, $a_desc, $a_newfile)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, null);
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
