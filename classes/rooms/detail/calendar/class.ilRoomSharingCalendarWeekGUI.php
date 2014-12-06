@@ -5,7 +5,7 @@ include_once './Services/Calendar/classes/class.ilCalendarWeekGUI.php';
 class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 {
 	protected $room_id;
-	protected $pool_id;
+	private $pool_id;
 	// Color of appointments in week-view
 	private $color = 'lightblue';
 
@@ -416,6 +416,27 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		}
 
 		$this->num_appointments++;
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

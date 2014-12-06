@@ -326,6 +326,27 @@ class ilRoomSharingFloorPlans
 		$a_mediaObj->update();
 	}
 
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
+	}
+
 }
 
 ?>

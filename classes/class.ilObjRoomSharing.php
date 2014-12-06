@@ -18,7 +18,7 @@ include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
 class ilObjRoomSharing extends ilObjectPlugin
 {
 	protected $ilDB;
-	protected $pool_id;
+	private $pool_id;
 	protected $online;
 	protected $max_book_time;
 	/* File id of the rooms agreement */
@@ -195,26 +195,6 @@ class ilObjRoomSharing extends ilObjectPlugin
 	}
 
 	/**
-	 * Returns roomsharing pool id.
-	 *
-	 * @return int pool id
-	 */
-	public function getPoolId()
-	{
-		return 1;
-	}
-
-	/**
-	 * Sets roomsharing pool id.
-	 *
-	 * @param integer $a_pool_id current pool id.
-	 */
-	public function setPoolId($a_pool_id)
-	{
-		$this->pool_id = $a_pool_id;
-	}
-
-	/**
 	 * Returns roomsharing rooms agreement.
 	 *
 	 * @return int file id
@@ -274,6 +254,27 @@ class ilObjRoomSharing extends ilObjectPlugin
 		$mediaObj->update();
 
 		return $mediaObj->getId();
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

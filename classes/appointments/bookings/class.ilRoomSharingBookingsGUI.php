@@ -27,7 +27,7 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
 class ilRoomSharingBookingsGUI
 {
 	protected $ref_id;
-	protected $pool_id;
+	private $pool_id;
 	private $permission;
 	private $ctrl;
 	private $lng;

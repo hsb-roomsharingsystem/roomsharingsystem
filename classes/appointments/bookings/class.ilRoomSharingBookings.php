@@ -24,8 +24,8 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  */
 class ilRoomSharingBookings
 {
-	protected $pool_id;
-	protected $ilRoomsharingDatabase;
+	private $pool_id;
+	private $ilRoomsharingDatabase;
 	private $permission;
 	private $ilDB;
 	private $ilUser;
@@ -283,6 +283,25 @@ class ilRoomSharingBookings
 	}
 
 	/**
+	 * Send cancellation email.
+	 */
+	public function sendCancellationNotification($booking_details, $participants)
+	{
+		$room_id = $booking_details[0]['room_id'];
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($room_id);
+		$user_id = $booking_details[0]['user_id'];
+		$date_from = $booking_details[0]['date_from'];
+		$date_to = $booking_details[0]['date_to'];
+
+		$mailer = new ilRoomSharingMailer($this->lng);
+		$mailer->setRoomname($room_name);
+		$mailer->setDateStart($date_from);
+		$mailer->setDateEnd($date_to);
+		$mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
+		$mailer->sendCancellationMailWithReason($user_id, $participants);
+	}
+
+	/**
 	 * Set the poolID of bookings
 	 *
 	 * @param integer $pool_id
@@ -301,25 +320,6 @@ class ilRoomSharingBookings
 	public function getPoolId()
 	{
 		return (int) $this->pool_id;
-	}
-
-	/**
-	 * Send cancellation email.
-	 */
-	public function sendCancellationNotification($booking_details, $participants)
-	{
-		$room_id = $booking_details[0]['room_id'];
-		$room_name = $this->ilRoomsharingDatabase->getRoomName($room_id);
-		$user_id = $booking_details[0]['user_id'];
-		$date_from = $booking_details[0]['date_from'];
-		$date_to = $booking_details[0]['date_to'];
-
-		$mailer = new ilRoomSharingMailer($this->lng);
-		$mailer->setRoomname($room_name);
-		$mailer->setDateStart($date_from);
-		$mailer->setDateEnd($date_to);
-		$mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
-		$mailer->sendCancellationMailWithReason($user_id, $participants);
 	}
 
 }
