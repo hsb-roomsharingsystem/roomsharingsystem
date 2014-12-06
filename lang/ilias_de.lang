@@ -87,6 +87,8 @@ mail_cancellation_participant_message#:#Eine Raum-Buchung, bei der Sie als Teiln
 mail_cancellation_participant_subject#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert.
 mail_cancellation_reason_manually#:#Manuelle Stornierung durch den Benutzer.
 mail_cancellation_reason_prefix#:#Die Buchung wurde aus folgendem Grund storniert:
+mail_room_changed_subject#:#Ein Raum den Sie gebucht haben wurde verändert.
+mail_room_changed_message#:#Ein Raum den Sie gebucht haben wurde verändert. Dies Betrifft Ihre folgenden Buchungen:
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
 missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.

@@ -3,6 +3,7 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingRoomException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 
 /**
  * Class ilRoomSharingRoom.
@@ -94,6 +95,7 @@ class ilRoomSharingRoom
 		$this->checkMinMaxAlloc();
 		$this->updateMainProperties();
 		$this->updateAttributes();
+                $this->sendChangeNotification();
 	}
 
 	/**
@@ -583,6 +585,19 @@ class ilRoomSharingRoom
 	public function setBookedTimes($a_booked_times)
 	{
 		$this->booked_times = $a_booked_times;
+	}
+        
+        /**
+         * Send a notification for everyone who has booked this room if
+         * room has changed.
+         * (Not the participants)
+         */
+        private function sendChangeNotification(){
+
+            $mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
+            $mailer->sendRoomChangeMail($this->id);
+  
+
 	}
 
 }
