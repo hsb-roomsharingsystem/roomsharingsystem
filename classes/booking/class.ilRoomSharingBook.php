@@ -157,17 +157,6 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Sets the pool-id
-	 *
-	 * @param integer $a_pool_id
-	 *        	The pool id which should be set
-	 */
-	public function setPoolId($a_pool_id)
-	{
-		$this->pool_id = $a_pool_id;
-	}
-
-	/**
 	 * Generates a booking acknowledgement via mail.
 	 *
 	 * @return array $recipient_ids List of recipients.
@@ -191,6 +180,27 @@ class ilRoomSharingBook
 		$agreement_file_id = $this->ilRoomsharingDatabase->getRoomAgreementId();
 
 		return $agreement_file_id;
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

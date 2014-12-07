@@ -54,7 +54,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	var $lng;
 	private $permission;
 	protected $settingsForm;
-	protected $pool_id;
+	private $pool_id;
 	protected $pl_obj;
 	protected $cal;
 	protected $seed;
@@ -433,6 +433,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function editSettings()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			$this->setActiveTabRegardingPrivilege();
+			return FALSE;
+		}
 		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm();
 		$this->getSettingsValues();
@@ -446,6 +451,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function updateSettings()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			$this->setActiveTabRegardingPrivilege();
+			return FALSE;
+		}
 		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm();
 
@@ -671,24 +681,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * Returns roomsharing pool id.
-	 * @return int current pool_id of this booking pool
-	 */
-	function getPoolId()
-	{
-		return $this->pool_id;
-	}
-
-	/**
-	 * Sets roomsharing pool id.
-	 * @param int new pool id for this booking pool
-	 */
-	function setPoolId($a_pool_id)
-	{
-		$this->pool_id = $a_pool_id;
-	}
-
-	/**
 	 * Initializes the date-seed for the calendar.
 	 *
 	 * @access private
@@ -730,6 +722,27 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	public function getCalendarId()
 	{
 		return $this->cal->getCalendarId();
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

@@ -17,7 +17,7 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/R
 class ilRoomSharingParticipationsGUI
 {
 	protected $ref_id;
-	protected $pool_id;
+	private $pool_id;
 	private $ctrl;
 	private $lng;
 	private $tpl;

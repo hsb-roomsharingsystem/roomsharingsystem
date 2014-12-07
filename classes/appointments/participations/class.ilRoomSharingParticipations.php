@@ -17,7 +17,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 class ilRoomSharingParticipations
 {
 	private $pool_id;
-	protected $ilRoomsharingDatabase;
+	private $ilRoomsharingDatabase;
 	private $ilUser;
 
 	/**

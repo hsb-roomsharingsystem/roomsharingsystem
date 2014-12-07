@@ -5,18 +5,17 @@
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @version $Id$
- * 
+ *
  */
 class ilRoomSharingRoomsGUI
 {
-	
 	protected $ref_id;
-	protected $pool_id;
+	private $pool_id;
 
 	/**
-	* Constructor for the class ilRoomSharingRoomsGUI
-	* @param object $a_parent_obj
-	*/
+	 * Constructor for the class ilRoomSharingRoomsGUI
+	 * @param object $a_parent_obj
+	 */
 	public function __construct(ilObjRoomSharingGUI $a_parent_obj)
 	{
 		global $ilCtrl, $lng, $tpl;
@@ -30,10 +29,10 @@ class ilRoomSharingRoomsGUI
 	}
 
 	/**
-	* Execute the command given.
-	* 
-	* @return Returns always true.
-	*/
+	 * Execute the command given.
+	 *
+	 * @return Returns always true.
+	 */
 	public function executeCommand()
 	{
 		global $ilCtrl;
@@ -52,8 +51,8 @@ class ilRoomSharingRoomsGUI
 	}
 
 	/**
-	* Show a list of all rooms.
-	*/
+	 * Show a list of all rooms.
+	 */
 	public function showRoomsObject()
 	{
 		global $tpl, $ilAccess;
@@ -62,16 +61,16 @@ class ilRoomSharingRoomsGUI
 		$roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
 		$roomsTable->initFilter();
 		$roomsTable->getItems($roomsTable->getCurrentFilter());
-		
+
 		if ($ilAccess->checkAccess('write', '', $this->ref_id))
 		{
 			include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
 			$toolbar = new ilToolbarGUI;
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'),
-					$this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'addRoom'));
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'addRoom'));
 			$bar = $toolbar->getHTML();
 		}
-		
+
 		// the commands (functions) to be called when the correspondent buttons are clicked
 		$roomsTable->setResetCommand("resetRoomFilter");
 		$roomsTable->setFilterCommand("applyRoomFilter");
@@ -79,50 +78,52 @@ class ilRoomSharingRoomsGUI
 	}
 
 	/**
-	* Creates a new table for the  rooms and writes all the input 
-	* values to the session, so that a filter can be applied.
-	*/
+	 * Creates a new table for the  rooms and writes all the input
+	 * values to the session, so that a filter can be applied.
+	 */
 	public function applyRoomFilterObject()
 	{
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRoomsTableGUI.php");
 		$roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
 		$roomsTable->initFilter();
-		$roomsTable->writeFilterToSession();	// writes filter to session
-		$roomsTable->resetOffset();				// set the record offset to 0 (first page)
+		$roomsTable->writeFilterToSession(); // writes filter to session
+		$roomsTable->resetOffset();	// set the record offset to 0 (first page)
 		$this->showRoomsObject();
 	}
-	
+
 	/**
-	* Resets all the input fields.
-	*/
+	 * Resets all the input fields.
+	 */
 	public function resetRoomFilterObject()
 	{
 		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRoomsTableGUI.php");
 		$roomsTable = new ilRoomSharingRoomsTableGUI($this, 'showRooms', $this->ref_id);
 		$roomsTable->initFilter();
 		$roomsTable->resetFilter();
-		$roomsTable->resetOffset();				// set the record offset to 0 (first page)
+		$roomsTable->resetOffset();	// set the record offset to 0 (first page)
 		$this->showRoomsObject();
 	}
-	
+
 	/**
-	* Returns the Roomsharing Pool ID.
-	* 
-	* @return the current PoolID
-	*/
+	 * Returns the Roomsharing Pool ID.
+	 *
+	 * @return the current PoolID
+	 */
 	public function getPoolId()
 	{
 		return $this->pool_id;
 	}
-	
+
 	/**
-	* Sets the Roomsharing Pool ID.
-	* 
-	* @param the new PoolID
-	*/
+	 * Sets the Roomsharing Pool ID.
+	 *
+	 * @param the new PoolID
+	 */
 	public function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
 	}
+
 }
+
 ?>

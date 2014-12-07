@@ -8,9 +8,8 @@
  */
 class ilRoomSharingSearchAdvancedGUI
 {
-
 	protected $ref_id;
-	protected $pool_id;
+	private $pool_id;
 
 	/**
 	 * Constructor for the class ilRoomSharingSearchAdvancedGUI
@@ -64,8 +63,7 @@ class ilRoomSharingSearchAdvancedGUI
 		$asearch_form = new ilPropertyFormGUI();
 
 		// Date Duration
-		$date_duration = new ilDateDurationInputGUI($this->lng->txt('cal_fullday'), 
-			'date_duration');
+		$date_duration = new ilDateDurationInputGUI($this->lng->txt('cal_fullday'), 'date_duration');
 		$date_duration->setStartText($this->lng->txt('cal_start'));
 		$date_duration->setEndText($this->lng->txt('cal_end'));
 		$date_duration->enableToggleFullTime($this->lng->txt('cal_fullday_title'), false);
@@ -81,8 +79,7 @@ class ilRoomSharingSearchAdvancedGUI
 		$asearch_form->addItem($rec);
 
 		$asearch_form->setTitle($this->lng->txt("rep_robj_xrs_advanced_search"));
-		$asearch_form->addCommandButton("showSearchAdvanced", 
-				$this->lng->txt("rep_robj_xrs_search"));
+		$asearch_form->addCommandButton("showSearchAdvanced", $this->lng->txt("rep_robj_xrs_search"));
 		$asearch_form->setFormAction($ilCtrl->getFormAction($this));
 		$tpl->setContent($asearch_form->getHTML());
 	}

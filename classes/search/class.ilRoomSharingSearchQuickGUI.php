@@ -14,7 +14,7 @@ class ilRoomSharingSearchQuickGUI
 {
 	protected $rooms;
 	protected $ref_id;
-	protected $pool_id;
+	private $pool_id;
 
 	/**
 	 * Constructor for the class ilRoomSharingSearchQuickGUI
@@ -348,21 +348,24 @@ class ilRoomSharingSearchQuickGUI
 	}
 
 	/**
-	 * Returns the Roomsharing Pool ID.
-	 * @return poolid
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
 	 */
-	public function getPoolId()
+	public function setPoolId($pool_id)
 	{
-		return $this->pool_id;
+		$this->pool_id = $pool_id;
 	}
 
 	/**
-	 * Sets the Roomsharing Pool ID.
-	 * @param int the poolid
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
 	 */
-	public function setPoolId($a_pool_id)
+	public function getPoolId()
 	{
-		$this->pool_id = $a_pool_id;
+		return (int) $this->pool_id;
 	}
 
 }

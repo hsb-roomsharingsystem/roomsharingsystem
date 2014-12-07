@@ -262,6 +262,7 @@ general_privileges_description#:#General privileges are listed here below.
 lock_privileges#:#Lock privileges
 lock_privileges_description#:#Privileges of all classes can be locked, so in return a locked class won't possess any privileges
 no_permission#:#You have no privilege to access this object
+no_permission_for_action#:#You have no privilege to perform this action
 notification_tunable#:#Notification settings
 notification_tunable_description#:#Notifications can be en- or disabled
 rooms_privileges_description#:#Privileges for the rooms are listed here below.

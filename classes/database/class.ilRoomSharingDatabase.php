@@ -15,7 +15,7 @@ use ilRoomSharingDBConstants as dbc;
  */
 class ilRoomsharingDatabase
 {
-	protected $pool_id;
+	private $pool_id;
 	protected $ilDB;
 
 	/**
@@ -28,11 +28,6 @@ class ilRoomsharingDatabase
 		global $ilDB; // Database-Access-Class
 		$this->ilDB = $ilDB;
 		$this->pool_id = $a_pool_id;
-	}
-
-	public function setPoolId($a_poolId)
-	{
-		$this->pool_id = $a_poolId;
 	}
 
 	/**
@@ -1608,6 +1603,27 @@ class ilRoomsharingDatabase
 			'pool_id' => array("integer", $this->pool_id)
 		);
 		$this->ilDB->update(dbc::BOOKING_ATTRIBUTES_TABLE, $fields, $where);
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }
