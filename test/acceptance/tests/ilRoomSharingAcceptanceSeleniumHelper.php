@@ -29,6 +29,45 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::name('cmd[applySearch]'))->click();
 	}
 
+	public function createPrivilegClass($className, $classComment = "", $roleAssign = "",
+		$priority = "", $copyFrom = "Kein")
+	{
+		//Navigation
+		$this->webDriver->findElement(WebDriverBy::linkText('Privilegien'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText(' Neue Klasse anlegen '))->click();
+		//Data
+		$this->webDriver->findElement(WebDriverBy::id('name'))->sendKeys($className);
+		$this->webDriver->findElement(WebDriverBy::id('description'))->sendKeys($classComment);
+		if (!empty($roleAssign))
+		{
+			$this->webDriver->findElement(WebDriverBy::id('role_assignment'))->sendKeys($roleAssign);
+		}
+		if (!empty($priority))
+		{
+			$this->webDriver->findElement(WebDriverBy::id('priority'))->sendKeys($priority);
+		}
+		try
+		{
+			$this->webDriver->findElement(WebDriverBy::xpath("//label[text()='" . $copyFrom . "']"))->click();
+		}
+		catch (Exception $unused)
+		{
+			//The CopyFrom does not appear if there is no class yet
+		}
+
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[addClass]'))->click();
+	}
+
+	public function deletePrivilegClass($classNameWithRole)
+	{
+		//Navigation
+		$this->webDriver->findElement(WebDriverBy::linkText('Privilegien'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText($classNameWithRole))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText(' Klasse löschen '))->click();
+		$this->webDriver->findElement(WebDriverBy::name('cmd[deleteClass]'))->click();
+	}
+
 	/**
 	 * Search for room by all possible informations.
 	 * @param string $roomName			Room name
@@ -67,6 +106,31 @@ class ilRoomSharingAcceptanceSeleniumHelper
 			$this->webDriver->findElement(WebDriverBy::id('attribute_' . $name . '_amount'))->sendKeys($amount);
 		}
 		$this->webDriver->findElement(WebDriverBy::name('cmd[applySearch]'))->click();
+	}
+
+	public function getPrivilegeClassIDByName($name)
+	{
+		$link_taget = $this->webDriver->findElement(WebDriverBy::linkText($name))->getAttribute('href');
+		$link_taget_A_vars = explode("&", $link_taget);
+		foreach ($link_taget_A_vars as $var)
+		{
+			if (substr($var, 0, 9) === "class_id=")
+			{
+				$keyAndValue = explode("=", $var);
+				return $keyAndValue[1];
+			}
+		}
+	}
+
+	public function changeAndCheckPrivilegeChange($priv_name, $class_id)
+	{
+		$el = $this->webDriver->findElement(WebDriverBy::name('priv[' . $class_id . '][' . $priv_name . ']'));
+		$checked = $el->getAttribute('checked');
+		$el->click();
+		$this->webDriver->findElement(WebDriverBy::name('cmd[savePrivilegeSettings]'))->click();
+		$el_saved = $this->webDriver->findElement(WebDriverBy::name('priv[' . $class_id . '][' . $priv_name . ']'));
+		$checked_saved = $el_saved->getAttribute('checked');
+		return (empty($checked) && !empty($checked_saved)) || (!empty($checked) && empty($checked_saved));
 	}
 
 	/**
