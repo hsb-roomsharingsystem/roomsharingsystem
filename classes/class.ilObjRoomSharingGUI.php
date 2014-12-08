@@ -127,7 +127,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		 * showSearchResults is needed because otherwise the wrong $next_class
 		 * would be called
 		 */
-		else if ($cmd === 'showSearchQuick' || $cmd === 'showBookSearchResults')
+		else if ($cmd === 'showSearchQuick' || $cmd === 'showBookSearchResults' || $cmd === "showSearchResults")
 		{
 			$next_class = empty($next_class) ? ilroomsharingsearchgui : $next_class;
 		}
@@ -197,7 +197,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			case 'ilroomsharingbookgui':
 				$this->tabs_gui->clearTargets();
 				$this->tabs_gui->setBackTarget(
-					$this->lng->txt("rep_robj_xrs_search_back"), $ilCtrl->getLinkTarget($this, "showSearchResults")
+					$this->lng->txt($_SESSION['last_cmd'] != "showRoom" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+					$this->ctrl->getLinkTarget($this, $_SESSION['last_cmd'])
 				);
 				$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
@@ -635,8 +636,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	public function book()
 	{
+		echo 'lastcmd ' . $_SESSION['last_cmd'];
 		$this->tabs_gui->clearTargets();
-		$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
 		$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 		$book = new ilRoomSharingBookGUI(
 			$this, $_GET['room_id'], $_GET['date'] . " " . $_GET['time_from'],
@@ -645,20 +646,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$book->renderBookingForm();
 		// the back button which links to where the user came from
 		$this->tabs_gui->setBackTarget(
-			$this->lng->txt($last_cmd == "showRooms" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
-			$this->ctrl->getLinkTarget($this, $last_cmd)
+			$this->lng->txt($_SESSION['last_cmd'] != "showroom" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+			$this->ctrl->getLinkTarget($this, $_SESSION['last_cmd'])
 		);
-	}
-
-	/**
-	 * If this function is called from bookGUI opened from calendarWeekGUI,
-	 * then go back to roomGUI.
-	 *
-	 * (still looking for a better way)
-	 */
-	public function showSearchResults()
-	{
-		$this->showRoom();
 	}
 
 	/**

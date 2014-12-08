@@ -184,7 +184,6 @@ class ilRoomSharingBookGUI
 		$to_id = "to";
 		$from_transl = $this->lng->txt($from_id);
 		$to_transl = $this->lng->txt($to_id);
-
 		$time_input_from = $this->createDateTimeInput($from_transl, $from_id, $this->date_from);
 		$time_input_to = $this->createDateTimeInput($to_transl, $to_id, $this->date_to);
 

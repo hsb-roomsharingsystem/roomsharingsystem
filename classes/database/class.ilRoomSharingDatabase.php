@@ -885,7 +885,7 @@ class ilRoomsharingDatabase
 	 */
 	public function getBookingsForRoom($a_room_id)
 	{
-		$set = $this->ilDB->query('SELECT * FROM ' . dbc:: BOOKINGS_TABLE .
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$bookings = array();
@@ -894,6 +894,25 @@ class ilRoomsharingDatabase
 			$bookings[] = $row;
 		}
 		return $bookings;
+	}
+
+	public function getInfoForBooking($booking_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc::BOOKINGS_TABLE . ' b LEFT JOIN ' .
+			dbc::ROOMS_TABLE . ' r ON r.id = b.room_id LEFT JOIN usr_data u ON u.usr_id = b.user_id WHERE b.id = ' .
+			$this->ilDB->quote($booking_id, 'integer'));
+		$info = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$info['title'] = $row['subject'];
+			$info['user'] = $row['public_booking'] == 1 ? 'Gebucht von ' . $row['firstname'] . ' ' . $row['lastname'] . '<BR>'
+					: '';
+			$info['description'] = $row['bookingcomment'];
+			$info['room'] = $row['name'];
+			$info['start'] = new ilDateTime($row['date_from'], IL_CAL_DATETIME);
+			$info['end'] = new ilDateTime($row['date_to'], IL_CAL_DATETIME);
+		}
+		return $info;
 	}
 
 	/**

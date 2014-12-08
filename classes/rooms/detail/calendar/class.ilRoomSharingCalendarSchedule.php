@@ -3,6 +3,15 @@
 include_once('Services/Calendar/classes/class.ilCalendarSchedule.php');
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarEntry.php");
 
+/**
+ * Class ilRoomSharingCalendarSchedule
+ *
+ * Calculates ilRoomSharingEvents for the room-weekviek
+ *
+ * @author Tim Röhrig
+ * @version $Id$
+ *
+ */
 class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 {
 	protected $room_obj;

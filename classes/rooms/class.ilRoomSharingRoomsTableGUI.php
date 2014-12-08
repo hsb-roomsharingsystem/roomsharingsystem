@@ -138,7 +138,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $a_set ['room']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', $this->parent_cmd);
+		$_SESSION['last_cmd'] = $this->parent_cmd;
 
 		// only display a booking form if a search was initialized beforehand
 		if ($this->parent_cmd === "showSearchResults")
@@ -169,7 +169,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 		// unset the parameters; just in case
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', "");
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', "");
 
 		// allow administrators to edit and delete rooms, but only if the room list and not the
 		// search results are displayed

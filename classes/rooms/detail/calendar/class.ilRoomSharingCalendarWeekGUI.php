@@ -2,6 +2,14 @@
 
 include_once './Services/Calendar/classes/class.ilCalendarWeekGUI.php';
 
+/**
+ * Class ilRoomSharingCalendarWeekGUI
+ *
+ * Displays room-based appointments in weekview-format.
+ *
+ * @author Tim Röhrig
+ *
+ */
 class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 {
 	protected $room_id;
@@ -35,7 +43,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		$ilTabs->setTabActive('rooms');
 
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showroom');
+		$_SESSION['last_cmd'] = 'showroom';
 
 		// Roominfo
 		$ilTabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
@@ -55,11 +63,10 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	 */
 	public function show()
 	{
+		global $ilUser, $lng;
 		$this->setSubTabs('weekview');
 
-		global $ilUser, $lng;
-
-		// config
+		//intervalsize
 		$raster = 15;
 		if ($this->user_settings->getDayStart())
 		{
@@ -72,14 +79,12 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		}
 		$evening_aggr = $this->user_settings->getDayEnd() * 60;
 
-
 		$this->tpl = new ilTemplate('tpl.room_week_view.html', true, true,
 			'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing');
 
 		include_once('./Services/YUI/classes/class.ilYuiUtil.php');
 		ilYuiUtil::initDragDrop();
 		ilYuiUtil::initPanel();
-
 
 		$navigation = new ilCalendarHeaderNavigationGUI($this, $this->seed, ilDateTime::WEEK);
 		$this->tpl->setVariable('NAVIGATION', $navigation->getHTML());
@@ -243,10 +248,11 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 					$this->tpl->setVariable('DAY_NEW_APP_LINK', $this->lng->txt('rep_robj_xrs_room_book'));
 					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $room->getName());
 					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room->getId());
-					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showroom');
+					$_SESSION['last_cmd'] = 'showroom';
 
 					$date = $this->weekdays[$num_day]->get(IL_CAL_DATE);
 
+					//convert time into suitable format (HH:ii:ss)
 					$hr = floor($num_hour / 60);
 					$hr = $hr < 10 ? "0" . $hr : $hr;
 
@@ -313,10 +319,8 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 					$this->tpl->parseCurrentBlock();
 				}
 			}
-
 			$this->tpl->touchBlock('time_row');
 		}
-
 		$this->tpl->setVariable("TXT_TIME", $lng->txt("time"));
 	}
 
@@ -352,41 +356,33 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		$style .= ('color:' . ilCalendarUtil::calculateFontColor($this->color));
 		$td_style = $style;
 
-
-		if ($a_app['event']->isFullDay())
+		switch ($this->user_settings->getTimeFormat())
 		{
-			$title = $a_app['event']->getPresentationTitle();
+			case ilCalendarSettings::TIME_FORMAT_24:
+				$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
+				break;
+
+			case ilCalendarSettings::TIME_FORMAT_12:
+				$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
+				break;
 		}
-		else
+		// add end time for screen readers
+		if ($ilUser->prefs["screen_reader_optimization"])
 		{
 			switch ($this->user_settings->getTimeFormat())
 			{
 				case ilCalendarSettings::TIME_FORMAT_24:
-					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
+					$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
 					break;
 
 				case ilCalendarSettings::TIME_FORMAT_12:
-					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
+					$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
 					break;
 			}
-			// add end time for screen readers
-			if ($ilUser->prefs["screen_reader_optimization"])
-			{
-				switch ($this->user_settings->getTimeFormat())
-				{
-					case ilCalendarSettings::TIME_FORMAT_24:
-						$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
-						break;
-
-					case ilCalendarSettings::TIME_FORMAT_12:
-						$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
-						break;
-				}
-			}
-
-			$title .= (' ' . $a_app['event']->getPresentationTitle());
-			$td_style .= $a_app['event']->getPresentationStyle();
 		}
+
+		$title .= (' ' . $a_app['event']->getPresentationTitle());
+		$td_style .= $a_app['event']->getPresentationStyle();
 
 		$this->tpl->setVariable('APP_TITLE', $title);
 		$this->tpl->setVariable('LINK_NUM', $this->num_appointments);
@@ -414,7 +410,6 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			$this->tpl->setVariable('DIV_STYLE', $style);
 			$this->tpl->parseCurrentBlock();
 		}
-
 		$this->num_appointments++;
 	}
 
