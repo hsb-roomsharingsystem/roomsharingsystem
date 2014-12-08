@@ -15,6 +15,7 @@ class ilRoomSharingSearchQuickGUI
 	protected $rooms;
 	protected $ref_id;
 	private $pool_id;
+	protected $rec;
 
 	/**
 	 * Constructor for the class ilRoomSharingSearchQuickGUI
@@ -79,6 +80,7 @@ class ilRoomSharingSearchQuickGUI
 		if ($qsearch_form->checkInput())
 		{
 			$qsearch_form->writeInputsToSession();
+			echo nl2br(print_r($_SESSION, true));
 			$this->showSearchResultsObject();
 
 			// otherwise return to the form and display an error messages if needed
@@ -190,8 +192,8 @@ class ilRoomSharingSearchQuickGUI
 		$this->createSeatsFormItem($qsearch_form);
 		$this->createDateFormItem($qsearch_form);
 		$this->createTimeRangeFormItem($qsearch_form);
+		$this->createRecurrenceFormItem($qsearch_form);
 		$this->createRoomAttributeFormItem($qsearch_form);
-
 		$qsearch_form->setTitle($lng->txt("rep_robj_xrs_quick_search"));
 		$qsearch_form->addCommandButton("applySearch", $lng->txt("rep_robj_xrs_search"));
 		$qsearch_form->addCommandButton("resetSearch", $lng->txt("reset"));
@@ -267,6 +269,25 @@ class ilRoomSharingSearchQuickGUI
 		$date_comb->setRequired(true);
 		$date_comb->addCombinationItem("date", $date, $this->lng->txt("rep_robj_xrs_on"));
 		$a_qsearch_form->addItem($date_comb);
+	}
+
+	protected function createRecurrenceFormItem($a_qsearch_form)
+	{
+		global $tpl;
+
+		// recurrence
+		//$tpl->setVariable('FREQUENCE', 'NONE');
+		include_once('./Modules/Session/classes/class.ilEventRecurrence.php');
+		$this->rec = new ilEventRecurrence();
+		//$this->rec->setFrequenceType('NONE');
+		//$this->rec->delete();
+		include_once('./Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
+		$rec = new ilRecurrenceInputGUI($this->lng->txt('cal_recurrences'), 'frequence');
+		$subforms = array(IL_CAL_FREQ_DAILY, IL_CAL_FREQ_WEEKLY, IL_CAL_FREQ_MONTHLY); //ohne jährlich
+		$rec->setEnabledSubForms($subforms);
+		//$rec->setRecurrence($this->rec);
+		$rec->allowUnlimitedRecurrences(false); //keine unendlichen Einträge
+		$a_qsearch_form->addItem($rec);
 	}
 
 	/**
