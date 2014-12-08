@@ -191,7 +191,7 @@ to#:#bis
 view#:#Ansicht
 warning_missing_rooms#:#Es sind momentan keine Räume vorhanden. Um den Roomsharingpool nutzen zu können, müssen zuerst Räume angelegt werden.
 wrong_attribute_name_provided#:#Der Name des Attributs ist ungültig!
-wrong_input#:#Falsche Eingaben. Prüfen Sie diese bitte.
+wrong_input#:#Sie haben falsche Angaben getätigt. Bitte überprüfen Sie diese.
 xrs_add#:#RoomSharing hinzufügen
 xrs_delete#:#RoomSharing löschen
 xrs_edit_permission#:#Rechte bearbeiten
