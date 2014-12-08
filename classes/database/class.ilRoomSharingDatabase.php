@@ -1622,4 +1622,39 @@ class ilRoomsharingDatabase
 		return (int) $this->pool_id;
 	}
 
+	public function getBookingsForRoomInTimeSpan($room_id, $start, $end, $type)
+	{
+		$query = 'SELECT b.id id FROM ' . dbc::BOOKINGS_TABLE . ' b';
+
+		if ($type != 4)
+		{
+			$query .= ' WHERE ((date_from <= ' .
+				$this->ilDB->quote($end->get(IL_CAL_DATETIME, '', 'UTC'), 'timestamp') .
+				' AND date_to >= ' .
+				$this->ilDB->quote($start->get(IL_CAL_DATETIME, '', 'UTC'), 'timestamp') .
+				') OR (date_from <= ' .
+				$this->ilDB->quote($end->get(IL_CAL_DATETIME, '', 'UTC'), 'timestamp') .
+				' ))';
+		}
+		else
+		{
+			$date = new ilDateTime(mktime(0, 0, 0), IL_CAL_UNIX);
+			$query .= ' WHERE date_from >= ' .
+				$this->ilDB->quote($date->get(IL_CAL_DATETIME, '', 'UTC'), 'timestamp');
+		}
+
+		$query .= ' AND room_id = ' . $this->ilDB->quote($room_id, 'integer') .
+			' AND pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
+			' ORDER BY date_from';
+
+		$res = $this->ilDB->query($query);
+
+		$events = array();
+		while ($row = $res->fetchRow(DB_FETCHMODE_OBJECT))
+		{
+			$events[] = $row;
+		}
+		return $events;
+	}
+
 }

@@ -2,6 +2,7 @@
 
 include_once('Services/Calendar/classes/class.ilCalendarSchedule.php');
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarEntry.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
  * Class ilRoomSharingCalendarSchedule
@@ -15,6 +16,7 @@ include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 {
 	protected $room_obj;
+	private $ilRoomSharingDatabase;
 
 	/**
 	 * Constructor
@@ -47,6 +49,8 @@ class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 		$this->user_settings = ilCalendarUserSettings::_getInstanceByUserId($this->user->getId());
 		$this->weekstart = $this->user_settings->getWeekStart();
 		$this->timezone = $this->user->getTimeZone();
+
+		$this->ilRoomSharingDatabase = new ilRoomsharingDatabase($room->getPoolId());
 	}
 
 	/**
@@ -120,52 +124,20 @@ class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 	 */
 	public function getEvents()
 	{
-		global $ilDB;
+		$events = $this->ilRoomSharingDatabase->getBookingsForRoomInTimeSpan($this->room_obj->getId(),
+			$this->start, $this->end, $this->type);
 
-		include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
-		$cats = ilCalendarCategories::_getInstance($this->user->getId())->getCategories($this->enabledSubitemCalendars());
-		$cats = $this->filterCategories($cats);
-
-		if (!count($cats))
+		$res = array();
+		foreach ($events as $event)
 		{
-			return array();
-		}
-
-		// TODO: optimize
-		$query = "SELECT b.id id" .
-			" FROM rep_robj_xrs_bookings b";
-
-		if ($this->type != self::TYPE_INBOX)
-		{
-			$query .= " WHERE ((date_from <= " . $this->db->quote($this->end->get(IL_CAL_DATETIME, '', 'UTC'),
-					'timestamp') .
-				" AND date_to >= " . $this->db->quote($this->start->get(IL_CAL_DATETIME, '', 'UTC'), 'timestamp') . ")" .
-				" OR (date_from <= " . $this->db->quote($this->end->get(IL_CAL_DATETIME, '', 'UTC'), 'timestamp') .
-				" ))";
-		}
-		else
-		{
-			$date = new ilDateTime(mktime(0, 0, 0), IL_CAL_UNIX);
-			$query .= " WHERE date_from >= " . $this->db->quote($date->get(IL_CAL_DATETIME, '', 'UTC'),
-					'timestamp');
-		}
-
-		$query .= " AND room_id = " . $this->db->quote($this->room_obj->getId(), 'integer') .
-			" AND pool_id = " . $this->db->quote($this->room_obj->getPoolId(), 'integer') .
-			" ORDER BY date_from";
-
-		$res = $this->db->query($query);
-
-		$events = array();
-		while ($row = $res->fetchRow(DB_FETCHMODE_OBJECT))
-		{
-			$event = new ilRoomSharingCalendarEntry($row->id);
-			if ($this->isValidEventByFilters($event))
+			$newEvent = new ilRoomSharingCalendarEntry($event->id);
+			if ($this->isValidEventByFilters($newEvent))
 			{
-				$events[] = $event;
+				$res[] = $newEvent;
 			}
 		}
-		return $events;
+
+		return $res;
 	}
 
 }
