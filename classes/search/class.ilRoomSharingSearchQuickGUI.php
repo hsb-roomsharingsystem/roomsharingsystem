@@ -290,7 +290,24 @@ class ilRoomSharingSearchQuickGUI
 		$time_from->setShowDate(false);
 		$time_from->setMinuteStepSize(5);
 
+
 		$time_from_given = unserialize($_SESSION ["form_qsearchform"] ["time_from"]);
+		$time_to_given = unserialize($_SESSION ["form_qsearchform"] ["time_to"]);
+
+		if ($time_from_given['time'] == '00:00:00')
+		{
+			//set controls according to current time
+			//
+			//get current time and add leading 0
+			$hr_from = (date('H') + 1 < 10 ? "0" . (date('H') + 1) : (date('H') + 1));
+
+			//add leading 0
+			$hr_to = ($hr_from + 1 < 10 ? "0" . ($hr_from + 1) : ($hr_from + 1));
+
+			$time_from_given['time'] = $hr_from . ':00:00';
+			$time_to_given['time'] = $hr_to . ':00:00';
+		}
+
 		if (!empty($time_from_given['date']) && !empty($time_from_given['time']))
 		{
 			$time_from->setDate(new ilDate($time_from_given['date'] . ' ' . $time_from_given['time'],
@@ -303,7 +320,6 @@ class ilRoomSharingSearchQuickGUI
 		$time_to->setShowDate(false);
 		$time_to->setMinuteStepSize(5);
 
-		$time_to_given = unserialize($_SESSION ["form_qsearchform"] ["time_to"]);
 		if (!empty($time_to_given['date']) && !empty($time_to_given['time']))
 		{
 			$time_to->setDate(new ilDate($time_to_given['date'] . ' ' . $time_to_given['time'],
