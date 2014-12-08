@@ -6,6 +6,7 @@ chdir("../../../../../../../../"); // necessary for the include paths that are u
  * Class ilRoomSharingPrivilegesTest
  *
  * @group unit
+ * @author Albert Koch akoch@stud.hs-bremen.de
  */
 class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 {
@@ -21,6 +22,9 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	protected function setUp()
 	{
 		$this->object = new ilRoomSharingPrivileges;
+		$test = new ilRoomSharingPrivilegesTest();
+
+		self::$privileges = new ilRoomSharingPrivileges();
 	}
 
 	/**
@@ -38,10 +42,12 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetPrivilegesMatrix()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+
+		//if there's no class, the function must return an empty array
+		$this->method('getClasses')->willreturn(0);
+		$returnarray = $this->getPrivilegesMatrix;
+		assertEquals(0, count($returnarray));
 	}
 
 	/**
@@ -50,10 +56,37 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetAllPrivileges()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		//I don't know if this test makes sense, but to make the testsuite complete...
+		$priv = array();
+		$priv[] = 'accessAppointments';
+		$priv[] = 'accessSearch';
+		$priv[] = 'addOwnBookings';
+		$priv[] = 'addParticipants';
+		$priv[] = 'addSequenceBookings';
+		$priv[] = 'addUnlimitedBookings';
+		$priv[] = 'seeNonPublicBookingInformation';
+		$priv[] = 'notificationSettings';
+		$priv[] = 'adminBookingAttributes';
+		$priv[] = 'cancelBookingLowerPriority';
+		$priv[] = 'accessRooms';
+		$priv[] = 'seeBookingsOfRooms';
+		$priv[] = 'addRooms';
+		$priv[] = 'editRooms';
+		$priv[] = 'deleteRooms';
+		$priv[] = 'adminRoomAttributes';
+		$priv[] = 'accessFloorplans';
+		$priv[] = 'addFloorplans';
+		$priv[] = 'editFloorplans';
+		$priv[] = 'deleteFloorplans';
+		$priv[] = 'accessSettings';
+		$priv[] = 'accessPrivileges';
+		$priv[] = 'addClass';
+		$priv[] = 'editClass';
+		$priv[] = 'deleteClass';
+		$priv[] = 'editPrivileges';
+		$priv[] = 'lockPrivileges';
+
+		$this->assertEquals($priv, $this->object->getAllClassPrivileges());
 	}
 
 	/**
@@ -62,6 +95,11 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetClasses()
 	{
+		//if there are no classes, return must be null
+		$stub = $this->getMockBuilder('ilRoomSharingDatabase')
+			->getMock();
+		$stub->method('getClasses')->willReturn(null);
+		assertEquals($this->getClasses, null);
 		// Remove the following lines when you implement this test.
 		$this->markTestIncomplete(
 			'This test has not been implemented yet.'
@@ -98,10 +136,35 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetPriorityOfUser()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$stub = $this->getMockBuilder('ilRoomSharingDatabase')
+			->getMock();
+
+		//Set nine users with the nine priorities below 10 and the ID of the owner which has to have a priority of 10
+		$map = array
+			(
+			array('42', '1'),
+			array('43', '2'),
+			array('44', '3'),
+			array('45', '4'),
+			array('46', '5'),
+			array('47', '6'),
+			array('48', '7'),
+			array('49', '8'),
+			array('50', '9'),
+			array($this->object->getOwner(), '10'),
 		);
+		$stub->method('getUserPriority')
+			->will($this->returnValueMap($map));
+		$this->assertEquals('1', $stub->GetPriorityOfUser('42'));
+		$this->assertEquals('2', $stub->GetPriorityOfUser('43'));
+		$this->assertEquals('3', $stub->GetPriorityOfUser('44'));
+		$this->assertEquals('4', $stub->GetPriorityOfUser('45'));
+		$this->assertEquals('5', $stub->GetPriorityOfUser('46'));
+		$this->assertEquals('6', $stub->GetPriorityOfUser('47'));
+		$this->assertEquals('7', $stub->GetPriorityOfUser('48'));
+		$this->assertEquals('8', $stub->GetPriorityOfUser('49'));
+		$this->assertEquals('9', $stub->GetPriorityOfUser('50'));
+		$this->assertEquals('10', $stub->GetPriorityOfUser($this->object->getOwner()));
 	}
 
 	/**
@@ -266,10 +329,10 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetAllClassPrivileges()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$stub = $this->getMockBuilder('ilRoomSharingDatabase')
+			->getMock();
+		$mockclasses = array();
+		$mockclasses[0] = array();
 	}
 
 }
