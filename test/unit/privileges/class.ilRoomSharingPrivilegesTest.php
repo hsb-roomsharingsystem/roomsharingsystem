@@ -24,7 +24,7 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 		$this->object = new ilRoomSharingPrivileges;
 		$test = new ilRoomSharingPrivilegesTest();
 
-		self::$privileges = new ilRoomSharingPrivileges();
+		self::$privileges = new ilRoomSharingPrivileges(1); // pool id
 	}
 
 	/**

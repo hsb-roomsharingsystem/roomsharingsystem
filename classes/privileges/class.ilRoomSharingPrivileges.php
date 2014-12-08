@@ -28,7 +28,7 @@ class ilRoomSharingPrivileges
 	 *
 	 * @param integer $a_pool_id
 	 */
-	public function __construct($a_pool_id = 1)
+	public function __construct($a_pool_id)
 	{
 		global $lng, $rbacreview, $rssPermission;
 
