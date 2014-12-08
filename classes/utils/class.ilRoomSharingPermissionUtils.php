@@ -79,6 +79,11 @@ class ilRoomSharingPermissionUtils
 	 */
 	public function checkForHigherPriority($a_user_id1, $a_user_id2)
 	{
+		if ($a_user_id1 === null || $a_user_id2 === null)
+		{
+			return false;
+		}
+
 		return ($this->getUserPriority($a_user_id1) > $this->getUserPriority($a_user_id2));
 	}
 
