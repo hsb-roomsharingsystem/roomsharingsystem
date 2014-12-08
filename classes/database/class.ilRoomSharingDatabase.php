@@ -1150,10 +1150,11 @@ class ilRoomsharingDatabase
 	public function getAssignedClassesForUser($a_user_id, $a_user_role_ids)
 	{
 		$class_ids = array();
-		$st = $this->ilDB->prepare('SELECT id FROM ' . dbc::CLASSES_TABLE . ' JOIN ' .
-			dbc::CLASS_USER_TABLE . ' ON id = class_id WHERE user_id = ' .
+		$st = $this->ilDB->prepare('SELECT id FROM ' . dbc::CLASSES_TABLE . ' LEFT JOIN ' .
+			dbc::CLASS_USER_TABLE . ' ON id = class_id WHERE pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer') . ' AND (user_id = ' .
 			$this->ilDB->quote($a_user_id, 'integer') . ' OR ' .
-			$this->ilDB->in("role_id", $a_user_role_ids));
+			$this->ilDB->in("role_id", $a_user_role_ids) . ')');
 
 		$set = $this->ilDB->execute($st, $a_user_role_ids);
 
