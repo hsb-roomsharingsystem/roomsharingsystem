@@ -73,15 +73,10 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 		//#3 Rename class to an existing name
 		self::$webDriver->findElement(WebDriverBy::name('name'))->clear()->sendKeys('Test_B');
 		self::$webDriver->findElement(WebDriverBy::name('cmd[saveEditClassForm]'))->click();
-		try
+		if (!(self::$webDriver->findElement(WebDriverBy::name('name'))->getAttribute('value') == 'Test_B'))
 		{
-			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+			$this->fail("#3: Renaming a class to an existing name seems not to work");
 		}
-		catch (Exception $ex)
-		{
-			$this->fail("#3: Renaming a class to an existing name seems to work " . $ex);
-		}
-
 		self::$webDriver->findElement(WebDriverBy::name('name'))->clear()->sendKeys('Test_A');
 
 		//#4 Change Description
@@ -151,7 +146,7 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 		self::$webDriver->findElement(WebDriverBy::name('cmd[addUserFromAutoComplete]'))->click();
 		try
 		{
-			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+			self::$webDriver->findElement(WebDriverBy::className("ilInfoMessage"));
 		}
 		catch (Exception $ex)
 		{
@@ -417,36 +412,30 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 		}
 		self::$helper->deletePrivilegClass("Test_C");
 
-		//#3 Create an existing or no-name Privilege Class
+		//#3 Create an existing privilege class
 		self::$helper->createPrivilegClass("Test_A", "Test_A", "User", 1);
 		try
 		{
-			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+			self::$webDriver->findElement(WebDriverBy::linkText("Test_A ⇒ User"));
 		}
 		catch (Exception $ex)
 		{
-			$this->fail("#3.1: Creation of an existing privilege class seems to be allowed: " . $ex);
+			$this->fail("#3: Creation of an existing privilege class with ILIAS-role does not work: " . $ex);
 		}
-		self::$helper->createPrivilegClass("", "Test_A", "User", 1);
-		try
-		{
-			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
-		}
-		catch (Exception $ex)
-		{
-			$this->fail("#3.2: Creation of a no-name privilege class seems to be allowed: " . $ex);
-		}
+		self::$helper->deletePrivilegClass("Test_A ⇒ User");
 
-		//#4 Create a privilege class thar gets user-rolls from the same role as another already existing class. This shoud not work since the privileges of a user from his role shoud be clear.
+		//#4 Create a privilege class that gets user-rolls from the same role as another already existing class.
 		self::$helper->createPrivilegClass("Test_B", "Test_B", "User", 0);
 		try
 		{
-			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+			self::$webDriver->findElement(WebDriverBy::linkText("Test_B ⇒ User"));
 		}
 		catch (Exception $ex)
 		{
-			$this->fail("#4: Creation of an privilege class that uses an already used ILIAS-role seems to be allowed: " . $ex);
+			$this->fail("#4: Creation of a new privilege class with same ILIAS-role as another does not work: " . $ex);
 		}
+		self::$helper->deletePrivilegClass("Test_B ⇒ User");
+
 		//#5 Create an empty privileges class
 		self::$helper->createPrivilegClass("", "Test_C", "Guest", 2);
 		try
@@ -457,6 +446,8 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 		{
 			$this->fail("#5: Creation of a no-name privilege class seems to be allowed: " . $ex);
 		}
+		self::$webDriver->findElement(WebDriverBy::name("cmd[showPrivileges]"))->click();
+
 		//#6 Delete Test_A class, none should be left
 		self::$webDriver->findElement(WebDriverBy::linkText("Test_A ⇒ User"))->click();
 		self::$webDriver->findElement(WebDriverBy::linkText(' Klasse löschen '))->click();
