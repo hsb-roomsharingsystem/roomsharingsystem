@@ -1,5 +1,11 @@
 <?php
 
+require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once './Services/Form/classes/class.ilDateDurationInputGUI.php';
+require_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
+require_once('./Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
+require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+
 /**
  * Class ilRoomSharingSearchAdvancedGUI
  *
@@ -56,9 +62,6 @@ class ilRoomSharingSearchAdvancedGUI
 		global $tpl, $ilCtrl;
 		$this->lng->loadLanguageModule("dateplaner");
 
-		include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
-		include_once './Services/Form/classes/class.ilDateDurationInputGUI.php';
-		include_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
 		$tpl->addJavaScript('./Services/Form/js/date_duration.js');
 		$asearch_form = new ilPropertyFormGUI();
 
@@ -73,8 +76,6 @@ class ilRoomSharingSearchAdvancedGUI
 		$asearch_form->addItem($date_duration);
 
 		// Recurrence
-		include_once('./Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
-		include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
 		$rec = new ilRecurrenceInputGUI($this->lng->txt('cal_recurrences'), 'frequence');
 		$asearch_form->addItem($rec);
 

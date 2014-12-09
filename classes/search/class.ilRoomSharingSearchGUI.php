@@ -1,5 +1,11 @@
 <?php
 
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/search/class.ilRoomSharingSearchQuickGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
+
 /**
  * Class ilRoomSharingSearchGUI
  *
@@ -8,9 +14,15 @@
  *
  * @ilCtrl_Calls ilRoomSharingSearchGUI: ilRoomSharingSearchQuickGUI
  * @ilCtrl_Calls ilRoomSharingSearchGUI: ilRoomSharingSearchAdvancedGUI
+ *
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingSearchGUI
 {
+	private $permission;
+	private $ctrl;
+	private $lng;
+	private $tpl;
 
 	/**
 	 * Constructor of ilRoomSharingSearchGUI
@@ -18,7 +30,7 @@ class ilRoomSharingSearchGUI
 	 */
 	public function __construct(ilObjRoomSharingGUI $a_parent_obj)
 	{
-		global $ilCtrl, $lng, $tpl;
+		global $ilCtrl, $lng, $tpl, $rssPermission;
 
 		$this->parent_obj = $a_parent_obj;
 		$this->ref_id = $a_parent_obj->ref_id;
@@ -27,6 +39,7 @@ class ilRoomSharingSearchGUI
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
+		$this->permission = $rssPermission;
 	}
 
 	/**
@@ -51,7 +64,7 @@ class ilRoomSharingSearchGUI
 				$this->showSearchQuickObject();
 				break;
 
-				// Advanced Search
+			// Advanced Search
 			case 'ilroomsharingsearchadvancedgui':
 				$this->showSearchAdvancedObject();
 				break;
@@ -75,13 +88,11 @@ class ilRoomSharingSearchGUI
 		$ilTabs->setTabActive('search');
 		// Quick Search
 		$ilTabs->addSubTab('quick_search', $this->lng->txt('rep_robj_xrs_quick_search'),
-				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchquickgui',
-						'showSearchQuick'));
+			$this->ctrl->getLinkTargetByClass('ilroomsharingsearchquickgui', 'showSearchQuick'));
 
 		// Advanced Search
 		$ilTabs->addSubTab('advanced_search', $this->lng->txt('rep_robj_xrs_advanced_search'),
-				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchadvancedgui',
-						'showSearchAdvanced'));
+			$this->ctrl->getLinkTargetByClass('ilroomsharingsearchadvancedgui', 'showSearchAdvanced'));
 
 		$ilTabs->activateSubTab($a_active);
 	}
@@ -91,9 +102,13 @@ class ilRoomSharingSearchGUI
 	 */
 	public function showSearchQuickObject()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SEARCH))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$this->setSubTabs('quick_search');
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/"
-				."RoomSharing/classes/search/class.ilRoomSharingSearchQuickGUI.php");
 		$object_gui = & new ilRoomSharingSearchQuickGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}
