@@ -3,7 +3,7 @@
 //
 
 <!-- language file start -->
-add_room#:#Add Room
+add_room#:#Add room
 add_wrong_attribute#:#Incorrect data for the attributes were sent.
 add_wrong_attribute_count#:#Incorrect data for the attribute count were sent.
 advanced_search#:#Advanced Search
@@ -142,26 +142,26 @@ room#:#Room
 room_add#:#Add Room
 room_added#:#Room was added.
 room_already_booked#:#Room is already booked
-room_attributes#:#Room Attributes
-room_attributes_info#:#For the attribute values you can enter integers from 0. If not specified, the respective assignments will be resolved.
+room_attributes#:#Room attributes
+room_attributes_info#:#For the attribute values integers starting from 0 can be typed. If not specified, the respective assignments will be dissolved.
 room_back#:#Back to room view
 room_book#:#Book
 room_create_failed#:#The room could not be created.
 room_date_recurrence#:#Date Recurrence
-room_delete#:#Do you really want to delete the following room?
-room_delete_booking#:#Following amount of bookings will be deleted, if room deletion will be submitted:
+room_delete#:#Are you sure you want to delete the following room?
+room_delete_booking#:#The following bookings will be deleted, if the room deletion is confirmed:
 room_delete_success#:#Room successfully deleted
-room_edit#:#Edit Room
+room_edit#:#Edit room
 room_file_id#:#Map
-room_floor_plans#:#Floor Plans
+room_floor_plans#:#Floor plans
 room_max_alloc#:#Max. allocation
 room_max_allocation_exceeded#:#Maximum room allocation exceeded
 room_min_alloc#:#Min. allocation
-room_name#:#Room Name
+room_name#:#Room name
 room_no_assign#:#No assignment
 room_occupation#:#Week View
 room_occupation_title#:#Weekly occupation of room
-room_prop_description#:#The chosen room has following properties -
+room_prop_description#:#The chosen room has the following properties:
 room_properties#:#Room properties
 room_public_booking#:#Display username publicly in booking
 room_type#:#Room type
@@ -191,7 +191,7 @@ to#:#to
 view#:#View
 warning_missing_rooms#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
 wrong_attribute_name_provided#:#The name of the attribute is incorrect!
-wrong_input#:#Wrong input. Check it please.
+wrong_input#:#Wrong inputs have been detected. Please check for them.
 xrs_add#:#Add RoomSharing
 xrs_delete#:#Delete RoomSharing
 xrs_edit_permission#:#Change permission settings
