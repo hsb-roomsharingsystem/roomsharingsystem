@@ -541,6 +541,63 @@ class ilRoomsharingDatabase
 	}
 
 	/**
+	 * Gets all bookings filtered by given criteria.
+	 *
+	 * @param array $filter filter criteria
+	 * @return array
+	 */
+	public function getFilteredBookings(array $filter)
+	{
+		$query = 'SELECT b.id, b.user_id, b.subject, b.bookingcomment,' .
+			' r.id AS room_id, b.date_from, b.date_to FROM ' . dbc::BOOKINGS_TABLE . ' b ' .
+			' JOIN ' . dbc::ROOMS_TABLE . ' R ON b.room_id = r.id ' .
+			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer');
+
+		if ($filter['user_id'] || $filter['user_id'])
+		{
+			$query .= ' AND b.user_id = ' . $this->ilDB->quote($filter['user_id'], 'integer') . ' ';
+		}
+
+		if ($filter['room_name'] || $filter['room_name'])
+		{
+			$query .= ' AND r.name LIKE ' .
+				$this->ilDB->quote('%' . $filter['room_name'] . '%', 'text') . ' ';
+		}
+
+		if ($filter['subject'] || $filter['subject'])
+		{
+			$query .= ' AND b.subject LIKE ' .
+				$this->ilDB->quote('%' . $filter['subject'] . '%', 'text') . ' ';
+		}
+
+		if ($filter['comment'] || $filter['comment'])
+		{
+			$query .= ' AND b.bookingcomment LIKE ' .
+				$this->ilDB->quote('%' . $filter['comment'] . '%', 'text') . ' ';
+		}
+
+		if ($filter['attributes'])
+		{
+			foreach ($filter['attributes'] as $attribute => $value)
+			{
+				$query .= ' AND EXISTS (SELECT * FROM ' . dbc::BOOKING_TO_ATTRIBUTE_TABLE . ' ba ' .
+					' LEFT JOIN ' . dbc::BOOKING_ATTRIBUTES_TABLE . ' a ON a.id = ba.attr_id ' .
+					' WHERE booking_id = b.id AND name = ' .
+					$this->ilDB->quote($attribute, 'text') . ' AND value LIKE ' .
+					$this->ilDB->quote('%' . $value . '%', 'text') . ' ) ';
+			}
+		}
+
+		$set = $this->ilDB->query($query);
+		$bookings = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$bookings[] = $row;
+		}
+		return $bookings;
+	}
+
+	/**
 	 * Gets all Participants of a booking.
 	 *
 	 * @param integer $a_booking_id
@@ -624,6 +681,18 @@ class ilRoomsharingDatabase
 		}
 
 		return $attributesRows;
+	}
+
+	public function getAllBookingAttributeNames()
+	{
+		$set = $this->ilDB->query('SELECT name FROM ' . dbc::BOOKING_ATTRIBUTES_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' ORDER BY name');
+		$attributes = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$attributes [] = $row ['name'];
+		}
+		return $attributes;
 	}
 
 	/**

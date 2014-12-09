@@ -18,7 +18,6 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * @version $Id$
  * @property ilRoomsharingDatabase $ilRoomsharingDatabase
  * @property ilRoomSharingPermissionUtils $permission
- * @property ilDB $ilDB
  * @property ilUser $ilUser
  * @property ilLanguage $lng
  */
@@ -27,7 +26,6 @@ class ilRoomSharingBookings
 	private $pool_id;
 	private $ilRoomsharingDatabase;
 	private $permission;
-	private $ilDB;
 	private $ilUser;
 	private $lng;
 
@@ -38,8 +36,7 @@ class ilRoomSharingBookings
 	 */
 	function __construct($pool_id = 1)
 	{
-		global $ilDB, $ilUser, $lng, $rssPermission;
-		$this->ilDB = $ilDB;
+		global $ilUser, $lng, $rssPermission;
 		$this->ilUser = $ilUser;
 		$this->lng = $lng;
 		$this->permission = $rssPermission;
@@ -167,9 +164,9 @@ class ilRoomSharingBookings
 	 *
 	 * @return array with bookings
 	 */
-	public function getList()
+	public function getList(array $filter)
 	{
-		$bookingDatas = $this->ilRoomsharingDatabase->getBookingsForUser($this->ilUser->getId());
+		$bookingDatas = $this->ilRoomsharingDatabase->getFilteredBookings($filter);
 		$allBookings = array();
 		foreach ($bookingDatas as $bookingData)
 		{
@@ -320,6 +317,11 @@ class ilRoomSharingBookings
 	public function getPoolId()
 	{
 		return (int) $this->pool_id;
+	}
+
+	public function getAllAttributes()
+	{
+		return $this->ilRoomsharingDatabase->getAllBookingAttributeNames();
 	}
 
 }
