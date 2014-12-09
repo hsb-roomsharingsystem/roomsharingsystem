@@ -9,6 +9,8 @@ require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
 require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/User/classes/class.ilUserAutoComplete.php");
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once('Modules/Session/classes/class.ilEventRecurrence.php');
+require_once('Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
 
 /**
  * Class ilRoomSharingBookGUI
@@ -27,6 +29,7 @@ class ilRoomSharingBookGUI
 	private $date_from;
 	private $date_to;
 	private $book;
+	private $rec;
 
 	const NUM_PERSON_RESPONSIBLE = 1;
 	const BOOK_CMD = "book";
@@ -120,6 +123,7 @@ class ilRoomSharingBookGUI
 		$booking_attributes = $this->createBookingAttributeTextInputs();
 		$form_items = array_merge($form_items, $booking_attributes);
 		$form_items[] = $this->createTimeRangeInput();
+		$form_items[] = $this->createRecurrenceGUI();
 		$form_items[] = $this->createPublicBookingCheckBox();
 		$form_items[] = $this->createUserAgreementCheckBoxIfPossible();
 		$form_items[] = $this->createRoomIdHiddenInputField();
@@ -191,6 +195,16 @@ class ilRoomSharingBookGUI
 		$time_range->addCombinationItem($to_id, $time_input_to, $to_transl);
 
 		return $time_range;
+	}
+
+	private function createRecurrenceGUI()
+	{
+		$this->rec = new ilEventRecurrence();
+		$rec = new ilRecurrenceInputGUI($this->lng->txt('cal_recurrences'), 'frequence');
+		$subforms = array(IL_CAL_FREQ_DAILY, IL_CAL_FREQ_WEEKLY, IL_CAL_FREQ_MONTHLY); //ohne jährlich
+		$rec->setEnabledSubForms($subforms);
+		$rec->allowUnlimitedRecurrences(false);
+		return $rec;
 	}
 
 	private function createDateTimeInput($a_title, $a_postvar, $a_date)

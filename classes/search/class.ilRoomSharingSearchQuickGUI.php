@@ -80,7 +80,7 @@ class ilRoomSharingSearchQuickGUI
 		if ($qsearch_form->checkInput())
 		{
 			$qsearch_form->writeInputsToSession();
-			echo nl2br(print_r($_SESSION, true));
+			//echo nl2br(print_r($_SESSION['form_qsearchform'], true));
 			$this->showSearchResultsObject();
 
 			// otherwise return to the form and display an error messages if needed
