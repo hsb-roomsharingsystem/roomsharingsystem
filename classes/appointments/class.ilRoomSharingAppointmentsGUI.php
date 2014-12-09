@@ -12,7 +12,7 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/R
  *
  * @version $Id$
  *
- * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI, ilRoomSharingBookinsTableGui
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI, ilRoomSharingBookingsTableGui
  *
  * @property ilCtrl $ctrl
  * @property ilLanguage $lng

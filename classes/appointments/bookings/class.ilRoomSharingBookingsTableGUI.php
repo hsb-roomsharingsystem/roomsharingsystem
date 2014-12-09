@@ -11,7 +11,7 @@ require_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject
 	"RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
 require_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 	"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
-require_once("Services/Search/classes/class.ilRepositorySearchGUI.php");
+require_once("Services/User/classes/class.ilUserAutoComplete.php");
 
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
@@ -92,12 +92,6 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->createAttributeFormItem();
 	}
 
-	private function addUserToFilter($a_user_id)
-	{
-		echo 'addUserToFilter';
-		$this->filter ['user'] ['user_id'] = $a_user_id;
-	}
-
 	private function createUserFormItem()
 	{
 		if (!$this->permission->checkPrivilege(PRIVC::SEE_NON_PUBLIC_BOOKINGS_INFORMATION))
@@ -111,11 +105,31 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$user_name_input = new ilRoomSharingTextInputGUI("", "user_id");
 		$user_name_input->setMaxLength(14);
 		$user_name_input->setSize(14);
+		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
+		$user_name_input->setDataSource($ajax_datasource);
 		$user_comb->addCombinationItem("user_id", $user_name_input,
 			$this->lng->txt("rep_robj_xrs_user_id"));
 		$this->addFilterItem($user_comb);
 		$user_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["user"] = $user_comb->getValue();
+	}
+
+	/**
+	 * Method that realizes the auto-completion for the participants list.
+	 */
+	private function doUserAutoComplete()
+	{
+		echo 'autocomplete';
+		$search_fields = array("login", "firstname", "lastname", "email");
+		$result_field = "login";
+
+		$auto = new ilUserAutoComplete();
+		$auto->setSearchFields($search_fields);
+		$auto->setResultField($result_field);
+		$auto->enableFieldSearchableCheck(true);
+
+		echo $auto->getList($_REQUEST['term']);
+		exit();
 	}
 
 	private function createRoomFormItem()
