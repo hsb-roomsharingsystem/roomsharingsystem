@@ -7,6 +7,9 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingBookings
@@ -106,12 +109,21 @@ class ilRoomSharingBookings
 	 */
 	private function checkDeletePermission($a_userId)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
+		}
 		$currentUserId = $this->ilUser->getId();
-		if ($a_userId == $currentUserId)
+
+		$isOwnBooking = ($a_userId == $currentUserId);
+		$canDelLowPrio = $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY);
+		$isLowerPriority = $this->permission->checkForHigherPriority($currentUserId, $a_userId);
+
+		if ($isOwnBooking || ($canDelLowPrio && $isLowerPriority))
 		{
 			return TRUE;
 		}
-		else if (!$this->permission->checkForHigherPriority($currentUserId, $a_userId))
+		else
 		{
 			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
 		}

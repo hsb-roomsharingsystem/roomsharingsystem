@@ -3,6 +3,10 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingRoomException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingRoom.
@@ -15,6 +19,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * @author Thomas Wolscht <twolscht@stud.hs-bremen.de>
  *
  * @property ilRoomsharingDatabase $ilRoomsharingDatabase
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingRoom
 {
@@ -34,6 +39,7 @@ class ilRoomSharingRoom
 	private $all_available_attributes = array();
 	private $ilRoomsharingDatabase;
 	private $lng;
+	private $permission;
 
 	/**
 	 * Constructor for ilRoomSharingRoom.
@@ -48,8 +54,10 @@ class ilRoomSharingRoom
 	 */
 	public function __construct($pool_id, $a_room_id, $a_create = false)
 	{
-		global $lng;
+		global $lng, $rssPermission;
 
+		$this->lng = $lng;
+		$this->permission = $rssPermission;
 		$this->pool_id = $pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 		$this->all_available_attributes = $this->ilRoomsharingDatabase->getAllRoomAttributes();
@@ -59,7 +67,6 @@ class ilRoomSharingRoom
 			$this->id = $a_room_id;
 			$this->read();
 		}
-		$this->lng = $lng;
 	}
 
 	/**
@@ -68,6 +75,12 @@ class ilRoomSharingRoom
 	 */
 	public function read()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
 		if ($this->hasValidId())
 		{
 			$row = $this->ilRoomsharingDatabase->getRoom($this->id);
@@ -89,6 +102,12 @@ class ilRoomSharingRoom
 	 */
 	public function save()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
 		$this->checkMinMaxAlloc();
 		$this->updateMainProperties();
 		$this->updateAttributes();
@@ -144,10 +163,11 @@ class ilRoomSharingRoom
 	 */
 	public function delete()
 	{
-		// Check permission after permissions were implemented.
-		if (false)
+		if (!$this->permission->checkPrivilege(PRIVC::DELETE_ROOMS))
 		{
-			throw new ilRoomSharingRoomException('rep_robj_xrs_deletion_not_allowed');
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_deletion_not_allowed"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
 		}
 		$this->ilRoomsharingDatabase->deleteRoom($this->id);
 		$this->ilRoomsharingDatabase->deleteAllAttributesForRoom($this->id);
