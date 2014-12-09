@@ -123,11 +123,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			return true;
 		}
 		/*
-		 * The special handling of the commands showSearchQuick and
-		 * showSearchResults is needed because otherwise the wrong $next_class
-		 * would be called
+		 * The special handling of the commands showSearch and showSearchResults is needed because
+		 * otherwise the wrong $next_class would be called
 		 */
-		else if ($cmd === 'showSearchQuick' || $cmd === 'showBookSearchResults' || $cmd === "showSearchResults")
+		else if ($cmd === 'showSearch' || $cmd === 'showBookSearchResults' || $cmd === "showSearchResults")
 		{
 			$next_class = empty($next_class) ? ilroomsharingsearchgui : $next_class;
 		}
@@ -347,7 +346,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Search
 			$this->tabs_gui->addTab(
 				"search", $this->lng->txt("search"),
-				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
+				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearch")
 			);
 		}
 

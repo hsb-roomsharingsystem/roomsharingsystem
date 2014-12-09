@@ -156,9 +156,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		{
 			// if this class is used to display search results, the input made
 			// must be transported to the book form
-			$date = unserialize($_SESSION ["form_qsearchform"] ["date"]);
-			$time_from = unserialize($_SESSION ["form_qsearchform"] ["time_from"]);
-			$time_to = unserialize($_SESSION ["form_qsearchform"] ["time_to"]);
+			$date = unserialize($_SESSION ["form_searchform"] ["date"]);
+			$time_from = unserialize($_SESSION ["form_searchform"] ["time_from"]);
+			$time_to = unserialize($_SESSION ["form_searchform"] ["time_to"]);
 
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', $date ['date']);
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', $time_from ['time']);
@@ -175,12 +175,12 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		}
 		else
 		{
-			// the user is linked to the quick search form if he is trying to book
+			// the user is linked to the search form if he is trying to book
 			// a room when the normal room list is displayed
 			if ($this->permission->checkPrivilege(PRIVC::ACCESS_SEARCH))
 			{
 				$this->tpl->setVariable('LINK_ACTION',
-					$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showSearchQuick'));
+					$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showSearch'));
 			}
 		}
 

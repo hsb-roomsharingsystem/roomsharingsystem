@@ -6,7 +6,6 @@
 add_room#:#Raum hinzufügen
 add_wrong_attribute#:#Es wurden fehlerhafte Daten für die Attribute gesendet.
 add_wrong_attribute_count#:#Es wurden fehlerhafte Daten für die Attributanzahl gesendet.
-advanced_search#:#Erweiterte Suche
 amount#:#Anzahl
 appointments#:#Termine
 at_most#:#Höchstens
@@ -19,7 +18,6 @@ attributes_for_rooms#:#Attribute für Räume
 attributes_for_rooms_desc#:#Hier können Attribute für Räume festgelegt werden.
 back_to_list#:#Zurück zu den Gebäudeplänen
 back_to_rooms#:#Zurück zu allen Räumen
-back_to_search#:#Zurück zur Schnellsuche
 between#:#Zwischen
 booking_add#:#Buchung hinzufügen
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
@@ -134,7 +132,6 @@ privileges_lock_confirm_back#:#Zurück zu den Privilegien
 privileges_lock_desc#:#Sperrt die Privilegien für die Klasse
 privileges_role_assignment#:#Rollenzuordnung
 privileges_settings#:#Privilegieneinstellungen
-quick_search#:#Schnellsuche
 rename_attribute#:#Vorhandenes Attribut umbenennen
 rename_attribute_info#:#Mit dieser Option können vorhandene Attribute umbenannt werden.
 results_for#:#Ergebnisse für
@@ -174,8 +171,7 @@ roomsharing_plugin_configuration#:#RoomSharing Plugin Konfiguration
 save#:#Speichern
 saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
 search#:#Suchen
-search_back#:#Zurück zu den Suchresultaten
-search_results#:#Suchresultate
+search_back#:#Zurück zu den Suchergebnissen
 seats#:#Sitzplätze
 semester#:#Semester
 setting_1#:#Einstellung 1
@@ -188,6 +184,9 @@ subject#:#Betreff
 time_range#:#Zeitbereich
 title#:#Titel
 to#:#bis
+user#:#Benutzer
+user_id#:#Benutzer-Id
+value#:#Wert
 view#:#Ansicht
 warning_missing_rooms#:#Es sind momentan keine Räume vorhanden. Um den Roomsharingpool nutzen zu können, müssen zuerst Räume angelegt werden.
 wrong_attribute_name_provided#:#Der Name des Attributs ist ungültig!
@@ -270,6 +269,3 @@ see_non_public_booking_information#:#Nicht öffentliche Buchungen einsehen
 see_non_public_booking_information_description#:#Informationen von nicht öffentlichen Buchungen einsehbar
 sequence_bookings#:#Serienbuchungen
 sequence_bookings_addable#:#Serienbuchungen anlegbar
-value#:#Wert
-user_id#:#Benutzer-Id
-user#:#Benutzer

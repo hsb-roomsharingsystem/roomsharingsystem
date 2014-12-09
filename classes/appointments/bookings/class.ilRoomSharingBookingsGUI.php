@@ -85,7 +85,7 @@ class ilRoomSharingBookingsGUI
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
-				$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
+				$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearch"));
 		}
 
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
