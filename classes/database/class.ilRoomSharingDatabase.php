@@ -13,7 +13,7 @@ use ilRoomSharingDBConstants as dbc;
  *
  * @property ilDB $ilDB
  */
-class ilRoomsharingDatabase
+class ilRoomSharingDatabase
 {
 	private $pool_id;
 	protected $ilDB;
@@ -96,6 +96,25 @@ class ilRoomsharingDatabase
 			$room_ids[] = $row['id'];
 		}
 		return $room_ids;
+	}
+
+	/**
+	 * Returns all rooms assigned to the roomsharing pool.
+	 *
+	 * @return assoc array with all found rooms
+	 */
+	public function getAllRooms()
+	{
+		$resRooms = $this->ilDB->query('SELECT * FROM ' . dbc::ROOMS_TABLE . ' WHERE pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer'));
+		$rooms = array();
+		$row = $this->ilDB->fetchAssoc($resRooms);
+		while ($row)
+		{
+			$rooms[] = $row;
+			$row = $this->ilDB->fetchAssoc($resRooms);
+		}
+		return $rooms;
 	}
 
 	public function getMatchingRooms($a_roomsToCheck, $a_room_name, $a_room_seats)
@@ -743,6 +762,26 @@ class ilRoomsharingDatabase
 	}
 
 	/**
+	 * Gets a floorplans ids.
+	 *
+	 * @return type return of $this->ilDB->query
+	 */
+	public function getAllFloorplanIds()
+	{
+		$set = $this->ilDB->query('SELECT file_id FROM ' . dbc::FLOORPLANS_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+
+		$floorplans_ids = array();
+		$row = $this->ilDB->fetchAssoc($set);
+		while ($row)
+		{
+			$floorplans_ids [] = $row ['file_id'];
+			$row = $this->ilDB->fetchAssoc($set);
+		}
+		return $floorplans_ids;
+	}
+
+	/**
 	 * Inserts a floorplan into the database.
 	 *
 	 * @param integer $a_file_id
@@ -963,6 +1002,25 @@ class ilRoomsharingDatabase
 			$bookings[] = $row;
 		}
 		return $bookings;
+	}
+
+	/**
+	 * Gets all bookings ids.
+	 *
+	 * @return type return of $this->ilDB->query
+	 */
+	public function getAllBookingsIds()
+	{
+		$set = $this->ilDB->query('SELECT id FROM ' . dbc::BOOKINGS_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+
+		$bookingsIds = array();
+		while ($bookingRow = $this->ilDB->fetchAssoc($set))
+		{
+			$bookingsIds [] = $bookingRow['id'];
+		}
+
+		return $bookingsIds;
 	}
 
 	public function getInfoForBooking($booking_id)
@@ -1544,16 +1602,19 @@ class ilRoomsharingDatabase
 	 * Inserts new room attribute.
 	 *
 	 * @param string $a_attribute_name
+	 * @return integer id of the inserted attribute
 	 */
 	public function insertRoomAttribute($a_attribute_name)
 	{
+		$next_insert_id = $this->ilDB->nextID(dbc::ROOM_ATTRIBUTES_TABLE);
 		$this->ilDB->insert(dbc::ROOM_ATTRIBUTES_TABLE,
 			array(
-			'id' => array('integer', $this->ilDB->nextID(dbc::ROOM_ATTRIBUTES_TABLE)),
+			'id' => array('integer', $next_insert_id),
 			'name' => array('text', $a_attribute_name),
 			'pool_id' => array('integer', $this->pool_id),
 			)
 		);
+		return $next_insert_id;
 	}
 
 	/**
