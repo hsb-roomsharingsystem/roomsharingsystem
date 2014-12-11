@@ -23,13 +23,13 @@ class ilRoomSharingParticipations
 	/**
 	 * Construct of ilRoomSharingParticipations.
 	 *
-	 * @param integer $pool_id
+	 * @param integer $a_pool_id
 	 */
-	function __construct($pool_id = 1)
+	function __construct($a_pool_id)
 	{
 		global $ilUser;
 		$this->ilUser = $ilUser;
-		$this->pool_id = $pool_id;
+		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 

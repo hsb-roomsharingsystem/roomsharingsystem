@@ -27,7 +27,7 @@ class ilRoomSharingPermissionUtils
 		global $ilUser;
 
 		$this->pool_id = $a_pool_id;
-		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($a_pool_id);
+		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
 		$this->privileges = new ilRoomsharingPrivileges($this->pool_id);
 		$this->owner = $a_owner_id;
 		$this->user_id = $ilUser->getId();

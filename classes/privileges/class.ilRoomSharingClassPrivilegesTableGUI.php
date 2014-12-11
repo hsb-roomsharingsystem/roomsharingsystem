@@ -35,7 +35,7 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
 	 * @param type $a_parent_cmd
 	 * @param type $a_ref_id
 	 */
-	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id = 1)
+	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
 	{
 		global $ilCtrl, $lng, $rssPermission;
 
