@@ -17,6 +17,38 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->rssObjectName = $rss;
 	}
 
+	public function createRoomAttribute($name)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('radio_action_mode_create_attribute'))->click();
+		//Create
+		$this->webDriver->findElement(WebDriverBy::id('new_attribute_name'))->sendKeys($name);
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[executeRoomAttributeAction]'))->click();
+	}
+
+	public function createRoom($roomName, $min, $max, $roomType = "",
+		$floorplan = " - Keine Zuordnung - ", array $attributes = array())
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText(' Raum hinzufügen '))->click();
+		//Create
+		$this->webDriver->findElement(WebDriverBy::name('name'))->sendKeys($roomName);
+		$this->webDriver->findElement(WebDriverBy::name('type'))->sendKeys($roomType);
+		$this->webDriver->findElement(WebDriverBy::name('min_alloc'))->sendKeys($min);
+		$this->webDriver->findElement(WebDriverBy::name('max_alloc'))->sendKeys($max);
+		$this->webDriver->findElement(WebDriverBy::name('building_id'))->sendKeys($floorplan);
+		foreach ($attributes as $attribute => $amount)
+		{
+			$id = $this->webDriver->findElement(WebDriverBy::xpath("//label[text()='" . $attribute . "']"))->getAttribute('for');
+			$this->webDriver->findElement(WebDriverBy::id($id))->sendKeys($amount);
+		}
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[createRoom]'))->click();
+	}
+
 	/**
 	 * Search for room by room name.
 	 * @param string $roomName Room name

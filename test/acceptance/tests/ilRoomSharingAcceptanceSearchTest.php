@@ -9,7 +9,7 @@ include_once './acceptance/tests/ilRoomSharingAcceptanceSeleniumHelper.php';
  * @group selenium-search
  * @property WebDriver $webDriver
  *
- * created by: Thomas Wolscht
+ * @author Thomas Wolscht
  */
 class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 {
@@ -45,13 +45,13 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testValidSearch()
 	{
-		// Search for room "123". Verify result.
+		//#1 Search for room only with numbers
+		self::$helper->createRoomAttribute("Beamer");
+		self::$helper->createRoom('123', 1, 20, "TEST", " - Keine Zuordnung - ", array('Beamer' => 3));
 		self::$helper->searchForRoomByName("123");
 		$this->assertEquals("1", self::$helper->getNoOfResults());
-		if (self::$helper->getNoOfResults() == 1)
-		{
-			$this->assertEquals("123", self::$helper->getFirstResult());
-		}
+		$this->assertEquals("123", self::$helper->getFirstResult());
+
 		// Search for room "032a". Verify result.
 		self::$helper->searchForRoomByName("032a");
 		if (self::$helper->getNoOfResults() == 1)
