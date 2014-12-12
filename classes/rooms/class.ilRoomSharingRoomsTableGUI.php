@@ -148,6 +148,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$date = unserialize($_SESSION ["form_qsearchform"] ["date"]);
 			$time_from = unserialize($_SESSION ["form_qsearchform"] ["time_from"]);
 			$time_to = unserialize($_SESSION ["form_qsearchform"] ["time_to"]);
+			// infos of book series
+			$this->handleBookSeriesAttributes();
 
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', $date ['date']);
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', $time_from ['time']);
@@ -222,6 +224,54 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		}
 
 		return $filter;
+	}
+
+	public function handleBookSeriesAttributes()
+	{
+		$freq = unserialize($_SESSION ["form_qsearchform"] ["frequence"]);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'frequence', $freq);
+		switch ($freq)
+		{
+			case 'NONE':
+				break;
+			case 'DAILY':
+				$this->handleBookSeriesRepeatType();
+				break;
+			case 'WEEKLY':
+				$this->handleBookSeriesRepeatType();
+				$weekdays = unserialize($_SESSION ["form_qsearchform"] ["weekdays"]);
+				$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'weekdays', $weekdays);
+				break;
+			case 'MONTHLY':
+				$this->handleBookSeriesRepeatType();
+				$start_type = unserialize($_SESSION ["form_qsearchform"] ["start_type"]);
+				$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'start_type', $start_type);
+				if ($start_type == "weekday")
+				{
+					$w1 = unserialize($_SESSION ["form_qsearchform"] ["weekday_1"]);
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'weekday_1', $w1);
+					$w2 = unserialize($_SESSION ["form_qsearchform"] ["weekday_2"]);
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'weekday_2', $w2);
+				}
+				elseif ($start_type == "monthday")
+				{
+					$md = unserialize($_SESSION ["form_qsearchform"] ["monthday"]);
+					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'monthday', $md);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	private function handleBookSeriesRepeatType()
+	{
+		$repeat_amount = unserialize($_SESSION ["form_qsearchform"] ["repeat_amount"]);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'repeat_amount', $repeat_amount);
+		$type = unserialize($_SESSION ["form_qsearchform"] ["repeat_type"]);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'repeat_type', $type);
+		$repeat_until = unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'repeat_until', $repeat_until);
 	}
 
 	/**

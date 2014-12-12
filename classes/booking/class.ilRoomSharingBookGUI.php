@@ -199,11 +199,71 @@ class ilRoomSharingBookGUI
 
 	private function createRecurrenceGUI()
 	{
-		$this->rec = new ilEventRecurrence();
+//$this->rec = new ilEventRecurrence();
+		$this->rec = $this->getRecurrenceFromSession();
+
 		$rec = new ilRecurrenceInputGUI($this->lng->txt('cal_recurrences'), 'frequence');
 		$subforms = array(IL_CAL_FREQ_DAILY, IL_CAL_FREQ_WEEKLY, IL_CAL_FREQ_MONTHLY); //ohne jährlich
 		$rec->setEnabledSubForms($subforms);
 		$rec->allowUnlimitedRecurrences(false);
+		$rec->setRecurrence($this->rec);
+		return $rec;
+	}
+
+	private function getRecurrenceFromSession()
+	{
+		$rec = new ilCalendarRecurrence();
+		$fre = unserialize($_SESSION ["form_qsearchform"] ["frequence"]);
+		$rec->setFrequenceType($fre);
+		//echo nl2br(print_r($_SESSION, true));
+		switch ($fre)
+		{
+			case "NONE":
+				break;
+			case "DAILY":
+				break;
+			case "WEEKLY":
+// set days
+				$days = unserialize($_SESSION ["form_qsearchform"] ["weekdays"]);
+				$d = array();
+				foreach ($days as $day)
+				{
+					$d[] = $day;
+				}
+				$rec->setBYDAY(implode(",", $d));
+				break;
+			case "MONTHLY":
+				echo "hi";
+				$start_type = unserialize($_SESSION ["form_qsearchform"] ["start_type"]);
+				if ($start_type == "weekday")
+				{
+					$w1 = unserialize($_SESSION ["form_qsearchform"] ["weekday_1"]);
+					$w2 = unserialize($_SESSION ["form_qsearchform"] ["weekday_2"]);
+					echo $w1;
+					echo $w2;
+					$rec->setBYSETPOS(4);
+					$rec->setBYDAY("SU");
+				}
+				elseif ($start_type == "monthday")
+				{
+					$rec->setBYMONTHDAY(unserialize($_SESSION ["form_qsearchform"] ["monthday"]));
+				}
+				break;
+			default:
+				break;
+		}
+		$repeat_type = unserialize($_SESSION ["form_qsearchform"] ["repeat_type"]);
+		$rec->setInterval(unserialize($_SESSION ["form_qsearchform"] ["repeat_amount"]));
+		if ($repeat_type == "max_amount")
+		{
+			$rec->setFrequenceUntilCount(unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]));
+		}
+		elseif ($repeat_type == "max_date")
+		{
+			$date = unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]);
+			$f2 = $date["date"][y] . "-" . $date["date"][m] . "-" . $date["date"][d] . " 00:00:00";
+			$rec->setFrequenceUntilDate(new ilDateTime($f2, IL_CAL_DATETIME));
+		}
 		return $rec;
 	}
 
@@ -261,7 +321,7 @@ class ilRoomSharingBookGUI
 		$media = $agreement_file->getMediaItem("Agreement");
 		$source = $agreement_file->getDataDirectory() . "/" . $media->getLocation();
 
-		$link = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
+		$link = "<p> <a target = \"_blank\" href=\"" . $source . "\">" .
 			$this->lng->txt('rep_robj_xrs_current_rooms_user_agreement') . "</a></p>";
 		return $link;
 	}
@@ -394,7 +454,7 @@ class ilRoomSharingBookGUI
 
 	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
 	{
-		//adds current calendar-id to booking information
+//adds current calendar-id to booking information
 		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
 		$this->book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
 		$this->cleanUpAfterSuccessfulSave();
