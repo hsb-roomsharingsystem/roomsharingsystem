@@ -3,10 +3,9 @@
 //
 
 <!-- language file start -->
-add_room#:#Add Room
+add_room#:#Add room
 add_wrong_attribute#:#Incorrect data for the attributes were sent.
 add_wrong_attribute_count#:#Incorrect data for the attribute count were sent.
-advanced_search#:#Advanced Search
 amount#:#Amount
 appointments#:#Appointments
 at_most#:#At most
@@ -19,7 +18,6 @@ attributes_for_rooms#:#Attributes for rooms
 attributes_for_rooms_desc#:#Here you can define the attributes for the rooms.
 back_to_list#:#Back to floorplans
 back_to_rooms#:#Back to all rooms
-back_to_search#:#Back to quicksearch
 between#:#Between
 booking_add#:#Add Booking
 booking_add_error#:#Booking could not been added
@@ -136,7 +134,6 @@ privileges_lock_confirm_back#:#Back to privileges
 privileges_lock_desc#:#Locks privileges for class
 privileges_role_assignment#:#Role assignment
 privileges_settings#:#Privilege settings
-quick_search#:#Quick Search
 rename_attribute#:#Rename an existing attribute
 rename_attribute_info#:#With this option you can rename an existing attribute.
 results_for#:#Results for
@@ -144,26 +141,26 @@ room#:#Room
 room_add#:#Add Room
 room_added#:#Room was added.
 room_already_booked#:#Room is already booked
-room_attributes#:#Room Attributes
-room_attributes_info#:#For the attribute values you can enter integers from 0. If not specified, the respective assignments will be resolved.
+room_attributes#:#Room attributes
+room_attributes_info#:#For the attribute values integers starting from 0 can be typed. If not specified, the respective assignments will be dissolved.
 room_back#:#Back to room view
 room_book#:#Book
 room_create_failed#:#The room could not be created.
 room_date_recurrence#:#Date Recurrence
-room_delete#:#Do you really want to delete the following room?
-room_delete_booking#:#Following amount of bookings will be deleted, if room deletion will be submitted:
+room_delete#:#Are you sure you want to delete the following room?
+room_delete_booking#:#The following bookings will be deleted, if the room deletion is confirmed:
 room_delete_success#:#Room successfully deleted
-room_edit#:#Edit Room
+room_edit#:#Edit room
 room_file_id#:#Map
-room_floor_plans#:#Floor Plans
+room_floor_plans#:#Floor plans
 room_max_alloc#:#Max. allocation
 room_max_allocation_exceeded#:#Maximum room allocation exceeded
 room_min_alloc#:#Min. allocation
-room_name#:#Room Name
+room_name#:#Room name
 room_no_assign#:#No assignment
 room_occupation#:#Week View
 room_occupation_title#:#Weekly occupation of room
-room_prop_description#:#The chosen room has following properties -
+room_prop_description#:#The chosen room has the following properties:
 room_properties#:#Room properties
 room_public_booking#:#Display username publicly in booking
 room_type#:#Room type
@@ -177,7 +174,6 @@ save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
 search#:#Search
 search_back#:#Back to search results
-search_results#:#Search Results
 seats#:#Seats
 semester#:#Semester
 setting_1#:#Setting 1
@@ -190,10 +186,13 @@ subject#:#Subject
 time_range#:#Time Range
 title#:#Title
 to#:#to
+user#:#User
+user_id#:#User-Id
+value#:#Value
 view#:#View
 warning_missing_rooms#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
 wrong_attribute_name_provided#:#The name of the attribute is incorrect!
-wrong_input#:#Wrong input. Check it please.
+wrong_input#:#Wrong inputs have been detected. Please check for them.
 xrs_add#:#Add RoomSharing
 xrs_delete#:#Delete RoomSharing
 xrs_edit_permission#:#Change permission settings
@@ -272,3 +271,4 @@ see_non_public_booking_information#:#Look up non-public booking information
 see_non_public_booking_information_description#:#Look up information of non-public bookings
 sequence_bookings#:#Recurring bookings
 sequence_bookings_addable#:#Recurring bookings creatable
+is_offline#:#is offline

@@ -27,8 +27,8 @@ class ilRoomSharingPermissionUtils
 		global $ilUser;
 
 		$this->pool_id = $a_pool_id;
-		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($a_pool_id);
-		$this->privileges = new ilRoomsharingPrivileges();
+		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
+		$this->privileges = new ilRoomsharingPrivileges($this->pool_id);
 		$this->owner = $a_owner_id;
 		$this->user_id = $ilUser->getId();
 		$this->allUserPrivileges = $this->getAllUserPrivileges();
@@ -79,6 +79,11 @@ class ilRoomSharingPermissionUtils
 	 */
 	public function checkForHigherPriority($a_user_id1, $a_user_id2)
 	{
+		if ($a_user_id1 === null || $a_user_id2 === null)
+		{
+			return false;
+		}
+
 		return ($this->getUserPriority($a_user_id1) > $this->getUserPriority($a_user_id2));
 	}
 

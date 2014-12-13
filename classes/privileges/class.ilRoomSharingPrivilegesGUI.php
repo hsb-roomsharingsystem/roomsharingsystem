@@ -60,7 +60,7 @@ class ilRoomSharingPrivilegesGUI
 		$this->tabs = $ilTabs;
 		$this->user = $ilUser;
 		$this->permission = $rssPermission;
-		$this->privileges = new ilRoomSharingPrivileges();
+		$this->privileges = new ilRoomSharingPrivileges($this->pool_id);
 	}
 
 	/**

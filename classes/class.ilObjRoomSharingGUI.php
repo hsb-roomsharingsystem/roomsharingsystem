@@ -32,7 +32,7 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI, ilRoomSharingBookingsTableGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingCalendarWeekGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingPrivilegesGUI, ilRoomSharingAttributesGUI
  *
@@ -104,6 +104,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd, $rssPermission;
 		$tpl->setDescription($this->object->getLongDescription());
+		$tpl->setAlertProperties($this->getAlertProperties());
 		$next_class = $ilCtrl->getNextClass($this);
 		$this->pl_obj = new ilRoomSharingPlugin();
 		$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
@@ -123,11 +124,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			return true;
 		}
 		/*
-		 * The special handling of the commands showSearchQuick and
-		 * showSearchResults is needed because otherwise the wrong $next_class
-		 * would be called
+		 * The special handling of the commands showSearch and showSearchResults is needed because
+		 * otherwise the wrong $next_class would be called
 		 */
-		else if ($cmd === 'showSearchQuick' || $cmd === 'showBookSearchResults')
+		else if ($cmd === 'showSearch' || $cmd === 'showBookSearchResults' || $cmd === "showSearchResults")
 		{
 			$next_class = empty($next_class) ? ilroomsharingsearchgui : $next_class;
 		}
@@ -197,7 +197,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			case 'ilroomsharingbookgui':
 				$this->tabs_gui->clearTargets();
 				$this->tabs_gui->setBackTarget(
-					$this->lng->txt("rep_robj_xrs_search_back"), $ilCtrl->getLinkTarget($this, "showSearchResults")
+					$this->lng->txt($_SESSION['last_cmd'] != "showRoom" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+					$this->ctrl->getLinkTarget($this, $_SESSION['last_cmd'])
 				);
 				$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
@@ -295,6 +296,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		return true;
 	}
 
+	private function getAlertProperties()
+	{
+		global $lng;
+		$alert_props = array();
+		if (!$this->object->isOnline())
+		{
+			$alert_props[] = array("alert" => true, "property" => $lng->txt("status"),
+				"value" => $lng->txt("offline"));
+		}
+		return $alert_props;
+	}
+
 	/**
 	 * Default command that is executed if no "nextClass" can be determined.
 	 * @param boolean true
@@ -346,7 +359,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Search
 			$this->tabs_gui->addTab(
 				"search", $this->lng->txt("search"),
-				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
+				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearch")
 			);
 		}
 
@@ -635,8 +648,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	public function book()
 	{
+		echo 'lastcmd ' . $_SESSION['last_cmd'];
 		$this->tabs_gui->clearTargets();
-		$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
 		$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 		$book = new ilRoomSharingBookGUI(
 			$this, $_GET['room_id'], $_GET['date'] . " " . $_GET['time_from'],
@@ -645,20 +658,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$book->renderBookingForm();
 		// the back button which links to where the user came from
 		$this->tabs_gui->setBackTarget(
-			$this->lng->txt($last_cmd == "showRooms" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
-			$this->ctrl->getLinkTarget($this, $last_cmd)
+			$this->lng->txt($_SESSION['last_cmd'] != "showroom" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+			$this->ctrl->getLinkTarget($this, $_SESSION['last_cmd'])
 		);
-	}
-
-	/**
-	 * If this function is called from bookGUI opened from calendarWeekGUI,
-	 * then go back to roomGUI.
-	 *
-	 * (still looking for a better way)
-	 */
-	public function showSearchResults()
-	{
-		$this->showRoom();
 	}
 
 	/**

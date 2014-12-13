@@ -1,9 +1,9 @@
 <?php
 
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
-include_once("./Services/Repository/classes/class.ilObjectPlugin.php");
-include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+require_once("./Services/Repository/classes/class.ilObjectPlugin.php");
+require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+require_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
 
 /**
  * Mainclass for roomsharing system module. Pool id is the object id
@@ -17,7 +17,7 @@ include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
  */
 class ilObjRoomSharing extends ilObjectPlugin
 {
-	protected $ilDB;
+	private $ilDB;
 	private $pool_id;
 	protected $online;
 	protected $max_book_time;
@@ -30,7 +30,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 * @access	public
 	 * @param integer $a_ref_id
 	 */
-	function __construct($a_ref_id = 0)
+	public function __construct($a_ref_id = 0)
 	{
 		global $ilDB; // needed for db-creation
 		$this->ilDB = $ilDB;
@@ -42,7 +42,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	/**
 	 * Get type.
 	 */
-	final function initType()
+	public final function initType()
 	{
 		$this->setType("xrs");
 	}
@@ -140,17 +140,18 @@ class ilObjRoomSharing extends ilObjectPlugin
 	}
 
 	/**
-	 * Check object status
+	 * Check status of an room sahring pool.
 	 *
-	 * @param int $a_obj_id
-	 * @return boolean
+	 * @param int $a_pool_id
+	 * @return boolean true if its online
 	 */
-	public static function _lookupOnline($a_obj_id)
+	public static function _lookupOnline($a_pool_id)
 	{
-		$set = $this->ilDB->query("SELECT pool_online" .
+		global $ilDB;
+		$set = $ilDB->query("SELECT pool_online" .
 			" FROM rep_robj_xrs_pools" .
-			" WHERE id = " . $this->ilDB->quote($a_obj_id, "integer"));
-		$row = $this->ilDB->fetchAssoc($set);
+			" WHERE id = " . $ilDB->quote($a_pool_id, "integer"));
+		$row = $ilDB->fetchAssoc($set);
 		return (bool) $row["pool_online"];
 	}
 

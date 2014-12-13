@@ -7,6 +7,9 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingBookings
@@ -18,7 +21,6 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * @version $Id$
  * @property ilRoomsharingDatabase $ilRoomsharingDatabase
  * @property ilRoomSharingPermissionUtils $permission
- * @property ilDB $ilDB
  * @property ilUser $ilUser
  * @property ilLanguage $lng
  */
@@ -27,23 +29,21 @@ class ilRoomSharingBookings
 	private $pool_id;
 	private $ilRoomsharingDatabase;
 	private $permission;
-	private $ilDB;
 	private $ilUser;
 	private $lng;
 
 	/**
 	 * constructor ilRoomSharingBookings
 	 *
-	 * @param integer $pool_id
+	 * @param integer $a_pool_id
 	 */
-	function __construct($pool_id = 1)
+	function __construct($a_pool_id)
 	{
-		global $ilDB, $ilUser, $lng, $rssPermission;
-		$this->ilDB = $ilDB;
+		global $ilUser, $lng, $rssPermission;
 		$this->ilUser = $ilUser;
 		$this->lng = $lng;
 		$this->permission = $rssPermission;
-		$this->pool_id = $pool_id;
+		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 
@@ -109,12 +109,21 @@ class ilRoomSharingBookings
 	 */
 	private function checkDeletePermission($a_userId)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
+		}
 		$currentUserId = $this->ilUser->getId();
-		if ($a_userId == $currentUserId)
+
+		$isOwnBooking = ($a_userId == $currentUserId);
+		$canDelLowPrio = $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY);
+		$isLowerPriority = $this->permission->checkForHigherPriority($currentUserId, $a_userId);
+
+		if ($isOwnBooking || ($canDelLowPrio && $isLowerPriority))
 		{
 			return TRUE;
 		}
-		else if (!$this->permission->checkForHigherPriority($currentUserId, $a_userId))
+		else
 		{
 			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
 		}
@@ -167,9 +176,9 @@ class ilRoomSharingBookings
 	 *
 	 * @return array with bookings
 	 */
-	public function getList()
+	public function getList(array $filter)
 	{
-		$bookingDatas = $this->ilRoomsharingDatabase->getBookingsForUser($this->ilUser->getId());
+		$bookingDatas = $this->ilRoomsharingDatabase->getFilteredBookings($filter);
 		$allBookings = array();
 		foreach ($bookingDatas as $bookingData)
 		{
@@ -320,6 +329,11 @@ class ilRoomSharingBookings
 	public function getPoolId()
 	{
 		return (int) $this->pool_id;
+	}
+
+	public function getAllAttributes()
+	{
+		return $this->ilRoomsharingDatabase->getAllBookingAttributeNames();
 	}
 
 }

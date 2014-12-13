@@ -51,7 +51,7 @@ class ilRoomSharingClassGUI
 		$this->pool_id = $this->parent->getPoolId();
 		$this->class_id = $a_class_id ? $a_class_id : $_GET["class_id"];
 		$this->ctrl->saveParameter($this, "class_id");
-		$this->privileges = new ilRoomSharingPrivileges();
+		$this->privileges = new ilRoomSharingPrivileges($this->pool_id);
 	}
 
 	/**

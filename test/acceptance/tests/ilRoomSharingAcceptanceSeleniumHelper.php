@@ -18,6 +18,71 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	}
 
 	/**
+	 * Createa a new roomattribute
+	 * @param type $name
+	 */
+	public function createRoomAttribute($name)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('radio_action_mode_create_attribute'))->click();
+		//Create
+		$this->webDriver->findElement(WebDriverBy::id('new_attribute_name'))->sendKeys($name);
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[executeRoomAttributeAction]'))->click();
+	}
+
+	/**
+	 * Createa a new room
+	 * @param type $roomName
+	 * @param int $min
+	 * @param int $max
+	 * @param string $roomType
+	 * @param string $floorplan
+	 * @param array $attributes Array of Attributes like [Name] => [Amount]
+	 */
+	public function createRoom($roomName, $min, $max, $roomType = "",
+		$floorplan = " - Keine Zuordnung - ", array $attributes = array())
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText(' Raum hinzufügen '))->click();
+		//Create
+		$this->webDriver->findElement(WebDriverBy::name('name'))->sendKeys($roomName);
+		$this->webDriver->findElement(WebDriverBy::name('type'))->sendKeys($roomType);
+		$this->webDriver->findElement(WebDriverBy::name('min_alloc'))->sendKeys($min);
+		$this->webDriver->findElement(WebDriverBy::name('max_alloc'))->sendKeys($max);
+		$this->webDriver->findElement(WebDriverBy::name('building_id'))->sendKeys($floorplan);
+		foreach ($attributes as $attribute => $amount)
+		{
+			$id = $this->webDriver->findElement(WebDriverBy::xpath("//label[text()='" . $attribute . "']"))->getAttribute('for');
+			$this->webDriver->findElement(WebDriverBy::id($id))->sendKeys($amount);
+		}
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[createRoom]'))->click();
+	}
+
+	/**
+	 * Deletes ALL availble rooms. Use with caution!
+	 */
+	public function deleteAllRooms()
+	{
+		$this->webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		while (true)
+		{
+			try
+			{
+				$this->webDriver->findElement(WebDriverBy::linkText('Löschen'))->click();
+				$this->webDriver->findElement(WebDriverBy::name('cmd[deleteRoom]'))->click();
+			}
+			catch (Exception $unused)
+			{
+				break;
+			}
+		}
+	}
+
+	/**
 	 * Search for room by room name.
 	 * @param string $roomName Room name
 	 */
@@ -27,6 +92,57 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::id('room_name'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($roomName);
 		$this->webDriver->findElement(WebDriverBy::name('cmd[applySearch]'))->click();
+	}
+
+	/**
+	 * Creates a new privilege class
+	 * @param string $className
+	 * @param string $classComment
+	 * @param string $roleAssign
+	 * @param int $priority
+	 * @param sting $copyFrom
+	 */
+	public function createPrivilegClass($className, $classComment = "", $roleAssign = "",
+		$priority = "", $copyFrom = "Kein")
+	{
+		//Navigation
+		$this->webDriver->findElement(WebDriverBy::linkText('Privilegien'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText(' Neue Klasse anlegen '))->click();
+		//Data
+		$this->webDriver->findElement(WebDriverBy::id('name'))->sendKeys($className);
+		$this->webDriver->findElement(WebDriverBy::id('description'))->sendKeys($classComment);
+		if (!empty($roleAssign))
+		{
+			$this->webDriver->findElement(WebDriverBy::id('role_assignment'))->sendKeys($roleAssign);
+		}
+		if (!empty($priority))
+		{
+			$this->webDriver->findElement(WebDriverBy::id('priority'))->sendKeys($priority);
+		}
+		try
+		{
+			$this->webDriver->findElement(WebDriverBy::xpath("//label[text()='" . $copyFrom . "']"))->click();
+		}
+		catch (Exception $unused)
+		{
+			//The CopyFrom does not appear if there is no class yet
+		}
+
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[addClass]'))->click();
+	}
+
+	/**
+	 * Deletes a privilege class
+	 * @param string $classNameWithRole LinkText to click to delete class
+	 */
+	public function deletePrivilegClass($classNameWithRole)
+	{
+		//Navigation
+		$this->webDriver->findElement(WebDriverBy::linkText('Privilegien'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText($classNameWithRole))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText(' Klasse löschen '))->click();
+		$this->webDriver->findElement(WebDriverBy::name('cmd[deleteClass]'))->click();
 	}
 
 	/**
@@ -70,10 +186,47 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	}
 
 	/**
-	 * Get current Month
-	 * @return string current month
+	 * Returns ID of a class by its name
+	 * @param string $name Class name
+	 * @return int class ID
 	 */
-	public function getCurrentMonth()
+	public function getPrivilegeClassIDByName($name)
+	{
+		$link_taget = $this->webDriver->findElement(WebDriverBy::linkText($name))->getAttribute('href');
+		$link_taget_A_vars = explode("&", $link_taget);
+		foreach ($link_taget_A_vars as $var)
+		{
+			if (substr($var, 0, 9) === "class_id=")
+			{
+				$keyAndValue = explode("=", $var);
+				return $keyAndValue[1];
+			}
+		}
+	}
+
+	/**
+	 * Changes the named privilege of the given Class ID
+	 * @param string $priv_name Name of privilege to change
+	 * @param string $class_id ID of the class whose privilege will be changed
+	 * @return type
+	 */
+	public function changeAndCheckPrivilegeChange($priv_name, $class_id)
+	{
+		$el = $this->webDriver->findElement(WebDriverBy::name('priv[' . $class_id . '][' . $priv_name . ']'));
+		$checked = $el->getAttribute('checked');
+		$el->click();
+		$this->webDriver->findElement(WebDriverBy::name('cmd[savePrivilegeSettings]'))->click();
+		$el_saved = $this->webDriver->findElement(WebDriverBy::name('priv[' . $class_id . '][' . $priv_name . ']'));
+		$checked_saved = $el_saved->getAttribute('checked');
+		return (empty($checked) && !empty($checked_saved)) || (!empty($checked) && empty($checked_saved));
+	}
+
+	/**
+	 * Gets current month in german language
+	 * @param int $month Gets the given month instead of current
+	 * @return string current month in german
+	 */
+	public function getCurrentMonth($month = "")
 	{
 		$monate = array(1 => "Januar",
 			2 => "Februar",
@@ -87,7 +240,7 @@ class ilRoomSharingAcceptanceSeleniumHelper
 			10 => "Oktober",
 			11 => "November",
 			12 => "Dezember");
-		$monat = date("n");
+		$monat = empty($month) ? date("n") : $month;
 		return $monate[$monat];
 	}
 
