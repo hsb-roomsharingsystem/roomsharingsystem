@@ -169,6 +169,11 @@ class ilRoomSharingSearchQuickGUI
 				$filter["attributes"][$room_attribute] = $attr_value;
 			}
 		}
+
+		//ich hab das Formular hier dem Filter hinzugefügt
+		//Recurrence
+		$filter["recurrence"] = $_SESSION['form_qsearchform'];
+
 		return $filter;
 	}
 

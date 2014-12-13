@@ -1,9 +1,9 @@
 <?php
 
-include_once ('./Services/Table/classes/class.ilTable2GUI.php');
-include_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing' .
-	'/classes/rooms/class.ilRoomSharingRooms.php');
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once ('./Services/Table/classes/class.ilTable2GUI.php');
+require_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php');
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php');
 
 /**
  * Class ilRoomSharingRoomsTableGUI
@@ -18,6 +18,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	private $message = '';
 	private $messageNeeded = false;
 	private $messagePlural = false;
+	private $book;
 
 	/**
 	 * Constructor for the class ilRoomSharingRoomsTableGUI
@@ -40,6 +41,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		// $this->setId("roomtable");
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 
+		$this->book = new ilRoomSharingBook($a_parent_obj->getPoolID());
 		$this->rooms = new ilRoomSharingRooms($a_parent_obj->getPoolID(),
 			new ilRoomsharingDatabase($a_parent_obj->getPoolID()));
 		$this->lng->loadLanguageModule("form");
@@ -61,7 +63,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	 */
 	public function getItems(array $filter)
 	{
-		$data = $this->rooms->getList($filter);
+		$data = $this->getFilteredData($filter);
 
 		$old_name = $filter["room_name"];
 		$new_name = preg_replace('/\D/', '', filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT));
@@ -70,7 +72,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			!== $new_name)
 		{
 			$filter["room_name"] = $new_name;
-			$data = $this->rooms->getList($filter);
+			$data = $this->getFilteredData($filter);
 
 			$message = $this->lng->txt('rep_robj_xrs_no_match_for') . " $old_name " .
 				$this->lng->txt('rep_robj_xrs_found') . ". " .
@@ -78,9 +80,105 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 			ilUtil::sendInfo($message);
 		}
-
 		$this->setMaxCount(count($data));
 		$this->setData($data);
+	}
+
+	public function getFilteredData(array $filter)
+	{
+		echo "<br>OriginalFilter:<br>";
+		print_r($filter);
+
+		switch (unserialize($filter['recurrence']['frequence']))
+		{
+			case "DAILY":
+				$data = $this->getDailyFilteredData($filter);
+				break;
+			case "WEEKLY":
+				$data = $this->getWeeklyFilteredData($filter);
+				break;
+			case "MONTHLY":
+				$data = $this->getMonthlyFilteredData($filter);
+				break;
+			default:
+				$data = $this->rooms->getList($filter);
+				break;
+		}
+
+		echo "<br><br>";
+		print_r($data);
+
+		return $data;
+	}
+
+	//Diese Funktion ist noch nicht fertig und diente nur zum Test der
+	//Tagesgenerator Funktionen für Monate
+	private function getMonthlyFilteredData(array $filter)
+	{
+		$repeat_until = unserialize($filter['recurrence']['repeat_until']);
+		$rpt_amount = unserialize($filter['recurrence']['repeat_amount']);
+		$weekday_1 = unserialize($filter['recurrence']['weekday_1']);
+		$weekday_2 = unserialize($filter['recurrence']['weekday_2']);
+
+		$repeat_until = $repeat_until['date']['y'] . "-" . $repeat_until['date']['m'] . "-" . $repeat_until['date']['d'];
+		$this->book->generateMonthlyDaysAtVariableDateWithCount($filter['date'], $weekday_1, $weekday_2,
+			$repeat_until, $rpt_amount);
+	}
+
+	// Diese Funktion ist noch nicht fertig und diente nur zum Test
+	// der Tagesgenerator Funktionen für Wochen
+	private function getWeeklyFilteredData(array $filter)
+	{
+		$repeat_until = unserialize($filter['recurrence']['repeat_until']);
+		$rpt_amount = unserialize($filter['recurrence']['repeat_amount']);
+		$weekdays = unserialize($filter['recurrence']['weekdays']);
+		$repeat_until = $repeat_until['date']['y'] . "-" . $repeat_until['date']['m'] . "-" . $repeat_until['date']['d'];
+		$this->book->generateWeeklyDaysWithEndDate($filter['date'], $repeat_until, $weekdays, $rpt_amount);
+	}
+
+	//So kompliziert sieht derzeit die Funktion aus, wenn täglich gewählt ist
+	private function getDailyFilteredData(array $filter)
+	{
+		$datas = array();
+		$until_date = $this->createDateFormatBySerializedDate($filter['recurrence']['date_until']);
+		$until_count = unserialize($filter['recurrence']['count_until']);
+		if (unserialize($filter['recurrence']['repeat_type']) == "max_date" || isset($until_count))
+		{
+			$days = $this->book->generateDailyDaysWithCount($filter['date'], $until_count);
+			foreach ($days as $day)
+			{
+				$filter['date'] = $day;
+				$datas[] = $this->rooms->getList($filter);
+			}
+		}
+		elseif (unserialize($filter['recurrence']['repeat_type']) == "max_amount")
+		{
+			$this->book->generateDailyDaysWithCount($filter['date'],
+				unserialize($filter['recurrence']['count_until']));
+		}
+
+		$return_data = array();
+
+		//$datas beinhaltet an dieser Stelle alle Räume
+		//kannst bei bedarf ja mal echo'n oder print_r'n
+		//Jetzt muss irgendwie rausgefiltert werden,
+		//ob ein Raum wirklich an jedem Datum frei ist
+		//und das gespeichert werden, dadran arbeite ich noch
+		foreach ($datas as $data)
+		{
+			foreach ($data as $available_room)
+			{
+
+			}
+		}
+	}
+
+	private function createDateFormatBySerializedDate($serialized_date)
+	{
+		$until_day = unserialize($serialized_date)['date']['d'];
+		$until_month = unserialize($serialized_date)['date']['m'];
+		$until_year = unserialize($serialized_date)['date']['y'];
+		return $until_year . "-" . $until_month . "-" . $until_day;
 	}
 
 	/**
@@ -228,6 +326,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 	public function handleBookSeriesAttributes()
 	{
+		echo "handle";
 		$freq = unserialize($_SESSION ["form_qsearchform"] ["frequence"]);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'frequence', $freq);
 		switch ($freq)
