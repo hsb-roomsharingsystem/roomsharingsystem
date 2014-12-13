@@ -72,6 +72,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			!== $new_name)
 		{
 			$filter["room_name"] = $new_name;
+			//Hier sind die Daten der Räume drin, die extra gefiltert werden
 			$data = $this->getFilteredData($filter);
 
 			$message = $this->lng->txt('rep_robj_xrs_no_match_for') . " $old_name " .
@@ -84,6 +85,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->setData($data);
 	}
 
+	//Eigene Implementation für das Prüfen der Raumverfügbarkeit
+	//für jedes Datum, welches generiert wird
 	public function getFilteredData(array $filter)
 	{
 		echo "<br>OriginalFilter:<br>";
