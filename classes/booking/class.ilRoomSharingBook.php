@@ -189,12 +189,62 @@ class ilRoomSharingBook
 			$days[] = date('Y-m-d',
 				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
 
-			//Anzahl day of january 2015 z.B. geht nicht! Nur last day of..
+			//Fifth day of january 2015 z.B. geht nicht! Nur last day of..
 			//da muss noch ne Lösung her!
 			//Für die nächste Wiederholung X Monate vorspringen
 			//Abhängig von Auswahl bei "Alle X Monate"
 			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
 		}
+
+		return $days;
+	}
+
+	// Diese Methode dient dazu, die Tage in monatlichen Abstand zu generieren
+	// bis zu einem End-Datum
+	public function generateMonthlyDaysAtVariableDateWithEndDate($a_startday, $a_variable_number,
+		$a_each_day, $a_enddate, $a_every_x_months)
+	{
+		$startday = $a_startday;
+		$variable_name = $this->getEnumerationName($a_variable_number);
+		$each_day_name = $this->getFullDayNameByShortName($a_each_day);
+
+		$days = array();
+		//Solange durchlaufen, wie Wiederholungen vorhanden sind
+		while (true)
+		{
+			$monthname_with_year_of_startday = date("F Y", strtotime($startday));
+
+			//Ein Beispiel wäre hier: strtotime("fourth friday of january 2015")
+			//Wird z.B. fifth monday genommen und den gibt es nicht, wie z.B.
+			//im Januar, dann nimmt php den ersten vom Februar,
+			//ich denke das ist ok
+			$days[] = date('Y-m-d',
+				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
+
+			//Fifth day of january 2015 z.B. geht nicht! Nur last day of..
+			//da muss noch ne Lösung her!
+			//Für die nächste Wiederholung X Monate vorspringen
+			//Abhängig von Auswahl bei "Alle X Monate"
+			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+
+			if ($startday > $a_enddate)
+			{
+				break;
+			}
+		}
+
+		$return_days = array();
+
+		//Es kann noch sein, dass ein paar Termine über dem Enddatum liegen
+		//die werden dann nochmal gefiltert
+		for ($i = 0; $i < count($days); $i++)
+		{
+			if ($days[$i] <= $a_enddate)
+			{
+				$return_days[] = $days[$i];
+			}
+		}
+		return $return_days;
 	}
 
 	// Diese Methode wandelt die Keys für z.B. "ersten" oder "letzten"
