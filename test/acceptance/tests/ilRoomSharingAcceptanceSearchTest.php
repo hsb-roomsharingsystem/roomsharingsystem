@@ -270,7 +270,36 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testTimeSearchSyntax()
 	{
+		self::$helper->createRoomAttribute("Beamer");
+		self::$helper->createRoom('123', 1, 20, "TEST", " - Keine Zuordnung - ", array('Beamer' => 3));
 
+		//#1 Search for time in future (min)
+		self::$helper->searchForRoomByAll("", "", "", "", "", "", "50", "", "55", array());
+		$this->assertEquals("1", self::$helper->getNoOfResults());
+		$this->assertEquals("123", self::$helper->getFirstResult());
+
+		//#2 Search for time in future (hour)
+		self::$helper->searchForRoomByAll("", "", "", "", "", "23", "", "23", "", array());
+		$this->assertEquals("1", self::$helper->getNoOfResults());
+		$this->assertEquals("123", self::$helper->getFirstResult());
+
+		//#3 Search for time in past
+		self::$helper->searchForRoomByAll("", "", "", "", "", "0", "0", "0", "05", array());
+		$this->assertEquals("0", self::$helper->getNoOfResults());
+
+		//#4 Search for time in past and future
+		self::$helper->searchForRoomByAll("", "", "", "", "", "0", "0", "23", "55", array());
+		$this->assertEquals("0", self::$helper->getNoOfResults());
+
+		//#5 Search for time equal in future
+		self::$helper->searchForRoomByAll("", "", "", "", "", "23", "55", "23", "55", array());
+		$this->assertEquals("0", self::$helper->getNoOfResults());
+
+		//#6 Search for time to before time from
+		self::$helper->searchForRoomByAll("", "", "", "", "", "23", "55", "222", "55", array());
+		$this->assertEquals("0", self::$helper->getNoOfResults());
+
+		self::$helper->deleteAllRooms();
 	}
 
 	/**
@@ -279,7 +308,46 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testDateTimeSearchWithBookings()
 	{
+		self::$helper->createRoomAttribute("Beamer");
+		self::$helper->createRoom('123', 1, 20, "TEST", " - Keine Zuordnung - ", array('Beamer' => 3));
+		self::$helper->createRoom('123a', 1, 15, "TEST", " - Keine Zuordnung - ", array('Beamer' => 1));
 
+		self::$helper->searchForRoomByAll("123", "", "", "", "", "23", "35", "23", "40", array());
+		self::$webDriver->findElement(WebDriverBy::linkText('Buchen'))->click();
+		self::$helper->doABooking("TEST", "", "", "", "", "", "", "", "", "", "", false);
+
+		self::$helper->searchForRoomByAll("123", "", "", "", "", "23", "45", "23", "50", array());
+		self::$webDriver->findElement(WebDriverBy::linkText('Buchen'))->click();
+		self::$helper->doABooking("TEST", "", "", "", "", "", "", "", "", "", "", false);
+
+		//#1 Search rooms before the two bookings
+		self::$helper->searchForRoomByAll("", "", "", "", "", "23", "30", "23", "35", array());
+		$this->assertEquals("2", self::$helper->getNoOfResults());
+
+		//#2 Search rooms before and while one of the two bookings
+		self::$helper->searchForRoomByAll("", "", "", "", "", "", "", "23", "40", array());
+		$this->assertEquals("1", self::$helper->getNoOfResults());
+		$this->assertEquals("123a", self::$helper->getFirstResult());
+
+		//#3 Search rooms before, while and after one of the two bookings
+		self::$helper->searchForRoomByAll("", "", "", "", "", "", "", "23", "45", array());
+		$this->assertEquals("1", self::$helper->getNoOfResults());
+		$this->assertEquals("123a", self::$helper->getFirstResult());
+
+		//#4 Search rooms between the two bookings
+		self::$helper->searchForRoomByAll("", "", "", "", "", "23", "40", "", "", array());
+		$this->assertEquals("2", self::$helper->getNoOfResults());
+
+		//#5 Search rooms while both bookings with free space inside
+		self::$helper->searchForRoomByAll("", "", "", "", "", "23", "35", "23", "50", array());
+		$this->assertEquals("1", self::$helper->getNoOfResults());
+		$this->assertEquals("123a", self::$helper->getFirstResult());
+
+		//#6 Search rooms after both bookings
+		self::$helper->searchForRoomByAll("", "", "", "", "", "23", "50", "23", "55", array());
+		$this->assertEquals("2", self::$helper->getNoOfResults());
+
+		self::$helper->deleteAllRooms();
 	}
 
 	/**
