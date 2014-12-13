@@ -569,7 +569,7 @@ class ilRoomSharingDatabase
 	{
 		$query = 'SELECT b.id, b.user_id, b.subject, b.bookingcomment,' .
 			' r.id AS room_id, b.date_from, b.date_to FROM ' . dbc::BOOKINGS_TABLE . ' b ' .
-			' JOIN ' . dbc::ROOMS_TABLE . ' R ON b.room_id = r.id ' .
+			' JOIN ' . dbc::ROOMS_TABLE . ' r ON b.room_id = r.id ' .
 			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer');
 
 		if ($filter['user_id'] || $filter['user_id'])
