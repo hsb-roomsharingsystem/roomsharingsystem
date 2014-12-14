@@ -366,10 +366,15 @@ class ilRoomSharingMailer extends ilMailNotification
      */
     public function sendBookingMail($a_user_id, array $a_participants_ids)
     {
+        $user = $this->ilRoomSharingDatabase->getUserById($a_user_id);
         $this->composeAndSendBookingMailToCreator($a_user_id);
+        
         foreach (array_unique($a_participants_ids) as $participant_id)
         {
-            $this->composeAndSendBookingMailToParticipant($participant_id);
+            if($user['login'] != $participant_id)
+            {
+              $this->composeAndSendBookingMailToParticipant($participant_id);
+            }
         }
     }
     
