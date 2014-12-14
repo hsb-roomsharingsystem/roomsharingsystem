@@ -243,7 +243,7 @@ class ilRoomSharingBookGUI
 	private function getFileLinkForUserAgreementId($a_file_id)
 	{
 		$agreement_file = new ilObjMediaObject($a_file_id);
-		$media = $agreement_file->getMediaItem("Agreement");
+		$media = $agreement_file->getMediaItem("Standard");
 		$source = $agreement_file->getDataDirectory() . "/" . $media->getLocation();
 
 		$link = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .

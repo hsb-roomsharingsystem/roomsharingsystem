@@ -4,6 +4,7 @@
 require_once("./Services/Repository/classes/class.ilObjectPlugin.php");
 require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 require_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPoolsHelper.php");
 
 /**
  * Mainclass for roomsharing system module. Pool id is the object id
@@ -120,9 +121,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 */
 	protected function doDelete()
 	{
-		//		$id = $this->getId();
-		// always call parent delete function first
-		// example - delete old db data
+		ilRoomSharingPoolsHelper::deletePool($this);
 		return true;
 	}
 
@@ -135,8 +134,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 */
 	protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null)
 	{
-		$new_obj->setOnline($this->isOnline());
-		$new_obj->setMaxBookTime($this->getMaxBookTime());
+		ilRoomSharingPoolsHelper::clonePool($this, $new_obj);
 	}
 
 	/**
@@ -248,7 +246,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 
 		$media_item = new ilMediaItem();
 		$mediaObj->addMediaItem($media_item);
-		$media_item->setPurpose("Agreement");
+		$media_item->setPurpose("Standard");
 		$media_item->setFormat($format);
 		$media_item->setLocation($file_name_mod);
 		$media_item->setLocationType("LocalFile");

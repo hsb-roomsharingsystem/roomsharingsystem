@@ -570,7 +570,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if (!empty($fileId) && $fileId != "0")
 		{
 			$agreementFile = new ilObjMediaObject($this->object->getRoomsAgreementFileId());
-			$media = $agreementFile->getMediaItem("Agreement");
+			$media = $agreementFile->getMediaItem("Standard");
 			$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
 
 			$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .

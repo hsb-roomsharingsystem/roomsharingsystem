@@ -1808,4 +1808,19 @@ class ilRoomSharingDatabase
 		return $events;
 	}
 
+	/**
+	 * Deletes the db entry of the actual room sharing pool.
+	 * If you are sure what you are doing, pass "SURE" as argument.
+	 *
+	 * @param string $a_confirmation pass "SURE"
+	 */
+	public function deletePoolEntry($a_confirmation)
+	{
+		if ($a_confirmation == "SURE")
+		{
+			$this->ilDB->manipulate("DELETE FROM " . dbc::POOLS_TABLE .
+				" WHERE id = " . $this->ilDB->quote($this->pool_id, 'integer'));
+		}
+	}
+
 }

@@ -3,7 +3,6 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharing.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-require_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 
 /**
@@ -71,11 +70,13 @@ class ilRoomSharingPoolsHelper
 			}
 		}
 		$rooms_agreement_file_id = $a_pool->getRoomsAgreementFileId();
-		if (!empty($rooms_agreement_file_id) && $rooms_agreement_file_id != "0")
+		if (ilRoomSharingNumericUtils::isPositiveNumber($rooms_agreement_file_id))
 		{
 			$rooms_agreement_file = new ilObjMediaObject($rooms_agreement_file_id);
 			$rooms_agreement_file->delete();
 		}
+		// Pool itself
+		$db->deletePoolEntry("SURE");
 	}
 
 	/**
@@ -88,27 +89,32 @@ class ilRoomSharingPoolsHelper
 	public static function clonePool(ilObjRoomSharing $a_pool, ilObjRoomSharing $a_new_pool)
 	{
 		// Pool main properties
-		$a_new_pool->setOnline($a_pool->isOnline());
-		$a_new_pool->setMaxBookTime($a_pool->getMaxBookTime());
 		$rooms_agreement_file_id = $a_pool->getRoomsAgreementFileId();
 		$cloned_rooms_agreement_file_id = "0";
+
 		if (ilRoomSharingNumericUtils::isPositiveNumber($rooms_agreement_file_id))
 		{
 			$rooms_agreement_file = new ilObjMediaObject($rooms_agreement_file_id);
-			$cloned_rooms_agreement_file_id = $rooms_agreement_file->cloneObject($rooms_agreement_file_id);
+			$cloned_agreement_file = $rooms_agreement_file->duplicate();
+			$cloned_rooms_agreement_file_id = $cloned_agreement_file->getId();
 		}
+
+		$a_new_pool->setOnline($a_pool->isOnline());
+		$a_new_pool->setMaxBookTime($a_pool->getMaxBookTime());
 		$a_new_pool->setRoomsAgreementFileId($cloned_rooms_agreement_file_id);
 		$a_new_pool->update();
 
-		// Other related information
+		// Other database related information
 		$db = new ilRoomSharingDatabase($a_pool->getPoolId());
 		$clone_db = new ilRoomSharingDatabase($a_new_pool->getPoolId());
+
 		// Booking attributes
 		$all_booking_attributes = $db->getAllBookingAttributes();
 		foreach ($all_booking_attributes as $booking_attribute)
 		{
 			$clone_db->insertBookingAttribute($booking_attribute['name']);
 		}
+
 		// Room attributes
 		$all_room_attributes = $db->getAllRoomAttributes();
 		$room_attrs_id_mapping = array();
@@ -117,19 +123,22 @@ class ilRoomSharingPoolsHelper
 			$id_of_cloned_attribute = $clone_db->insertRoomAttribute($room_attribute['name']);
 			$room_attrs_id_mapping[$room_attribute['id']] = $id_of_cloned_attribute;
 		}
+
 		// Floorplans
 		$all_floorplan_ids = $db->getAllFloorplanIds();
+		// Key is original id and value the new one
 		$floorplans_ids_mapping = array();
 		foreach ($all_floorplan_ids as $floorplan_id)
 		{
 			if (ilRoomSharingNumericUtils::isPositiveNumber($floorplan_id))
 			{
 				$floorplan = new ilObjMediaObject($floorplan_id);
-				$clonedFloorplan = $floorplan->cloneObject($floorplan_id);
-				$clone_db->insertFloorplan($clonedFloorplan->getId());
-				$floorplans_ids_mapping[$floorplan_id] = $clonedFloorplan->getId();
+				$cloned_floorplan = $floorplan->duplicate();
+				$clone_db->insertFloorplan($cloned_floorplan->getId());
+				$floorplans_ids_mapping[$floorplan_id] = $cloned_floorplan->getId();
 			}
 		}
+
 		// Rooms
 		$all_rooms = $db->getAllRooms();
 		foreach ($all_rooms as $room)
@@ -144,7 +153,6 @@ class ilRoomSharingPoolsHelper
 			}
 			$cloned_room_id = $clone_db->insertRoom($room['name'], $room['type'], $room['min_alloc'],
 				$room['max_alloc'], $room['file_id'], $flooplan_id_to_set);
-
 			// Room attribute assignments
 			$room_attributes = $db->getAttributesForRoom($room['id']);
 			foreach ($room_attributes as $room_attribute)
@@ -159,13 +167,21 @@ class ilRoomSharingPoolsHelper
 
 		// Privileges
 		$classes = $db->getClasses();
+		// Key is original id and value the new one
 		$mapped_classes_ids = array();
 		foreach ($classes as $class)
 		{
-			// TODO
-//			$cloned_class_id = $clone_db->insertClass($class['name'], $class['description'],
-//				$class['role_id'], $class['priority'], "");
-//			$mapped_classes_ids[$class['id']] = $cloned_class_id;
+			$cloned_class_id = $clone_db->insertClass($class['name'], $class['description'],
+				$class['role_id'], $class['priority'], $class['id']);
+			$mapped_classes_ids[$class['id']] = $cloned_class_id;
+		}
+		foreach ($mapped_classes_ids as $class_id => $cloned_class_id)
+		{
+			$users_ids_for_class = $db->getUsersForClass($class_id);
+			foreach ($users_ids_for_class as $user_id)
+			{
+				$clone_db->assignUserToClass($cloned_class_id, $user_id);
+			}
 		}
 	}
 
