@@ -101,7 +101,7 @@ must_be_unique#:#Attributname muss eindeutig sein!
 name_of_new_attribute#:#Name des neuen Attributs
 needed_seats#:#Benötigte Sitzplätze
 new_attribute_name#:#Neuer Name des Attributs
-no_delete_permission#:#Keine Berechtigung, diese Buchung zu löschen
+no_delete_permission#:#Keine Berechtigung diese Buchung zu löschen
 no_id_submitted#:#Keine oder nicht numerische ID übergeben
 no_match_for#:#Keine Ergebnisse für
 not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
@@ -265,8 +265,8 @@ general_privileges#:#Allgemeine Privilegien
 general_privileges_description#:#Hier sind die allgemeinen Privilegien aufgeführt.
 lock_privileges#:#Privilegien sperren
 lock_privileges_description#:#Privilegien aller Klassen sperrbar, sodass diese Klassen infolge über keinerlei Privilegien verfügen
-no_permission#:#Sie besitzen kein Privileg, um auf dieses Objekt zuzugreifen
-no_permission_for_action#:#Sie besitzen kein Privileg, um diese Aktion durchzuführen
+no_permission#:#Sie besitzen kein Privileg um auf dieses Objekt zuzugreifen
+no_permission_for_action#:#Sie besitzen kein Privileg um diese Aktion durchzuführen
 notification_tunable#:#Benachrichtungseinstellungen
 notification_tunable_description#:#Benachrichtigungen sind ein- und abschaltbar
 rooms_privileges_description#:#Hier sind die Privilegien für die Räume aufgeführt.
