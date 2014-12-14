@@ -16,13 +16,13 @@ class ilRoomSharingMailer extends ilMailNotification
 {
 
     
-    protected $s_roomname;
-    protected $datestart;
-    protected $dateend;
-    protected $reason;
-    protected $lng;
-    protected $bookings;
-    protected $ilRoomSharingDatabase;
+    private $s_roomname;
+    private $datestart;
+    private $dateend;
+    private $reason;
+    private $lng;
+    private $bookings;
+    private $ilRoomSharingDatabase;
     
     /**
      * Constructor with language option.
@@ -188,7 +188,7 @@ class ilRoomSharingMailer extends ilMailNotification
      * Compose a mail that informs user about a change of room attributes.
      * @param integer $a_user_id ID of user
      */
-    protected function composeRoomChangeMail($a_user_id)
+    private function composeRoomChangeMail($a_user_id)
     {
         $lng = $this->lng;
         
@@ -223,7 +223,7 @@ class ilRoomSharingMailer extends ilMailNotification
     /**
      * Compose a mail that confirms a user that he quit a participation.
      */
-    protected function composeParticipationCancelMail($a_user_id)
+    private function composeParticipationCancelMail($a_user_id)
     {
         $lng = $this->lng;
     
@@ -249,13 +249,46 @@ class ilRoomSharingMailer extends ilMailNotification
         }
 
     }
+    
+    /**
+     * Compose a mail that tells the creator that somenone has left
+     */
+    private function composeParticipationCancelMailForCreator($a_user_id, $a_creator_id)
+    {
+        $lng = $this->lng;
+        $user = $this->ilRoomSharingDatabase->getUserById($a_user_id);
+    
+        $this->initLanguage($a_creator_id);
+        $this->initMail();
+        $this->setSubject($lng->txt('rep_robj_xrs_mail_participation_creator_subject'));
+        $this->setBody(ilMail::getSalutation($a_creator_id, $this->getLanguage()));
+        $this->appendBody("\n\n");
+        $this->appendBody($lng->txt('rep_robj_xrs_mail_participation_creator_message') . "\n");
+        $this->appendBody($lng->txt('rep_robj_xrs_user').": ");
+        $this->appendBody($user['firstname']." ".$user['lastname']." (".$user['login'].")\n");
+        $this->appendBody($lng->txt('rep_robj_xrs_booking').":\n");
+        $booking = $this->bookings[0];
+        
+        $roomname = $this->ilRoomSharingDatabase->getRoomName($booking['room_id']);
+        $datestart = new ilDateTime($booking['date_from'] ,IL_CAL_DATETIME);
+        $dateend = new ilDateTime($booking['date_to'] ,IL_CAL_DATETIME);
+
+        $this->appendBody($lng->txt('rep_robj_xrs_room'). " ");
+        $this->appendBody($roomname . " ");
+        $this->appendBody($lng->txt('rep_robj_xrs_from') . " ");
+        $this->appendBody($datestart->get(IL_CAL_FKT_DATE, 'd.m.Y H:s'). " ");
+        $this->appendBody($lng->txt('rep_robj_xrs_to') . " ");
+        $this->appendBody($dateend->get(IL_CAL_FKT_DATE, 'd.m.Y H:s'). "\n");
+        
+
+    }
 
     /**
      * Send notification to creator of booking
      * @param array $a_user_id user-id who will get the mail
      * Returns nothing.
      */
-    protected function composeAndSendBookingMailToCreator($a_user_id)
+    private function composeAndSendBookingMailToCreator($a_user_id)
     {
         $this->composeBookingMailForCreator($a_user_id);
         parent::sendMail(array($a_user_id), array('system'), is_numeric($a_user_id));
@@ -266,7 +299,7 @@ class ilRoomSharingMailer extends ilMailNotification
      * @param array $a_participant_id user-id who will get the mail
      * Returns nothing.
      */
-    protected function composeAndSendBookingMailToParticipant($a_participant_id)
+    private function composeAndSendBookingMailToParticipant($a_participant_id)
     {
         $this->composeBookingMailForParticipant($a_participant_id);
         parent::sendMail(array($a_participant_id), array('system'), is_numeric($a_participant_id));
@@ -277,7 +310,7 @@ class ilRoomSharingMailer extends ilMailNotification
      * @param array $a_user_id user-id who will get the mail
      * Returns nothing.
      */
-    protected function composeAndSendCancellationMailToCreator($a_user_id, $s_reason)
+    private function composeAndSendCancellationMailToCreator($a_user_id, $s_reason)
     {
         $this->composeCancellationMailForCreator($a_user_id, $s_reason);
         parent::sendMail(array($a_user_id), array('system'), is_numeric($a_user_id));
@@ -287,7 +320,7 @@ class ilRoomSharingMailer extends ilMailNotification
      * Send cancellation notification to participant of booking
      * @param array $a_participant_id user-id who will get the mail
      */
-    protected function composeAndSendCancellationMailToParticipant($a_participant_id, $s_reason)
+    private function composeAndSendCancellationMailToParticipant($a_participant_id, $s_reason)
     {
         $this->composeCancellationMailForParticipant($a_participant_id, $s_reason);
         parent::sendMail(array($a_participant_id), array('system'), is_numeric($a_participant_id));
@@ -297,7 +330,7 @@ class ilRoomSharingMailer extends ilMailNotification
      * Send room change notification to user.
      * @param integer $a_userid ID of user who gets the mail
      */
-    protected function composeAndSendRoomChangeMail($a_userid)
+    private function composeAndSendRoomChangeMail($a_userid)
     {
         $this->composeRoomChangeMail($a_userid);
         parent::sendMail(array($a_userid), array('system'), is_numeric($a_userid));
@@ -307,10 +340,21 @@ class ilRoomSharingMailer extends ilMailNotification
      * Send participation quit message to user.
      * @param integer $a_userid ID of user who gets the mail
      */
-    protected function composeAndSendParticipationCancelMail($a_userid)
+    private function composeAndSendParticipationCancelMail($a_userid)
     {
         $this->composeParticipationCancelMail($a_userid);
         parent::sendMail(array($a_userid), array('system'), is_numeric($a_userid));
+    }
+    
+    /**
+     * Send creator a mail that a user has left.
+     * @param integer $a_user_id The user who left.
+     * @param integer $a_creator_id The creator of a booking.
+     */
+    private function composeAndSendParticipationCancelMailForCreator($a_user_id, $a_creator_id)
+    {
+        $this->composeParticipationCancelMailForCreator($a_user_id, $a_creator_id);
+        parent::sendMail(array($a_creator_id), array('system'), is_numeric($a_creator_id));
     }
 
     /**
@@ -384,7 +428,8 @@ class ilRoomSharingMailer extends ilMailNotification
     /**
      * Send a mail to every user when a room has been edited.
      * 
-     * @param integer $a_roomid id of the room.
+     * @param array $a_user_id The users id
+     * @param array $a_booking_id The id(s) of the booking
      */
     public function sendParticipationCancelMail($a_user_id, $a_booking_id)
     {
@@ -393,6 +438,23 @@ class ilRoomSharingMailer extends ilMailNotification
             $this->bookings[] = $this->ilRoomSharingDatabase->getBooking($bookings)[0];
         }
         $this->composeAndSendParticipationCancelMail($a_user_id);
+    }
+    
+    /**
+     * Send a mail to the creator of a booking that a user left.
+     * 
+     * @param array $a_user_id The id of the user who left
+     * @param array $a_creator_id The id of the creator
+     * @param array $a_booking_id The booking ids
+     */
+    public function sendParticipationCancelMailForCreator($a_user_id, $a_booking_id)
+    {
+        foreach ($a_booking_id as $bookings)
+        {
+            $this->bookings[0] = $this->ilRoomSharingDatabase->getBooking($bookings)[0];
+            $this->composeAndSendParticipationCancelMailForCreator($a_user_id, $this->bookings[0]['user_id']);
+        }
+  
     }
     
         

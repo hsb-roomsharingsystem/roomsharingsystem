@@ -190,6 +190,7 @@ class ilRoomSharingParticipations
         {
             $mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
             $mailer->sendParticipationCancelMail($this->ilUser->getId(), $a_booking_ids);
+            $mailer->sendParticipationCancelMailForCreator($this->ilUser->getId(), $a_booking_ids);
         }
 
 }

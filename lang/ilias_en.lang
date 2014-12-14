@@ -30,6 +30,7 @@ booking_deleted#:#Booking deleted! (following sequence bookings are not affected
 booking_doesnt_exists#:#This booking does not exist any more!
 booking_no_cancel_ids#:#Tick at least one booking to cancel.
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
+booking#:#Booking
 bookings#:#Bookings
 bookings_confirm#:#Are you sure you want to cancel the following bookings?
 bookings_deleted#:#Bookings deleted! (possible sequence bookings are not affected)
@@ -85,10 +86,12 @@ mail_cancellation_participant_message#:#A booking in which you participated has 
 mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
 mail_cancellation_reason_manually#:#Manual cancellation by user.
 mail_cancellation_reason_prefix#:#The booking has been cancelled due to the following reason:
-mail_room_changed_subject#:#A room you booked has been changed.
-mail_room_changed_message#:#A room you booked has been changed. Your following bookings are affected:
 mail_participation_cancel_subject#:#You cancelled your participation.
 mail_participation_cancel_message#:#You cancelled your participation. You no longer take part in the following booking:
+mail_participation_creator_subject#:#A participant left your booking.
+mail_participation_creator_message#:#A participant left your booking. The following participant left your booking:
+mail_room_changed_subject#:#A room you booked has been changed.
+mail_room_changed_message#:#A room you booked has been changed. Your following bookings are affected:
 manage#:#Manage
 max_book_time#:#Maximal time of a booking
 missing_agreement_entries#:#The Rooms use agreement is not accepted.
