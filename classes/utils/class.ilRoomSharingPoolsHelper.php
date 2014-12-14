@@ -22,8 +22,14 @@ class ilRoomSharingPoolsHelper
 	{
 		$db = new ilRoomSharingDatabase($a_pool->getPoolId());
 
+		// Calendar
+		$calendar_id = $db->getCalendarId();
+		$db->deleteCalendar($calendar_id);
+
 		// Bookings
 		$all_bookings_ids = $db->getAllBookingsIds();
+		// Calendar-Entries
+		$db->deleteCalendarEntriesOfBookings($all_bookings_ids);
 		foreach ($all_bookings_ids as $booking_id)
 		{
 			$db->deleteBooking($booking_id);

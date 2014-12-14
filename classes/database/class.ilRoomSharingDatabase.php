@@ -202,8 +202,8 @@ class ilRoomSharingDatabase
 		$roomNameRow = $this->ilDB->fetchAssoc($roomNameSet);
 		return $roomNameRow ['name'];
 	}
-        
-        /**
+
+	/**
 	 * Get the room-ids from all rooms that are booked in the given timerange.
 	 * A specific room_id can be given if a single room should be queried (used for bookings).
 	 *
@@ -445,6 +445,22 @@ class ilRoomSharingDatabase
 		{
 			ilCalendarEntry::_delete($a_entry_id['calendar_entry_id']);
 		}
+	}
+
+	/**
+	 * Delete calendar of current pool.
+	 *
+	 * @param int $cal_id
+	 */
+	public function deleteCalendar($cal_id)
+	{
+		//Deletes the calendar
+		$this->ilDB->manipulate('DELETE FROM cal_categories' .
+			' WHERE cat_id = ' . $this->ilDB->quote($cal_id, 'integer'));
+
+		//Deletes the calendar-entry-links
+		$this->ilDB->manipulate('DELETE FROM cal_cat_assignments' .
+			' WHERE cat_id = ' . $this->ilDB->quote($cal_id, 'integer'));
 	}
 
 	/**
@@ -1003,29 +1019,29 @@ class ilRoomSharingDatabase
 		}
 		return $bookings;
 	}
-        
-        /**
-         * Gets all bookings for a room which are in present or future.
-         * 
-         * @param integer $a_room_id the room id
-         * @return array list of bookings
-         */
-        public function getBookingsForRoomThatAreValid($a_room_id)
-        {
-            $set = $this->ilDB->query('SELECT * FROM ' . dbc:: BOOKINGS_TABLE .
-            ' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') .
-            ' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') .
-            ' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
-            ' OR date_to >= "' . date('Y-m-d H:i:s') . '")');
-            $bookings = array();
-            while ($row = $this->ilDB->fetchAssoc($set))
-            {
-                $bookings[] = $row;
-            }
-            return $bookings;
-        }
 
-    /**
+	/**
+	 * Gets all bookings for a room which are in present or future.
+	 *
+	 * @param integer $a_room_id the room id
+	 * @return array list of bookings
+	 */
+	public function getBookingsForRoomThatAreValid($a_room_id)
+	{
+		$set = $this->ilDB->query('SELECT * FROM ' . dbc:: BOOKINGS_TABLE .
+			' WHERE room_id = ' . $this->ilDB->quote($a_room_id, 'integer') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') .
+			' AND (date_from >= "' . date('Y-m-d H:i:s') . '"' .
+			' OR date_to >= "' . date('Y-m-d H:i:s') . '")');
+		$bookings = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$bookings[] = $row;
+		}
+		return $bookings;
+	}
+
+	/**
 	 * Gets all actual bookings for a room.
 	 *
 	 * @return type return of $this->ilDB->query
