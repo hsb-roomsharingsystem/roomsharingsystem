@@ -66,6 +66,54 @@ class ilRoomSharingBook
 	}
 
 	/**
+	 * Method to show a booking and get his data
+	 *
+	 * @param type $a_booking_id
+	 */
+	public function showBooking($a_booking_id)
+	{
+		$booking = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
+		$booking_attributes = $this->ilRoomsharingDatabase->getBookingAttributeValues($a_booking_id);
+		$booking_participants = $this->ilRoomsharingDatabase->getParticipantsForBooking($a_booking_id);
+
+		$this->date_from = $booking ['from'] ['date'] . " " . $booking ['from'] ['time'];
+		$this->date_to = $booking ['to'] ['date'] . " " . $booking ['to'] ['time'];
+		$this->room_id = $booking ['room'];
+		$this->attribut = $booking_attributes;
+		$this->participants = $booking_participants;
+	}
+
+	/**
+	 * Method to edit a booking and update database entry
+	 *
+	 * @param type $a_booking_values
+	 * @param type $a_booking_attr_values
+	 * @param type $a_booking_participants
+	 * @throws ilRoomSharingBookException
+	 */
+	public function updateEditBooking($a_booking_values, $a_booking_attr_values,
+		$a_booking_participants)
+	{
+		$this->date_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
+		$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
+		$this->room_id = $a_booking_values ['room'];
+		$this->participants = $a_booking_participants;
+
+		$this->validateBookingInput();
+		$success = $this->updateBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants);
+		//$success = $this->insertBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants);
+
+		if ($success)
+		{
+			$this->sendBookingUpdatedNotification();
+		}
+		else
+		{
+			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
+		}
+	}
+
+	/**
 	 * Checks if the given booking input is valid (e.g. valid dates, already booked rooms, ...)
 	 *
 	 * @throws ilRoomSharingBookException
@@ -157,6 +205,22 @@ class ilRoomSharingBook
 	}
 
 	/**
+	 * Method to updated a existing booking in the database
+	 *
+	 * @param type $booking_id
+	 * @param type $booking_attr_values
+	 * @param type $booking_values
+	 * @param type $booking_participants
+	 * @return type
+	 */
+	private function updateBooking($booking_id, $booking_attr_values, $booking_values,
+		$booking_participants)
+	{
+		return $this->ilRoomsharingDatabase->updateBooking($booking_id, $booking_attr_values,
+				$booking_values, $booking_participants);
+	}
+
+	/**
 	 * Sets the pool-id
 	 *
 	 * @param integer $a_pool_id
@@ -181,6 +245,17 @@ class ilRoomSharingBook
 		$mailer->setDateStart($this->date_from);
 		$mailer->setDateEnd($this->date_to);
 		$mailer->sendBookingMail($this->user->getId(), $this->participants);
+	}
+
+	private function sendBookingUpdatedNotification()
+	{
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
+
+		$mailer = new ilRoomSharingMailer($this->lng);
+		$mailer->setRoomname($room_name);
+		$mailer->setDateStart($this->date_from);
+		$mailer->setDateEnd($this->date_to);
+		$mailer->sendUpdateBookingMail($this->user->getId(), $this->participants);
 	}
 
 	/**

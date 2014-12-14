@@ -32,7 +32,7 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI, ilRoomSharingShowAndEditBookGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingCalendarWeekGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingPrivilegesGUI, ilRoomSharingAttributesGUI
  *
@@ -573,15 +573,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * Function that redirects to the overview of a made booking.
-	 * !!! Will probably be moved to another class in further releases !!!
+	 * Function that shows a existing booking.
 	 */
 	public function showBooking()
 	{
-		global $ilCtrl;
+		$this->tabs_gui->clearTargets();
+		$last_cmd = empty($_GET['last_cmd']) ? "showBookings" : $_GET['last_cmd'];
+		$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 		$booking_id = (int) $_GET['booking_id'];
-		$ilCtrl->setCmd("showBookings");
-		$this->render();
+		$booking = new ilRoomSharingBookGUI($this, $booking_id);
+		$book->renderBookingForm();
+		$this->tabs_gui->setBackTarget($this->lng->txt("rep_robj_xrs_booking_back"),
+			$this->ctrl->getLinkTarget($this, $last_cmd));
 	}
 
 	/**

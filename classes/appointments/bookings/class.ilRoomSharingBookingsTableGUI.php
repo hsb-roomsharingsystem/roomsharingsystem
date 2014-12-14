@@ -280,19 +280,20 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	private function setActions($a_rowData)
 	{
+		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_rowData ['id']);
+		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject',
+			$a_rowData ['subject']);
 		$this->tpl->setCurrentBlock("actions");
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
 			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
+				$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBooking'));
+			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_edit'));
 		}
 		$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 		$this->tpl->parseCurrentBlock();
 
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_rowData ['id']);
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject',
-			$a_rowData ['subject']);
+
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS) || $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY))
 		{
 			$this->tpl->setVariable('LINK_ACTION',

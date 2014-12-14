@@ -322,4 +322,65 @@ class ilRoomSharingBookings
 		$mailer->sendCancellationMailWithReason($user_id, $participants);
 	}
 
+	/**
+	 *
+	 *
+	 * @param type $a_booking_id
+	 * @param type $a_seq
+
+	  public function showBooking($a_booking_id, $a_seq = false)
+	  {
+	  $this->checkBookingId($a_booking_id);
+	  $row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
+	  $booking_values = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
+	  $booking_attr_values = $this->ilRoomsharingDatabase->getBookingAttributeValues($a_booking_id);
+	  $participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
+
+	  $this->checkResultNotEmpty($row);
+	  $this->checkDeletePermission($row ['user_id']);
+
+	  // Check whether only the specific booking should be deleted
+	  if (!$a_seq || ilRoomSharingNumericUtils::isPositiveNumber($row ['seq_id']))
+	  {
+	  //TODO Update umsetzten
+	  //$this->ilRoomsharingDatabase->updatingCalendarEntryOfBooking($a_booking_id);
+	  $this->ilRoomsharingDatabase->updateBooking($a_booking_id, $booking_attr_values, $booking_values,
+	  $participants);
+	  //$this->sendCancellationNotification($booking_details, $participants);
+	  }
+	  else //delete every booking in the sequence
+	  {
+	  ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_not_yet_implemented'), true);
+	  //$this->deleteBookingSequence($row['seq']);
+	  //ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_sequence_deleted'), true);
+	  }
+	  //$this->sendCancellationNotification($booking_details, $participants);
+	  }
+	 */
+	/**
+	 * Get the booking Data of the given ID
+	 *
+	 * @param type $a_booking_id
+	 * @return Array(
+	 * 				['user_id']
+	 * 				['seq_id']
+	 * 				['booking_values']
+	 * 				['attr_values']
+	 * 				['participants'])
+	 */
+	public function getBookingData($a_booking_id)
+	{
+		$this->checkBookingId($a_booking_id);
+		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
+
+		$booking = array();
+		$booking['user_id'] = $row['user_id'];
+		$booking['seq_id'] = $row['seq_id'];
+		$booking['booking_values'] = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
+		$booking['attr_values'] = $this->ilRoomsharingDatabase->getBookingAttributeValues($a_booking_id);
+		$booking['participants'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
+
+		return $booking;
+	}
+
 }
