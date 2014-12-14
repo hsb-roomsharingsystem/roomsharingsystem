@@ -94,7 +94,7 @@ must_be_unique#:#Attribute name must be unique!
 name_of_new_attribute#:#Name of the new attribute.
 needed_seats#:#Needed Seats
 new_attribute_name#:#New name for the attribute
-no_delete_permission#:#No permission, to delete this booking
+no_delete_permission#:#No permission to delete this booking
 no_id_submitted#:#None or not a numeric ID submitted
 no_match_for#:#No match for
 not_yet_implemented#:#This function has not yet been implemented.
