@@ -850,7 +850,7 @@ class ilRoomSharingDatabase
 	{
 		return $this->ilDB->manipulate(
 				'DELETE FROM ' . dbc::BOOK_USER_TABLE . ' WHERE user_id = ' .
-				$this->ilDB->quote($a_user_id(), 'integer') .
+				$this->ilDB->quote($a_user_id, 'integer') .
 				' AND booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
 

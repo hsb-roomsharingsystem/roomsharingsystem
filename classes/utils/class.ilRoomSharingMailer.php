@@ -220,6 +220,35 @@ class ilRoomSharingMailer extends ilMailNotification
         }
     }
 
+    /**
+     * Compose a mail that confirms a user that he quit a participation.
+     */
+    protected function composeParticipationCancelMail($a_user_id)
+    {
+        $lng = $this->lng;
+    
+        $this->initLanguage($a_user_id);
+        $this->initMail();
+        $this->setSubject($lng->txt('rep_robj_xrs_mail_participation_cancel_subject'));
+        $this->setBody(ilMail::getSalutation($a_user_id, $this->getLanguage()));
+        $this->appendBody("\n\n");
+        $this->appendBody($lng->txt('rep_robj_xrs_mail_participation_cancel_message') . "\n");
+        
+        foreach ($this->bookings as $booking)
+        {
+            $roomname = $this->ilRoomSharingDatabase->getRoomName($booking['room_id']);
+            $datestart = new ilDateTime($booking['date_from'] ,IL_CAL_DATETIME);
+            $dateend = new ilDateTime($booking['date_to'] ,IL_CAL_DATETIME);
+            
+            $this->appendBody($lng->txt('rep_robj_xrs_room'). " ");
+            $this->appendBody($roomname . " ");
+            $this->appendBody($lng->txt('rep_robj_xrs_from') . " ");
+            $this->appendBody($datestart->get(IL_CAL_FKT_DATE, 'd.m.Y H:s'). " ");
+            $this->appendBody($lng->txt('rep_robj_xrs_to') . " ");
+            $this->appendBody($dateend->get(IL_CAL_FKT_DATE, 'd.m.Y H:s'). "\n");
+        }
+
+    }
 
     /**
      * Send notification to creator of booking
@@ -273,7 +302,16 @@ class ilRoomSharingMailer extends ilMailNotification
         $this->composeRoomChangeMail($a_userid);
         parent::sendMail(array($a_userid), array('system'), is_numeric($a_userid));
     }
-
+    
+    /**
+     * Send participation quit message to user.
+     * @param integer $a_userid ID of user who gets the mail
+     */
+    protected function composeAndSendParticipationCancelMail($a_userid)
+    {
+        $this->composeParticipationCancelMail($a_userid);
+        parent::sendMail(array($a_userid), array('system'), is_numeric($a_userid));
+    }
 
     /**
      * Send booking notification to creator and participants
@@ -342,6 +380,22 @@ class ilRoomSharingMailer extends ilMailNotification
             $this->composeAndSendRoomChangeMail($userid);
         }
     }
+    
+    /**
+     * Send a mail to every user when a room has been edited.
+     * 
+     * @param integer $a_roomid id of the room.
+     */
+    public function sendParticipationCancelMail($a_user_id, $a_booking_id)
+    {
+        foreach ($a_booking_id as $bookings)
+        {
+            $this->bookings[] = $this->ilRoomSharingDatabase->getBooking($bookings)[0];
+        }
+        $this->composeAndSendParticipationCancelMail($a_user_id);
+    }
+    
+        
     
     
 
