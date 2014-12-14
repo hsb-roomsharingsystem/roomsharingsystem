@@ -144,7 +144,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	{
 		$datas = array();
 		$until_date = $this->createDateFormatBySerializedDate($filter['recurrence']['date_until']);
-		$until_count = unserialize($filter['recurrence']['count_until']);
+		$until_count = unserialize($filter['recurrence']['repeat_until']);
 		if (unserialize($filter['recurrence']['repeat_type']) == "max_date" || isset($until_count))
 		{
 			$days = $this->book->generateDailyDaysWithCount($filter['date'], $until_count);
@@ -157,7 +157,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		elseif (unserialize($filter['recurrence']['repeat_type']) == "max_amount")
 		{
 			$this->book->generateDailyDaysWithCount($filter['date'],
-				unserialize($filter['recurrence']['count_until']));
+				unserialize($filter['recurrence']['repeat_until']));
 		}
 
 		$return_data = array();
@@ -171,7 +171,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		{
 			foreach ($data as $available_room)
 			{
-
+//				echo "<br>";
+//				print_r($available_room);
 			}
 		}
 	}
