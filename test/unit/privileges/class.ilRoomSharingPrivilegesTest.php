@@ -48,9 +48,9 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 
 
 		//if there's no class, the function must return an empty array
-		/* 	$test->method('getClasses')->willreturn(0);
-		  $returnarray = $this->getPrivilegesMatrix;
-		  assertEquals(0, count($returnarray)); */
+		self::$ilRoomSharingDatabaseStub->method('getClasses')->willreturn(array());
+		$returnarray = self::$privileges->getPrivilegesMatrix();
+		$this->assertEquals(0, count($returnarray));
 	}
 
 	/**
@@ -59,35 +59,35 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetAllPrivileges()
 	{
-//		$priv = array();
-//		$priv[] = 'accessAppointments';
-//		$priv[] = 'accessSearch';
-//		$priv[] = 'addOwnBookings';
-//		$priv[] = 'addParticipants';
-//		$priv[] = 'addSequenceBookings';
-//		$priv[] = 'addUnlimitedBookings';
-//		$priv[] = 'seeNonPublicBookingInformation';
-//		$priv[] = 'notificationSettings';
-//		$priv[] = 'adminBookingAttributes';
-//		$priv[] = 'cancelBookingLowerPriority';
-//		$priv[] = 'accessRooms';
-//		$priv[] = 'seeBookingsOfRooms';
-//		$priv[] = 'addRooms';
-//		$priv[] = 'editRooms';
-//		$priv[] = 'deleteRooms';
-//		$priv[] = 'adminRoomAttributes';
-//		$priv[] = 'accessFloorplans';
-//		$priv[] = 'addFloorplans';
-//		$priv[] = 'editFloorplans';
-//		$priv[] = 'deleteFloorplans';
-//		$priv[] = 'accessSettings';
-//		$priv[] = 'accessPrivileges';
-//		$priv[] = 'addClass';
-//		$priv[] = 'editClass';
-//		$priv[] = 'deleteClass';
-//		$priv[] = 'editPrivileges';
-//		$priv[] = 'lockPrivileges';
-//
+		$priv = array();
+		$priv[] = 'accessAppointments';
+		$priv[] = 'accessSearch';
+		$priv[] = 'addOwnBookings';
+		$priv[] = 'addParticipants';
+		$priv[] = 'addSequenceBookings';
+		$priv[] = 'addUnlimitedBookings';
+		$priv[] = 'seeNonPublicBookingInformation';
+		$priv[] = 'notificationSettings';
+		$priv[] = 'adminBookingAttributes';
+		$priv[] = 'cancelBookingLowerPriority';
+		$priv[] = 'accessRooms';
+		$priv[] = 'seeBookingsOfRooms';
+		$priv[] = 'addRooms';
+		$priv[] = 'editRooms';
+		$priv[] = 'deleteRooms';
+		$priv[] = 'adminRoomAttributes';
+		$priv[] = 'accessFloorplans';
+		$priv[] = 'addFloorplans';
+		$priv[] = 'editFloorplans';
+		$priv[] = 'deleteFloorplans';
+		$priv[] = 'accessSettings';
+		$priv[] = 'accessPrivileges';
+		$priv[] = 'addClass';
+		$priv[] = 'editClass';
+		$priv[] = 'deleteClass';
+		$priv[] = 'editPrivileges';
+		$priv[] = 'lockPrivileges';
+
 //		$this->assertEquals($priv, self::$privileges->getAllClassPrivileges());
 	}
 
@@ -98,8 +98,8 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	public function testGetClasses()
 	{
 		//if there are no classes, return must be null
-//		self::$ilRoomSharingDatabaseStub->method('getClasses')->willReturn(null);
-//		$this->assertEquals(null, self::$privileges->getClasses());
+		self::$ilRoomSharingDatabaseStub->method('getClasses')->willReturn(array());
+		$this->assertEquals(array(), self::$privileges->getClasses());
 	}
 
 	/**
