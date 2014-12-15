@@ -104,6 +104,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd, $rssPermission;
 		$tpl->setDescription($this->object->getLongDescription());
+		$tpl->setAlertProperties($this->getAlertProperties());
 		$next_class = $ilCtrl->getNextClass($this);
 		$this->pl_obj = new ilRoomSharingPlugin();
 		$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
@@ -293,6 +294,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		}
 		$tpl->addCss(ilUtil::getStyleSheetLocation('filesystem', 'delos.css', 'Services/Calendar'));
 		return true;
+	}
+
+	private function getAlertProperties()
+	{
+		global $lng;
+		$alert_props = array();
+		if (!$this->object->isOnline())
+		{
+			$alert_props[] = array("alert" => true, "property" => $lng->txt("status"),
+				"value" => $lng->txt("offline"));
+		}
+		return $alert_props;
 	}
 
 	/**
@@ -557,7 +570,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if (!empty($fileId) && $fileId != "0")
 		{
 			$agreementFile = new ilObjMediaObject($this->object->getRoomsAgreementFileId());
-			$media = $agreementFile->getMediaItem("Agreement");
+			$media = $agreementFile->getMediaItem("Standard");
 			$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
 
 			$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .

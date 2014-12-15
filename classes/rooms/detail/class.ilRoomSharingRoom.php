@@ -3,6 +3,7 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingRoomException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
 
@@ -48,17 +49,17 @@ class ilRoomSharingRoom
 	 * and calling the method create(), which then again returns the room_id of the newly created
 	 * room.
 	 *
-	 * @param type $pool_id used for identifying the current pool
+	 * @param type $a_pool_id used for identifying the current pool
 	 * @param int $a_room_id the id of the room from where the data should be read from
 	 * @param bool $a_create if set to true, a new room can be created
 	 */
-	public function __construct($pool_id, $a_room_id, $a_create = false)
+	public function __construct($a_pool_id, $a_room_id, $a_create = false)
 	{
 		global $lng, $rssPermission;
 
 		$this->lng = $lng;
 		$this->permission = $rssPermission;
-		$this->pool_id = $pool_id;
+		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 		$this->all_available_attributes = $this->ilRoomsharingDatabase->getAllRoomAttributes();
 
@@ -111,6 +112,7 @@ class ilRoomSharingRoom
 		$this->checkMinMaxAlloc();
 		$this->updateMainProperties();
 		$this->updateAttributes();
+                $this->sendChangeNotification();
 	}
 
 	/**
@@ -606,6 +608,19 @@ class ilRoomSharingRoom
 	public function setBookedTimes($a_booked_times)
 	{
 		$this->booked_times = $a_booked_times;
+	}
+        
+        /**
+         * Send a notification for everyone who has booked this room if
+         * room has changed.
+         * (Not the participants)
+         */
+        private function sendChangeNotification(){
+
+            $mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
+            $mailer->sendRoomChangeMail($this->id);
+  
+
 	}
 
 }

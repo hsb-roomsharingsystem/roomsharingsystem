@@ -35,14 +35,14 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	 * @param
 	 *
 	 */
-	public function __construct(ilDate $seed_date, $pool_id, $room_id)
+	public function __construct(ilDate $a_seed_date, $a_pool_id, $a_room_id)
 	{
 		global $rssPermission;
 		$this->permission = $rssPermission;
 
-		$this->room_id = $room_id;
-		$this->pool_id = $pool_id;
-		parent::__construct($seed_date);
+		$this->room_id = $a_room_id;
+		$this->pool_id = $a_pool_id;
+		parent::__construct($a_seed_date);
 	}
 
 	/**

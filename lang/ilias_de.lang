@@ -30,6 +30,7 @@ booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht b
 booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
 booking_no_cancel_ids#:#Geben Sie mindestens eine Buchung zum Stornieren an.
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
+booking#:#Buchung
 bookings#:#Buchungen
 bookings_confirm#:#Möchten Sie wirklich die ausgewählten Buchungen stornieren?
 bookings_deleted#:#Die Buchungen wurde gelöscht! (mögliche Serientermine nicht betroffen)
@@ -85,6 +86,12 @@ mail_cancellation_participant_message#:#Eine Raum-Buchung, bei der Sie als Teiln
 mail_cancellation_participant_subject#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert.
 mail_cancellation_reason_manually#:#Manuelle Stornierung durch den Benutzer.
 mail_cancellation_reason_prefix#:#Die Buchung wurde aus folgendem Grund storniert:
+mail_participation_cancel_subject#:#Sie sind aus einer Buchung ausgetreten.
+mail_participation_cancel_message#:#Sie sind aus einer Buchung ausgetreten. Sie nehmen nun nicht mehr an der folgenden Buchung teil:
+mail_participation_creator_subject#:#Ein Teilnehmer nimmt nicht mehr an Ihrer Buchung teil.
+mail_participation_creator_message#:#Ein Teilnehmer nimmt nicht mehr an Ihrer Buchung teil. Folgender Teilnehmer ist ausgetreten:
+mail_room_changed_subject#:#Ein Raum den Sie gebucht haben wurde verändert.
+mail_room_changed_message#:#Ein Raum den Sie gebucht haben wurde verändert. Dies Betrifft Ihre folgenden Buchungen:
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
 missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.
@@ -94,7 +101,7 @@ must_be_unique#:#Attributname muss eindeutig sein!
 name_of_new_attribute#:#Name des neuen Attributs
 needed_seats#:#Benötigte Sitzplätze
 new_attribute_name#:#Neuer Name des Attributs
-no_delete_permission#:#Keine Berechtigung, diese Buchung zu löschen
+no_delete_permission#:#Keine Berechtigung diese Buchung zu löschen
 no_id_submitted#:#Keine oder nicht numerische ID übergeben
 no_match_for#:#Keine Ergebnisse für
 not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
@@ -259,8 +266,8 @@ general_privileges#:#Allgemeine Privilegien
 general_privileges_description#:#Hier sind die allgemeinen Privilegien aufgeführt.
 lock_privileges#:#Privilegien sperren
 lock_privileges_description#:#Privilegien aller Klassen sperrbar, sodass diese Klassen infolge über keinerlei Privilegien verfügen
-no_permission#:#Sie besitzen kein Privileg, um auf dieses Objekt zuzugreifen
-no_permission_for_action#:#Sie besitzen kein Privileg, um diese Aktion durchzuführen
+no_permission#:#Sie besitzen kein Privileg um auf dieses Objekt zuzugreifen
+no_permission_for_action#:#Sie besitzen kein Privileg um diese Aktion durchzuführen
 notification_tunable#:#Benachrichtungseinstellungen
 notification_tunable_description#:#Benachrichtigungen sind ein- und abschaltbar
 rooms_privileges_description#:#Hier sind die Privilegien für die Räume aufgeführt.
@@ -270,3 +277,4 @@ see_non_public_booking_information#:#Nicht öffentliche Buchungen einsehen
 see_non_public_booking_information_description#:#Informationen von nicht öffentlichen Buchungen einsehbar
 sequence_bookings#:#Serienbuchungen
 sequence_bookings_addable#:#Serienbuchungen anlegbar
+is_offline#:#ist offline

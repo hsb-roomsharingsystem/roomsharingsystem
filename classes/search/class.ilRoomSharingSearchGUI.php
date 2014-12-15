@@ -62,7 +62,7 @@ class ilRoomSharingSearchGUI
 	}
 
 	/**
-	 * Dispaly a search form if the required privileges are actually set.
+	 * Dispaly a search form if the required privileges are met.
 	 */
 	public function showSearch()
 	{
@@ -92,8 +92,7 @@ class ilRoomSharingSearchGUI
 			$search_form->writeInputsToSession();
 			$this->showSearchResults();
 		}
-		// otherwise return to the form and display an error messages if needed
-		else
+		else // otherwise return to the form and display an error messages if needed
 		{
 			$search_form->setValuesByPost();
 			$this->tpl->setContent($search_form->getHTML());
@@ -106,8 +105,8 @@ class ilRoomSharingSearchGUI
 	public function resetSearch()
 	{
 		$search_form = $this->createForm();
-
 		$search_form->resetFormInputs();
+
 		$this->showSearch();
 	}
 
@@ -122,10 +121,12 @@ class ilRoomSharingSearchGUI
 		$rooms_table = new ilRoomSharingRoomsTableGUI($this, "showSearchResults", $this->ref_id);
 		$rooms_table->setTitle($this->lng->txt("search_results"));
 		$rooms_table->getItems($this->getFormInput($search_form));
+
 		$this->tpl->setContent($new_search_toolbar->getHTML() . $rooms_table->getHTML());
 	}
 
 	/**
+	 * Creates a new search toolbar
 	 * The toolbar is used for displaying a button, which allows the user to start a new search.
 	 *
 	 * @return \ilToolbarGUI
@@ -153,7 +154,7 @@ class ilRoomSharingSearchGUI
 		$room = $search_form->getInputFromSession("room_name");
 
 		// "Room"
-		// make sure that "0"-strings are not ignored
+		// makes sure that "0"-strings are not ignored
 		if ($room || $room === "0")
 		{
 			$filtered_inputs["room_name"] = $room;
@@ -190,7 +191,7 @@ class ilRoomSharingSearchGUI
 	}
 
 	/**
-	 * Creates and returns the uick search form.
+	 * Creates and returns the search form.
 	 *
 	 * @return \ilRoomSharingSearchFormGUI the customized search form
 	 */
@@ -204,6 +205,7 @@ class ilRoomSharingSearchGUI
 		$search_form->setFormAction($this->ctrl->getFormAction($this));
 
 		$this->search_form = $search_form;
+
 		$form_items = $this->createFormItems();
 		foreach ($form_items as $item)
 		{
@@ -213,6 +215,9 @@ class ilRoomSharingSearchGUI
 		return $search_form;
 	}
 
+	/**
+	 * Creates the form items
+	 */
 	private function createFormItems()
 	{
 		$form_items = array();
@@ -228,7 +233,7 @@ class ilRoomSharingSearchGUI
 	}
 
 	/**
-	 * Creates an input item which allows to type in a room name.
+	 * Creates the input item for the room name input.
 	 */
 	private function createRoomFormItem()
 	{
@@ -238,6 +243,7 @@ class ilRoomSharingSearchGUI
 		$room_name_input->setSize(14);
 
 		$room_get_value = $_GET["room"];
+
 		//if the user was redirected from the room list, set the value for the room accordingly
 		if ($room_get_value)
 		{
@@ -252,7 +258,7 @@ class ilRoomSharingSearchGUI
 	}
 
 	/**
-	 * Creates a combination input item containing a number input field for the desired seat amount.
+	 * Creates the combination input item containing a number input field for the desired seat amount.
 	 */
 	private function createSeatsFormItem()
 	{
@@ -269,11 +275,10 @@ class ilRoomSharingSearchGUI
 	}
 
 	/**
-	 * Used to create form item for the date.
+	 * Creates the form item for the date input.
 	 */
 	private function createDateFormItem()
 	{
-		// Date
 		$date_comb = new ilCombinationInputGUI($this->lng->txt("date"), "date");
 		$date = new ilDateTimeInputGUI("", "date");
 
@@ -290,7 +295,7 @@ class ilRoomSharingSearchGUI
 	}
 
 	/**
-	 * Creates a time range form item which consists of an ilCombinationGUI containing two
+	 * Creates the time range form item which consists of an ilCombinationGUI containing two
 	 * customized ilDateTimeInputGUIs in the shape of an ilRoomSharingTimeInputGUI.
 	 */
 	private function createTimeRangeFormItem()
@@ -346,8 +351,7 @@ class ilRoomSharingSearchGUI
 	}
 
 	/**
-	 * If room attributes are present, display some input fields for the desired amount of those
-	 * attributes.
+	 * If room attributes are present, create the input items for the those attributes.
 	 */
 	private function createRoomAttributeFormItems()
 	{
