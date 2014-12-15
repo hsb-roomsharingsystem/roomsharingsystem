@@ -108,7 +108,7 @@ class ilRoomSharingBookGUI
 		$room_id = empty($this->room_id) ? $_POST['room_id'] : $this->room_id;
 		$this->room_id = $room_id;
 
-		$rooms = new ilRoomSharingRooms($this->poolID, new ilRoomsharingDatabase($this->poolID));
+		$rooms = new ilRoomSharingRooms($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 		return $rooms->getRoomName($room_id);
 	}
 
