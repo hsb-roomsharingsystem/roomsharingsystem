@@ -268,7 +268,7 @@ class ilRoomSharingPrivilegesGUI
 		$class_form = $this->createAddClassForm();
 		if ($class_form->checkInput())
 		{
-			$this->handleValidAddClassForm($class_form);
+			$this->evaluateAddClassFormEntries($class_form);
 		}
 		else
 		{
@@ -282,11 +282,32 @@ class ilRoomSharingPrivilegesGUI
 	 *
 	 * @param $a_class_form the class form for which the values should be saved.
 	 */
-	private function handleValidAddClassForm($a_class_form)
+	private function evaluateAddClassFormEntries($a_class_form)
 	{
 		$class_form_entries = $this->getClassFormEntries($a_class_form);
-		$this->saveFormEntries($class_form_entries);
-		$this->showPrivileges();
+		$class_name = $class_form_entries["name"];
+		if ($this->isClassNameAlreadyPresent($class_name))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_privileges_class_already_exists"), true);
+			$this->handleInvalidAddClassForm($a_class_form);
+		}
+		else
+		{
+			$this->saveFormEntries($class_form_entries);
+			$this->showPrivileges();
+		}
+	}
+
+	/**
+	 * Checks whether or not a given class name already exists for this pool.
+	 *
+	 * @param string $a_class_name the name of the class that needs to be checked
+	 * @return boolean true, if the name already exists; false otherwise
+	 */
+	private function isClassNameAlreadyPresent($a_class_name)
+	{
+		$all_class_names = $this->privileges->getClassNames();
+		return in_array($a_class_name, $all_class_names);
 	}
 
 	/**

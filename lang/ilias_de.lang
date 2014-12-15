@@ -116,6 +116,7 @@ plural_field_input_value_too_high_end#:#sind höher als der maximal verfügbare 
 pool#:#Roomsharingpool
 pools#:#Roomsharingpools
 privileges#:#Privilegien
+privileges_class_already_exists#:#Es existiert bereits eine Klasse mit dem gleichen Namen. Bitte wählen Sie einen anderen Klassennamen.
 privileges_class_edit#:#Klasse bearbeiten
 privileges_class_new#:#Neue Klasse anlegen
 privileges_class_not_available#:#Keine Klassen vorhanden

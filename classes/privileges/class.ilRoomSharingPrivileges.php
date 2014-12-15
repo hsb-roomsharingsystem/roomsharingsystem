@@ -203,6 +203,16 @@ class ilRoomSharingPrivileges
 	}
 
 	/**
+	 * Returns the names of all existing classes for this pool.
+	 *
+	 * @return array an array with class names
+	 */
+	public function getClassNames()
+	{
+		return $this->ilRoomsharingDatabase->getClassNames();
+	}
+
+	/**
 	 * Gets a specific class values by it's id
 	 *
 	 * @param integer $a_class_id Class-ID

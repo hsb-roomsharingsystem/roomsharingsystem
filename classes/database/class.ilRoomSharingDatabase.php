@@ -1151,6 +1151,23 @@ class ilRoomsharingDatabase
 	}
 
 	/**
+	 * Gets all class names for the pool-id.
+	 *
+	 * @return array Array which contains the class names.
+	 */
+	public function getClassNames()
+	{
+		$set = $this->ilDB->query('SELECT name FROM ' . dbc::CLASSES_TABLE .
+			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+		$class_names = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$class_names[] = $row['name'];
+		}
+		return $class_names;
+	}
+
+	/**
 	 * Gets a specific class
 	 *
 	 * @param integer $a_class_id Class-ID
