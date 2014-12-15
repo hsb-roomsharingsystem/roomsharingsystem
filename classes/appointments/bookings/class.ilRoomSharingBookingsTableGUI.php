@@ -115,11 +115,10 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	}
 
 	/**
-	 * Method that realizes the auto-completion for the participants list.
+	 * Method that realizes the auto-completion for the user filter.
 	 */
 	private function doUserAutoComplete()
 	{
-		echo 'autocomplete';
 		$search_fields = array("login", "firstname", "lastname", "email");
 		$result_field = "login";
 
