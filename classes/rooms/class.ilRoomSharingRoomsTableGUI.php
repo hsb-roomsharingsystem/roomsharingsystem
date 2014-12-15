@@ -89,34 +89,65 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	//für jedes Datum, welches generiert wird
 	public function getFilteredData(array $filter)
 	{
-		echo "<br>OriginalFilter:<br>";
+		//echo "<br>OriginalFilter:<br>";
 		print_r($filter);
-
-		switch (unserialize($filter['recurrence']['frequence']))
+		$time_from = $filter["time_from"];
+		$time_to = $filter["time_to"];
+		$date = $filter["date"];
+		$freq = unserialize($filter['recurrence']["frequence"]);
+		switch ($freq)
 		{
 			case "DAILY":
-				$data = $this->getDailyFilteredData($filter);
+				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
+				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
+				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
+				$data = $this->getDailyFilteredData($date, $time_from, $time_to, $repeat_type, $repeat_amount,
+					$repeat_until);
 				break;
 			case "WEEKLY":
-				$data = $this->getWeeklyFilteredData($filter);
+				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
+				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
+				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
+				$weekdays = unserialize($filter ["recurrence"]["weekdays"]);
+				$data = $this->getWeeklyFilteredData($date, $time_from, $time_to, $repeat_type, $repeat_amount,
+					$repeat_until, $weekdays);
 				break;
 			case "MONTHLY":
-				$data = $this->getMonthlyFilteredData($filter);
+				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
+				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
+				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
+				$start_type = unserialize($filter['recurrence']["start_type"]);
+				if ($start_type == "weekday")
+				{
+					$w1 = unserialize($filter['recurrence']["weekday_1"]);
+					$w2 = unserialize($filter['recurrence']["weekday_2"]);
+					// monatlich mit startwochentag
+					$data = $this->getMonthlyFilteredData1($date, $time_from, $time_to, $repeat_type,
+						$repeat_amount, $repeat_until, $start_type, $w1, $w2);
+				}
+				elseif ($start_type == "monthday")
+				{
+					// monatlich mit festem monatstag
+					$md = unserialize($filter['recurrence']["monthday"]);
+					$data = $this->getMonthlyFilteredData1($date, $time_from, $time_to, $repeat_type,
+						$repeat_amount, $repeat_until, $start_type, $md);
+				}
 				break;
 			default:
 				$data = $this->rooms->getList($filter);
 				break;
 		}
 
-		echo "<br><br>";
-		print_r($data);
+		//echo "<br>muh<br>";
+		//print_r($data);
 
 		return $data;
 	}
 
 	//Diese Funktion ist noch nicht fertig und diente nur zum Test der
 	//Tagesgenerator Funktionen für Monate
-	private function getMonthlyFilteredData(array $filter)
+	private function getMonthlyFilteredData(array
+	$filter)
 	{
 		$repeat_until = unserialize($filter['recurrence']['repeat_until']);
 		$rpt_amount = unserialize($filter['recurrence']['repeat_amount']);
@@ -130,50 +161,49 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 	// Diese Funktion ist noch nicht fertig und diente nur zum Test
 	// der Tagesgenerator Funktionen für Wochen
-	private function getWeeklyFilteredData(array $filter)
+	private function getWeeklyFilteredData($date, $time_from, $time_to, $repeat_type, $repeat_amount,
+		$repeat_until, $weekdays)
 	{
-		$repeat_until = unserialize($filter['recurrence']['repeat_until']);
-		$rpt_amount = unserialize($filter['recurrence']['repeat_amount']);
-		$weekdays = unserialize($filter['recurrence']['weekdays']);
-		$repeat_until = $repeat_until['date']['y'] . "-" . $repeat_until['date']['m'] . "-" . $repeat_until['date']['d'];
-		$this->book->generateWeeklyDaysWithEndDate($filter['date'], $repeat_until, $weekdays, $rpt_amount);
+		if ($a_repeat_type == "max_date")
+		{
+			$a_repeat_until = date('Y-m-d',
+				mktime(0, 0, 0, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
+					$a_repeat_until['date']['y']));
+			$this->book->generateWeeklyDaysWithEndDate($date, $time_from, $time_to, $repeat_type,
+				$repeat_amount, $repeat_until, $weekdays);
+		}
+		elseif ($a_repeat_type == "max_amount")
+		{
+			$days = $this->book->generateWeeklyDaysWithCount($date, $time_from, $time_to, $repeat_type,
+				$repeat_amount, $repeat_until, $weekdays);
+		}
 	}
 
 	//So kompliziert sieht derzeit die Funktion aus, wenn täglich gewählt ist
-	private function getDailyFilteredData(array $filter)
+	private function getDailyFilteredData($a_date, $a_time_from, $a_time_to, $a_repeat_type,
+		$a_repeat_amount, $a_repeat_until)
 	{
-		$datas = array();
-		$until_date = $this->createDateFormatBySerializedDate($filter['recurrence']['date_until']);
-		$until_count = unserialize($filter['recurrence']['repeat_until']);
-		if (unserialize($filter['recurrence']['repeat_type']) == "max_date" || isset($until_count))
+		if ($a_repeat_type == "max_date")
 		{
-			$days = $this->book->generateDailyDaysWithCount($filter['date'], $until_count);
-			foreach ($days as $day)
-			{
-				$filter['date'] = $day;
-				$datas[] = $this->rooms->getList($filter);
-			}
+			$a_repeat_until = date('Y-m-d',
+				mktime(0, 0, 0, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
+					$a_repeat_until['date']['y']));
+			echo $a_repeat_until;
+			$days = $this->book->generateDailyDaysWithEndDate($a_date, $a_repeat_until, $a_repeat_amount);
+//			foreach ($days as $day)
+//			{
+//				$filter['date'] = $day;
+//				$datas[] = $this->rooms->getList($filter);
+//			}
 		}
-		elseif (unserialize($filter['recurrence']['repeat_type']) == "max_amount")
+		elseif ($a_repeat_type == "max_amount")
 		{
-			$this->book->generateDailyDaysWithCount($filter['date'],
-				unserialize($filter['recurrence']['repeat_until']));
+			$days = $this->book->generateDailyDaysWithCount($a_date, $a_repeat_until, $a_repeat_amount);
 		}
 
-		$return_data = array();
-
-		//$datas beinhaltet an dieser Stelle alle Räume
-		//kannst bei bedarf ja mal echo'n oder print_r'n
-		//Jetzt muss irgendwie rausgefiltert werden,
-		//ob ein Raum wirklich an jedem Datum frei ist
-		//und das gespeichert werden, dadran arbeite ich noch
-		foreach ($datas as $data)
+		foreach ($days as $day)
 		{
-			foreach ($data as $available_room)
-			{
-//				echo "<br>";
-//				print_r($available_room);
-			}
+			echo "<br>" . $day;
 		}
 	}
 
@@ -240,15 +270,17 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $a_set ['room']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
-		$_SESSION['last_cmd'] = $this->parent_cmd;
+		$_SESSION[
+			'last_cmd'] = $this->parent_cmd;
 
 		// only display a booking form if a search was initialized beforehand
-		if ($this->parent_cmd === "showSearchResults")
+		if ($this->
+			parent_cmd === "showSearchResults ")
 		{
 			// if this class is used to display search results, the input made
 			// must be transported to the book form
-			$date = unserialize($_SESSION ["form_qsearchform"] ["date"]);
-			$time_from = unserialize($_SESSION ["form_qsearchform"] ["time_from"]);
+			$date = unserialize($_SESSION ["form_qsearchform "] ["  date  "]);
+			$time_from = unserialize($_SESSION [" form_qsearchform "] [" time_from"]);
 			$time_to = unserialize($_SESSION ["form_qsearchform"] ["time_to"]);
 			// infos of book series
 			$this->handleBookSeriesAttributes();
@@ -328,55 +360,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		return $filter;
 	}
 
-	public function handleBookSeriesAttributes()
-	{
-		echo "handle";
-		$freq = unserialize($_SESSION ["form_qsearchform"] ["frequence"]);
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'frequence', $freq);
-		switch ($freq)
-		{
-			case 'NONE':
-				break;
-			case 'DAILY':
-				$this->handleBookSeriesRepeatType();
-				break;
-			case 'WEEKLY':
-				$this->handleBookSeriesRepeatType();
-				$weekdays = unserialize($_SESSION ["form_qsearchform"] ["weekdays"]);
-				$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'weekdays', $weekdays);
-				break;
-			case 'MONTHLY':
-				$this->handleBookSeriesRepeatType();
-				$start_type = unserialize($_SESSION ["form_qsearchform"] ["start_type"]);
-				$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'start_type', $start_type);
-				if ($start_type == "weekday")
-				{
-					$w1 = unserialize($_SESSION ["form_qsearchform"] ["weekday_1"]);
-					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'weekday_1', $w1);
-					$w2 = unserialize($_SESSION ["form_qsearchform"] ["weekday_2"]);
-					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'weekday_2', $w2);
-				}
-				elseif ($start_type == "monthday")
-				{
-					$md = unserialize($_SESSION ["form_qsearchform"] ["monthday"]);
-					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'monthday', $md);
-				}
-				break;
-			default:
-				break;
-		}
-	}
-
-	private function handleBookSeriesRepeatType()
-	{
-		$repeat_amount = unserialize($_SESSION ["form_qsearchform"] ["repeat_amount"]);
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'repeat_amount', $repeat_amount);
-		$type = unserialize($_SESSION ["form_qsearchform"] ["repeat_type"]);
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'repeat_type', $type);
-		$repeat_until = unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]);
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'repeat_until', $repeat_until);
-	}
-
 	/**
 	 * Initialize a search filter for ilRoomSharingRoomsTableGUI.
 	 */
@@ -441,13 +424,16 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$seats_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["seats"] = $seats_comb->getValue();
 
-		$value = $_POST[$room_seats_input->getPostVar()];
+		$value = $_POST[$room_seats_input->getPostVar(
+		)];
 		if ($value !== "" && $value > $room_seats_input->getMaxValue())
 		{
-			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_needed_seats");
+			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_needed_seats  ");
 
-			if ($this->messagePlural == false && $this->messageNeeded == true)
+			if ($this
+				->messagePlural == false && $this->messageNeeded == true)
 			{
+
 				$this->messagePlural = true;
 			}
 			$this->messageNeeded = true;
@@ -460,16 +446,20 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	 */
 	protected function createRoomAttributeFormItem()
 	{
-		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
-		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-			"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
+		include_once ("
+		./Services/Form / classes / class. ilCombinationInputGUI. php");
+		include_once (".  /Customizing/
+		global/plugins/Services / Repository/ RepositoryObject/ " .
+			"RoomSharing/classes/  utils/class.ilRoomSharingNumberInputGUI.php");
+
 		$room_attributes = $this->rooms->getAllAttributes();
 		foreach ($room_attributes as $room_attribute)
 		{
 			// setup an ilCombinationInputGUI for the room attributes
-			$room_attribute_comb = new ilCombinationInputGUI($room_attribute, "attribute_" . $room_attribute);
-			$room_attribute_input = new ilRoomSharingNumberInputGUI("",
-				"attribute_" . $room_attribute . "_amount");
+			$room_attribute_comb = new ilCombinationInputGUI($room_attribute
+				, "attribute_" . $room_attribute);
+			$room_attribute_input = new ilRoomSharingNumberInputGUI("
+			", "attribute_" . $room_attribute . "_amount");
 			$room_attribute_input->setMaxLength(8);
 			$room_attribute_input->setSize(8);
 			$room_attribute_input->setMinValue(0);
@@ -525,7 +515,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				$msg = $msg . ' "' . $this->message;
 				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_end');
 			}
-			ilUtil::sendInfo($msg);
+			ilUtil::sendInfo($msg
+			);
 		}
 	}
 

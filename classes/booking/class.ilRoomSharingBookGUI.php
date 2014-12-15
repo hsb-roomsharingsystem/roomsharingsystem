@@ -212,7 +212,7 @@ class ilRoomSharingBookGUI
 
 	private function getRecurrenceFromSession()
 	{
-		$rec = new ilCalendarRecurrence();
+		$rec = new ilEventRecurrence();
 		$fre = unserialize($_SESSION ["form_qsearchform"] ["frequence"]);
 		$rec->setFrequenceType($fre);
 		//echo nl2br(print_r($_SESSION, true));
@@ -233,7 +233,7 @@ class ilRoomSharingBookGUI
 				$rec->setBYDAY(implode(",", $d));
 				break;
 			case "MONTHLY":
-				echo "hi";
+				echo "<br>";
 				$start_type = unserialize($_SESSION ["form_qsearchform"] ["start_type"]);
 				if ($start_type == "weekday")
 				{
@@ -241,8 +241,10 @@ class ilRoomSharingBookGUI
 					$w2 = unserialize($_SESSION ["form_qsearchform"] ["weekday_2"]);
 					echo $w1;
 					echo $w2;
-					$rec->setBYSETPOS(4);
-					$rec->setBYDAY("SU");
+					//$rec->set
+
+					$rec->setBYSETPOS((int) $w1);
+					$rec->setBYDAY($w2);
 				}
 				elseif ($start_type == "monthday")
 				{
@@ -261,8 +263,21 @@ class ilRoomSharingBookGUI
 		elseif ($repeat_type == "max_date")
 		{
 			$date = unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]);
-			$f2 = $date["date"][y] . "-" . $date["date"][m] . "-" . $date["date"][d] . " 00:00:00";
-			$rec->setFrequenceUntilDate(new ilDateTime($f2, IL_CAL_DATETIME));
+			print_r($date);
+			$date2 = date('Y-m-d H:i:s', mktime(0, 0, 0, $date['m'], $date['d'], $date['Y']));
+			$day = $date["date"] [d];
+			if (strlen($day) == 1)
+			{
+				$day = "0" . $day;
+			}
+			$month = $date["date"] [m];
+			if (strlen($month) == 1)
+			{
+				$month = "0" . $month;
+			}
+
+			$f2 = $date["date"] [y] . "-" . $month . "-" . $day . " 00:00:00";
+			$rec->setFrequenceUntilDate(new ilDateTime($date2, IL_CAL_DATETIME));
 		}
 		return $rec;
 	}

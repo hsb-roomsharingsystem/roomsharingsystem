@@ -68,15 +68,15 @@ class ilRoomSharingBook
 
 	// Diese Methode dient dazu, die Tage in täglichem Abstand zu generieren
 	// bis zu einem Endtermin
-	public function generateDailyDaysWithEndDate($a_startday, $a_untilday)
+	public function generateDailyDaysWithEndDate($a_startday, $a_untilday, $a_every_x_days)
 	{
 		$days = array($a_startday);
 		if ($a_startday < $a_untilday)
 		{
 			$nextday = $a_startday;
-			while ($nextday != $until)
+			while ($nextday != $a_untilday)
 			{
-				$nextday = date('Y-m-d', strtotime($nextday . ' + 1 day'));
+				$nextday = date('Y-m-d', strtotime($nextday . ' + ' . $a_every_x_days . ' day'));
 				$days[] = $nextday;
 			}
 			$days[] = $until;
@@ -86,7 +86,7 @@ class ilRoomSharingBook
 
 	// Diese Methode dient dazu, die Tage in täglichem Abstand zu generieren
 	// bei einer festen Anzahl an Wiederholungen
-	public function generateDailyDaysWithCount($a_startday, $a_count)
+	public function generateDailyDaysWithCount($a_startday, $a_count, $a_every_x_days)
 	{
 		$days = array($a_startday);
 		if (ilRoomSharingNumericUtils::isPositiveNumber($a_count))
@@ -94,7 +94,7 @@ class ilRoomSharingBook
 			$nextday = $a_startday;
 			for ($i = 0; $i < $a_count; $i++)
 			{
-				$nextday = date('Y-m-d', strtotime($nextday . ' + 1 day'));
+				$nextday = date('Y-m-d', strtotime($nextday . ' + ' . $a_every_x_days . '  day'));
 				$days[] = $nextday;
 			}
 		}

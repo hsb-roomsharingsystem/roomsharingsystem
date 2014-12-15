@@ -636,7 +636,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	public function book()
 	{
-		echo 'lastcmd ' . $_SESSION['last_cmd'];
+		//echo 'lastcmd ' . $_SESSION['last_cmd'];
 		$this->tabs_gui->clearTargets();
 		$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 		$bs = $this->handleBookSeries();
