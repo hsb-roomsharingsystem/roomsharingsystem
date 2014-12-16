@@ -16,7 +16,7 @@ use ilRoomSharingDBConstants as dbc;
 class ilRoomsharingDatabase
 {
 	private $pool_id;
-	protected $ilDB;
+	private $ilDB;
 
 	/**
 	 * constructor ilRoomsharingDatabase
@@ -230,10 +230,12 @@ class ilRoomsharingDatabase
 	 * @param string $a_time_from format: HH:mm:ss
 	 * @param string $a_time_to format: HH:mm:ss
 	 * @param array $a_date dates to search format: YYYY-MM-DD
-	 * @param integer $a_room_id
+	 * @param integer $a_room_id optional
+	 * @param integer $a_min_seats optional
 	 * @return array integer ids of free rooms
 	 */
-	public function getFreeRooms($a_time_from, $a_time_to, array $a_date, $a_room_id = null)
+	public function getFreeRooms($a_time_from, $a_time_to, array $a_date, $a_room_id = null,
+		$a_min_seats = null)
 	{
 		if (empty($a_date))
 		{
@@ -243,8 +245,7 @@ class ilRoomsharingDatabase
 
 		if ($a_room_id)
 		{
-			$roomQuery = ' room_id = ' .
-				$this->ilDB->quote($a_room_id, 'integer') . ' AND ';
+			$roomQuery = ' room_id = ' . $this->ilDB->quote($a_room_id, 'integer') . ' AND ';
 			$all_room_ids = array();
 			$all_room_ids[] = $a_room_id;
 		}
@@ -254,22 +255,26 @@ class ilRoomsharingDatabase
 			$all_room_ids = $this->getAllRoomIds();
 		}
 
-		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE .
-			' WHERE pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') .
-			' AND ' . $roomQuery . ' (';
+		if ($a_min_seats)
+		{
+			$all_room_ids = $this->getAllRoomIdsWhereSeatsAvailable($a_min_seats);
+		}
+
+		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE . ' WHERE pool_id =' .
+			$this->ilDB->quote($this->pool_id, 'integer') . ' AND ' . $roomQuery . ' (';
 
 		foreach ($a_date as $date)
 		{
 			$a_date_from = $date . ' ' . $a_time_from;
 			$a_date_to = $date . ' ' . $a_time_to;
 
-			$query.= ' (' . $this->ilDB->quote($a_date_from, 'timestamp') .
+			$query .= ' (' . $this->ilDB->quote($a_date_from, 'timestamp') .
 				' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_date_to, 'timestamp') .
 				' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
-				$this->ilDB->quote($a_date_from, 'timestamp') . ' AND ' . $this->ilDB->quote($a_date_to,
-					'timestamp') .
-				' OR date_to BETWEEN ' . $this->ilDB->quote($a_date_from, 'timestamp') .
-				' AND ' . $this->ilDB->quote($a_date_to, 'timestamp') . ') OR';
+				$this->ilDB->quote($a_date_from, 'timestamp') . ' AND ' .
+				$this->ilDB->quote($a_date_to, 'timestamp') . ' OR date_to BETWEEN '
+				. $this->ilDB->quote($a_date_from, 'timestamp') . ' AND ' .
+				$this->ilDB->quote($a_date_to, 'timestamp') . ') OR';
 		}
 
 		$query = substr($query, 0, -2);
@@ -296,6 +301,25 @@ class ilRoomsharingDatabase
 		}
 
 		return $res_room;
+	}
+
+	/**
+	 * Gets all room ids where enough seats are available.
+	 *
+	 * @param integer $a_min_seats number of seats needed
+	 * @return array of integer room ids
+	 */
+	public function getAllRoomIdsWhereSeatsAvailable($a_min_seats)
+	{
+		$resRoomIds = $this->ilDB->query('SELECT id FROM ' . dbc::ROOMS_TABLE . ' WHERE pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer') . ' AND max_alloc >= ' .
+			$this->ilDB->quote($a_min_seats, 'integer'));
+		$room_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($resRoomIds))
+		{
+			$room_ids[] = $row['id'];
+		}
+		return $room_ids;
 	}
 
 	/**
