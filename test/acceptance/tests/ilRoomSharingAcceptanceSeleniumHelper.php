@@ -18,8 +18,58 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	}
 
 	/**
+	 * Createa a new bookingattribute
+	 * @param string $name
+	 */
+	public function createBookingAttribute($name)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute für Buchungen'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('radio_action_mode_create_attribute'))->click();
+		//Create
+		$this->webDriver->findElement(WebDriverBy::id('new_attribute_name'))->sendKeys($name);
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[executeBookingAttributeAction]'))->click();
+	}
+
+	/**
+	 * Changes a given bookingattribute into a new name
+	 * @param string $old_name
+	 * @param string $new_name
+	 */
+	public function changeBookingAttribute($old_name, $new_name)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute für Buchungen'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('radio_action_mode_rename_attribute'))->click();
+		//Change
+		$this->webDriver->findElement(WebDriverBy::id('rename_attribute_id'))->sendKeys($old_name);
+		$this->webDriver->findElement(WebDriverBy::id('changed_attribute_name'))->sendKeys($new_name);
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[executeBookingAttributeAction]'))->click();
+	}
+
+	/**
+	 * Deletes a booking attribute
+	 * @param string $name
+	 */
+	public function deleteBookingAttribute($name)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute für Buchungen'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('radio_action_mode_delete_attribute'))->click();
+		//Delete
+		$this->webDriver->findElement(WebDriverBy::id('del_attribute_id'))->sendKeys($name);
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[executeBookingAttributeAction]'))->click();
+	}
+
+	/**
 	 * Createa a new roomattribute
-	 * @param type $name
+	 * @param string $name
 	 */
 	public function createRoomAttribute($name)
 	{
@@ -28,6 +78,38 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::id('radio_action_mode_create_attribute'))->click();
 		//Create
 		$this->webDriver->findElement(WebDriverBy::id('new_attribute_name'))->sendKeys($name);
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[executeRoomAttributeAction]'))->click();
+	}
+
+	/**
+	 * Changes a given roomattribute into a new name
+	 * @param string $old_name
+	 * @param string $new_name
+	 */
+	public function changeRoomAttribute($old_name, $new_name)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('radio_action_mode_rename_attribute'))->click();
+		//Change
+		$this->webDriver->findElement(WebDriverBy::id('rename_attribute_id'))->sendKeys($old_name);
+		$this->webDriver->findElement(WebDriverBy::id('changed_attribute_name'))->sendKeys($new_name);
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[executeRoomAttributeAction]'))->click();
+	}
+
+	/**
+	 * Deletes a room attribute
+	 * @param string $name
+	 */
+	public function deleteRoomAttribute($name)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Attribute'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('radio_action_mode_delete_attribute'))->click();
+		//Delete
+		$this->webDriver->findElement(WebDriverBy::id('del_attribute_id'))->sendKeys($name);
 		//Submit
 		$this->webDriver->findElement(WebDriverBy::name('cmd[executeRoomAttributeAction]'))->click();
 	}
@@ -336,10 +418,11 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	 * @param string $comment	Comment
 	 * @param bool $public		Tick "Booking is public"
 	 * @param array $participants List of Participants (Must be User Names)
+	 * @param array $booking_attributes List of booking attributes that shoud be used as NAME => TEXT
 	 */
 	public function doABooking($subject, $f_day, $f_month, $f_year, $f_hour, $f_minute, $t_day,
 		$t_month, $t_year, $t_hour, $t_minute, $acc, $comment = "", $public = false,
-		array $participants = array())
+		array $participants = array(), array $booking_attributes = array())
 	{
 		$this->webDriver->findElement(WebDriverBy::id('subject'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('subject'))->sendKeys($subject);
@@ -371,6 +454,13 @@ class ilRoomSharingAcceptanceSeleniumHelper
 			$this->webDriver->findElement(WebDriverBy::id('ilMultiAdd~participants~0'))->click();
 			$this->webDriver->findElement(WebDriverBy::id('participants~' . $num))->sendKeys($participant);
 		}
+
+		foreach ($booking_attributes as $name => $attribute)
+		{
+			$field = $this->webDriver->findElement(WebDriverBy::xpath("//label[text()='" . $name . "']"))->getAttribute('for');
+			$this->webDriver->findElement(WebDriverBy::id($field))->sendKeys($attribute);
+		}
+
 		$this->webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 	}
 
