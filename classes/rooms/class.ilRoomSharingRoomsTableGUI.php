@@ -446,11 +446,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	 */
 	protected function createRoomAttributeFormItem()
 	{
-		include_once ("
-		./Services/Form / classes / class. ilCombinationInputGUI. php");
-		include_once (".  /Customizing/
-		global/plugins/Services / Repository/ RepositoryObject/ " .
-			"RoomSharing/classes/  utils/class.ilRoomSharingNumberInputGUI.php");
+		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
+		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+			"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 
 		$room_attributes = $this->rooms->getAllAttributes();
 		foreach ($room_attributes as $room_attribute)
