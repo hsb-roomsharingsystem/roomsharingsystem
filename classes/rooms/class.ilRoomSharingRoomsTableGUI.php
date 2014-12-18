@@ -146,17 +146,37 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 	//Diese Funktion ist noch nicht fertig und diente nur zum Test der
 	//Tagesgenerator Funktionen für Monate
-	private function getMonthlyFilteredData(array
-	$filter)
+	private function getMonthlyFilteredData($a_date, $a_min_seats, $a_time_from, $a_time_to,
+		$a_repeat_type, $a_repeat_amount, $a_repeat_until, $a_start_type, $a_monthday, $a_weekday_1,
+		$a_weekday_2);
 	{
-		$repeat_until = unserialize($filter['recurrence']['repeat_until']);
-		$rpt_amount = unserialize($filter['recurrence']['repeat_amount']);
-		$weekday_1 = unserialize($filter['recurrence']['weekday_1']);
-		$weekday_2 = unserialize($filter['recurrence']['weekday_2']);
-
-		$repeat_until = $repeat_until['date']['y'] . "-" . $repeat_until['date']['m'] . "-" . $repeat_until['date']['d'];
-		$this->book->generateMonthlyDaysAtVariableDateWithCount($filter['date'], $weekday_1, $weekday_2,
-			$repeat_until, $rpt_amount);
+		$days = array();
+		if ($a_start_type == "weekday")
+		{
+			if ($a_repeat_type == "max_date")
+			{
+				$days = $this->book->generateMonthlyDaysAtVariableDateWithEndDate($a_date, $a_weekday_1,
+					$a_weekday_2, $a_repeat_until, $a_repeat_amount);
+			}
+			elseif ($a_repeat_type == "max_amount")
+			{
+				$days = $this->book->generateMonthlyDaysAtVariableDateWithCount($a_date, $a_weekday_1,
+					$a_weekday_2, $a_repeat_until, $a_repeat_amount);
+			}
+		}
+		elseif ($a_start_type == "monthday")
+		{
+			if ($a_repeat_type == "max_date")
+			{
+				$days = $this->book->generateMonthlyDaysAtFixedDateWithEndDate($a_date, $a_monthday,
+					$a_repeat_until, $a_repeat_amount);
+			}
+			elseif ($a_repeat_type == "max_amount")
+			{
+				$days = $this->book->generateMonthlyDaysAtFixedDateWithCount($a_date, $a_monthday,
+					$a_repeat_until, $a_repeat_amount);
+			}
+		}
 	}
 
 	// Diese Funktion ist noch nicht fertig und diente nur zum Test
@@ -169,7 +189,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			$a_repeat_until = date('Y-m-d',
 				mktime(0, 0, 0, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
 					$a_repeat_until['date']['y']));
-			$this->book->generateWeeklyDaysWithEndDate($date, $time_from, $time_to, $repeat_type,
+			$days = $this->book->generateWeeklyDaysWithEndDate($date, $time_from, $time_to, $repeat_type,
 				$repeat_amount, $repeat_until, $weekdays);
 		}
 		elseif ($a_repeat_type == "max_amount")

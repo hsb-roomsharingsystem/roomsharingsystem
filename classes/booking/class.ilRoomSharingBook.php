@@ -74,10 +74,12 @@ class ilRoomSharingBook
 		if ($a_startday < $a_untilday)
 		{
 			$nextday = $a_startday;
-			while ($nextday != $a_untilday)
+			$i = 0;
+			while ($nextday != $a_untilday && $i < 2000)
 			{
 				$nextday = date('Y-m-d', strtotime($nextday . ' + ' . $a_every_x_days . ' day'));
 				$days[] = $nextday;
+				$i++;
 			}
 			$days[] = $until;
 		}
@@ -132,6 +134,7 @@ class ilRoomSharingBook
 		$startday = $a_startday;
 		//Packe den Starttag als Start in das Array, sonst würde er verloren gehen
 		$days = array($startday);
+		$i = 0;
 		while (true)
 		{
 			//Ausgewählte Wochentage für die Woche, in der $startday ist werden
@@ -146,7 +149,7 @@ class ilRoomSharingBook
 
 			//Wiederholung beenden, wenn das neue Wochendatum
 			//größer als das gewählte Enddatum ist
-			if ($startday > $a_enddate)
+			if ($startday > $a_enddate || $i++ > 2000)
 			{
 				break;
 			}
@@ -189,8 +192,9 @@ class ilRoomSharingBook
 			$days[] = date('Y-m-d',
 				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
 
-			//Fifth day of january 2015 z.B. geht nicht! Nur last day of..
-			//da muss noch ne Lösung her!
+			$days = $this->convertSelectedDayOfMonthWithoutStrtotime($days, $each_day_name, $variable_name,
+				$monthname_with_year_of_startday);
+
 			//Für die nächste Wiederholung X Monate vorspringen
 			//Abhängig von Auswahl bei "Alle X Monate"
 			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
@@ -209,7 +213,8 @@ class ilRoomSharingBook
 		$each_day_name = $this->getFullDayNameByShortName($a_each_day);
 
 		$days = array();
-		//Solange durchlaufen, wie Wiederholungen vorhanden sind
+
+		$i = 0;
 		while (true)
 		{
 			$monthname_with_year_of_startday = date("F Y", strtotime($startday));
@@ -221,13 +226,14 @@ class ilRoomSharingBook
 			$days[] = date('Y-m-d',
 				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
 
-			//Fifth day of january 2015 z.B. geht nicht! Nur last day of..
-			//da muss noch ne Lösung her!
+			$days = $this->convertSelectedDayOfMonthWithoutStrtotime($days, $each_day_name, $variable_name,
+				$monthname_with_year_of_startday);
+
 			//Für die nächste Wiederholung X Monate vorspringen
 			//Abhängig von Auswahl bei "Alle X Monate"
 			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
 
-			if ($startday > $a_enddate)
+			if ($startday > $a_enddate || $i++ > 500)
 			{
 				break;
 			}
@@ -245,6 +251,131 @@ class ilRoomSharingBook
 			}
 		}
 		return $return_days;
+	}
+
+	// Diese Methode dient dazu, die Tage in monatlichen Abstand zu generieren
+	// bei einer festen Anzahl an Wiederholungen
+	public function generateMonthlyDaysAtFixedDateWithCount($a_startday, $a_monthday, $a_count,
+		$a_every_x_months)
+	{
+		$startday = $a_startday;
+		$day_of_startday = date("d", strtotime($startday));
+		//Is the startday in the future? Then skip the month of the startday!
+		if ($day_of_startday > $a_monthday)
+		{
+			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+		}
+
+		$days = array();
+		for ($i = 0; $i < $a_count; $i++)
+		{
+			$startmonth = date('m', strtotime($startday));
+			$startyear = date('m', strtotime($startday));
+			if (checkdate($startmonth, $a_monthday, $startyear))
+			{
+				$days[] = $startyear . "-" . $startmonth . "-" . $a_monthday;
+			}
+			else
+			{
+				//If the day is not valid (e.g. 31 February), what to do?
+			}
+
+			//Set the startday to the next X month (depending on user choice)
+			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+		}
+
+		return $days;
+	}
+
+	// Diese Methode dient dazu, die Tage in monatlichen Abstand zu generieren
+	// bei einer festen Anzahl an Wiederholungen
+	public function generateMonthlyDaysAtFixedDateWithEndDate($a_startday, $a_monthday, $a_enddate,
+		$a_every_x_months)
+	{
+		$startday = $a_startday;
+		$day_of_startday = date("d", strtotime($startday));
+		//Is the startday in the future? Then skip the month of the startday!
+		if ($day_of_startday > $a_monthday)
+		{
+			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+		}
+
+		$days = array();
+		$i = 0;
+		while (true)
+		{
+			$startmonth = date('m', strtotime($startday));
+			$startyear = date('m', strtotime($startday));
+			if (checkdate($startmonth, $a_monthday, $startyear))
+			{
+				$days[] = $startyear . "-" . $startmonth . "-" . $a_monthday;
+			}
+			else
+			{
+				//If the day is not valid (e.g. 31 February), what to do?
+			}
+
+			//Set the startday to the next X month (depending on user choice)
+			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+
+			if ($startday > $a_enddate || $i++ > 500)
+			{
+				break;
+			}
+		}
+
+		$return_days = array();
+
+		//Es kann noch sein, dass ein paar Termine über dem Enddatum liegen
+		//die werden dann nochmal gefiltert
+		for ($i = 0; $i < count($days); $i++)
+		{
+			if ($days[$i] <= $a_enddate)
+			{
+				$return_days[] = $days[$i];
+			}
+		}
+		return $return_days;
+
+		return $days;
+	}
+
+	private function convertSelectedDayOfMonthWithoutStrtotime($a_days, $a_each_day_name,
+		$a_variable_name, $a_monthname_with_year)
+	{
+		$days = $a_days;
+		if ($a_each_day_name == "Day")
+		{
+			switch ($a_variable_name)
+			{
+				case "first":
+					array_pop($days);
+					$month_year = date('Y-m', strtotime($a_monthname_with_year));
+					$days[] = $month_year . "-1";
+					break;
+				case "second":
+					array_pop($days);
+					$month_year = date('Y-m', strtotime($a_monthname_with_year));
+					$days[] = $month_year . "-2";
+					break;
+				case "third":
+					array_pop($days);
+					$month_year = date('Y-m', strtotime($a_monthname_with_year));
+					$days[] = $month_year . "-3";
+					break;
+				case "fourth":
+					array_pop($days);
+					$month_year = date('Y-m', strtotime($a_monthname_with_year));
+					$days[] = $month_year . "-4";
+					break;
+				case "fifth":
+					array_pop($days);
+					$month_year = date('Y-m', strtotime($a_monthname_with_year));
+					$days[] = $month_year . "-5";
+					break;
+			}
+		}
+		return $days;
 	}
 
 	// Diese Methode wandelt die Keys für z.B. "ersten" oder "letzten"
