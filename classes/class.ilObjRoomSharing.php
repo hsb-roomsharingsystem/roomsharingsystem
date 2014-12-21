@@ -1,9 +1,10 @@
 <?php
 
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
-include_once("./Services/Repository/classes/class.ilObjectPlugin.php");
-include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+require_once("./Services/Repository/classes/class.ilObjectPlugin.php");
+require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+require_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPoolsHelper.php");
 
 /**
  * Mainclass for roomsharing system module. Pool id is the object id
@@ -17,8 +18,8 @@ include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
  */
 class ilObjRoomSharing extends ilObjectPlugin
 {
-	protected $ilDB;
-	protected $pool_id;
+	private $ilDB;
+	private $pool_id;
 	protected $online;
 	protected $max_book_time;
 	/* File id of the rooms agreement */
@@ -30,7 +31,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 * @access	public
 	 * @param integer $a_ref_id
 	 */
-	function __construct($a_ref_id = 0)
+	public function __construct($a_ref_id = 0)
 	{
 		global $ilDB; // needed for db-creation
 		$this->ilDB = $ilDB;
@@ -42,7 +43,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	/**
 	 * Get type.
 	 */
-	final function initType()
+	public final function initType()
 	{
 		$this->setType("xrs");
 	}
@@ -120,9 +121,7 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 */
 	protected function doDelete()
 	{
-		//		$id = $this->getId();
-		// always call parent delete function first
-		// example - delete old db data
+		ilRoomSharingPoolsHelper::deletePool($this);
 		return true;
 	}
 
@@ -135,22 +134,22 @@ class ilObjRoomSharing extends ilObjectPlugin
 	 */
 	protected function doCloneObject($new_obj, $a_target_id, $a_copy_id = null)
 	{
-		$new_obj->setOnline($this->isOnline());
-		$new_obj->setMaxBookTime($this->getMaxBookTime());
+		ilRoomSharingPoolsHelper::clonePool($this, $new_obj);
 	}
 
 	/**
-	 * Check object status
+	 * Check status of an room sahring pool.
 	 *
-	 * @param int $a_obj_id
-	 * @return boolean
+	 * @param int $a_pool_id
+	 * @return boolean true if its online
 	 */
-	public static function _lookupOnline($a_obj_id)
+	public static function _lookupOnline($a_pool_id)
 	{
-		$set = $this->ilDB->query("SELECT pool_online" .
+		global $ilDB;
+		$set = $ilDB->query("SELECT pool_online" .
 			" FROM rep_robj_xrs_pools" .
-			" WHERE id = " . $this->ilDB->quote($a_obj_id, "integer"));
-		$row = $this->ilDB->fetchAssoc($set);
+			" WHERE id = " . $ilDB->quote($a_pool_id, "integer"));
+		$row = $ilDB->fetchAssoc($set);
 		return (bool) $row["pool_online"];
 	}
 
@@ -192,26 +191,6 @@ class ilObjRoomSharing extends ilObjectPlugin
 	public function setMaxBookTime($a_max_book_time)
 	{
 		$this->max_book_time = $a_max_book_time;
-	}
-
-	/**
-	 * Returns roomsharing pool id.
-	 *
-	 * @return int pool id
-	 */
-	public function getPoolId()
-	{
-		return 1;
-	}
-
-	/**
-	 * Sets roomsharing pool id.
-	 *
-	 * @param integer $a_pool_id current pool id.
-	 */
-	public function setPoolId($a_pool_id)
-	{
-		$this->pool_id = $a_pool_id;
 	}
 
 	/**
@@ -267,13 +246,34 @@ class ilObjRoomSharing extends ilObjectPlugin
 
 		$media_item = new ilMediaItem();
 		$mediaObj->addMediaItem($media_item);
-		$media_item->setPurpose("Agreement");
+		$media_item->setPurpose("Standard");
 		$media_item->setFormat($format);
 		$media_item->setLocation($file_name_mod);
 		$media_item->setLocationType("LocalFile");
 		$mediaObj->update();
 
 		return $mediaObj->getId();
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

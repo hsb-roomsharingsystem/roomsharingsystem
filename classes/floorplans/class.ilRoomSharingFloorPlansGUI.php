@@ -1,5 +1,16 @@
 <?php
 
+require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+require_once("Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
+require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlans.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlansTableGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
+
 /**
  * Class ilRoomSharingFloorPlansGUI
  *
@@ -8,12 +19,25 @@
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  * @author Thomas Wolscht <t.wolscht@googlemail.com>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
+ * @property ilCtrl $ctrl;
+ * @property ilLanguage $lng
+ * @property ilTemplate $tpl
+ * @property ilTabsGUI $tabs
+ * @property ilRoomSharingPermissionUtils $permission
+ *
  * @version $Id$
  */
 class ilRoomSharingFloorPlansGUI
 {
 	protected $ref_id;
-	protected $pool_id;
+	private $pool_id;
+	private $permission;
+	private $ctrl;
+	private $lng;
+	private $tpl;
+	private $tabs;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlansGUI.
@@ -21,13 +45,15 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function __construct(ilObjRoomSharingGUI $a_parent_obj)
 	{
-		global $ilCtrl, $lng, $tpl;
+		global $ilCtrl, $lng, $tpl, $ilTabs, $rssPermission;
 
 		$this->ref_id = $a_parent_obj->ref_id;
 		$this->pool_id = $a_parent_obj->getPoolId();
+		$this->permission = $rssPermission;
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
+		$this->tabs = $ilTabs;
 	}
 
 	/**
@@ -60,19 +86,21 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function renderObject()
 	{
-		global $ilAccess;
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 
 		// floor plans only addable by users with write permissions
-		if ($ilAccess->checkAccess('write', '', $this->ref_id))
+		if ($this->permission->checkPrivilege(PRIVC::ADD_FLOORPLANS))
 		{
-			include_once 'Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php';
 			$bar = new ilToolbarGUI();
 			$bar->addButton($this->lng->txt('rep_robj_xrs_floor_plans_add'),
 				$this->ctrl->getLinkTarget($this, 'create'));
 			$bar_content = $bar->getHTML();
 		}
-		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/'
-			. 'classes/floorplans/class.ilRoomSharingFloorPlansTableGUI.php';
 		$table = new ilRoomSharingFloorPlansTableGUI($this, 'render', $this->ref_id);
 		$this->tpl->setContent($bar_content . $table->getHTML());
 	}
@@ -87,7 +115,6 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function initForm($a_mode = "create", $a_file_id = NULL)
 	{
-		include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form_gui = null;   // form initialization
 		// create a form depending on the mode
 		if ($a_mode === "create")
@@ -152,11 +179,9 @@ class ilRoomSharingFloorPlansGUI
 		$edit_form->addItem($radg);
 
 		// look for floor plan infos and set the input entries accordingly
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing"
-			. "/classes/floorplans/class.ilRoomSharingFloorPlans.php");
 		$fplan = new ilRoomSharingFloorPlans($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 		$fplaninfo = $fplan->getFloorPlanInfo($a_file_id);
-		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+
 		if ($fplaninfo)
 		{
 			$mobj = new ilObjMediaObject($fplaninfo[0]["file_id"]);
@@ -216,7 +241,7 @@ class ilRoomSharingFloorPlansGUI
 	 * an option for either keeping or replacing the current floor plan. If the
 	 * current floor plan should be replaced, a file input field will be
 	 * displayed.
-	 * @return \ilRadioGroupInputGUI the radio input group
+	 * @return ilRadioGroupInputGUI the radio input group
 	 */
 	protected function createRadioGroupInputFormItem()
 	{
@@ -238,12 +263,17 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function createObject()
 	{
-		global $ilCtrl, $tpl, $lng, $ilTabs;
-		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($lng->txt('rep_robj_xrs_back_to_list'),
-			$ilCtrl->getLinkTarget($this, 'render'));
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
+			$this->ctrl->getLinkTarget($this, 'render'));
 		$form = $this->initForm();
-		$tpl->setContent($form->getHTML());
+		$this->tpl->setContent($form->getHTML());
 	}
 
 	/**
@@ -252,11 +282,15 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function saveObject()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$form = $this->initForm();
 		if ($form->checkInput()) // is everything fine with the inputs?
 		{
-			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject"
-				. "/RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlans.php");
 			$fplan = new ilRoomSharingFloorPlans($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");
@@ -285,15 +319,19 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function confirmDeleteObject()
 	{
-		global $ilTabs;
-		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
+		if (!$this->permission->checkPrivilege(PRIVC::DELETE_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
 			$this->ctrl->getLinkTarget($this, 'render'));
-		include_once("./Services/Utilities/classes/class.ilConfirmationGUI.php");
+
 		$cgui = new ilConfirmationGUI();
 		$cgui->setFormAction($this->ctrl->getFormAction($this));
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing"
-			. "/classes/floorplans/class.ilRoomSharingFloorPlans.php");
+
 		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id,
 			new ilRoomsharingDatabase($this->pool_id));
 
@@ -319,7 +357,6 @@ class ilRoomSharingFloorPlansGUI
 		$cgui->setConfirm($this->lng->txt("delete"), "removeFloorplan");
 
 		// the table which includes the thumbnail picture and the title
-		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 		$mobj = new ilObjMediaObject((int) $_GET['file_id']);
 		$med = $mobj->getMediaItem("Standard");
 		$target = $med->getThumbnailTarget();
@@ -333,8 +370,12 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function removeFloorplanObject()
 	{
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/"
-			. "classes/floorplans/class.ilRoomSharingFloorPlans.php");
+		if (!$this->permission->checkPrivilege(PRIVC::DELETE_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id,
 			new ilRoomsharingDatabase($this->pool_id));
 		$result = $fplan->deleteFloorPlan((int) $_POST['file_id']);
@@ -358,10 +399,15 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function editFloorplanObject()
 	{
-		global $ilTabs;
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 
-		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
 			$this->ctrl->getLinkTarget($this, 'render'));
 		$fid = (int) $_GET['file_id'];
 		$form = $this->initForm($a_mode = "edit", $fid);
@@ -376,12 +422,16 @@ class ilRoomSharingFloorPlansGUI
 	 */
 	public function updateObject()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$file_id = (int) $_POST['file_id'];
 		$form = $this->initForm($a_mode = "edit", $file_id);
 		if ($form->checkInput()) // make you sure the input is correctF
 		{
-			include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/"
-				. "RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlans.php");
 			$fplan = new ilRoomSharingFloorPlans($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");

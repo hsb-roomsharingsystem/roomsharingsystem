@@ -8,7 +8,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
 require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/User/classes/class.ilUserAutoComplete.php");
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
  * Class ilRoomSharingBookGUI
@@ -108,7 +108,7 @@ class ilRoomSharingBookGUI
 		$room_id = empty($this->room_id) ? $_POST['room_id'] : $this->room_id;
 		$this->room_id = $room_id;
 
-		$rooms = new ilRoomSharingRooms($this->poolID, new ilRoomsharingDatabase($this->poolID));
+		$rooms = new ilRoomSharingRooms($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 		return $rooms->getRoomName($room_id);
 	}
 
@@ -162,8 +162,7 @@ class ilRoomSharingBookGUI
 
 	private function getBookingAttributes()
 	{
-		$ilBookings = new ilRoomSharingBookings();
-		$ilBookings->setPoolId($this->pool_id);
+		$ilBookings = new ilRoomSharingBookings($this->pool_id);
 		return $ilBookings->getAdditionalBookingInfos();
 	}
 
@@ -184,7 +183,6 @@ class ilRoomSharingBookGUI
 		$to_id = "to";
 		$from_transl = $this->lng->txt($from_id);
 		$to_transl = $this->lng->txt($to_id);
-
 		$time_input_from = $this->createDateTimeInput($from_transl, $from_id, $this->date_from);
 		$time_input_to = $this->createDateTimeInput($to_transl, $to_id, $this->date_to);
 
@@ -245,7 +243,7 @@ class ilRoomSharingBookGUI
 	private function getFileLinkForUserAgreementId($a_file_id)
 	{
 		$agreement_file = new ilObjMediaObject($a_file_id);
-		$media = $agreement_file->getMediaItem("Agreement");
+		$media = $agreement_file->getMediaItem("Standard");
 		$source = $agreement_file->getDataDirectory() . "/" . $media->getLocation();
 
 		$link = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .

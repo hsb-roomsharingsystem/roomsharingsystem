@@ -6,7 +6,6 @@
 add_room#:#Raum hinzufügen
 add_wrong_attribute#:#Es wurden fehlerhafte Daten für die Attribute gesendet.
 add_wrong_attribute_count#:#Es wurden fehlerhafte Daten für die Attributanzahl gesendet.
-advanced_search#:#Erweiterte Suche
 amount#:#Anzahl
 appointments#:#Termine
 at_most#:#Höchstens
@@ -19,7 +18,6 @@ attributes_for_rooms#:#Attribute für Räume
 attributes_for_rooms_desc#:#Hier können Attribute für Räume festgelegt werden.
 back_to_list#:#Zurück zu den Gebäudeplänen
 back_to_rooms#:#Zurück zu allen Räumen
-back_to_search#:#Zurück zur Schnellsuche
 between#:#Zwischen
 booking_add#:#Buchung hinzufügen
 booking_add_error#:#Buchung konnte nicht hinzugefügt werden
@@ -38,6 +36,7 @@ booking_in_show#:#Buchung für
 booking_save#:#Buchung speichern
 booking_no_cancel_ids#:#Geben Sie mindestens eine Buchung zum Stornieren an.
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
+booking#:#Buchung
 bookings#:#Buchungen
 bookings_confirm#:#Möchten Sie wirklich die ausgewählten Buchungen stornieren?
 bookings_deleted#:#Die Buchungen wurde gelöscht! (mögliche Serientermine nicht betroffen)
@@ -97,6 +96,12 @@ mail_cancellation_participant_message#:#Eine Raum-Buchung, bei der Sie als Teiln
 mail_cancellation_participant_subject#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert.
 mail_cancellation_reason_manually#:#Manuelle Stornierung durch den Benutzer.
 mail_cancellation_reason_prefix#:#Die Buchung wurde aus folgendem Grund storniert:
+mail_participation_cancel_subject#:#Sie sind aus einer Buchung ausgetreten.
+mail_participation_cancel_message#:#Sie sind aus einer Buchung ausgetreten. Sie nehmen nun nicht mehr an der folgenden Buchung teil:
+mail_participation_creator_subject#:#Ein Teilnehmer nimmt nicht mehr an Ihrer Buchung teil.
+mail_participation_creator_message#:#Ein Teilnehmer nimmt nicht mehr an Ihrer Buchung teil. Folgender Teilnehmer ist ausgetreten:
+mail_room_changed_subject#:#Ein Raum den Sie gebucht haben wurde verändert.
+mail_room_changed_message#:#Ein Raum den Sie gebucht haben wurde verändert. Dies Betrifft Ihre folgenden Buchungen:
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
 missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.
@@ -106,7 +111,7 @@ must_be_unique#:#Attributname muss eindeutig sein!
 name_of_new_attribute#:#Name des neuen Attributs
 needed_seats#:#Benötigte Sitzplätze
 new_attribute_name#:#Neuer Name des Attributs
-no_delete_permission#:#Keine Berechtigung, diese Buchung zu löschen
+no_delete_permission#:#Keine Berechtigung diese Buchung zu löschen
 no_id_submitted#:#Keine oder nicht numerische ID übergeben
 no_match_for#:#Keine Ergebnisse für
 not_yet_implemented#:#Diese Funktion wurde noch nicht implementiert.
@@ -128,6 +133,7 @@ plural_field_input_value_too_high_end#:#sind höher als der maximal verfügbare 
 pool#:#Roomsharingpool
 pools#:#Roomsharingpools
 privileges#:#Privilegien
+privileges_class_already_exists#:#Es existiert bereits eine Klasse mit dem gleichen Namen. Bitte wählen Sie einen anderen Klassennamen.
 privileges_class_edit#:#Klasse bearbeiten
 privileges_class_new#:#Neue Klasse anlegen
 privileges_class_not_available#:#Keine Klassen vorhanden
@@ -144,7 +150,6 @@ privileges_lock_confirm_back#:#Zurück zu den Privilegien
 privileges_lock_desc#:#Sperrt die Privilegien für die Klasse
 privileges_role_assignment#:#Rollenzuordnung
 privileges_settings#:#Privilegieneinstellungen
-quick_search#:#Schnellsuche
 rename_attribute#:#Vorhandenes Attribut umbenennen
 rename_attribute_info#:#Mit dieser Option können vorhandene Attribute umbenannt werden.
 results_for#:#Ergebnisse für
@@ -184,8 +189,7 @@ roomsharing_plugin_configuration#:#RoomSharing Plugin Konfiguration
 save#:#Speichern
 saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
 search#:#Suchen
-search_back#:#Zurück zu den Suchresultaten
-search_results#:#Suchresultate
+search_back#:#Zurück zu den Suchergebnissen
 seats#:#Sitzplätze
 semester#:#Semester
 setting_1#:#Einstellung 1
@@ -198,10 +202,13 @@ subject#:#Betreff
 time_range#:#Zeitbereich
 title#:#Titel
 to#:#bis
+user#:#Benutzer
+user_id#:#Benutzer-Id
+value#:#Wert
 view#:#Ansicht
 warning_missing_rooms#:#Es sind momentan keine Räume vorhanden. Um den Roomsharingpool nutzen zu können, müssen zuerst Räume angelegt werden.
 wrong_attribute_name_provided#:#Der Name des Attributs ist ungültig!
-wrong_input#:#Falsche Eingaben. Prüfen Sie diese bitte.
+wrong_input#:#Sie haben falsche Angaben getätigt. Bitte überprüfen Sie diese.
 xrs_add#:#RoomSharing hinzufügen
 xrs_delete#:#RoomSharing löschen
 xrs_edit_permission#:#Rechte bearbeiten
@@ -269,7 +276,8 @@ general_privileges#:#Allgemeine Privilegien
 general_privileges_description#:#Hier sind die allgemeinen Privilegien aufgeführt.
 lock_privileges#:#Privilegien sperren
 lock_privileges_description#:#Privilegien aller Klassen sperrbar, sodass diese Klassen infolge über keinerlei Privilegien verfügen
-no_permission#:#Sie besitzen kein Privileg, um auf dieses Objekt zuzugreifen
+no_permission#:#Sie besitzen kein Privileg um auf dieses Objekt zuzugreifen
+no_permission_for_action#:#Sie besitzen kein Privileg um diese Aktion durchzuführen
 notification_tunable#:#Benachrichtungseinstellungen
 notification_tunable_description#:#Benachrichtigungen sind ein- und abschaltbar
 rooms_privileges_description#:#Hier sind die Privilegien für die Räume aufgeführt.
@@ -279,3 +287,4 @@ see_non_public_booking_information#:#Nicht öffentliche Buchungen einsehen
 see_non_public_booking_information_description#:#Informationen von nicht öffentlichen Buchungen einsehbar
 sequence_bookings#:#Serienbuchungen
 sequence_bookings_addable#:#Serienbuchungen anlegbar
+is_offline#:#ist offline

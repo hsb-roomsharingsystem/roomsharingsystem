@@ -11,24 +11,26 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRoomsGUI.php");
-require_once('Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php');
+require_once("Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
 require_once("Services/MediaObjects/classes/class.ilObjMediaObject.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingRoomException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingRoomGUI.
- *
- * The caller must implement method getPoolId().
- * Second argument of the constructor is a room id.
+ * This class is mainly responsible for displaying a form for adding and editing rooms.
  *
  * @author Thomas Matern <tmatern@stud.hs-bremen.de>
  * @author Thomas Wolscht <twolscht@stud.hs-bremen.de>
  *
- * @property ilCtrl $ctrl;
+ * @property ilCtrl $ctrl
  * @property ilLanguage $lng
  * @property ilTemplate $tpl
  * @property ilPropertyFormGUI $form_gui
- * @property ilRoomsharingDatabase $ilRoomsharingDatabase
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingRoomGUI
 {
@@ -37,34 +39,34 @@ class ilRoomSharingRoomGUI
 	private $ctrl;
 	private $lng;
 	private $tpl;
+	private $tabs;
 	private $room_id;
 	private $pool_id;
 	private $form_gui;
 	private $room_obj;
-	private $ilRoomsharingDatabase;
-	private $room_floorplan;
+	private $permission;
 
 	const SESSION_ROOM_ID = 'xrs_room_id';
 	const ATTRIBUTE_ID_PREFIX = 'room_attr_id_';
 
 	/**
-	 * Constructor of the ilRoomSharingRoomGUI.
+	 * Constructor for ilRoomSharingRoomGUI.
 	 *
-	 * @param object $a_parent_obj Object of the caller
-	 * @param integer $a_room_id Room-ID
+	 * @param object $a_parent_obj the caller of this method
+	 * @param integer $a_room_id the id for which the GUI should be generated
 	 */
 	public function __construct($a_parent_obj, $a_room_id)
 	{
-		global $ilCtrl, $lng, $tpl;
+		global $ilCtrl, $lng, $tpl, $ilTabs, $rssPermission;
 
 		if (!empty($a_room_id))
 		{
 			$this->room_id = $a_room_id;
-			$this->setSessRoomId($a_room_id);
+			$this->setRoomIdAsSessionVariable($a_room_id);
 		}
 		else
 		{
-			$this->room_id = $this->getSessRoomId();
+			$this->room_id = $this->getRoomIdFromSession();
 		}
 		$this->ref_id = $a_parent_obj->ref_id;
 		$this->parent_obj = $a_parent_obj;
@@ -73,14 +75,14 @@ class ilRoomSharingRoomGUI
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
+		$this->tabs = $ilTabs;
+		$this->permission = $rssPermission;
 
-		$this->room_obj = & new IlRoomSharingRoom($this->pool_id, $this->room_id);
-		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+		$this->room_obj = & new ilRoomSharingRoom($this->pool_id, $this->room_id);
 	}
 
 	/**
-	 * Main switch for command execution.
-	 * @return true
+	 * Executes the default command which displays the room with its properties.
 	 */
 	public function executeCommand()
 	{
@@ -90,61 +92,72 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
-	 * Adds SubTabs for the MainTab "Rooms".
+	 * Adds subtabs to the main tab "Rooms".
 	 *
-	 * @param type $a_active
-	 *        	SubTab which should be activated after method call.
+	 * @param string $a_subtab_to_be_activated SubTab which should be activated after method call.
 	 */
-	protected function setSubTabs($a_active)
+	protected function setSubTabs($a_subtab_to_be_activated)
 	{
-		global $ilTabs;
-		$ilTabs->setTabActive('rooms');
+		$this->tabs->setTabActive('rooms');
 
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
 
-		// Roominfo
-		$ilTabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
+		// room information
+		$this->tabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
 			$this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'showRoom'));
-
-		// week-view
-		$ilTabs->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'),
-			$this->ctrl->getLinkTargetByClass('ilRoomSharingCalendarWeekGUI', 'show'));
-		$ilTabs->activateSubTab($a_active);
+		if ($this->permission->checkPrivilege(PRIVC::SEE_BOOKINGS_OF_ROOMS))
+		{
+			// room occupation per week
+			$this->tabs->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'),
+				$this->ctrl->getLinkTargetByClass('ilRoomSharingCalendarWeekGUI', 'show'));
+		}
+		$this->tabs->activateSubTab($a_subtab_to_be_activated);
 	}
 
 	/**
-	 * Show room.
+	 * Renders the GUI for a room, which consists of buttons for editing and adding new rooms and a
+	 * form for editing room properties.
 	 */
 	public function showRoom()
 	{
 		$this->setSubTabs('room');
-
-		global $ilAccess;
-
-		$this->room_obj = new IlRoomSharingRoom($this->pool_id, $this->room_id);
+		$this->room_obj = new ilRoomSharingRoom($this->pool_id, $this->room_id);
 
 		$toolbar = new ilToolbarGUI();
-		if ($ilAccess->checkAccess('write', '', $this->ref_id))
+		if ($this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
 		{
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_room_edit'),
 				$this->ctrl->getLinkTarget($this, "editRoom"));
+		}
+		if ($this->permission->checkPrivilege(PRIVC::ADD_ROOMS))
+		{
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'),
 				$this->ctrl->getLinkTarget($this, "addRoom"));
 		}
+
 		$this->form_gui = $this->initForm("show");
 		$this->tpl->setContent($toolbar->getHTML() . $this->form_gui->getHTML());
 	}
 
 	/**
-	 * Create new form to add an room.
+	 * Creates a form adding a new room.
 	 */
 	public function addRoom()
 	{
-		$this->room_obj = & new IlRoomSharingRoom($this->pool_id, "", true);
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
+		$this->room_obj = & new ilRoomSharingRoom($this->pool_id, "", true);
 
 		$toolbar = new ilToolbarGUI();
-		$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		}
 		$this->form_gui = $this->initForm("create");
 		$this->form_gui->clearCommandButtons();
 		$this->form_gui->addCommandButton("createRoom", $this->lng->txt("save"));
@@ -153,15 +166,23 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
-	 * Create new form to add an room.
+	 * Creates a form editing room properties of an existing room.
 	 */
 	public function editRoom()
 	{
-		$this->room_obj = new IlRoomSharingRoom($this->pool_id, (int) $_GET['room_id']);
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
+		$this->room_obj = new ilRoomSharingRoom($this->pool_id, (int) $_GET['room_id']);
 		$toolbar = new ilToolbarGUI();
-		$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
-
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		}
 		$this->form_gui = $this->initForm("edit");
 		$this->form_gui->clearCommandButtons();
 		$this->form_gui->addCommandButton("saveRoom", $this->lng->txt("save"));
@@ -170,59 +191,59 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
-	 * Build property form.
+	 * Initializes a form for either displaying a room, adding a new room or editing an existing
+	 * room. The difference between those three forms is subtle but important: the form for
+	 * displaying rooms displays the information of the room without the ability of editing them.
+	 * The form for creating a room allows the input of values but contains no values initially. The
+	 * form for editing a room contains information that have been set before.
+	 * The creation of either those forms is determined by the mode parameter.
 	 *
-	 * @param string $a_mode Mode of the form
-	 * @return ilPropertyFormGUI GUI for a room.
+	 * @param string $a_mode the mode this form is centered around
+	 * @return ilPropertyFormGUI the form with the given mode
 	 */
 	private function initForm($a_mode = "show")
 	{
 		$form_gui = & new ilPropertyFormGUI();
 		$form_gui->setMultipart(true);
 		$form_gui->setTitle($this->lng->txt("rep_robj_xrs_room_properties"));
-		$form_gui->setDescription(
-			$this->lng->txt("rep_robj_xrs_room_prop_description"));
+		$form_gui->setDescription($this->lng->txt("rep_robj_xrs_room_prop_description"));
 
-		$name = new ilRoomSharingTextInputGUI(
-			$this->lng->txt("rep_robj_xrs_room_name"), "name");
+		$name = new ilRoomSharingTextInputGUI($this->lng->txt("rep_robj_xrs_room_name"), "name");
 		$name->setDisabled(true);
 		$form_gui->addItem($name);
 
-		$type = new ilRoomSharingTextInputGUI(
-			$this->lng->txt("rep_robj_xrs_room_type"), "type");
+		$type = new ilRoomSharingTextInputGUI($this->lng->txt("rep_robj_xrs_room_type"), "type");
 		$type->setDisabled(true);
 		$form_gui->addItem($type);
 
-		$minAlloc = new ilRoomSharingNumberInputGUI(
-			$this->lng->txt("rep_robj_xrs_room_min_alloc"), "min_alloc");
-		$minAlloc->setDisabled(true);
-		$form_gui->addItem($minAlloc);
+		$min_alloc = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_room_min_alloc"),
+			"min_alloc");
+		$min_alloc->setDisabled(true);
+		$form_gui->addItem($min_alloc);
 
-		$maxAlloc = new ilRoomSharingNumberInputGUI(
-			$this->lng->txt("rep_robj_xrs_room_max_alloc"), "max_alloc");
-		$maxAlloc->setDisabled(true);
-		$form_gui->addItem($maxAlloc);
+		$max_alloc = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_room_max_alloc"),
+			"max_alloc");
+		$max_alloc->setDisabled(true);
+		$form_gui->addItem($max_alloc);
 
-		$buildingId = new ilSelectInputGUI(
+		$floor_plan = new ilSelectInputGUI(
 			$this->lng->txt("rep_robj_xrs_room_floor_plans"), "building_id");
-		$buildingId->setOptions($this->room_obj->getAllFloorplans());
-		$buildingId->setDisabled(true);
-		$form_gui->addItem($buildingId);
+		$floor_plan->setOptions($this->room_obj->getAllFloorplans());
+		$floor_plan->setDisabled(true);
+		$form_gui->addItem($floor_plan);
 
-		$attributesHeader = new ilFormSectionHeaderGUI();
-		// Ilias FormSectionHeader has a bug. Info is not setable.
-		$info = '<div class=' . "'ilFormInfo'" . "style='font-weight: normal !important;'>"
-			. $this->lng->txt("rep_robj_xrs_room_attributes_info") . '</div>';
-		$attributesHeader->setTitle($this->lng->txt("rep_robj_xrs_room_attributes") . $info);
-		$form_gui->addItem($attributesHeader);
+		$attributes_header = new ilFormSectionHeaderGUI();
+		$attribute_header_text = $this->createAttributeHeaderText();
+		$attributes_header->setTitle($this->lng->txt("rep_robj_xrs_room_attributes") . $attribute_header_text);
+		$form_gui->addItem($attributes_header);
 
 		foreach ($this->room_obj->getAllAvailableAttributes() as $attr)
 		{
-			$attrField = new ilRoomSharingNumberInputGUI($attr['name'],
+			$attr_field = new ilRoomSharingNumberInputGUI($attr['name'],
 				self::ATTRIBUTE_ID_PREFIX . $attr['id']);
-			$attrField->setValue($this->room_obj->findAttributeAmount($attr['id']));
-			$attrField->setDisabled(($a_mode == "show"));
-			$form_gui->addItem($attrField);
+			$attr_field->setValue($this->room_obj->getAttributeAmountById($attr['id']));
+			$attr_field->setDisabled(($a_mode == "show"));
+			$form_gui->addItem($attr_field);
 		}
 
 		if ($a_mode == "edit" || $a_mode == "create")
@@ -230,42 +251,42 @@ class ilRoomSharingRoomGUI
 			$name->setDisabled(false);
 			$name->setRequired(true);
 			$type->setDisabled(false);
-			$minAlloc->setDisabled(false);
-			$minAlloc->setRequired(true);
-			$minAlloc->setMinValue(0);
-			$maxAlloc->setDisabled(false);
-			$maxAlloc->setRequired(true);
-			$maxAlloc->setMinValue(0);
-			$buildingId->setDisabled(false);
+			$min_alloc->setDisabled(false);
+			$min_alloc->setRequired(true);
+			$min_alloc->setMinValue(0);
+			$max_alloc->setDisabled(false);
+			$max_alloc->setRequired(true);
+			$max_alloc->setMinValue(0);
+			$floor_plan->setDisabled(false);
 
 			if ($a_mode == "create")
 			{
-				$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"
-					), $this->lng->txt("rep_robj_xrs_add_room"));
+				$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"),
+					$this->lng->txt("rep_robj_xrs_add_room"));
 			}
 			else
 			{
-				$form_gui->addCommandButton("saveRoom", $this->lng->txt("rep_robj_xrs_save_room"));
+				$form_gui->addCommandButton("saveRoom", $this->lng->txt("save"));
 			}
 		}
 		if ($a_mode == "edit" || $a_mode == "show")
 		{
 			$name->setValue($this->room_obj->getName());
 			$type->setValue($this->room_obj->getType());
-			$minAlloc->setValue($this->room_obj->getMinAlloc());
-			$maxAlloc->setValue($this->room_obj->getMaxAlloc());
-			$buildingId->setValue($this->room_obj->getBuildingId());
+			$min_alloc->setValue($this->room_obj->getMinAlloc());
+			$max_alloc->setValue($this->room_obj->getMaxAlloc());
+			$floor_plan->setValue($this->room_obj->getBuildingId());
 			if ($a_mode == "show")
 			{
-				$buildingId->setDisabled(true);
+				$floor_plan->setDisabled(true);
 				$mobj = new ilObjMediaObject($this->room_obj->getBuildingId());
 				$mitems = $mobj->getMediaItems();
 				if (!empty($mitems))
 				{
 					$med = $mobj->getMediaItem("Standard");
 					$target = $med->getThumbnailTarget();
-					$imageWithLink = "<br><a target='_blank' href='" . $mobj->getDataDirectory() . "/" . $med->getLocation() . "'>" . ilUtil::img($target) . "</a>";
-					$buildingId->setInfo($imageWithLink);
+					$image_with_link = "<br><a target='_blank' href='" . $mobj->getDataDirectory() . "/" . $med->getLocation() . "'>" . ilUtil::img($target) . "</a>";
+					$floor_plan->setInfo($image_with_link);
 				}
 			}
 		}
@@ -276,11 +297,30 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
-	 * Handle the save command in creation room.
+	 * This function creates the header text for the attribute section of the form. This is needed
+	 * since the normal way of setting an info text via "setInfo" on an "ilFormSectionHeaderGUI" is
+	 * for whatever reason not possible.
+	 * @return string the attribute header text
+	 */
+	private function createAttributeHeaderText()
+	{
+		$header_text = '<div class=' . "'ilFormInfo'" . "style='font-weight: normal !important;'>"
+			. $this->lng->txt("rep_robj_xrs_room_attributes_info") . '</div>';
+
+		return $header_text;
+	}
+
+	/**
+	 * Handles the save command of the form for creating new room.
 	 */
 	public function createRoom()
 	{
-
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
 		$this->form_gui = $this->initForm("create");
 		$this->form_gui->setValuesByPost();
 		$this->form_gui->clearCommandButtons();
@@ -297,12 +337,12 @@ class ilRoomSharingRoomGUI
 				$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
 				$this->room_obj->setBuildingId($this->form_gui->getInput("building_id"));
 
-				foreach ($this->getUserWishedAttributes() as $userWishedAttribute)
+				foreach ($this->getSetAttributeValuesFromForm() as $set_attribute_values)
 				{
-					$this->room_obj->addAttribute($userWishedAttribute['id'], $userWishedAttribute['count']);
+					$this->room_obj->addAttribute($set_attribute_values['id'], $set_attribute_values['count']);
 				}
 
-				$newRoomId = $this->room_obj->create();
+				$new_room_id = $this->room_obj->create();
 			}
 			catch (ilRoomSharingRoomException $exc)
 			{
@@ -311,18 +351,19 @@ class ilRoomSharingRoomGUI
 				$this->tpl->setContent($this->form_gui->getHTML());
 			}
 
-			if (ilRoomSharingNumericUtils::isPositiveNumber($newRoomId))
+			if (ilRoomSharingNumericUtils::isPositiveNumber($new_room_id))
 			{
 				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_room_added"));
-				$this->room_obj->setId($newRoomId);
-				$this->setSessRoomId($newRoomId);
-				$this->room_obj = new ilRoomSharingRoom($this->pool_id, $newRoomId);
+				$this->room_obj->setId($new_room_id);
+				$this->setRoomIdAsSessionVariable($new_room_id);
+				$this->room_obj = new ilRoomSharingRoom($this->pool_id, $new_room_id);
 
 				$toolbar = new ilToolbarGUI();
-				$toolbar->addButton(
-					$this->lng->txt('rep_robj_xrs_back_to_rooms'),
-					$this->ctrl->getLinkTargetByClass(
-						'ilroomsharingroomsgui', "showRooms"));
+				if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+				{
+					$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+						$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+				}
 				$this->tpl->setContent($toolbar->getHTML());
 			}
 			else
@@ -335,16 +376,21 @@ class ilRoomSharingRoomGUI
 		else
 		{
 			$this->form_gui->setValuesByPost();
-			$this->tpl->setContent($this->form_gui
-					->getHTML());
+			$this->tpl->setContent($this->form_gui->getHTML());
 		}
 	}
 
 	/**
-	 * Handle save command in edit form.
+	 * Handles the save command of the form for editing an existing room.
 	 */
 	public function saveRoom()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
 		$this->form_gui = $this->initForm("edit");
 		$this->form_gui->setValuesByPost();
 		if ($this->form_gui->checkInput())
@@ -359,9 +405,9 @@ class ilRoomSharingRoomGUI
 
 				$this->room_obj->resetAttributes();
 
-				foreach ($this->getUserWishedAttributes() as $userWishedAttribute)
+				foreach ($this->getSetAttributeValuesFromForm() as $set_attribute_values)
 				{
-					$this->room_obj->addAttribute($userWishedAttribute['id'], $userWishedAttribute['count']);
+					$this->room_obj->addAttribute($set_attribute_values['id'], $set_attribute_values['count']);
 				}
 
 				$this->room_obj->save();
@@ -377,16 +423,53 @@ class ilRoomSharingRoomGUI
 		else
 		{
 			$this->form_gui->setValuesByPost();
-			$this->tpl->setContent($this->form_gui
-					->getHTML());
+			$this->tpl->setContent($this->form_gui->getHTML());
 		}
 	}
 
 	/**
-	 * Execute deletion of an room after cofirmation.
+	 * Displays a confirmation dialog for the deletion of a room.
+	 */
+	public function confirmDeleteRoom()
+	{
+		if (!$this->permission->checkPrivilege(PRIVC::DELETE_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		$cgui = new ilConfirmationGUI();
+		$cgui->setFormAction($this->ctrl->getFormAction($this));
+		$cgui->setCancel($this->lng->txt("cancel"), "showRooms");
+		$cgui->setConfirm($this->lng->txt("confirm"), "deleteRoom");
+		$amount_of_bookings = $this->room_obj->getAmountOfBookings();
+		if ($amount_of_bookings > 0)
+		{
+			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_delete_booking') . " <b>" . $amount_of_bookings . "</b>");
+		}
+		else
+		{
+			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
+		}
+		$cgui->addItem('booking_id', $this->room_id, $this->room_obj->getName());
+		$this->tpl->setContent($cgui->getHTML());
+	}
+
+	/**
+	 * Handles the deletion of a room after the corresponding confirm dialog has been confirmed.
 	 */
 	public function deleteRoom()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::DELETE_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
 		try
 		{
 			$this->room_obj->delete();
@@ -401,133 +484,105 @@ class ilRoomSharingRoomGUI
 	}
 
 	/**
-	 * 	Show confirmation dialog, before deleting a room.
+	 * Returns an associative array which contains the attribute ids and its corresponding amounts
+	 * set via the form
+	 *
+	 * @return array associative array with attribute ids and its amounts
 	 */
-	public function confirmDeleteRoom()
+	private function getSetAttributeValuesFromForm()
 	{
-		global $ilTabs;
-		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_rooms'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
-		$cgui = new ilConfirmationGUI();
-		$cgui->setFormAction($this->ctrl->getFormAction($this));
-		$cgui->setCancel($this->lng->txt("cancel"), "showRooms");
-		$cgui->setConfirm($this->lng->txt("confirm"), 'deleteRoom');
-		$amountOfBookings = $this->room_obj->getAffectedAmountBeforeDelete();
-		if ($amountOfBookings > 0)
+		$all_input_items = $this->form_gui->getInputItemsRecursive();
+		$set_attributes = array();
+
+		foreach ($all_input_items as $input_item)
 		{
-			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_delete_booking') . " <b>" . $amountOfBookings . "</b>");
+			if ($this->isSetAttributeValid($input_item))
+			{
+				$set_attributes[] = array('id' => $this->getAttributeIdFromInput($input_item), 'count' => $input_item->getValue());
+			}
 		}
-		else
-		{
-			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
-		}
-		$cgui->addItem('booking_id', $this->room_id, $this->room_obj->getName());
-		$this->tpl->setContent($cgui->getHTML());
+		return $set_attributes;
 	}
 
 	/**
-	 * Returns an associative array with ids and uesr wished amounts.
+	 * Retrieves the attribute id from the attribute input field.
 	 *
-	 * @return assoc array with attributes ids and amounts.
+	 * @param $a_input_item the form input field from where the id is retrieved
+	 * @return integer the id of the attribute that has been set
 	 */
-	private function getUserWishedAttributes()
+	private function getAttributeIdFromInput($a_input_item)
 	{
-
-		$allInputItems = $this->form_gui->getInputItemsRecursive();
-		$userWishedAttributes = array();
-
-		foreach ($allInputItems as $inputItem)
-		{
-			if ($this->isUserWishedAttribute($inputItem))
-			{
-				$userWishedAttributes[] = array(
-					'id' => $this->getAttributeIdFromInput($inputItem),
-					'count' => $inputItem->getValue());
-			}
-		}
-		return $userWishedAttributes;
+		return substr($a_input_item->getPostVar(), strlen(self::ATTRIBUTE_ID_PREFIX));
 	}
 
+	/**
+	 * Determines whether or not the given input field is an attribute field which contains a
+	 * valid amount.
+	 *
+	 * @param $a_input_item the input item that should be checked
+	 * @return boolean true if the set attribute is valid; false otherwise
+	 */
+	private function isSetAttributeValid($a_input_item)
+	{
+		$valid = false;
+		if (!empty($a_input_item))
+		{
+			$post_var = $a_input_item->getPostVar();
+			if (!empty($post_var) && ilRoomSharingStringUtils::startsWith($post_var,
+					self::ATTRIBUTE_ID_PREFIX))
+			{
+				$valid = ilRoomSharingNumericUtils::isPositiveNumber($a_input_item->getValue(), true);
+			}
+		}
+		return $valid;
+	}
+
+	/**
+	 * Redirects to the overview of all rooms.
+	 */
 	private function showRooms()
 	{
 		$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');
 	}
 
 	/**
-	 * Returns true if the input field is an attribute and has a valid amount.
-	 *
-	 * @param $a_inputItem (a form input field)
-	 * @return boolean
-	 */
-	private function isUserWishedAttribute($a_inputItem)
-	{
-		$rVal = FALSE;
-		if (!empty($a_inputItem))
-		{
-			$postVar = $a_inputItem->getPostVar();
-			if (!empty($postVar) && ilRoomSharingStringUtils::startsWith($postVar, self::ATTRIBUTE_ID_PREFIX))
-			{
-				$rVal = ilRoomSharingNumericUtils::isPositiveNumber($a_inputItem->getValue(), true);
-			}
-		}
-		return $rVal;
-	}
-
-	/**
-	 * Retrieves the attribute id from the attribute input field.
-	 *
-	 * @param $a_inputItem (a form input field)
-	 * @return integer
-	 */
-	private function getAttributeIdFromInput($a_inputItem)
-	{
-		return substr($a_inputItem->getPostVar(), strlen(self::ATTRIBUTE_ID_PREFIX));
-	}
-
-	/**
 	 * Returns the room id which was saved in the session.
 	 *
-	 * @return integer
+	 * @return integer the room id saved as a session variable
 	 */
-	private function getSessRoomId()
+	private function getRoomIdFromSession()
 	{
-		return unserialize($_SESSION[
-			self::SESSION_ROOM_ID]);
+		return unserialize($_SESSION[self::SESSION_ROOM_ID]);
 	}
 
 	/**
-	 * Saves the room id in the session.
+	 * Saves the room id as a sessin variable.
 	 *
-	 * @param integer  $a_room_id
+	 * @param integer $a_room_id the room id that should be saved to the session
 	 */
-	private function setSessRoomId(
-	$a_room_id)
+	private function setRoomIdAsSessionVariable($a_room_id)
 	{
-		$_SESSION[self
-			::SESSION_ROOM_ID
-			] = serialize($a_room_id);
+		$_SESSION[self::SESSION_ROOM_ID] = serialize($a_room_id);
 	}
 
 	/**
-	 * Returns roomsharing pool id.
-	 * @returns integer Pool-ID
+	 * Returns the RoomSharing pool id.
+	 *
+	 * @returns integer the pool id.
 	 */
 	public function getPoolId()
 	{
-		return $this->pool_id
-		;
+		return $this->pool_id;
 	}
 
 	/**
-	 * Sets roomsharing pool id.
-	 * @param integer Pool-ID
+	 * Sets the RoomSharing pool id.
+	 *
+	 * @param integer the pool id to be set.
 	 */
 	public function setPoolId($a_pool_id)
 	{
-		$this->
-			pool_id = $a_pool_id;
+		$this->pool_id = $a_pool_id;
 	}
 
 }

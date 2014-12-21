@@ -1,6 +1,13 @@
 <?php
 
-include_once('./Services/Table/classes/class.ilTable2GUI.php');
+require_once("./Services/Table/classes/class.ilTable2GUI.php");
+require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+require_once("./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlans.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingFloorPlansTableGUI
@@ -13,27 +20,36 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
  *
  * @author Thomas Wolscht <t.wolscht@googlemail.com>
  * @author Christopher Marks <Deamp_dev@yahoo.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
+ * @property ilCtrl $ctrl;
+ * @property ilLanguage $lng
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 {
 	private $pool_id;
+	private $permission;
+	protected $lng;
+	private $ctrl;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlansTableGUI
 	 *
 	 * @global type $ilCtrl the ilias control structure
 	 * @global type $lng the translation instance of ilias
-	 * @param type $a_parent_obj the parent object for retrieving information
-	 * @param type $a_parent_cmd the cmd that led to the creation of this table
-	 * @param type $a_ref_id the reference id for write permission checks
+	 * @param object $a_parent_obj the parent object for retrieving information
+	 * @param string $a_parent_cmd the cmd that led to the creation of this table
+	 * @param integer $a_ref_id the reference id for write permission checks
 	 */
 	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
 	{
-		global $ilCtrl, $lng;
+		global $ilCtrl, $lng, $rssPermission;
 
 		$this->parent_obj = $a_parent_obj;
 		$this->lng = $lng;
 		$this->ctrl = $ilCtrl;
+		$this->permission = $rssPermission;
 		$this->ref_id = $a_ref_id;
 		$this->pool_id = $a_parent_obj->getPoolId();
 
@@ -53,8 +69,6 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	 */
 	private function getItems()
 	{
-		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing'
-			. '/classes/floorplans/class.ilRoomSharingFloorPlans.php';
 		$floorplans = new ilRoomSharingFloorPlans($this->pool_id,
 			new ilRoomsharingDatabase($this->pool_id));
 		$data = $floorplans->getAllFloorPlans($this->pool_id);
@@ -78,11 +92,10 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	 *
 	 * -- Thumbnail -- Title -- Description -- Actions --
 	 *
-	 * @param type $a_set the row that needs to be populated
+	 * @param assoc array $a_set the row that needs to be populated
 	 */
 	public function fillRow($a_set)
 	{
-		include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 		$mediaObject = new ilObjMediaObject($a_set['file_id']);
 
 		$this->fillRowImage($mediaObject, $a_set["type"]);
@@ -93,8 +106,8 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	/**
 	 * Populates the Image Thumbnail in the row
 	 *
-	 * @param type $a_mediaObject the media object
-	 * @param type $a_type the image type
+	 * @param ilObjMediaObject $a_mediaObject the media object
+	 * @param string $a_type the image type
 	 */
 	private function fillRowImage($a_mediaObject, $a_type)
 	{
@@ -117,8 +130,8 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	/**
 	 * Populates the title and description in the row
 	 *
-	 * @param type $a_mediaObject the media object
-	 * @param type $a_title the title
+	 * @param ilObjMediaObject $a_mediaObject the media object
+	 * @param string $a_title the title
 	 */
 	private function fillRowTitleAndDescription($a_mediaObject, $a_title)
 	{
@@ -129,28 +142,47 @@ class ilRoomSharingFloorPlansTableGUI extends ilTable2GUI
 	/**
 	 * Populates the actions in the row
 	 *
-	 * @global type $ilAccess
 	 * @param type $a_file_id the file id
 	 */
 	private function fillRowActions($a_file_id)
 	{
-		global $ilAccess;
-		include_once("./Services/UIComponent/AdvancedSelectionList/classes"
-			. "/class.ilAdvancedSelectionListGUI.php");
 		$alist = new ilAdvancedSelectionListGUI();
 		$alist->setId($a_file_id);
 		$alist->setListTitle($this->lng->txt("actions"));
 
-		if ($ilAccess->checkAccess('write', '', $this->ref_id))
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $a_file_id);
+		if ($this->permission->checkPrivilege(PRIVC::EDIT_FLOORPLANS))
 		{
-			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $a_file_id);
 			$alist->addItem($this->lng->txt('edit'), 'edit',
 				$this->ctrl->getLinkTarget($this->parent_obj, 'editFloorplan'));
-
+		}
+		if ($this->permission->checkPrivilege(PRIVC::DELETE_FLOORPLANS))
+		{
 			$alist->addItem($this->lng->txt('delete'), 'delete',
 				$this->ctrl->getLinkTarget($this->parent_obj, 'confirmDelete'));
 		}
 		$this->tpl->setVariable("LAYER", $alist->getHTML());
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

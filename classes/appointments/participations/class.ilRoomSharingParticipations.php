@@ -4,6 +4,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingDateUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 
 /**
  * Class ilRoomSharingParticipations
@@ -17,19 +18,21 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 class ilRoomSharingParticipations
 {
 	private $pool_id;
-	protected $ilRoomsharingDatabase;
+	private $ilRoomsharingDatabase;
 	private $ilUser;
+        private $lng;
 
 	/**
 	 * Construct of ilRoomSharingParticipations.
 	 *
-	 * @param integer $pool_id
+	 * @param integer $a_pool_id
 	 */
-	function __construct($pool_id = 1)
+	function __construct($a_pool_id)
 	{
-		global $ilUser;
+		global $ilUser, $lng;
+                $this->lng = $lng;
 		$this->ilUser = $ilUser;
-		$this->pool_id = $pool_id;
+		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 
@@ -42,6 +45,7 @@ class ilRoomSharingParticipations
 	public function removeParticipations(array $a_booking_ids)
 	{
 		global $lng;
+                
 		foreach ($a_booking_ids as $a_booking_id)
 		{
 			if (!ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
@@ -53,10 +57,13 @@ class ilRoomSharingParticipations
 		if (count($a_booking_ids) == 1)
 		{
 			$this->ilRoomsharingDatabase->deleteParticipation($this->ilUser->getId(), $a_booking_ids[0]);
+                        $this->sendQuitMail($a_booking_ids);
+                        
 		}
 		else
 		{
 			$this->ilRoomsharingDatabase->deleteParticipations($this->ilUser->getId(), $a_booking_ids);
+                        $this->sendQuitMail($a_booking_ids);
 		}
 		ilUtil::sendSuccess($lng->txt('rep_robj_xrs_participations_left'), true);
 	}
@@ -173,5 +180,17 @@ class ilRoomSharingParticipations
 	{
 		$this->pool_id = $a_pool_id;
 	}
+        
+	/**
+	 * Send quit mail
+	 *
+	 * @param integer $a_booking_ids booking ids
+	 */
+        private function sendQuitMail($a_booking_ids)
+        {
+            $mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
+            $mailer->sendParticipationCancelMail($this->ilUser->getId(), $a_booking_ids);
+            $mailer->sendParticipationCancelMailForCreator($this->ilUser->getId(), $a_booking_ids);
+        }
 
 }

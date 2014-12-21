@@ -55,7 +55,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	var $lng;
 	private $permission;
 	protected $settingsForm;
-	protected $pool_id;
+	private $pool_id;
 	protected $pl_obj;
 	protected $cal;
 	protected $seed;
@@ -105,6 +105,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd, $rssPermission;
 		$tpl->setDescription($this->object->getLongDescription());
+		$tpl->setAlertProperties($this->getAlertProperties());
 		$next_class = $ilCtrl->getNextClass($this);
 		$this->pl_obj = new ilRoomSharingPlugin();
 		$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
@@ -128,11 +129,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$next_class = ilRoomSharingShowAndEditBookGUI;
 		}
 		/*
-		 * The special handling of the commands showSearchQuick and
-		 * showSearchResults is needed because otherwise the wrong $next_class
-		 * would be called
+		 * The special handling of the commands showSearch and showSearchResults is needed because
+		 * otherwise the wrong $next_class would be called
 		 */
-		else if ($cmd === 'showSearchQuick' || $cmd === 'showBookSearchResults')
+		else if ($cmd === 'showSearch' || $cmd === 'showBookSearchResults' || $cmd === "showSearchResults")
 		{
 			$next_class = empty($next_class) ? ilroomsharingsearchgui : $next_class;
 		}
@@ -206,7 +206,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			case 'ilroomsharingbookgui':
 				$this->tabs_gui->clearTargets();
 				$this->tabs_gui->setBackTarget(
-					$this->lng->txt("rep_robj_xrs_search_back"), $ilCtrl->getLinkTarget($this, "showSearchResults")
+					$this->lng->txt($_SESSION['last_cmd'] != "showRoom" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+					$this->ctrl->getLinkTarget($this, $_SESSION['last_cmd'])
 				);
 				$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
@@ -326,6 +327,18 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		return true;
 	}
 
+	private function getAlertProperties()
+	{
+		global $lng;
+		$alert_props = array();
+		if (!$this->object->isOnline())
+		{
+			$alert_props[] = array("alert" => true, "property" => $lng->txt("status"),
+				"value" => $lng->txt("offline"));
+		}
+		return $alert_props;
+	}
+
 	/**
 	 * Default command that is executed if no "nextClass" can be determined.
 	 * @param boolean true
@@ -377,7 +390,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Search
 			$this->tabs_gui->addTab(
 				"search", $this->lng->txt("search"),
-				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
+				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearch")
 			);
 		}
 
@@ -464,6 +477,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function editSettings()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			$this->setActiveTabRegardingPrivilege();
+			return FALSE;
+		}
 		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm();
 		$this->getSettingsValues();
@@ -477,6 +495,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function updateSettings()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			$this->setActiveTabRegardingPrivilege();
+			return FALSE;
+		}
 		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm();
 
@@ -578,7 +601,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if (!empty($fileId) && $fileId != "0")
 		{
 			$agreementFile = new ilObjMediaObject($this->object->getRoomsAgreementFileId());
-			$media = $agreementFile->getMediaItem("Agreement");
+			$media = $agreementFile->getMediaItem("Standard");
 			$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
 
 			$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
@@ -660,8 +683,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	public function book()
 	{
+		echo 'lastcmd ' . $_SESSION['last_cmd'];
 		$this->tabs_gui->clearTargets();
-		$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
 		$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 		$book = new ilRoomSharingBookGUI(
 			$this, $_GET['room_id'], $_GET['date'] . " " . $_GET['time_from'],
@@ -670,20 +693,9 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$book->renderBookingForm();
 		// the back button which links to where the user came from
 		$this->tabs_gui->setBackTarget(
-			$this->lng->txt($last_cmd == "showRooms" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
-			$this->ctrl->getLinkTarget($this, $last_cmd)
+			$this->lng->txt($_SESSION['last_cmd'] != "showroom" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+			$this->ctrl->getLinkTarget($this, $_SESSION['last_cmd'])
 		);
-	}
-
-	/**
-	 * If this function is called from bookGUI opened from calendarWeekGUI,
-	 * then go back to roomGUI.
-	 *
-	 * (still looking for a better way)
-	 */
-	public function showSearchResults()
-	{
-		$this->showRoom();
 	}
 
 	/**
@@ -703,24 +715,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', $last_cmd)
 		);
 		$tpl->setContent($ilCtrl->getHTML($profile));
-	}
-
-	/**
-	 * Returns roomsharing pool id.
-	 * @return int current pool_id of this booking pool
-	 */
-	function getPoolId()
-	{
-		return $this->pool_id;
-	}
-
-	/**
-	 * Sets roomsharing pool id.
-	 * @param int new pool id for this booking pool
-	 */
-	function setPoolId($a_pool_id)
-	{
-		$this->pool_id = $a_pool_id;
 	}
 
 	/**
@@ -765,6 +759,27 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	public function getCalendarId()
 	{
 		return $this->cal->getCalendarId();
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }
