@@ -117,6 +117,25 @@ class ilRoomSharingDatabase
 		return $rooms;
 	}
 
+	/**
+	 * Returns all room names of rooms which are assigned to the roomsharing pool.
+	 *
+	 * @return assoc array with all found room names
+	 */
+	public function getAllRoomNames()
+	{
+		$resRooms = $this->ilDB->query('SELECT name FROM ' . dbc::ROOMS_TABLE . ' WHERE pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer'));
+		$roomNames = array();
+		$row = $this->ilDB->fetchAssoc($resRooms);
+		while ($row)
+		{
+			$roomNames[] = $row['name'];
+			$row = $this->ilDB->fetchAssoc($resRooms);
+		}
+		return $roomNames;
+	}
+
 	public function getMatchingRooms($a_roomsToCheck, $a_room_name, $a_room_seats)
 	{
 		$where_part = ' AND room.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' ';
