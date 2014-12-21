@@ -161,6 +161,7 @@ room_file_id#:#Map
 room_floor_plans#:#Floor plans
 room_max_alloc#:#Max. allocation
 room_max_allocation_exceeded#:#Maximum room allocation exceeded
+rep_robj_xrs_room_min_allocation_not_reached#:#Minimum room allocation is not reached
 room_min_alloc#:#Min. allocation
 room_name#:#Room name
 room_no_assign#:#No assignment

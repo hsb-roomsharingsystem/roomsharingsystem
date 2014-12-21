@@ -161,6 +161,7 @@ room_file_id#:#Lageplan
 room_floor_plans#:#Gebäudeplan
 room_max_alloc#:#Max. Belegung
 room_max_allocation_exceeded#:#Maximale Raumbelegung überschritten
+rep_robj_xrs_room_min_allocation_not_reached#:#Minimale Raumbelegung nicht erreicht
 room_min_alloc#:#Min. Belegung
 room_name#:#Raumbezeichnung
 room_no_assign#:#Keine Zuordnung
