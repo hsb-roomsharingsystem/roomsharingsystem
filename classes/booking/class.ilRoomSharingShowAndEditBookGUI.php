@@ -27,20 +27,29 @@ class ilRoomSharingShowAndEditBookGUI
 	private $date_from;
 	private $date_to;
 	private $book;
+	private $mode;
+	private $booking_id;
+	private $old_booking_values;
+	private $old_attr_values;
+	private $old_participants;
 
 	const NUM_PERSON_RESPONSIBLE = 1;
-	const EDIT_BOOK_CMD = "editBook";
-	const SAVE_BOOK_CMD = "saveEditBook";
+	const EDIT_BOOK_CMD = "editBooking";
+	const SAVE_BOOK_CMD = "saveEditBooking";
+	const CANCEL_EDIT_CMD = "cancelEdit";
+	const SESSION_BOOKING_ID = "bookingID";
+	const SESSION_ROOM_ID = "roomID";
+	const SESSION_MODE = 'mode';
 
 	/**
 	 * Constructur for ilRoomSharingBookGUI
 	 *
 	 * @param ilObjRoomSharingGUI $a_parent_obj
-	 * @param string $a_room_id
-	 * @param string $a_date_from
-	 * @param string $a_date_to
+	 * @param integer $a_booking_id
+	 * @param integer $a_room_id
+	 * @param string $a_mode
 	 */
-	public function __construct($a_parent_obj, $a_booking_id)
+	public function __construct($a_parent_obj, $a_booking_id, $a_room_id, $a_mode = null)
 	{
 		global $ilCtrl, $lng, $tpl;
 
@@ -49,9 +58,50 @@ class ilRoomSharingShowAndEditBookGUI
 		$this->tpl = $tpl;
 		$this->parent_obj = $a_parent_obj;
 		$this->pool_id = $a_parent_obj->getPoolId();
-		$this->booking_id = $a_booking_id;
+
+		$this->setOrGetSessionVariables($a_booking_id, $a_room_id, $a_mode);
 
 		$this->book = new ilRoomSharingBook($this->pool_id);
+	}
+
+	/**
+	 * Methode to organzie the get and set of the session variables.
+	 *
+	 * @param integer $a_booking_id
+	 * @param integer $a_room_id
+	 * @param string $a_mode
+	 */
+	private function setOrGetSessionVariables($a_booking_id, $a_room_id, $a_mode)
+	{
+		if (!empty($a_booking_id))
+		{
+			$this->booking_id = $a_booking_id;
+			$this->setBookingId($a_booking_id);
+		}
+		else
+		{
+			$this->booking_id = $this->getBookingId();
+		}
+
+		if (!empty($a_room_id))
+		{
+			$this->room_id = $a_room_id;
+			$this->setRoomId($a_room_id);
+		}
+		else
+		{
+			$this->room_id = $this->getRoomId();
+		}
+
+		if (!empty($a_mode))
+		{
+			$this->mode = $a_mode;
+			$this->setMode($a_mode);
+		}
+		else
+		{
+			$this->mode = $this->getMode();
+		}
 	}
 
 	/**
@@ -64,16 +114,11 @@ class ilRoomSharingShowAndEditBookGUI
 	}
 
 	/**
-	 *
 	 * Renders the booking form as HTML.
-	 *
-	 * @param type $mode default is 'create'
-	 * 				possibles modes {'create',''edit', 'show'}
-	 * @param type $a_booking_id
 	 */
-	public function renderBookingForm($mode = 'show', $a_booking_id = null)
+	public function renderBookingForm()
 	{
-		$booking_form = $this->createForm($mode, $a_booking_id);
+		$booking_form = $this->createForm();
 		$this->tpl->setContent($booking_form->getHTML());
 	}
 
@@ -82,79 +127,102 @@ class ilRoomSharingShowAndEditBookGUI
 	 *
 	 * @return ilform
 	 */
-	private function createForm($a_booking_id, $mode = 'show')
+	private function createForm()
 	{
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
-		if ($mode == 'show')
+		$form->setTitle($this->getFormTitle());
+		if ($this->mode == 'show')
 		{
-			$form->setTitle($this->getFormTitle($mode));
 			$form->addCommandButton(self::EDIT_BOOK_CMD, $this->lng->txt("rep_robj_xrs_booking_edit"));
-
-			$form_items = $this->createAndSetFormItems($mode, $a_booking_id);
-			foreach ($form_items as $item)
-			{
-				$form->addItem($item);
-			}
 		}
-		elseif ($mode == 'edit')
+		elseif ($this->mode == 'edit')
 		{
-			$form->setTitle($this->getFormTitle($mode));
 			$form->addCommandButton(self::SAVE_BOOK_CMD, $this->lng->txt("rep_robj_xrs_booking_save"));
-
-			$form_items = $this->createAndSetFormItems($mode, $a_booking_id);
-			foreach ($form_items as $item)
-			{
-				$form->addItem($item);
-			}
+			$form->addCommandButton(self::CANCEL_EDIT_CMD,
+				$this->lng->txt("rep_robj_xrs_booking_edit_cancel"));
+		}
+		$form_items = $this->createAndSetFormItems();
+		foreach ($form_items as $item)
+		{
+			$form->addItem($item);
 		}
 		return $form;
 	}
 
-	private function getFormTitle($mode = 'create')
+	/**
+	 * Put together the titel, dependent on the mode of the instance.
+	 *
+	 * @return string
+	 */
+	private function getFormTitle()
 	{
-		$title = '';
-		if ($mode == 'show')
+		$title = $title . $this->lng->txt('rep_robj_xrs_booking_in_show');
+		$title = $title . ': ' . $this->lng->txt('rep_robj_xrs_room');
+		$title = $title . " " . $this->getRoomFromId();
+
+		if ($this->mode == 'edit')
 		{
-			$title = $title . $this->lng->txt('rep_robj_xrs_booking_in show');
-		}
-		elseif ($mode == 'edit')
-		{
-			$title = $title . $this->lng->txt('rep_robj_xrs_booking_in_edit');
+			$title = $title . " " . $this->lng->txt('rep_robj_xrs_booking_in_edit');
 		}
 
 		return $title;
 	}
 
-	private function createAndSetFormItems($mode, $a_booking_id)
+	/**
+	 * Generate the room name.
+	 *
+	 * @return string
+	 */
+	private function getRoomFromId()
+	{
+		$rooms = new ilRoomSharingRooms($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
+		return $rooms->getRoomName($this->room_id);
+	}
+
+	/**
+	 * Main function for the gui creation and also set the values.
+	 *
+	 * @return type
+	 */
+	private function createAndSetFormItems()
 	{
 		$booking = new ilRoomSharingBookings($this->pool_id);
-		$bookingData = array();
-		$bookingData = $booking->getBookingData($a_booking_id);
+		$bookingData = $booking->getBookingData($this->booking_id);
+		$this->date_from = $bookingData['booking_values']['date_from'];
+		$this->date_to = $bookingData['booking_values']['date_to'];
+		$this->old_booking_values = $bookingData['booking_values'];
+		$this->old_attr_values = $bookingData['attr_values'];
+		$this->old_participants = $bookingData['participants'];
 		$form_items = array();
-		$form_items[] = $this->createAndSetSubjectTextInput($mode, $bookingData['booking_values']);
-		$form_items[] = $this->createAndSetCommentTextInput($mode, $bookingData['booking_values']);
-		$booking_attributes = $this->createAndSetBookingAttributeTextInputs($mode,
-			$bookingData['attr_values']);
+		$form_items[] = $this->createAndSetSubjectTextInput($bookingData['booking_values']);
+		$form_items[] = $this->createAndSetCommentTextInput($bookingData['booking_values']);
+		$booking_attributes = $this->createAndSetBookingAttributeTextInputs($bookingData['attr_values']);
 		$form_items = array_merge($form_items, $booking_attributes);
-		$form_items[] = $this->createAndSetTimeRangeInput($mode, $bookingData['booking_values']);
-		$form_items[] = $this->createAndSetPublicBookingCheckBox($mode, $bookingData['booking_values']);
+		$form_items[] = $this->createAndSetTimeRangeInput();
+		$form_items[] = $this->createAndSetPublicBookingCheckBox($bookingData['booking_values']);
 		$form_items[] = $this->createAndSetUserAgreementCheckBoxIfPossible();
 		$form_items[] = $this->createRoomIdHiddenInputField();
 		$form_items[] = $this->createParticipantsSection();
-		$form_items[] = $this->createAndSetParticipantsMultiTextInput($mode, $bookingData['participants']);
+		$form_items[] = $this->createAndSetParticipantsMultiTextInput($bookingData['participants']);
 
 		return array_filter($form_items);
 	}
 
-	private function createAndSetCommentTextInput($mode, $bookingData)
+	/**
+	 * Generate and set the comment input field.
+	 *
+	 * @param array $a_bookingData
+	 * @return \ilTextInputGUI
+	 */
+	private function createAndSetCommentTextInput($a_bookingData)
 	{
 		$comment = new ilTextInputGUI($this->lng->txt("comment"), "comment");
 		$comment->setRequired(false);
 		$comment->setSize(40);
 		$comment->setMaxLength(4000);
-		$comment->setValue($bookingData['comment']);
-		if ($mode == 'show')
+		$comment->setValue($a_bookingData['bookingcomment']);
+		if ($this->mode == 'show')
 		{
 			$comment->setDisabled(true);
 		}
@@ -162,14 +230,20 @@ class ilRoomSharingShowAndEditBookGUI
 		return $comment;
 	}
 
-	private function createAndSetSubjectTextInput($mode, $bookingData)
+	/**
+	 * Generate and set the subject input field.
+	 *
+	 * @param array $a_bookingData
+	 * @return \ilTextInputGUI
+	 */
+	private function createAndSetSubjectTextInput($a_bookingData)
 	{
 		$subject = new ilTextInputGUI($this->lng->txt("subject"), "subject");
 		$subject->setRequired(true);
 		$subject->setSize(40);
 		$subject->setMaxLength(120);
-		$subject->setValue($bookingData['subject']);
-		if ($mode == 'show')
+		$subject->setValue($a_bookingData['subject']);
+		if ($this->mode == 'show')
 		{
 			$subject->setDisabled(true);
 		}
@@ -177,17 +251,28 @@ class ilRoomSharingShowAndEditBookGUI
 		return $subject;
 	}
 
-	private function createAndSetBookingAttributeTextInputs($mode, $bookingData)
+	/**
+	 * Generate and set the attribute input fields.
+	 *
+	 * @param array $a_bookingData
+	 * @return array
+	 */
+	private function createAndSetBookingAttributeTextInputs($a_bookingData)
 	{
 		$text_input_items = array();
 		$booking_attributes = $this->getBookingAttributes();
 		foreach ($booking_attributes as $attr)
 		{
-			$text_input_items[] = $this->createSingleBookingAttributeTextInput($attr, $mode, $bookingData);
+			$text_input_items[] = $this->createSingleBookingAttributeTextInput($attr, $a_bookingData);
 		}
 		return $text_input_items;
 	}
 
+	/**
+	 * Get all booking attributes of the pool.
+	 *
+	 * @return array
+	 */
 	private function getBookingAttributes()
 	{
 		$ilBookings = new ilRoomSharingBookings();
@@ -195,15 +280,22 @@ class ilRoomSharingShowAndEditBookGUI
 		return $ilBookings->getAdditionalBookingInfos();
 	}
 
-	private function createSingleBookingAttributeTextInput($a_attribute, $mode, $a_bookingdata)
+	/**
+	 * Generate and set each booking attribute input fields.
+	 *
+	 * @param array $a_attribute
+	 * @param array $a_bookingdata
+	 * @return \ilTextInputGUI
+	 */
+	private function createSingleBookingAttributeTextInput($a_attribute, $a_bookingdata)
 	{
 		$attr_id = $a_attribute['id'];
 		$attr_txt = $a_attribute['txt'];
 		$attr = new ilTextInputGUI($attr_txt, $attr_id);
 		$attr->setSize(40);
 		$attr->setMaxLength(120);
-		$attr->setValue($a_bookingdata[$attr_id][value]);
-		if ($mode == 'show')
+		$attr->setValue($this->getAttributValue($a_bookingdata, $attr_id));
+		if ($this->mode == 'show')
 		{
 			$attr->setDisabled(true);
 		}
@@ -211,7 +303,34 @@ class ilRoomSharingShowAndEditBookGUI
 		return $attr;
 	}
 
-	private function createAndSetTimeRangeInput($mode, $a_bookingData)
+	/**
+	 * Perused the given array and search for the given attribute id and return the value.
+	 * If no value for the attribute exist, this return a empty string.
+	 *
+	 * @param Array $a_bookingdata
+	 * @param Strin $attr_id
+	 * @return String Value
+	 */
+	private function getAttributValue($a_bookingdata, $attr_id)
+	{
+		$value = '';
+		for ($i = 0; $i < sizeof($a_bookingdata, 0); $i++)
+		{
+			$data = $a_bookingdata[$i];
+			if ($data['attr_id'] == $attr_id)
+			{
+				$value = $data[value];
+			}
+		}
+		return $value;
+	}
+
+	/**
+	 * Generate and organize the time range input fields.
+	 *
+	 * @return \ilCombinationInputGUI
+	 */
+	private function createAndSetTimeRangeInput()
 	{
 		$time_range = new ilCombinationInputGUI($this->lng->txt("assessment_log_datetime"), "time_range");
 
@@ -220,10 +339,8 @@ class ilRoomSharingShowAndEditBookGUI
 		$from_transl = $this->lng->txt($from_id);
 		$to_transl = $this->lng->txt($to_id);
 
-		$time_input_from = $this->createAndSetDateTimeInput($from_transl, $from_id, $this->date_from,
-			$a_bookingData['date_from']);
-		$time_input_to = $this->createAndSetDateTimeInput($to_transl, $to_id, $this->date_to,
-			$a_bookingData['date_to'], $mode);
+		$time_input_from = $this->createAndSetDateTimeInput($from_transl, $from_id, $this->date_from);
+		$time_input_to = $this->createAndSetDateTimeInput($to_transl, $to_id, $this->date_to);
 
 		$time_range->addCombinationItem($from_id, $time_input_from, $from_transl);
 		$time_range->addCombinationItem($to_id, $time_input_to, $to_transl);
@@ -231,7 +348,15 @@ class ilRoomSharingShowAndEditBookGUI
 		return $time_range;
 	}
 
-	private function createAndSetDateTimeInput($a_title, $a_postvar, $a_date, $a_value, $mode)
+	/**
+	 * Generate and set date time input field
+	 *
+	 * @param string $a_title
+	 * @param string $a_postvar
+	 * @param string $a_date in the format YYYY-MM-DD HH:MM:SS
+	 * @return \ilDateTimeInputGUI
+	 */
+	private function createAndSetDateTimeInput($a_title, $a_postvar, $a_date)
 	{
 		$date_time_input = new ilDateTimeInputGUI($a_title, $a_postvar);
 		if (isset($a_date))
@@ -240,8 +365,7 @@ class ilRoomSharingShowAndEditBookGUI
 		}
 		$date_time_input->setMinuteStepSize(5);
 		$date_time_input->setShowTime(true);
-		$date_time_input->setValueByArray($a_value);
-		if ($mode == 'show')
+		if ($this->mode == 'show')
 		{
 			$date_time_input->setDisabled(true);
 		}
@@ -249,12 +373,18 @@ class ilRoomSharingShowAndEditBookGUI
 		return $date_time_input;
 	}
 
-	private function createAndSetPublicBookingCheckBox($mode, $a_bookingData)
+	/**
+	 * Generate and set the public booking checkbox
+	 *
+	 * @param array $a_bookingData
+	 * @return \ilCheckboxInputGUI
+	 */
+	private function createAndSetPublicBookingCheckBox($a_bookingData)
 	{
 		$checkbox_public = new ilCheckboxInputGUI($this->lng->txt("rep_robj_xrs_room_public_booking"),
 			"book_public");
-		$checkbox_public->setValue($a_bookingData['book_public']);
-		if ($mode == 'show')
+		$checkbox_public->setChecked($a_bookingData['public_booking'] == 1 ? true : false);
+		if ($this->mode == 'show')
 		{
 			$checkbox_public->setDisabled(true);
 		}
@@ -262,6 +392,11 @@ class ilRoomSharingShowAndEditBookGUI
 		return $checkbox_public;
 	}
 
+	/**
+	 * Generate and always set the user agreement checkbox if available.
+	 *
+	 * @return \ilCheckboxInputGUI
+	 */
 	private function createAndSetUserAgreementCheckBoxIfPossible()
 	{
 		if ($this->isRoomAgreementIdAvailable())
@@ -270,6 +405,11 @@ class ilRoomSharingShowAndEditBookGUI
 		}
 	}
 
+	/**
+	 * Check and get the room agreement id if available.
+	 *
+	 * @return type
+	 */
 	private function isRoomAgreementIdAvailable()
 	{
 		$agreement_id = $this->book->getRoomAgreementFileId();
@@ -277,6 +417,11 @@ class ilRoomSharingShowAndEditBookGUI
 		return !empty($agreement_id);
 	}
 
+	/**
+	 * Generate and always set the user agreement checkbox.
+	 *
+	 * @return \ilCheckboxInputGUI
+	 */
 	private function createUserAgreementCheckBox()
 	{
 		$agreement_id = $this->book->getRoomAgreementFileId();
@@ -285,12 +430,18 @@ class ilRoomSharingShowAndEditBookGUI
 		$checkbox_agreement = new ilCheckboxInputGUI($title, "accept_room_rules");
 		$checkbox_agreement->setRequired(true);
 		$checkbox_agreement->setOptionTitle($link);
-		$checkbox_agreement->setValue(true);
+		$checkbox_agreement->setChecked(true);
 		$checkbox_agreement->setDisabled(true);
 
 		return $checkbox_agreement;
 	}
 
+	/**
+	 * Generate the link to the room agreement.
+	 *
+	 * @param integer $a_file_id
+	 * @return string
+	 */
 	private function getFileLinkForUserAgreementId($a_file_id)
 	{
 		$agreement_file = new ilObjMediaObject($a_file_id);
@@ -311,7 +462,7 @@ class ilRoomSharingShowAndEditBookGUI
 		return $hidden_room_id;
 	}
 
-	private function createAndSetParticipantsMultiTextInput($mode, $a_bookingData)
+	private function createAndSetParticipantsMultiTextInput($a_bookingData)
 	{
 		$participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_participants_list"),
 			"participants");
@@ -319,6 +470,16 @@ class ilRoomSharingShowAndEditBookGUI
 		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
 		$participants_input->setDataSource($ajax_datasource);
 		$participants_input->setInfo($this->getMaxRoomAllocationInfo());
+		if (!empty($a_bookingData[0]))
+		{
+			$participants_input->setValue($a_bookingData[0]);
+		}
+		$participants_input->setMultiValues($a_bookingData);
+
+		if ($this->mode == 'show')
+		{
+			$participants_input->setDisabled(true);
+		}
 
 		return $participants_input;
 	}
@@ -326,7 +487,7 @@ class ilRoomSharingShowAndEditBookGUI
 	/**
 	 * Method that realizes the auto-completion for the participants list.
 	 */
-	private function doUserAutoComplete()
+	public function doUserAutoComplete()
 	{
 		$search_fields = array("login", "firstname", "lastname", "email");
 		$result_field = "login";
@@ -356,28 +517,9 @@ class ilRoomSharingShowAndEditBookGUI
 		return $participant_section;
 	}
 
-	/**
-	 * Function to the validate and save the form data
-	 *
-	 * @global type $ilTabs
-	 */
-	private function book()
-	{
-		$form = $this->createForm();
-		if ($this->isFormValid($form))
-		{
-			$this->evaluateFormEntries($form);
-		}
-		else
-		{
-			$this->handleInvalidForm($form);
-		}
-	}
-
 	private function isFormValid($a_form)
 	{
-		return $a_form->checkInput() && (!$this->isRoomAgreementIdAvailable() ||
-			$a_form->getInput('accept_room_rules') == 1);
+		return $a_form->checkInput();
 	}
 
 	private function evaluateFormEntries($a_form)
@@ -420,7 +562,7 @@ class ilRoomSharingShowAndEditBookGUI
 	{
 		try
 		{
-			$this->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
+			$this->updateBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
 		}
 		catch (ilRoomSharingBookException $ex)
 		{
@@ -428,11 +570,13 @@ class ilRoomSharingShowAndEditBookGUI
 		}
 	}
 
-	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
+	private function updateBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
 	{
 		//adds current calendar-id to booking information
 		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
-		$this->book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
+		$this->book->updateEditBooking($this->booking_id, $this->old_booking_values,
+			$this->old_attr_values, $this->old_participants, $a_common_entries, $a_attribute_entries,
+			$a_participant_entries);
 		$this->cleanUpAfterSuccessfulSave();
 	}
 
@@ -448,9 +592,9 @@ class ilRoomSharingShowAndEditBookGUI
 
 		$ilTabs->clearTargets();
 		$this->parent_obj->setTabs();
-		$this->ctrl->setCmd("render");
+		$this->ctrl->setCmd("showBooking");
 		$this->parent_obj->performCommand("");
-		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
+		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_succes_edit'), true);
 	}
 
 	private function handleInvalidForm($a_form)
@@ -483,6 +627,94 @@ class ilRoomSharingShowAndEditBookGUI
 	public function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
+	}
+
+	public function showBooking()
+	{
+		$this->renderBookingForm('show');
+	}
+
+	private function editBooking()
+	{
+		$this->renderBookingForm('edit');
+	}
+
+	private function saveEditBooking()
+	{
+		$form = $this->createForm();
+		if ($this->isFormValid($form))
+		{
+			$this->evaluateFormEntries($form);
+		}
+		else
+		{
+			$this->handleInvalidForm($form);
+		}
+	}
+
+	private function cancelEdit()
+	{
+		$this->renderBookingForm('show');
+	}
+
+	/**
+	 * Returns the booking id which was saved in the session.
+	 *
+	 * @return integer
+	 */
+	private function getBookingId()
+	{
+		return unserialize($_SESSION[self::SESSION_BOOKING_ID]);
+	}
+
+	/**
+	 * Saves the booking id in the session.
+	 *
+	 * @param integer  $a_bookingId
+	 */
+	private function setBookingId($a_bookingId)
+	{
+		$_SESSION[self::SESSION_BOOKING_ID] = serialize($a_bookingId);
+	}
+
+	/**
+	 * Returns the room id which was saved in the session.
+	 *
+	 * @return integer
+	 */
+	private function getRoomId()
+	{
+		return unserialize($_SESSION[self::SESSION_ROOM_ID]);
+	}
+
+	/**
+	 * Saves the room id in the session.
+	 *
+	 * @param integer $a_roomId
+	 */
+	private function setRoomId($a_roomId)
+	{
+		$_SESSION[self::SESSION_ROOM_ID] = serialize($a_roomId);
+	}
+
+	/**
+	 * Returns the mode which was saved in the session.
+	 *
+	 * @return string
+	 */
+	private function getMode()
+	{
+		return unserialize($_SESSION[self::SESSION_MODE]);
+	}
+
+	/**
+	 * Saves the mode in the session.
+	 *
+	 * @param string  $a_mode
+	 */
+	private function setMode($a_mode)
+	{
+		$_SESSION[self::SESSION_MODE] = serialize($a_mode);
 	}
 
 }

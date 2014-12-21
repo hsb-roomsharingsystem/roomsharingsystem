@@ -102,11 +102,13 @@ class ilRoomSharingBookingsGUI
 
 		$ilTabs->clearTargets();
 		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
-			$this->ctrl->getLinkTarget($this, 'render'));
+			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
 		$booking_id = (int) $_GET['booking_id'];
-		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id);
-		$form = $booking->renderBookingForm($a_mode = 'show', $booking_id);
+		$room_id = (int) $_GET['room_id'];
+		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'show');
+		$form = $booking->renderBookingForm();
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $booking_id);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room_id);
 		$this->tpl->setContent($form->getHTML());
 	}
 
@@ -116,11 +118,29 @@ class ilRoomSharingBookingsGUI
 
 		$ilTabs->clearTargets();
 		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
-			$this->ctrl->getLinkTarget($this, 'render'));
+			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
 		$booking_id = (int) $_GET['booking_id'];
-		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id);
-		$form = $booking->renderBookingForm($a_mode = 'edit', $booking_id);
+		$room_id = (int) $_GET['room_id'];
+		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'edit');
+		$form = $booking->renderBookingForm();
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $booking_id);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room_id);
+		$this->tpl->setContent($form->getHTML());
+	}
+
+	function saveEditBookingObject()
+	{
+		global $ilTabs;
+
+		$ilTabs->clearTargets();
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
+		$booking_id = (int) $_GET['booking_id'];
+		$room_id = (int) $_GET['room_id'];
+		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'edit');
+		$form = $booking->renderBookingForm();
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $booking_id);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room_id);
 		$this->tpl->setContent($form->getHTML());
 	}
 

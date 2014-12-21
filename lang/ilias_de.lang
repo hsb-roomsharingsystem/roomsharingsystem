@@ -31,8 +31,10 @@ booking_confirm_cancel#:#Stornieren
 booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
 booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
 booking_edit#:#Bearbeiten
-booking_in_edit#:#In bearbeitung
-booking_in show#:#Buchung
+booking_edit_cancel#:#Abbrechen
+booking_succes_edit#:#Buchung erfolgreich bearbeitet
+booking_in_edit#:#in bearbeitung
+booking_in_show#:#Buchung für
 booking_save#:#Buchung speichern
 booking_no_cancel_ids#:#Geben Sie mindestens eine Buchung zum Stornieren an.
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
@@ -83,8 +85,10 @@ leave#:#Austreten
 mail_booking_creator_linktext#:#Sie finden ihre Buchung unter folgendem Link:
 mail_booking_creator_message#:#Sie haben erfolgreich einen Raum gebucht. Folgendes wurde gebucht:
 mail_booking_creator_subject#:#Sie haben einen Raum gebucht.
+mail_update_booking_creator_subject#:#Sie haben eine Buchung aktualisiert.
 mail_update_booking_creator_message#:#Sie haben erfolgreich eine Buchung aktualisiert. Sie wurde auf folgendes geändert:
-mail_update_booking_creator_subject#:#Sie haben erfolgreich eine Buchung aktualisiert.
+mail_update_booking_participant_subject#:#Eine Buchung in der sie als Teilnehmer eingetragen sind, wurde aktualisiert.
+mail_update_booking_participant_message#:#Eine Raum-Buchung wurde aktualisiert bei der Sie als Teilnehmer eingetragen sind. Sie wurde auf folgendes geändert:
 mail_booking_participant_message#:#Jemand hat eine Raum-Buchung erstellt und Sie wurden als Teilnehmer eingetragen. Sie sind jetzt Teilnehmer bei folgender Buchung:
 mail_booking_participant_subject#:#Jemand hat Sie bei einer Raum-Buchung als Teilnehmer eingetragen.
 mail_cancellation_creator_message#:#Ihre Raum-Buchung wurde storniert. Der folgende Raum ist jetzt wieder frei:

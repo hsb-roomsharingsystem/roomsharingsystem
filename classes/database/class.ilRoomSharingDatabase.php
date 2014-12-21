@@ -228,6 +228,40 @@ class ilRoomsharingDatabase
 	}
 
 	/**
+	 * Get all other the booking-ids for a room-id that in the given timerange.
+	 *
+	 * @param string $a_date_from
+	 * @param string $a_date_to
+	 * @param string $a_room_id
+	 * @parm integer $a_booking_id
+	 *
+	 * @return array values = all other book ids for the given room ids in the time range
+	 */
+	public function getBookingIdForRoomInDateTimeRange($a_date_from, $a_date_to, $a_room_id,
+		$a_booking_id)
+	{
+		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE .
+			' WHERE pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
+			' room_id = ' . $this->ilDB->quote($a_room_id, 'text') . ' AND ' .
+			' id != ' . $this->ilDB->quote($a_booking_id, 'integer') . ' AND ' .
+			' (' . $this->ilDB->quote($a_date_from, 'timestamp') .
+			' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_date_to, 'timestamp') .
+			' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
+			$this->ilDB->quote($a_date_from, 'timestamp') . ' AND ' . $this->ilDB->quote($a_date_to,
+				'timestamp') .
+			' OR date_to BETWEEN ' . $this->ilDB->quote($a_date_from, 'timestamp') .
+			' AND ' . $this->ilDB->quote($a_date_to, 'timestamp') . ')';
+
+		$set = $this->ilDB->query($query);
+		$booking_ids = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$booking_ids[] = $row ['id'];
+		}
+		return $booking_ids;
+	}
+
+	/**
 	 * Insert a booking into the database.
 	 *
 	 * @global type $this->ilDB
@@ -282,12 +316,13 @@ class ilRoomsharingDatabase
 	 * @param type $a_booking_participants
 	 * @return int
 	 */
-	public function updateBooking($a_booking_id, $a_booking_attr_values, $a_booking_values,
-		$a_booking_participants)
+	public function updateBooking($a_booking_id, $a_booking_attr_values, $a_old_booking_attr_values,
+		$a_booking_values, $a_old_booking_values, $a_booking_participants, $a_old_booking_participants)
 	{
 		global $ilUser;
 
 		$fields = array(
+			'id' => array('integer', $a_booking_id),
 			'date_from' => array('timestamp', $a_booking_values ['from'] ['date'] . " " .
 				$a_booking_values ['from'] ['time']),
 			'date_to' => array('timestamp', $a_booking_values ['to'] ['date'] . " " .
@@ -299,18 +334,17 @@ class ilRoomsharingDatabase
 			'bookingcomment' => array('text', $a_booking_values ['comment'])
 		);
 		$where = array(
-			"id" => array("integer", $a_booking_id),
-			"pool_id" => array("integer", $this->pool_id)
+			'id' => array('integer', $a_booking_id),
+			'pool_id' => array('integer', $this->pool_id)
 		);
 
 		$this->ilDB->update(dbc::BOOKINGS_TABLE, $fields, $where);
 
 		$this->updateBookingAttributes($a_booking_id, $a_booking_attr_values);
 
-		//TODO funktion vervollständigen
-		$this->updateBookingParticipants($a_booking_id, $a_booking_participants);
+		$this->updateBookingParticipants($a_booking_id, $a_booking_participants,
+			$a_old_booking_participants);
 
-		//TODO funktion vervollständigen
 		$this->updateBookingAppointment($a_booking_id, $a_booking_values);
 
 		return 1;
@@ -373,6 +407,7 @@ class ilRoomsharingDatabase
 	{
 		//create appointment first
 		include_once('Services/Calendar/classes/class.ilDate.php');
+
 		$time_start = new ilDateTime($a_booking_values ['from']['date'] . ' ' . $a_booking_values ['from']['time'],
 			1);
 		$time_end = new ilDateTime($a_booking_values ['to']['date'] . ' ' . $a_booking_values ['to']['time'],
@@ -496,34 +531,62 @@ class ilRoomsharingDatabase
 		}
 	}
 
-	private function updateBookingParticipants($a_booking_id, $a_booking_participants)
+	/**
+	 * Method to update the booking participants in the database.
+	 *
+	 * @global type $ilUser
+	 * @param integer $a_booking_id
+	 * @param array $a_booking_participants
+	 * 				Array with the values of the booking-participants
+	 * @param array $a_old_booking_participants
+	 * 				Array with the old values of the booking-participants
+	 */
+	private function updateBookingParticipants($a_booking_id, $a_booking_participants,
+		$a_old_booking_participants)
 	{
 		global $ilUser;
 
 		$booked_participants = array();
-
-		// Insert the attributes for the booking in the conjunction table
 		foreach ($a_booking_participants as $booking_participant_value)
 		{
 			// Only insert the attribute value, if a value was submitted by the user
-			if ($booking_participant_value !== "" && $booking_participant_value != $ilUser->getLogin())
+			if ($booking_participant_value != $ilUser->getLogin())
 			{
-				//Check if the user is already a participant of this booking
 				//(avoids duplicate participations for one user in one booking)
 				if (in_array($booking_participant_value, $booked_participants))
 				{
 					continue;
 				}
-
 				$booked_participants[] = $booking_participant_value;
-
+				//Check if the user is still in the booking
+				if (in_array($booking_participant_value, $a_old_booking_participants))
+				{
+					continue;
+				}
 				//Get the id of the participant (user) by the given username
 				$booking_participant_id = $this->getUserIdByUsername($booking_participant_value);
 
 				//Check if the id has a correct format
 				if (ilRoomSharingNumericUtils::isPositiveNumber($booking_participant_id))
 				{
-					$this->insertBookingParticipant($a_insertedId, $booking_participant_id);
+					$this->insertBookingParticipant($a_booking_id, $booking_participant_id);
+				}
+			}
+		}
+
+		//Check if the user are no longer in the booking and
+		//delete the participations from the booking.
+		foreach ($a_old_booking_participants as $booking_participant_value)
+		{
+			if (in_array($booking_participant_value, $a_old_booking_participants) &&
+				!in_array($booking_participant_value, $booked_participants))
+			{
+				//Get the id of the participant (user) by the given username
+				$booking_participant_id = $this->getUserIdByUsername($booking_participant_value);
+
+				if (ilRoomSharingNumericUtils::isPositiveNumber($booking_participant_id))
+				{
+					$this->deleteParticipation($booking_participant_id, $a_booking_id);
 				}
 			}
 		}
@@ -970,7 +1033,7 @@ class ilRoomsharingDatabase
 	{
 		return $this->ilDB->manipulate(
 				'DELETE FROM ' . dbc::BOOK_USER_TABLE . ' WHERE user_id = ' .
-				$this->ilDB->quote($a_user_id(), 'integer') .
+				$this->ilDB->quote($a_user_id, 'integer') .
 				' AND booking_id = ' . $this->ilDB->quote($a_booking_id, 'integer'));
 	}
 
@@ -1026,7 +1089,7 @@ class ilRoomsharingDatabase
 		$booking = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
 		{
-			$booking[] = $row;
+			$booking = $row;
 		}
 		return $booking;
 	}

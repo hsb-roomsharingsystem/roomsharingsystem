@@ -181,10 +181,14 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		// link for the date overview
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_APPOINTMENTS))
 		{
-			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $a_rowData['id']);
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id',
+				$a_rowData['id']);
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id',
+				$a_rowData['room_id']);
 			$this->tpl->setVariable('HREF_DATE',
-				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showBooking'));
-			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', '');
+				$this->ctrl->getLinkTargetByClass('ilRoomSharingShowAndEditBookGUI', 'showBooking'));
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id', '');
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id', '');
 		}
 	}
 
@@ -280,15 +284,18 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	private function setActions($a_rowData)
 	{
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_rowData ['id']);
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject',
-			$a_rowData ['subject']);
 		$this->tpl->setCurrentBlock("actions");
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id',
+				$a_rowData ['id']);
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id',
+				$a_rowData ['room_id']);
 			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBooking'));
+				$this->ctrl->getLinkTargetByClass('ilRoomSharingShowAndEditBookGUI', 'editBooking'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_edit'));
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id', '');
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id', '');
 		}
 		$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 		$this->tpl->parseCurrentBlock();
@@ -296,12 +303,15 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS) || $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY))
 		{
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject',
+				$a_rowData ['subject']);
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_rowData ['id']);
 			$this->tpl->setVariable('LINK_ACTION',
 				$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'confirmCancel'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_cancel'));
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', '');
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', '');
 		}
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', '');
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', '');
 	}
 
 }

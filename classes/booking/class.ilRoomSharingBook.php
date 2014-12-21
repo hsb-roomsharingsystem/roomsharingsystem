@@ -19,6 +19,9 @@ class ilRoomSharingBook
 	private $date_to;
 	private $room_id;
 	private $participants;
+	private $booking_id;
+	private $date_from_old;
+	private $date_to_old;
 
 	/**
 	 * Constructor
@@ -91,26 +94,130 @@ class ilRoomSharingBook
 	 * @param type $a_booking_participants
 	 * @throws ilRoomSharingBookException
 	 */
-	public function updateEditBooking($a_booking_values, $a_booking_attr_values,
-		$a_booking_participants)
+	public function updateEditBooking($a_booking_id, $a_old_booking_values, $a_old_booking_attr_values,
+		$a_old_booking_participants, $a_booking_values, $a_booking_attr_values, $a_booking_participants)
 	{
 		$this->date_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
 		$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
 		$this->room_id = $a_booking_values ['room'];
-		$this->participants = $a_booking_participants;
+		$booking_participants = $this->deleteEmptyUser($a_booking_participants);
+		$newFromDate = $a_booking_values['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
+		$newToDate = $a_booking_values['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
+		$oldFromDate = $a_old_booking_values['date_from'];
+		$oldToDate = $a_old_booking_values['date_to'];
+		$this->participants = $booking_participants;
+		$this->booking_id = $a_booking_id;
+		$this->date_from_old = $oldFromDate;
+		$this->date_to_old = $oldToDate;
 
-		$this->validateBookingInput();
-		$success = $this->updateBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants);
-		//$success = $this->insertBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants);
 
+		$this->validateEditBookingInput();
+		$success = $this->updateBooking($a_booking_id, $a_booking_attr_values, $a_old_booking_attr_values,
+			$a_booking_values, $a_old_booking_values, $booking_participants, $a_old_booking_participants);
+
+		$dateChange = $oldFromDate != $newFromDate || $oldToDate != $newToDate;
+		$participantsChange = $a_old_booking_participants != $booking_participants;
 		if ($success)
 		{
-			$this->sendBookingUpdatedNotification();
+			$deletedUser = $this->getDeletedUser($booking_participants, $a_old_booking_participants);
+			$newUser = $this->getNewUser($booking_participants, $a_old_booking_participants);
+			if ($participantsChange && $dateChange)
+			{
+				$this->sendBookingUpdatedNotification($booking_participants);
+				if ($deletedUser != array())
+				{
+					$this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
+				}
+				if ($newUser != array())
+				{
+					$this->sendBookingNotificationToNewUser($newUser);
+				}
+			}
+			else if ($participantsChange)
+			{
+				if ($deletedUser != array())
+				{
+					$this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
+				}
+				if ($newUser != array())
+				{
+					$this->sendBookingNotificationToNewUser($newUser);
+				}
+			}
+			else if ($dateChange)
+			{
+				//Send a email notifications to the creator and participants
+				$this->sendBookingUpdatedNotification($booking_participants);
+			}
 		}
 		else
 		{
 			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
 		}
+	}
+
+	/**
+	 * Return a array with the all deleted participants.
+	 * If no user user is deleted, a empty array will be returned.
+	 *
+	 * @param array $a_booking_participants = new participants
+	 * @param array $a_old_booking_participants = old participants
+	 * @return array
+	 */
+	private function getDeletedUser($a_booking_participants, $a_old_booking_participants)
+	{
+		$deletedUser = array();
+		foreach ($a_old_booking_participants as $user)
+		{
+			if (!in_array($user, $a_booking_participants))
+			{
+
+				$deletedUser[] = $user;
+			}
+		}
+		return $deletedUser;
+	}
+
+	/**
+	 * Return all new User from the $a_booking_participants array.
+	 *
+	 * @param array $a_booking_participants with the new participants
+	 * @param array $a_old_booking_participants with the old participants
+	 * @return array
+	 * 			If there are no new user, return a empty array if no new user found.
+	 */
+	private function getNewUser($a_booking_participants, $a_old_booking_participants)
+	{
+		$newUser = array();
+		foreach ($a_booking_participants as $user)
+		{
+			if (!in_array($user, $a_old_booking_participants))
+			{
+				$newUser[] = $user;
+			}
+		}
+		return $newUser;
+	}
+
+	/**
+	 * Removing all empty user entry from the $a_booking_participants array.
+	 *
+	 * @param array $a_booking_participants with the participants
+	 * @return array
+	 * 			the new array without empty users.
+	 */
+	private function deleteEmptyUser($a_booking_participants)
+	{
+		$booking_booking_participants = array();
+		foreach ($a_booking_participants as $user)
+		{
+			if ($user != '')
+			{
+				$booking_booking_participants[] = $user;
+			}
+		}
+
+		return $booking_booking_participants;
 	}
 
 	/**
@@ -129,6 +236,31 @@ class ilRoomSharingBook
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_bigger_dateto"));
 		}
 		if ($this->isAlreadyBooked())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_already_booked"));
+		}
+		if ($this->isRoomOverbooked())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_max_allocation_exceeded"));
+		}
+	}
+
+	/**
+	 * Checks if the edit booking input is valid (e.g. valid dates, already booked rooms, ...)
+	 *
+	 * @throws ilRoomSharingBookException
+	 */
+	private function validateEditBookingInput()
+	{
+		if ($this->isBookingInPast())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_is_earlier_than_now"));
+		}
+		if ($this->checkForInvalidDateConditions())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_bigger_dateto"));
+		}
+		if ($this->isAlreadyBookedForEdits())
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_already_booked"));
 		}
@@ -164,6 +296,45 @@ class ilRoomSharingBook
 		$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($this->date_from,
 			$this->date_to, $this->room_id);
 		return ($temp !== array());
+	}
+
+	/**
+	 * Method to check if the selected room is already booked in the given time range
+	 *
+	 * Return false if the room is free.
+	 */
+	private function isAlreadyBookedForEdits()
+	{
+		$intDateFrom = $this->stringTimeToInt($this->date_from);
+		$intDateFromOld = $this->stringTimeToInt($this->date_from_old);
+		$intDateTo = $this->stringTimeToInt($this->date_to);
+		$intDateToOld = $this->stringTimeToInt($this->date_to_old);
+		$newTimeEqualsOldTime = $this->date_from == $this->date_from_old && $this->date_to == $this->date_to_old;
+		$newTimeBetweenOldTime = $intDateFrom > $intDateFromOld && $intDateTo < $intDateToOld;
+		$newTimeBeforeOldTime = $intDateFrom < $intDateFromOld;
+		$newTimeAfterOldTime = $intDateTo > $intDateToOld;
+		$newTimeBeforeAndAfterOldTime = $newTimeBeforeOldTime && $newTimeAfterOldTime;
+		if ($newTimeEqualsOldTime || $newTimeBetweenOldTime)
+		{
+			return false;
+		}
+		else if ($newTimeBeforeOldTime || $newTimeAfterOldTime || $newTimeBeforeAndAfterOldTime)
+		{
+			$temp = $this->ilRoomsharingDatabase->getBookingIdForRoomInDateTimeRange($this->date_from,
+				$this->date_to, $this->room_id, $this->booking_id);
+			return ($temp !== array());
+		}
+	}
+
+	/**
+	 * Convert the given string time to a integer value.
+	 *
+	 * @param string $a_date
+	 * @return integer
+	 */
+	private function stringTimeToInt($a_date)
+	{
+		return strtotime($a_date);
 	}
 
 	/**
@@ -205,19 +376,21 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Method to updated a existing booking in the database
+	 * Method to updated a booking in the database.
 	 *
-	 * @param type $booking_id
-	 * @param type $booking_attr_values
-	 * @param type $booking_values
-	 * @param type $booking_participants
-	 * @return type
+	 * @param integer $booking_id
+	 * @param array $booking_attr_values
+	 * @param array $booking_values
+	 * @param array $booking_participants
+	 *
+	 * @return boolean true if the update was successful
 	 */
-	private function updateBooking($booking_id, $booking_attr_values, $booking_values,
-		$booking_participants)
+	private function updateBooking($a_booking_id, $a_booking_attr_values, $a_old_booking_attr_values,
+		$a_booking_values, $a_old_booking_values, $a_booking_participants, $a_old_booking_participants)
 	{
-		return $this->ilRoomsharingDatabase->updateBooking($booking_id, $booking_attr_values,
-				$booking_values, $booking_participants);
+		return $this->ilRoomsharingDatabase->updateBooking($a_booking_id, $a_booking_attr_values,
+				$a_old_booking_attr_values, $a_booking_values, $a_old_booking_values, $a_booking_participants,
+				$a_old_booking_participants);
 	}
 
 	/**
@@ -247,7 +420,12 @@ class ilRoomSharingBook
 		$mailer->sendBookingMail($this->user->getId(), $this->participants);
 	}
 
-	private function sendBookingUpdatedNotification()
+	/**
+	 * Generates a booking acknowledgement via mail to given new Users.
+	 *
+	 * @param array $newUser
+	 */
+	private function sendBookingNotificationToNewUser($newUser)
 	{
 		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
 
@@ -255,7 +433,40 @@ class ilRoomSharingBook
 		$mailer->setRoomname($room_name);
 		$mailer->setDateStart($this->date_from);
 		$mailer->setDateEnd($this->date_to);
-		$mailer->sendUpdateBookingMail($this->user->getId(), $this->participants);
+		$mailer->sendBookingMailToNewUser($newUser);
+	}
+
+	/**
+	 * Generates a update booking acknowledgement via mail.
+	 *
+	 * @parm array $a_participants with the user-ids
+	 */
+	private function sendBookingUpdatedNotification($a_participants)
+	{
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
+
+		$mailer = new ilRoomSharingMailer($this->lng);
+		$mailer->setRoomname($room_name);
+		$mailer->setDateStart($this->date_from);
+		$mailer->setDateEnd($this->date_to);
+		$mailer->sendUpdateBookingMail($this->user->getId(), $a_participants);
+	}
+
+	/**
+	 * Generates a booking acknowledgement about a booking cancel for the users via mail.
+	 *
+	 * @param array $a_deletedUser
+	 * 			user-id who get the mail
+	 */
+	private function sendBookingUpdatedNotificationToCanceldUser($a_deletedUser)
+	{
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
+
+		$mailer = new ilRoomSharingMailer($this->lng);
+		$mailer->setRoomname($room_name);
+		$mailer->setDateStart($this->date_from);
+		$mailer->setDateEnd($this->date_to);
+		$mailer->sendCancellationMailToParticipants($deletedUser);
 	}
 
 	/**

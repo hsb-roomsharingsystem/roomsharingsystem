@@ -68,10 +68,6 @@ class ilRoomSharingBookGUI
 	/**
 	 *
 	 * Renders the booking form as HTML.
-	 *
-	 * @param type $mode default is 'create'
-	 * 				possibles modes {'create',''edit', 'show'}
-	 * @param type $a_booking_id
 	 */
 	public function renderBookingForm()
 	{
@@ -103,7 +99,7 @@ class ilRoomSharingBookGUI
 	private function getFormTitle()
 	{
 		$title = $this->lng->txt('rep_robj_xrs_room_book') . ': ' . $this->lng->txt('rep_robj_xrs_room');
-		$title = $title . $msg . " " . $this->getRoomFromId();
+		$title = $title . " " . $this->getRoomFromId();
 		return $title;
 	}
 
@@ -385,7 +381,7 @@ class ilRoomSharingBookGUI
 
 	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
 	{
-		//adds current calendar-id to booking information
+//adds current calendar-id to booking information
 		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
 		$this->book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
 		$this->cleanUpAfterSuccessfulSave();

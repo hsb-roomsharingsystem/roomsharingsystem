@@ -31,8 +31,10 @@ booking_confirm_cancel#:#Cancel booking
 booking_deleted#:#Booking deleted! (following sequence bookings are not affected)
 booking_doesnt_exists#:#This booking does not exist any more!
 booking_edit#:#Editing
-booking_in_edit#:#In process
-booking_in_show#:#Booking
+booking_edit_cancel#:#Cancel
+booking_in_edit#:#in process
+booking_succes_edit#:#Booking successful edit
+booking_in_show#:#Booking for
 booking_save#:#Save booking
 booking_no_cancel_ids#:#Tick at least one booking to cancel.
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
@@ -83,8 +85,10 @@ leave#:#Leave
 mail_booking_creator_linktext#:#You can see your booking via the following link:
 mail_booking_creator_message#:#You have successfully booked a room. This is what you have booked:
 mail_booking_creator_subject#:#You booked a room.
+mail_update_booking_creator_subject#:#You have updated a booking.
 mail_update_booking_creator_message#:#You have successfully updated a booking. This are the new details:
-mail_update_booking_creator_subject#:#Sie haben erfolgreich eine Bchung aktualisiert.
+mail_update_booking_participant_subject#:#A booking where you are a participant was updated.
+mail_update_booking_participant_message#:#A room booking where you are a participant was updated. This are the new details:
 mail_booking_participant_message#:#Someone booked a room and added you as a participant. You have been added for the following booking:
 mail_booking_participant_subject#:#Someone booked a room and added you as a participant.
 mail_cancellation_creator_message#:#Your booking has been canceled. The following room is no longer yours:
