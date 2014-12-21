@@ -151,14 +151,14 @@ class ilRoomSharingPoolsHelper
 		{
 			// Critical: should be the floorplan_id the building_id or the file_id?
 			// building_id is actually used..
-			$mapped_floorplan_id = $floorplans_ids_mapping[$room['building_id']];
+			$mapped_floorplan_id = $floorplans_ids_mapping[$room['file_id']];
 			$flooplan_id_to_set = "0";
 			if (ilRoomSharingNumericUtils::isPositiveNumber($mapped_floorplan_id))
 			{
 				$flooplan_id_to_set = $mapped_floorplan_id;
 			}
 			$cloned_room_id = $clone_db->insertRoom($room['name'], $room['type'], $room['min_alloc'],
-				$room['max_alloc'], $room['file_id'], $flooplan_id_to_set);
+				$room['max_alloc'], $flooplan_id_to_set, $room['building_id']);
 			// Room attribute assignments
 			$room_attributes = $db->getAttributesForRoom($room['id']);
 			foreach ($room_attributes as $room_attribute)

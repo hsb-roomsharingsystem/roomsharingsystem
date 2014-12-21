@@ -539,7 +539,7 @@ class ilRoomSharingRoom
 	 */
 	public function getFileId()
 	{
-		return (int) $this->fileId;
+		return (int) $this->file_id;
 	}
 
 	/**

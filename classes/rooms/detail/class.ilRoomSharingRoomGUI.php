@@ -232,7 +232,7 @@ class ilRoomSharingRoomGUI
 		$form_gui->addItem($max_alloc);
 
 		$floor_plan = new ilSelectInputGUI(
-			$this->lng->txt("rep_robj_xrs_room_floor_plans"), "building_id");
+			$this->lng->txt("rep_robj_xrs_room_floor_plans"), "file_id");
 		$floor_plan->setOptions($this->room_obj->getAllFloorplans());
 		$floor_plan->setDisabled(true);
 		$form_gui->addItem($floor_plan);
@@ -296,11 +296,11 @@ class ilRoomSharingRoomGUI
 			$type->setValue($this->room_obj->getType());
 			$min_alloc->setValue($this->room_obj->getMinAlloc());
 			$max_alloc->setValue($this->room_obj->getMaxAlloc());
-			$floor_plan->setValue($this->room_obj->getBuildingId());
+			$floor_plan->setValue($this->room_obj->getFileId());
 			if ($a_mode == "show")
 			{
 				$floor_plan->setDisabled(true);
-				$mobj = new ilObjMediaObject($this->room_obj->getBuildingId());
+				$mobj = new ilObjMediaObject($this->room_obj->getFileId());
 				$mitems = $mobj->getMediaItems();
 				if (!empty($mitems))
 				{
@@ -363,7 +363,7 @@ class ilRoomSharingRoomGUI
 				$this->room_obj->setType($this->form_gui->getInput("type"));
 				$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 				$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-				$this->room_obj->setBuildingId($this->form_gui->getInput("building_id"));
+				$this->room_obj->setFileId($this->form_gui->getInput("file_id"));
 
 				foreach ($this->getSetAttributeValuesFromForm() as $set_attribute_values)
 				{
@@ -429,7 +429,7 @@ class ilRoomSharingRoomGUI
 				$this->room_obj->setType($this->form_gui->getInput("type"));
 				$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 				$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-				$this->room_obj->setBuildingId($this->form_gui->getInput("building_id"));
+				$this->room_obj->setFileId($this->form_gui->getInput("file_id"));
 
 				$this->room_obj->resetAttributes();
 
