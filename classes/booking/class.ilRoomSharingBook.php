@@ -393,7 +393,7 @@ class ilRoomSharingBook
 				$a_old_booking_participants);
 	}
 
-	 * Generates a booking acknowledgement via mail.
+	/** Generates a booking acknowledgement via mail.
 	 *
 	 * @return array $recipient_ids List of recipients.
 	 */

@@ -733,7 +733,7 @@ class ilRoomSharingDatabase
 		}
 	}
 
- * Delete calendar of current pool.
+	/** Delete calendar of current pool.
 	 *
 	 * @param int $cal_id
 	 */
