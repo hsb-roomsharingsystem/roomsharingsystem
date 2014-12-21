@@ -365,23 +365,26 @@ class ilRoomSharingBook
 	/**
 	 * Method to insert the booking
 	 *
-	 * @param array $booking_attr_values
+	 * @param array $a_booking_attr_values
 	 *        	Array with the values of the booking-attributes
 	 * @return type -1 failed insert, 1 successful insert
 	 */
-	private function insertBooking($booking_attr_values, $booking_values, $booking_participants)
+	private function insertBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants)
 	{
-		return $this->ilRoomsharingDatabase->insertBooking($booking_attr_values, $booking_values,
-				$booking_participants);
+		return $this->ilRoomsharingDatabase->insertBooking($a_booking_attr_values, $a_booking_values,
+				$a_booking_participants);
 	}
 
 	/**
-	 * Method to updated a booking in the database.
+	 * Methode to update a booking in the database.
 	 *
-	 * @param integer $booking_id
-	 * @param array $booking_attr_values
-	 * @param array $booking_values
-	 * @param array $booking_participants
+	 * @param string $a_booking_id
+	 * @param array $a_booking_attr_values
+	 * @param array $a_old_booking_attr_values
+	 * @param array $a_booking_values
+	 * @param array $a_old_booking_values
+	 * @param array $a_booking_participants
+	 * @param array $a_old_booking_participants
 	 *
 	 * @return boolean true if the update was successful
 	 */
@@ -411,9 +414,9 @@ class ilRoomSharingBook
 	/**
 	 * Generates a booking acknowledgement via mail to given new Users.
 	 *
-	 * @param array $newUser
+	 * @param array $a_newUser
 	 */
-	private function sendBookingNotificationToNewUser($newUser)
+	private function sendBookingNotificationToNewUser($a_newUser)
 	{
 		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
 
@@ -421,7 +424,7 @@ class ilRoomSharingBook
 		$mailer->setRoomname($room_name);
 		$mailer->setDateStart($this->date_from);
 		$mailer->setDateEnd($this->date_to);
-		$mailer->sendBookingMailToNewUser($newUser);
+		$mailer->sendBookingMailToNewUser($a_newUser);
 	}
 
 	/**
@@ -454,7 +457,7 @@ class ilRoomSharingBook
 		$mailer->setRoomname($room_name);
 		$mailer->setDateStart($this->date_from);
 		$mailer->setDateEnd($this->date_to);
-		$mailer->sendCancellationMailToParticipants($deletedUser);
+		$mailer->sendCancellationMailToParticipants($a_deletedUser);
 	}
 
 	/**

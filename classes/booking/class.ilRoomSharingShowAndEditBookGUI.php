@@ -275,8 +275,7 @@ class ilRoomSharingShowAndEditBookGUI
 	 */
 	private function getBookingAttributes()
 	{
-		$ilBookings = new ilRoomSharingBookings();
-		$ilBookings->setPoolId($this->pool_id);
+		$ilBookings = new ilRoomSharingBookings($this->pool_id);
 		return $ilBookings->getAdditionalBookingInfos();
 	}
 
