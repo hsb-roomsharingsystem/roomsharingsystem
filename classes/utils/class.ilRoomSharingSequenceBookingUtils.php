@@ -395,7 +395,7 @@ class ilRoomSharingSequenceBookingUtils
 	private function getFollowingWeekdaysByWeekdayNames($a_startday, $a_weekday_shortnames,
 		$append_array = array())
 	{
-		if (!is_array($a_weekday_shortnames))
+		if (is_array($a_weekday_shortnames))
 		{
 			if (in_array("MO", $a_weekday_shortnames))
 			{

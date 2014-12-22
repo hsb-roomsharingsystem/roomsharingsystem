@@ -141,8 +141,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				break;
 		}
 
-		echo "<br>muh<br>";
-		print_r($data);
+//		echo "<br>muh<br>";
+//		print_r($data);
 
 		return $data;
 	}

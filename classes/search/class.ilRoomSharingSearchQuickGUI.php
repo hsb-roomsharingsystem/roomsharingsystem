@@ -320,9 +320,12 @@ class ilRoomSharingSearchQuickGUI
 			case "WEEKLY":
 				$days = unserialize($_SESSION ["form_qsearchform"] ["weekdays"]);
 				$d = array();
-				foreach ($days as $day)
+				if (is_array($days))
 				{
-					$d[] = $day;
+					foreach ($days as $day)
+					{
+						$d[] = $day;
+					}
 				}
 				$this->rec->setBYDAY(implode(",", $d));
 				break;
