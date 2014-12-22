@@ -4,6 +4,8 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 
+use ilRoomSharingPrivilegesConstants as PRIVC;
+
 /**
  * Backend-Class for the booking form.
  *
@@ -32,8 +34,9 @@ class ilRoomSharingBook
 	 */
 	public function __construct($a_pool_id)
 	{
-		global $lng, $ilUser;
+		global $lng, $ilUser, $rssPermission;
 
+		$this->permission = $rssPermission;
 		$this->lng = $lng;
 		$this->user = $ilUser;
 		$this->pool_id = $a_pool_id;
@@ -50,21 +53,25 @@ class ilRoomSharingBook
 	 */
 	public function addBooking($a_booking_values, $a_booking_attr_values, $a_booking_participants)
 	{
-		$this->date_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
-		$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
-		$this->room_id = $a_booking_values ['room'];
-		$this->participants = $a_booking_participants;
-
-		$this->validateBookingInput();
-		$success = $this->insertBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants);
-
-		if ($success)
+		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
-			$this->sendBookingNotification();
-		}
-		else
-		{
-			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
+			$this->date_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
+			$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
+			$this->room_id = $a_booking_values ['room'];
+			$this->participants = $a_booking_participants;
+
+			$this->validateBookingInput();
+			$success = $this->insertBooking($a_booking_attr_values, $a_booking_values,
+				$a_booking_participants);
+
+			if ($success)
+			{
+				$this->sendBookingNotification();
+			}
+			else
+			{
+				throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
+			}
 		}
 	}
 
@@ -97,62 +104,66 @@ class ilRoomSharingBook
 	public function updateEditBooking($a_booking_id, $a_old_booking_values, $a_old_booking_attr_values,
 		$a_old_booking_participants, $a_booking_values, $a_booking_attr_values, $a_booking_participants)
 	{
-		$this->date_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
-		$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
-		$this->room_id = $a_booking_values ['room'];
-		$booking_participants = $this->deleteEmptyUser($a_booking_participants);
-		$newFromDate = $a_booking_values['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
-		$newToDate = $a_booking_values['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
-		$oldFromDate = $a_old_booking_values['date_from'];
-		$oldToDate = $a_old_booking_values['date_to'];
-		$this->participants = $booking_participants;
-		$this->booking_id = $a_booking_id;
-		$this->date_from_old = $oldFromDate;
-		$this->date_to_old = $oldToDate;
-
-
-		$this->validateEditBookingInput();
-		$success = $this->updateBooking($a_booking_id, $a_booking_attr_values, $a_old_booking_attr_values,
-			$a_booking_values, $a_old_booking_values, $booking_participants, $a_old_booking_participants);
-
-		$dateChange = $oldFromDate != $newFromDate || $oldToDate != $newToDate;
-		$participantsChange = $a_old_booking_participants != $booking_participants;
-		if ($success)
+		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
-			$deletedUser = $this->getDeletedUser($booking_participants, $a_old_booking_participants);
-			$newUser = $this->getNewUser($booking_participants, $a_old_booking_participants);
-			if ($participantsChange && $dateChange)
+			$this->date_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
+			$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
+			$this->room_id = $a_booking_values ['room'];
+			$booking_participants = $this->deleteEmptyUser($a_booking_participants);
+			$newFromDate = $a_booking_values['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
+			$newToDate = $a_booking_values['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
+			$oldFromDate = $a_old_booking_values['date_from'];
+			$oldToDate = $a_old_booking_values['date_to'];
+			$this->participants = $booking_participants;
+			$this->booking_id = $a_booking_id;
+			$this->date_from_old = $oldFromDate;
+			$this->date_to_old = $oldToDate;
+
+
+			$this->validateEditBookingInput();
+			$success = $this->updateBooking($a_booking_id, $a_booking_attr_values,
+				$a_old_booking_attr_values, $a_booking_values, $a_old_booking_values, $booking_participants,
+				$a_old_booking_participants);
+
+			$dateChange = $oldFromDate != $newFromDate || $oldToDate != $newToDate;
+			$participantsChange = $a_old_booking_participants != $booking_participants;
+			if ($success)
 			{
-				$this->sendBookingUpdatedNotification($booking_participants);
-				if ($deletedUser != array())
+				$deletedUser = $this->getDeletedUser($booking_participants, $a_old_booking_participants);
+				$newUser = $this->getNewUser($booking_participants, $a_old_booking_participants);
+				if ($participantsChange && $dateChange)
 				{
-					$this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
+					$this->sendBookingUpdatedNotification($booking_participants);
+					if ($deletedUser != array())
+					{
+						$this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
+					}
+					if ($newUser != array())
+					{
+						$this->sendBookingNotificationToNewUser($newUser);
+					}
 				}
-				if ($newUser != array())
+				else if ($participantsChange)
 				{
-					$this->sendBookingNotificationToNewUser($newUser);
+					if ($deletedUser != array())
+					{
+						$this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
+					}
+					if ($newUser != array())
+					{
+						$this->sendBookingNotificationToNewUser($newUser);
+					}
+				}
+				else if ($dateChange)
+				{
+					//Send a email notifications to the creator and participants
+					$this->sendBookingUpdatedNotification($booking_participants);
 				}
 			}
-			else if ($participantsChange)
+			else
 			{
-				if ($deletedUser != array())
-				{
-					$this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
-				}
-				if ($newUser != array())
-				{
-					$this->sendBookingNotificationToNewUser($newUser);
-				}
+				throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
 			}
-			else if ($dateChange)
-			{
-				//Send a email notifications to the creator and participants
-				$this->sendBookingUpdatedNotification($booking_participants);
-			}
-		}
-		else
-		{
-			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
 		}
 	}
 

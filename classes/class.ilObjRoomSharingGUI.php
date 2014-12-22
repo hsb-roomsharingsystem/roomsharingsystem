@@ -126,7 +126,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		}
 		else if ($cmd == 'showBooking' || $cmd == 'editBooking' || $cmd == 'saveEditBooking' || $cmd == 'cancelEdit')
 		{
-			$next_class = ilRoomSharingShowAndEditBookGUI;
+			$next_class = 'ilroomsharingshowandeditbookgui';
 		}
 		/*
 		 * The special handling of the commands showSearch and showSearchResults is needed because
@@ -214,7 +214,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$ret = & $this->ctrl->forwardCommand($book_gui);
 				break;
 			// Show and edit booking
-			case 'ilRoomSharingShowAndEditBookGUI':
+			case 'ilroomsharingshowandeditbookgui':
 				$this->tabs_gui->clearTargets();
 				$this->tabs_gui->setBackTarget(
 					$this->lng->txt("rep_robj_xrs_booking_back"), $ilCtrl->getLinkTarget($this, "showBookings")

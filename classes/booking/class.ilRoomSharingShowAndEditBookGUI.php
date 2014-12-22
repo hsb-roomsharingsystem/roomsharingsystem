@@ -10,6 +10,8 @@ require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/User/classes/class.ilUserAutoComplete.php");
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
+use ilRoomSharingPrivilegesConstants as PRIVC;
+
 /**
  * Class ilRoomSharingShowAndEditBookGUI
  *
@@ -51,8 +53,9 @@ class ilRoomSharingShowAndEditBookGUI
 	 */
 	public function __construct($a_parent_obj, $a_booking_id, $a_room_id, $a_mode = null)
 	{
-		global $ilCtrl, $lng, $tpl;
+		global $ilCtrl, $lng, $tpl, $rssPermission;
 
+		$this->permission = $rssPermission;
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
@@ -132,15 +135,18 @@ class ilRoomSharingShowAndEditBookGUI
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
 		$form->setTitle($this->getFormTitle());
-		if ($this->mode == 'show')
+		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
-			$form->addCommandButton(self::EDIT_BOOK_CMD, $this->lng->txt("rep_robj_xrs_booking_edit"));
-		}
-		elseif ($this->mode == 'edit')
-		{
-			$form->addCommandButton(self::SAVE_BOOK_CMD, $this->lng->txt("rep_robj_xrs_booking_save"));
-			$form->addCommandButton(self::CANCEL_EDIT_CMD,
-				$this->lng->txt("rep_robj_xrs_booking_edit_cancel"));
+			if ($this->mode == 'show')
+			{
+				$form->addCommandButton(self::EDIT_BOOK_CMD, $this->lng->txt("rep_robj_xrs_booking_edit"));
+			}
+			elseif ($this->mode == 'edit')
+			{
+				$form->addCommandButton(self::SAVE_BOOK_CMD, $this->lng->txt("rep_robj_xrs_booking_save"));
+				$form->addCommandButton(self::CANCEL_EDIT_CMD,
+					$this->lng->txt("rep_robj_xrs_booking_edit_cancel"));
+			}
 		}
 		$form_items = $this->createAndSetFormItems();
 		foreach ($form_items as $item)
@@ -463,6 +469,7 @@ class ilRoomSharingShowAndEditBookGUI
 
 	private function createAndSetParticipantsMultiTextInput($a_bookingData)
 	{
+		global $rssPermission;
 		$participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_participants_list"),
 			"participants");
 		$participants_input->setMulti(true);
@@ -475,7 +482,8 @@ class ilRoomSharingShowAndEditBookGUI
 		}
 		$participants_input->setMultiValues($a_bookingData);
 
-		if ($this->mode == 'show')
+		if ($this->mode == 'show' || !$rssPermission->
+				checkPrivilege(ilRoomSharingPrivilegesConstants::ADD_PARTICIPANTS))
 		{
 			$participants_input->setDisabled(true);
 		}
