@@ -3,7 +3,9 @@
 require_once ('./Services/Table/classes/class.ilTable2GUI.php');
 require_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php');
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-require_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingBook.php');
+require_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingSequenceBookingUtils.php');
+
+use ilRoomSharingSequenceBookingUtils as seqUtils;
 
 /**
  * Class ilRoomSharingRoomsTableGUI
@@ -15,10 +17,10 @@ require_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject
 class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 {
 	private $rooms;
+	private $db;
 	private $message = '';
 	private $messageNeeded = false;
 	private $messagePlural = false;
-	private $book;
 
 	/**
 	 * Constructor for the class ilRoomSharingRoomsTableGUI
@@ -41,9 +43,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		// $this->setId("roomtable");
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 
-		$this->book = new ilRoomSharingBook($a_parent_obj->getPoolID());
-		$this->rooms = new ilRoomSharingRooms($a_parent_obj->getPoolID(),
-			new ilRoomsharingDatabase($a_parent_obj->getPoolID()));
+		$this->db = new ilRoomsharingDatabase($a_parent_obj->getPoolID());
+		$this->rooms = new ilRoomSharingRooms($a_parent_obj->getPoolID(), $this->db);
 		$this->lng->loadLanguageModule("form");
 
 		$this->setTitle($this->lng->txt("rep_robj_xrs_rooms"));
@@ -89,10 +90,10 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	//für jedes Datum, welches generiert wird
 	public function getFilteredData(array $filter)
 	{
-		//echo "<br>OriginalFilter:<br>";
-		print_r($filter);
 		$time_from = $filter["time_from"];
 		$time_to = $filter["time_to"];
+		$min_seats = $filter["room_seats"];
+		$room = $filter["room_name"];
 		$date = $filter["date"];
 		$freq = unserialize($filter['recurrence']["frequence"]);
 		switch ($freq)
@@ -101,16 +102,16 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
 				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
 				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
-				$data = $this->getDailyFilteredData($date, $time_from, $time_to, $repeat_type, $repeat_amount,
-					$repeat_until);
+				$data = $this->rooms->getListWithRooms($this->getDailyFilteredData($date, $time_from, $time_to,
+						$min_seats, $room, $repeat_type, $repeat_amount, $repeat_until));
 				break;
 			case "WEEKLY":
 				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
 				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
 				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
 				$weekdays = unserialize($filter ["recurrence"]["weekdays"]);
-				$data = $this->getWeeklyFilteredData($date, $time_from, $time_to, $repeat_type, $repeat_amount,
-					$repeat_until, $weekdays);
+				$data = $this->rooms->getListWithRooms($this->getWeeklyFilteredData($date, $time_from, $time_to,
+						$min_seats, $room, $repeat_type, $repeat_amount, $repeat_until, $weekdays));
 				break;
 			case "MONTHLY":
 				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
@@ -122,15 +123,17 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 					$w1 = unserialize($filter['recurrence']["weekday_1"]);
 					$w2 = unserialize($filter['recurrence']["weekday_2"]);
 					// monatlich mit startwochentag
-					$data = $this->getMonthlyFilteredData1($date, $time_from, $time_to, $repeat_type,
-						$repeat_amount, $repeat_until, $start_type, $w1, $w2);
+					$data = $this->rooms->getListWithRooms($this->getMonthlyFilteredData($date, $time_from,
+							$time_to, $min_seats, $room, $repeat_type, $repeat_amount, $repeat_until, $start_type, null,
+							$w1, $w2));
 				}
 				elseif ($start_type == "monthday")
 				{
 					// monatlich mit festem monatstag
 					$md = unserialize($filter['recurrence']["monthday"]);
-					$data = $this->getMonthlyFilteredData1($date, $time_from, $time_to, $repeat_type,
-						$repeat_amount, $repeat_until, $start_type, $md);
+					$data = $this->rooms->getListWithRooms($this->getMonthlyFilteredData($date, $time_from,
+							$time_to, $min_seats, $room, $repeat_type, $repeat_amount, $repeat_until, $start_type, $md,
+							null, null));
 				}
 				break;
 			default:
@@ -138,15 +141,15 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				break;
 		}
 
-		//echo "<br>muh<br>";
-		//print_r($data);
+		echo "<br>muh<br>";
+		print_r($data);
 
 		return $data;
 	}
 
 	//Diese Funktion ist noch nicht fertig und diente nur zum Test der
 	//Tagesgenerator Funktionen für Monate
-	private function getMonthlyFilteredData($a_date, $a_min_seats, $a_time_from, $a_time_to,
+	private function getMonthlyFilteredData($a_date, $a_time_from, $a_time_to, $a_min_seats, $a_room,
 		$a_repeat_type, $a_repeat_amount, $a_repeat_until, $a_start_type, $a_monthday, $a_weekday_1,
 		$a_weekday_2)
 	{
@@ -155,84 +158,69 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		{
 			if ($a_repeat_type == "max_date")
 			{
-				$days = $this->book->generateMonthlyDaysAtVariableDateWithEndDate($a_date, $a_weekday_1,
-					$a_weekday_2, $a_repeat_until, $a_repeat_amount);
+				$days = seqUtils::generateMonthlyDaysAtVariableDateWithEndDate($a_date, $a_weekday_1,
+						$a_weekday_2, $a_repeat_until, $a_repeat_amount);
 			}
 			elseif ($a_repeat_type == "max_amount")
 			{
-				$days = $this->book->generateMonthlyDaysAtVariableDateWithCount($a_date, $a_weekday_1,
-					$a_weekday_2, $a_repeat_until, $a_repeat_amount);
+				$days = seqUtils::generateMonthlyDaysAtVariableDateWithCount($a_date, $a_weekday_1,
+						$a_weekday_2, $a_repeat_until, $a_repeat_amount);
 			}
 		}
 		elseif ($a_start_type == "monthday")
 		{
 			if ($a_repeat_type == "max_date")
 			{
-				$days = $this->book->generateMonthlyDaysAtFixedDateWithEndDate($a_date, $a_monthday,
-					$a_repeat_until, $a_repeat_amount);
+				$days = seqUtils::generateMonthlyDaysAtFixedDateWithEndDate($a_date, $a_monthday,
+						$a_repeat_until, $a_repeat_amount);
 			}
 			elseif ($a_repeat_type == "max_amount")
 			{
-				$days = $this->book->generateMonthlyDaysAtFixedDateWithCount($a_date, $a_monthday,
-					$a_repeat_until, $a_repeat_amount);
+				$days = seqUtils::generateMonthlyDaysAtFixedDateWithCount($a_date, $a_monthday, $a_repeat_until,
+						$a_repeat_amount);
 			}
 		}
+
+		return $this->db->getFreeRooms($a_time_from, $a_time_to, $days, $a_room, $a_min_seats);
 	}
 
-	// Diese Funktion ist noch nicht fertig und diente nur zum Test
-	// der Tagesgenerator Funktionen für Wochen
-	private function getWeeklyFilteredData($date, $time_from, $time_to, $repeat_type, $repeat_amount,
-		$repeat_until, $weekdays)
+	private function getWeeklyFilteredData($a_date, $a_time_from, $a_time_to, $a_min_seats, $a_room,
+		$a_repeat_type, $a_repeat_amount, $a_repeat_until, $a_weekdays)
 	{
 		if ($a_repeat_type == "max_date")
 		{
 			$a_repeat_until = date('Y-m-d',
 				mktime(0, 0, 0, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
 					$a_repeat_until['date']['y']));
-			$days = $this->book->generateWeeklyDaysWithEndDate($date, $time_from, $time_to, $repeat_type,
-				$repeat_amount, $repeat_until, $weekdays);
+			$days = seqUtils::generateWeeklyDaysWithEndDate($a_date, $a_repeat_until, $a_weekdays,
+					$a_repeat_amount);
 		}
 		elseif ($a_repeat_type == "max_amount")
 		{
-			$days = $this->book->generateWeeklyDaysWithCount($date, $time_from, $time_to, $repeat_type,
-				$repeat_amount, $repeat_until, $weekdays);
+			$days = seqUtils::generateWeeklyDaysWithCount($a_date, $a_repeat_until, $a_weekdays,
+					$a_repeat_amount);
 		}
+
+		return $this->db->getFreeRooms($a_time_from, $a_time_to, $days, $a_room, $a_min_seats);
 	}
 
 	//So kompliziert sieht derzeit die Funktion aus, wenn täglich gewählt ist
-	private function getDailyFilteredData($a_date, $a_time_from, $a_time_to, $a_repeat_type,
-		$a_repeat_amount, $a_repeat_until)
+	private function getDailyFilteredData($a_date, $a_time_from, $a_time_to, $a_min_seats, $a_room,
+		$a_repeat_type, $a_repeat_amount, $a_repeat_until)
 	{
 		if ($a_repeat_type == "max_date")
 		{
 			$a_repeat_until = date('Y-m-d',
 				mktime(0, 0, 0, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
 					$a_repeat_until['date']['y']));
-			echo $a_repeat_until;
-			$days = $this->book->generateDailyDaysWithEndDate($a_date, $a_repeat_until, $a_repeat_amount);
-//			foreach ($days as $day)
-//			{
-//				$filter['date'] = $day;
-//				$datas[] = $this->rooms->getList($filter);
-//			}
+			$days = seqUtils::generateDailyDaysWithEndDate($a_date, $a_repeat_until, $a_repeat_amount);
 		}
 		elseif ($a_repeat_type == "max_amount")
 		{
-			$days = $this->book->generateDailyDaysWithCount($a_date, $a_repeat_until, $a_repeat_amount);
+			$days = seqUtils::generateDailyDaysWithCount($a_date, $a_repeat_until, $a_repeat_amount);
 		}
 
-		foreach ($days as $day)
-		{
-			echo "<br>" . $day;
-		}
-	}
-
-	private function createDateFormatBySerializedDate($serialized_date)
-	{
-		$until_day = unserialize($serialized_date)['date']['d'];
-		$until_month = unserialize($serialized_date)['date']['m'];
-		$until_year = unserialize($serialized_date)['date']['y'];
-		return $until_year . "-" . $until_month . "-" . $until_day;
+		return $this->db->getFreeRooms($a_time_from, $a_time_to, $days, $a_room, $a_min_seats);
 	}
 
 	/**

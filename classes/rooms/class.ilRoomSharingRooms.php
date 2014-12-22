@@ -73,6 +73,37 @@ class ilRoomSharingRooms
 	}
 
 	/**
+	 * Gets the formated list with given rooms.
+	 *
+	 * @param array $a_room_ids
+	 * @return array Rooms and Attributes in the following format:
+	 *         array (
+	 *         array (
+	 *         'room' => <string>, Name of the room
+	 *         'seats' => <int>, Amout of seats
+	 *         'beamer' => <bool>, true, if a beamer exists
+	 *         'overhead_projector' => <bool>, true, if a overhead projector exists
+	 *         'whiteboard' => <bool>, true, if a whiteboard exists
+	 *         'sound_system' => <bool>, true, if a sound system exists
+	 *         )
+	 *         )
+	 */
+	public function getListWithRooms(array $a_room_ids)
+	{
+		$res = array();
+
+		//Attribute werden noch nicht berücksichtigt!
+		if (count($a_room_ids) > 0)
+		{
+			$this->roomsMatchingAttributeFilters = array_flip($a_room_ids);
+			$this->roomsMatchingAttributeFilters = $this->removeRoomsNotMatchingNameAndSeats();
+			$res_attribute = $this->getAttributes($this->roomsMatchingAttributeFilters[0]);
+			$res = $this->formatDataForGui($this->roomsMatchingAttributeFilters[1], $res_attribute);
+		}
+		return $res;
+	}
+
+	/**
 	 * Gets Rooms with matching Attributes
 	 *
 	 * @param type $a_attribute_filter
