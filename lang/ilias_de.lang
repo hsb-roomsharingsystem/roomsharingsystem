@@ -183,6 +183,8 @@ save#:#Speichern
 saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
 search#:#Suchen
 search_back#:#Zurück zu den Suchergebnissen
+search_range_to_small#:#Der angegebene Zeitraum ist zu klein
+search_time_in_past#:#Die eingegebene Zeit liegt in der Vergangenheit
 seats#:#Sitzplätze
 semester#:#Semester
 setting_1#:#Einstellung 1
