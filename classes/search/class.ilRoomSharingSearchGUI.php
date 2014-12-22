@@ -311,7 +311,7 @@ class ilRoomSharingSearchGUI
 		$time_from_given = unserialize($_SESSION ["form_searchform"] ["time_from"]);
 		$time_to_given = unserialize($_SESSION ["form_searchform"] ["time_to"]);
 
-		if ($time_from_given['time'] == '00:00:00')
+		if (empty($time_from_given['time']) || $time_from_given['time'] == '00:00:00')
 		{
 			//set controls according to current time
 			//
@@ -323,6 +323,9 @@ class ilRoomSharingSearchGUI
 
 			$time_from_given['time'] = $hr_from . ':00:00';
 			$time_to_given['time'] = $hr_to . ':00:00';
+
+			$time_from_given['date'] = date('Y-m-d');
+			$time_to_given['date'] = date('Y-m-d');
 		}
 
 		if (!empty($time_from_given['date']) && !empty($time_from_given['time']))
