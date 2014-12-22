@@ -143,7 +143,7 @@ class ilRoomSharingBook
 		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
 		$min_alloc = $room->getMinAlloc();
 		$filtered_participants = array_filter($this->participants, array($this, "filterValidParticipants"));
-		$underbooked = count($filtered_participants) < $min_alloc;
+		$underbooked = count($filtered_participants) + 1 < $min_alloc;
 
 		return $underbooked;
 	}
