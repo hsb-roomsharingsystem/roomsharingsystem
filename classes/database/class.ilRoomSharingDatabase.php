@@ -609,7 +609,8 @@ class ilRoomSharingDatabase
 
 		if ($filter['user_id'] || $filter['user_id'])
 		{
-			$query .= ' AND b.user_id = ' . $this->ilDB->quote($filter['user_id'], 'integer') . ' ';
+			$query .= ' AND b.user_id = ' . $this->getUserIdByUsername($filter['user_id']);
+			//$query .= ' AND b.user_id = ' . $this->ilDB->quote($filter['user_id'], 'integer') . ' ';
 		}
 
 		if ($filter['room_name'] || $filter['room_name'])
