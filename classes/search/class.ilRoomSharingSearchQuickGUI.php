@@ -3,6 +3,8 @@
 include_once("./Customizing/global/plugins/Services/Repository/" .
 	"RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php");
 include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+include_once('./Services/Calendar/classes/class.ilCalendarRecurrence.php');
+include_once('./Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
 
 /**
  * Class ilRoomSharingSearchQuickGUI
@@ -191,6 +193,9 @@ class ilRoomSharingSearchQuickGUI
 		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
 			"RoomSharing/classes/search/class.ilRoomSharingSearchFormGUI.php");
 		$qsearch_form = new ilRoomSharingSearchFormGUI();
+		// include of YAHOO Library (by ILIAS). Needed to initialize Recurrence GUI
+		include_once('./Services/YUI/classes/class.ilYuiUtil.php');
+		ilYuiUtil::initDomEvent();
 		$qsearch_form->setId("qsearchform");
 
 		$this->createRoomFormItem($qsearch_form);
@@ -276,23 +281,93 @@ class ilRoomSharingSearchQuickGUI
 		$a_qsearch_form->addItem($date_comb);
 	}
 
+	/**
+	 * Creates recurrence gui.
+	 * Includes some settings to modify initial recurrence gui.
+	 * @param type $a_qsearch_form
+	 */
 	protected function createRecurrenceFormItem($a_qsearch_form)
 	{
-		global $tpl;
-
-		// recurrence
-		//$tpl->setVariable('FREQUENCE', 'NONE');
-		include_once('./Modules/Session/classes/class.ilEventRecurrence.php');
-		$this->rec = new ilEventRecurrence();
+		//echo nl2br(print_r($_SESSION, true));
+		//$this->rec = new ilCalendarRecurrence();
+		$this->getRecurrence();
+		// initial frequence
 		//$this->rec->setFrequenceType('NONE');
-		//$this->rec->delete();
-		include_once('./Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
 		$rec = new ilRecurrenceInputGUI($this->lng->txt('cal_recurrences'), 'frequence');
-		$subforms = array(IL_CAL_FREQ_DAILY, IL_CAL_FREQ_WEEKLY, IL_CAL_FREQ_MONTHLY); //ohne jährlich
+		// set possible frequence types (IL_CAL_FREQ_YEARLY not needed)
+		$subforms = array(IL_CAL_FREQ_DAILY, IL_CAL_FREQ_WEEKLY, IL_CAL_FREQ_MONTHLY);
+		$rec->setRecurrence($this->rec);
 		$rec->setEnabledSubForms($subforms);
-		//$rec->setRecurrence($this->rec);
-		$rec->allowUnlimitedRecurrences(false); //keine unendlichen Einträge
+		// no unlimited recurrences
+		$rec->allowUnlimitedRecurrences(false);
 		$a_qsearch_form->addItem($rec);
+	}
+
+	/**
+	 * Read recurrence from Session
+	 */
+	protected function getRecurrence()
+	{
+		$this->rec = new ilCalendarRecurrence();
+		$fre = unserialize($_SESSION ["form_qsearchform"] ["frequence"]);
+		$this->rec->setFrequenceType($fre);
+		switch ($fre)
+		{
+			case "NONE":
+				break;
+			case "DAILY":
+				break;
+			case "WEEKLY":
+				$days = unserialize($_SESSION ["form_qsearchform"] ["weekdays"]);
+				$d = array();
+				foreach ($days as $day)
+				{
+					$d[] = $day;
+				}
+				$this->rec->setBYDAY(implode(",", $d));
+				break;
+			case "MONTHLY":
+				$start_type = unserialize($_SESSION ["form_qsearchform"] ["start_type"]);
+				if ($start_type == "weekday")
+				{
+					$w1 = unserialize($_SESSION ["form_qsearchform"] ["weekday_1"]);
+					$w2 = unserialize($_SESSION ["form_qsearchform"] ["weekday_2"]);
+					if ($w2 == 8)
+					{
+						$this->rec->setBYSETPOS($w1);
+						$this->rec->setBYDAY('MO,TU,WE,TH,FR');
+					}
+					elseif ($w2 == 9)
+					{
+						$this->rec->setBYMONTHDAY($w1);
+					}
+					else
+					{
+						$this->rec->setBYDAY($w1 . $w2);
+					}
+				}
+				elseif ($start_type == "monthday")
+				{
+					$this->rec->setBYMONTHDAY(unserialize($_SESSION ["form_qsearchform"] ["monthday"]));
+				}
+				break;
+			default:
+				break;
+		}
+		$repeat_type = unserialize($_SESSION ["form_qsearchform"] ["repeat_type"]);
+		$this->rec->setInterval(unserialize($_SESSION ["form_qsearchform"] ["repeat_amount"]));
+		if ($repeat_type == "max_amount")
+		{
+			$this->rec->setFrequenceUntilCount(unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]));
+		}
+		elseif ($repeat_type == "max_date")
+		{
+			$date = unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]);
+			$date2 = date('Y-m-d H:i:s',
+				mktime(0, 0, 0, $date['date']['m'], $date['date']['d'], $date['date']['y']));
+			echo $date2;
+			$this->rec->setFrequenceUntilDate(new ilDateTime($date2, IL_CAL_DATETIME));
+		}
 	}
 
 	/**

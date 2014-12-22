@@ -148,7 +148,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	//Tagesgenerator Funktionen für Monate
 	private function getMonthlyFilteredData($a_date, $a_min_seats, $a_time_from, $a_time_to,
 		$a_repeat_type, $a_repeat_amount, $a_repeat_until, $a_start_type, $a_monthday, $a_weekday_1,
-		$a_weekday_2);
+		$a_weekday_2)
 	{
 		$days = array();
 		if ($a_start_type == "weekday")
@@ -290,20 +290,19 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $a_set ['room']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
-		$_SESSION[
-			'last_cmd'] = $this->parent_cmd;
+		$_SESSION['last_cmd'] = $this->parent_cmd;
 
 		// only display a booking form if a search was initialized beforehand
 		if ($this->
-			parent_cmd === "showSearchResults ")
+			parent_cmd === "showSearchResults")
 		{
 			// if this class is used to display search results, the input made
 			// must be transported to the book form
-			$date = unserialize($_SESSION ["form_qsearchform "] ["  date  "]);
-			$time_from = unserialize($_SESSION [" form_qsearchform "] [" time_from"]);
+			$date = unserialize($_SESSION ["form_qsearchform"] ["date"]);
+			$time_from = unserialize($_SESSION ["form_qsearchform"] ["time_from"]);
 			$time_to = unserialize($_SESSION ["form_qsearchform"] ["time_to"]);
 			// infos of book series
-			$this->handleBookSeriesAttributes();
+			//$this->handleBookSeriesAttributes();
 
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', $date ['date']);
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', $time_from ['time']);
