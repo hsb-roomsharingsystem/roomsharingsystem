@@ -254,6 +254,10 @@ class ilRoomSharingBook
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_max_allocation_exceeded"));
 		}
+		if ($this->isRoomUnderbooked())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_min_allocation_not_reached"));
+		}
 	}
 
 	/**
@@ -359,6 +363,19 @@ class ilRoomSharingBook
 		$overbooked = count($filtered_participants) >= $max_alloc;
 
 		return $overbooked;
+	}
+
+	/**
+	 * Method that checks if the min allocation of a room is not reached.
+	 */
+	private function isRoomUnderbooked()
+	{
+		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
+		$min_alloc = $room->getMinAlloc();
+		$filtered_participants = array_filter($this->participants, array($this, "filterValidParticipants"));
+		$underbooked = count($filtered_participants) + 1 < $min_alloc;
+
+		return $underbooked;
 	}
 
 	/**

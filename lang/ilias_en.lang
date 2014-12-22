@@ -79,7 +79,7 @@ floor_plans_show#:#Show floorplans
 floor_plans_upload_error#:#Error while uploading floorplan. Possible reason for this is the using of unsupported data format
 found#:#found
 from#:#from
-illigal_room_min_max_alloc#:#Incorrect data for the occupation range were sent.
+illigal_room_min_max_alloc#:#Incorrect data for number of seats (min/max) were sent.
 leave#:#Leave
 mail_booking_creator_linktext#:#You can see your booking via the following link:
 mail_booking_creator_message#:#You have successfully booked a room. This is what you have booked:
@@ -169,13 +169,16 @@ room_delete_success#:#Room successfully deleted
 room_edit#:#Edit room
 room_file_id#:#Map
 room_floor_plans#:#Floor plans
-room_max_alloc#:#Max. allocation
-room_max_allocation_exceeded#:#Maximum room allocation exceeded
-room_min_alloc#:#Min. allocation
+room_max_alloc#:#Maximal number of seats
+room_max_allocation_exceeded#:#Maximum number of seats exceeded
+room_min_allocation_not_reached#:#Minimum number of seats is not reached
+room_min_alloc#:#Minimal number of seats
 room_name#:#Room name
+room_name_occupied#:#Room name is already occupied
+room_name_missing#:#Room name is missing
 room_no_assign#:#No assignment
-room_occupation#:#Week View
-room_occupation_title#:#Weekly occupation of room
+room_occupation#:#Room occupation
+room_occupation_title#:#Occupation of room
 room_prop_description#:#The chosen room has the following properties:
 room_properties#:#Room properties
 room_public_booking#:#Display username publicly in booking
@@ -190,6 +193,8 @@ save#:#Save
 saving_invoked#:#Save procedure has been executed. Please note that this RoomSharing does not save anything to DB.
 search#:#Search
 search_back#:#Back to search results
+search_range_to_small#:#The given time-range is to small
+search_time_in_past#:#The given time is in the past
 seats#:#Seats
 semester#:#Semester
 setting_1#:#Setting 1

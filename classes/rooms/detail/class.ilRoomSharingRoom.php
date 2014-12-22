@@ -112,7 +112,7 @@ class ilRoomSharingRoom
 		$this->checkMinMaxAlloc();
 		$this->updateMainProperties();
 		$this->updateAttributes();
-                $this->sendChangeNotification();
+		$this->sendChangeNotification();
 	}
 
 	/**
@@ -124,37 +124,67 @@ class ilRoomSharingRoom
 	 */
 	public function create()
 	{
-		$numbers_to_check[] = $this->min_alloc;
-		$numbers_to_check[] = $this->max_alloc;
-		$numbers_to_check[] = $this->pool_id;
-
-		$numbers_valid = ilRoomSharingNumericUtils::allNumbersPositive($numbers_to_check, true);
-
 		$this->checkMinMaxAlloc();
+		$this->checkNameIsFree();
+		$this->checkRoomNameValid();
+		$this->checkPoolId();
 
-		$new_room_id = '';
-		if ($numbers_valid && $this->isRoomNameValid())
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($this->min_alloc, true))
 		{
-			$new_room_id = $this->ilRoomsharingDatabase->insertRoom($this->name, $this->type,
-				$this->min_alloc, $this->max_alloc, $this->file_id, $this->building_id);
-			$this->id = $new_room_id;
-			$this->insertAttributes();
-		}
-		else
-		{
-			throw new ilRoomSharingRoomException('rep_robj_xrs_room_create_failed');
+			$this->min_alloc = 0;
 		}
 
-		return $new_room_id;
+		$this->id = $this->ilRoomsharingDatabase->insertRoom($this->name, $this->type, $this->min_alloc,
+			$this->max_alloc, $this->file_id, $this->building_id);
+		$this->insertAttributes();
+
+		return $this->id;
 	}
 
 	/**
-	 * Simple method for checking whether or not the name of the room is valid.
-	 * @return boolean true, if valid; false otherwise
+	 * Checking whether the pool id of the room is valid.
+	 *
+	 * @throws ilRoomSharingRoomException
 	 */
-	private function isRoomNameValid()
+	private function checkPoolId()
 	{
-		return !empty($this->name) && strlen($this->name) > 0;
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($this->pool_id, true))
+		{
+			throw new ilRoomSharingRoomException('rep_robj_xrs_room_create_failed');
+		}
+	}
+
+	/**
+	 * Checking whether the name of the room is valid.
+	 *
+	 * @throws ilRoomSharingRoomException
+	 */
+	private function checkRoomNameValid()
+	{
+		$valid = !empty($this->name) && strlen($this->name) > 0;
+		if (!$valid)
+		{
+			throw new ilRoomSharingRoomException('rep_robj_xrs_room_create_failed');
+		}
+	}
+
+	/**
+	 * Checks the the room name is free.
+	 * Throws an exception if the name is already occupied.
+	 *
+	 * @throws ilRoomSharingRoomException
+	 */
+	private function checkNameIsFree()
+	{
+		$existing_room_names = $this->ilRoomsharingDatabase->getAllRoomNames();
+
+		foreach ($existing_room_names as $existing_room_name)
+		{
+			if ($this->name == $existing_room_name)
+			{
+				throw new ilRoomSharingRoomException('rep_robj_xrs_room_name_occupied');
+			}
+		}
 	}
 
 	/**
@@ -352,18 +382,13 @@ class ilRoomSharingRoom
 	 */
 	private function checkMinMaxAlloc()
 	{
-		if (empty($this->min_alloc) || empty($this->max_alloc))
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($this->max_alloc, true))
 		{
 			throw new ilRoomSharingRoomException('rep_robj_xrs_illigal_room_min_max_alloc');
 		}
 
-		$allocations = array($this->min_alloc, $this->max_alloc);
-		if (!ilRoomSharingNumericUtils::allNumbersPositive($allocations, true))
-		{
-			throw new ilRoomSharingRoomException('rep_robj_xrs_illigal_room_min_max_alloc');
-		}
-
-		if (((int) $this->min_alloc) > ((int) $this->max_alloc))
+		$min_alloc_given = ilRoomSharingNumericUtils::isPositiveNumber($this->min_alloc, true);
+		if ($min_alloc_given && (((int) $this->min_alloc) > ((int) $this->max_alloc)))
 		{
 			throw new ilRoomSharingRoomException('rep_robj_xrs_illigal_room_min_max_alloc');
 		}
@@ -514,7 +539,7 @@ class ilRoomSharingRoom
 	 */
 	public function getFileId()
 	{
-		return (int) $this->fileId;
+		return (int) $this->file_id;
 	}
 
 	/**
@@ -609,18 +634,17 @@ class ilRoomSharingRoom
 	{
 		$this->booked_times = $a_booked_times;
 	}
-        
-        /**
-         * Send a notification for everyone who has booked this room if
-         * room has changed.
-         * (Not the participants)
-         */
-        private function sendChangeNotification(){
 
-            $mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
-            $mailer->sendRoomChangeMail($this->id);
-  
+	/**
+	 * Send a notification for everyone who has booked this room if
+	 * room has changed.
+	 * (Not the participants)
+	 */
+	private function sendChangeNotification()
+	{
 
+		$mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
+		$mailer->sendRoomChangeMail($this->id);
 	}
 
 }

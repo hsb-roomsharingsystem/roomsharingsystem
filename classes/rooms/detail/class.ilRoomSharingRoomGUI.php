@@ -124,6 +124,11 @@ class ilRoomSharingRoomGUI
 		$this->room_obj = new ilRoomSharingRoom($this->pool_id, $this->room_id);
 
 		$toolbar = new ilToolbarGUI();
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		}
 		if ($this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
 		{
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_room_edit'),
@@ -172,7 +177,7 @@ class ilRoomSharingRoomGUI
 	{
 		if (!$this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
 		{
-			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return false;
 		}
@@ -227,23 +232,39 @@ class ilRoomSharingRoomGUI
 		$form_gui->addItem($max_alloc);
 
 		$floor_plan = new ilSelectInputGUI(
-			$this->lng->txt("rep_robj_xrs_room_floor_plans"), "building_id");
+			$this->lng->txt("rep_robj_xrs_room_floor_plans"), "file_id");
 		$floor_plan->setOptions($this->room_obj->getAllFloorplans());
 		$floor_plan->setDisabled(true);
 		$form_gui->addItem($floor_plan);
 
-		$attributes_header = new ilFormSectionHeaderGUI();
-		$attribute_header_text = $this->createAttributeHeaderText();
-		$attributes_header->setTitle($this->lng->txt("rep_robj_xrs_room_attributes") . $attribute_header_text);
-		$form_gui->addItem($attributes_header);
+		$defined_attributes = $this->room_obj->getAttributes();
+		$show_mode_with_exist_attrs = (($a_mode == "show") && count($defined_attributes) > 0);
+
+		if (($a_mode == "edit") || ($a_mode == "create") || $show_mode_with_exist_attrs)
+		{
+			$attributes_header = new ilFormSectionHeaderGUI();
+			$attribute_header_text = $this->createAttributeHeaderText();
+			$attributes_header->setTitle($this->lng->txt("rep_robj_xrs_room_attributes") . $attribute_header_text);
+			$form_gui->addItem($attributes_header);
+		}
 
 		foreach ($this->room_obj->getAllAvailableAttributes() as $attr)
 		{
-			$attr_field = new ilRoomSharingNumberInputGUI($attr['name'],
-				self::ATTRIBUTE_ID_PREFIX . $attr['id']);
-			$attr_field->setValue($this->room_obj->getAttributeAmountById($attr['id']));
-			$attr_field->setDisabled(($a_mode == "show"));
-			$form_gui->addItem($attr_field);
+			$attribute_amount_by_id = $this->room_obj->getAttributeAmountById($attr['id']);
+			$amount_not_given = !ilRoomSharingNumericUtils::isPositiveNumber($attribute_amount_by_id, true);
+			if ($a_mode == "show" && $amount_not_given)
+			{
+				continue;
+			}
+			else
+			{
+				$attr_field = new ilRoomSharingNumberInputGUI($attr['name'],
+					self::ATTRIBUTE_ID_PREFIX . $attr['id']);
+				$attr_field->setValue($attribute_amount_by_id);
+				$attr_field->setMinValue(0);
+				$attr_field->setDisabled(($a_mode == "show"));
+				$form_gui->addItem($attr_field);
+			}
 		}
 
 		if ($a_mode == "edit" || $a_mode == "create")
@@ -252,7 +273,6 @@ class ilRoomSharingRoomGUI
 			$name->setRequired(true);
 			$type->setDisabled(false);
 			$min_alloc->setDisabled(false);
-			$min_alloc->setRequired(true);
 			$min_alloc->setMinValue(0);
 			$max_alloc->setDisabled(false);
 			$max_alloc->setRequired(true);
@@ -261,6 +281,7 @@ class ilRoomSharingRoomGUI
 
 			if ($a_mode == "create")
 			{
+				$min_alloc->setValue("0");
 				$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"),
 					$this->lng->txt("rep_robj_xrs_add_room"));
 			}
@@ -275,11 +296,11 @@ class ilRoomSharingRoomGUI
 			$type->setValue($this->room_obj->getType());
 			$min_alloc->setValue($this->room_obj->getMinAlloc());
 			$max_alloc->setValue($this->room_obj->getMaxAlloc());
-			$floor_plan->setValue($this->room_obj->getBuildingId());
+			$floor_plan->setValue($this->room_obj->getFileId());
 			if ($a_mode == "show")
 			{
 				$floor_plan->setDisabled(true);
-				$mobj = new ilObjMediaObject($this->room_obj->getBuildingId());
+				$mobj = new ilObjMediaObject($this->room_obj->getFileId());
 				$mitems = $mobj->getMediaItems();
 				if (!empty($mitems))
 				{
@@ -317,10 +338,17 @@ class ilRoomSharingRoomGUI
 	{
 		if (!$this->permission->checkPrivilege(PRIVC::ADD_ROOMS))
 		{
-			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return false;
 		}
+		$toolbar = new ilToolbarGUI();
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		}
+
 		$this->form_gui = $this->initForm("create");
 		$this->form_gui->setValuesByPost();
 		$this->form_gui->clearCommandButtons();
@@ -335,7 +363,7 @@ class ilRoomSharingRoomGUI
 				$this->room_obj->setType($this->form_gui->getInput("type"));
 				$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 				$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-				$this->room_obj->setBuildingId($this->form_gui->getInput("building_id"));
+				$this->room_obj->setFileId($this->form_gui->getInput("file_id"));
 
 				foreach ($this->getSetAttributeValuesFromForm() as $set_attribute_values)
 				{
@@ -346,37 +374,30 @@ class ilRoomSharingRoomGUI
 			}
 			catch (ilRoomSharingRoomException $exc)
 			{
-				ilUtil::sendFailure($this->lng->txt($exc->getMessage()));
+				ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
 				$this->form_gui->setValuesByPost();
-				$this->tpl->setContent($this->form_gui->getHTML());
+				$this->tpl->setContent($toolbar->getHTML() . $this->form_gui->getHTML());
 			}
 
 			if (ilRoomSharingNumericUtils::isPositiveNumber($new_room_id))
 			{
-				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_room_added"));
+				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_room_added"), true);
 				$this->room_obj->setId($new_room_id);
 				$this->setRoomIdAsSessionVariable($new_room_id);
 				$this->room_obj = new ilRoomSharingRoom($this->pool_id, $new_room_id);
-
-				$toolbar = new ilToolbarGUI();
-				if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
-				{
-					$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
-						$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
-				}
 				$this->tpl->setContent($toolbar->getHTML());
 			}
 			else
 			{
-				ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_wrong_input"));
+				ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_wrong_input"), true);
 				$this->form_gui->setValuesByPost();
-				$this->tpl->setContent($this->form_gui->getHTML());
+				$this->tpl->setContent($toolbar->getHTML() . $this->form_gui->getHTML());
 			}
 		}
 		else
 		{
 			$this->form_gui->setValuesByPost();
-			$this->tpl->setContent($this->form_gui->getHTML());
+			$this->tpl->setContent($toolbar->getHTML() . $this->form_gui->getHTML());
 		}
 	}
 
@@ -387,10 +408,17 @@ class ilRoomSharingRoomGUI
 	{
 		if (!$this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
 		{
-			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return false;
 		}
+		$toolbar = new ilToolbarGUI();
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		}
+
 		$this->form_gui = $this->initForm("edit");
 		$this->form_gui->setValuesByPost();
 		if ($this->form_gui->checkInput())
@@ -401,7 +429,7 @@ class ilRoomSharingRoomGUI
 				$this->room_obj->setType($this->form_gui->getInput("type"));
 				$this->room_obj->setMinAlloc($this->form_gui->getInput("min_alloc"));
 				$this->room_obj->setMaxAlloc($this->form_gui->getInput("max_alloc"));
-				$this->room_obj->setBuildingId($this->form_gui->getInput("building_id"));
+				$this->room_obj->setFileId($this->form_gui->getInput("file_id"));
 
 				$this->room_obj->resetAttributes();
 
@@ -415,15 +443,15 @@ class ilRoomSharingRoomGUI
 			}
 			catch (ilRoomSharingRoomException $exc)
 			{
-				ilUtil::sendFailure($this->lng->txt($exc->getMessage()));
+				ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
 				$this->form_gui->setValuesByPost();
-				$this->tpl->setContent($this->form_gui->getHTML());
+				$this->tpl->setContent($toolbar->getHTML() . $this->form_gui->getHTML());
 			}
 		}
 		else
 		{
 			$this->form_gui->setValuesByPost();
-			$this->tpl->setContent($this->form_gui->getHTML());
+			$this->tpl->setContent($toolbar->getHTML() . $this->form_gui->getHTML());
 		}
 	}
 
@@ -434,7 +462,7 @@ class ilRoomSharingRoomGUI
 	{
 		if (!$this->permission->checkPrivilege(PRIVC::DELETE_ROOMS))
 		{
-			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return false;
 		}
@@ -449,7 +477,8 @@ class ilRoomSharingRoomGUI
 		if ($amount_of_bookings > 0)
 		{
 			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_delete_booking') . " <b>" . $amount_of_bookings . "</b>");
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_delete_booking') . " <b>" . $amount_of_bookings . "</b>",
+				true);
 		}
 		else
 		{
@@ -466,7 +495,7 @@ class ilRoomSharingRoomGUI
 	{
 		if (!$this->permission->checkPrivilege(PRIVC::DELETE_ROOMS))
 		{
-			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return false;
 		}
@@ -477,7 +506,7 @@ class ilRoomSharingRoomGUI
 		}
 		catch (ilRoomSharingRoomException $exc)
 		{
-			ilUtil::sendFailure($this->lng->txt($exc->getMessage()));
+			ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
 			$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');
 		}
 		$this->ctrl->redirectByClass('ilroomsharingroomsgui', 'showRooms');

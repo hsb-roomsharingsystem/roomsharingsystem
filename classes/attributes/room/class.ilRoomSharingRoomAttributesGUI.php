@@ -110,7 +110,7 @@ class ilRoomSharingRoomAttributesGUI
 	 */
 	private function createDeletionMessage($a_updated_rooms_amount)
 	{
-		return $this->lng->txt('msg_obj_modified') . ' ' . $a_updated_rooms_amount
+		return $this->lng->txt('msg_obj_modified') . ' . ' . $a_updated_rooms_amount
 			. ' ' . $this->lng->txt('rep_robj_xrs_rooms_were_updated');
 	}
 

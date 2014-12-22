@@ -79,7 +79,7 @@ floor_plans_show#:#Gebäudepläne anzeigen
 floor_plans_upload_error#:#Fehler beim Hochladen des Geäudeplans. Die Mögliche Ursache ist die verwendung eines nicht unterstütztes Datei Formats
 found#:#gefunden
 from#:#von
-illigal_room_min_max_alloc#:#Es wurde falsche Belegungsspanne (Min/Max) angegeben.
+illigal_room_min_max_alloc#:#Es wurde falsche Anzahl der Sitzplätze (Min/Max) angegeben.
 leave#:#Austreten
 mail_booking_creator_linktext#:#Sie finden ihre Buchung unter folgendem Link:
 mail_booking_creator_message#:#Sie haben erfolgreich einen Raum gebucht. Folgendes wurde gebucht:
@@ -169,13 +169,16 @@ room_delete_success#:#Raum erfolgreich gelöscht
 room_edit#:#Editieren
 room_file_id#:#Lageplan
 room_floor_plans#:#Gebäudeplan
-room_max_alloc#:#Max. Belegung
-room_max_allocation_exceeded#:#Maximale Raumbelegung überschritten
-room_min_alloc#:#Min. Belegung
+room_max_alloc#:#Maximale Anzahl der Sitzplätze
+room_max_allocation_exceeded#:#Maximale Anzahl der Sitzplätze überschritten
+room_min_allocation_not_reached#:#Minimale Anzahl der Sitzplätze nicht erreicht
+room_min_alloc#:#Minimale Anzahl der Sitzplätze
 room_name#:#Raumbezeichnung
+room_name_occupied#:#Raumbezeichnung ist schon vergeben
+room_name_missing#:#Raumbezeichnung fehlt
 room_no_assign#:#Keine Zuordnung
-room_occupation#:#Wochenansicht
-room_occupation_title#:#Wochenansicht von Raum
+room_occupation#:#Belegungsplan
+room_occupation_title#:#Belegungsplan von Raum
 room_prop_description#:#Der ausgewählte Raum besitzt folgende Eigenschaften:
 room_properties#:#Raumeigenschaften
 room_public_booking#:#Nutzername in Buchung öffentlich anzeigen
@@ -190,6 +193,8 @@ save#:#Speichern
 saving_invoked#:#Speicherprozess wurde gestartet. Bitte beachten, dass dieses Roomsharing nichts in der DB speichert.
 search#:#Suchen
 search_back#:#Zurück zu den Suchergebnissen
+search_range_to_small#:#Der angegebene Zeitraum ist zu klein
+search_time_in_past#:#Die eingegebene Zeit liegt in der Vergangenheit
 seats#:#Sitzplätze
 semester#:#Semester
 setting_1#:#Einstellung 1

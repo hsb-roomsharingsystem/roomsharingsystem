@@ -117,6 +117,25 @@ class ilRoomSharingDatabase
 		return $rooms;
 	}
 
+	/**
+	 * Returns all room names of rooms which are assigned to the roomsharing pool.
+	 *
+	 * @return assoc array with all found room names
+	 */
+	public function getAllRoomNames()
+	{
+		$resRooms = $this->ilDB->query('SELECT name FROM ' . dbc::ROOMS_TABLE . ' WHERE pool_id = ' .
+			$this->ilDB->quote($this->pool_id, 'integer'));
+		$roomNames = array();
+		$row = $this->ilDB->fetchAssoc($resRooms);
+		while ($row)
+		{
+			$roomNames[] = $row['name'];
+			$row = $this->ilDB->fetchAssoc($resRooms);
+		}
+		return $roomNames;
+	}
+
 	public function getMatchingRooms($a_roomsToCheck, $a_room_name, $a_room_seats)
 	{
 		$where_part = ' AND room.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' ';
@@ -215,6 +234,8 @@ class ilRoomSharingDatabase
 	 */
 	public function getRoomsBookedInDateTimeRange($a_date_from, $a_date_to, $a_room_id = null)
 	{
+		echo 'Von ' . $a_date_from;
+		echo '<BR>Bis ' . $a_date_to;
 		$roomQuery = '';
 		if ($a_room_id)
 		{
@@ -224,13 +245,8 @@ class ilRoomSharingDatabase
 
 		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
-			$roomQuery . ' (' . $this->ilDB->quote($a_date_from, 'timestamp') .
-			' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_date_to, 'timestamp') .
-			' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
-			$this->ilDB->quote($a_date_from, 'timestamp') . ' AND ' . $this->ilDB->quote($a_date_to,
-				'timestamp') .
-			' OR date_to BETWEEN ' . $this->ilDB->quote($a_date_from, 'timestamp') .
-			' AND ' . $this->ilDB->quote($a_date_to, 'timestamp') . ')';
+			$roomQuery . ' (' . $this->ilDB->quote($a_date_to, 'timestamp') . ' > date_from' .
+			' AND ' . $this->ilDB->quote($a_date_from, 'timestamp') . ' < date_to)';
 
 		$set = $this->ilDB->query($query);
 		$res_room = array();
