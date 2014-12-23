@@ -234,6 +234,8 @@ class ilRoomSharingDatabase
 	 */
 	public function getRoomsBookedInDateTimeRange($a_date_from, $a_date_to, $a_room_id = null)
 	{
+		echo 'Von ' . $a_date_from;
+		echo '<BR>Bis ' . $a_date_to;
 		$roomQuery = '';
 		if ($a_room_id)
 		{
@@ -243,13 +245,8 @@ class ilRoomSharingDatabase
 
 		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
-			$roomQuery . ' (' . $this->ilDB->quote($a_date_from, 'timestamp') .
-			' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_date_to, 'timestamp') .
-			' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
-			$this->ilDB->quote($a_date_from, 'timestamp') . ' AND ' . $this->ilDB->quote($a_date_to,
-				'timestamp') .
-			' OR date_to BETWEEN ' . $this->ilDB->quote($a_date_from, 'timestamp') .
-			' AND ' . $this->ilDB->quote($a_date_to, 'timestamp') . ')';
+			$roomQuery . ' (' . $this->ilDB->quote($a_date_to, 'timestamp') . ' > date_from' .
+			' AND ' . $this->ilDB->quote($a_date_from, 'timestamp') . ' < date_to)';
 
 		$set = $this->ilDB->query($query);
 		$res_room = array();

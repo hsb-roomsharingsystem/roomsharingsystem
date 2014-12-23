@@ -87,7 +87,7 @@ class ilRoomSharingSearchGUI
 		$search_form = $this->createForm();
 
 		// continue only if the input data is correct
-		if ($search_form->checkInput())
+		if ($search_form->checkInput() && $this->checkTime($search_form))
 		{
 			$search_form->writeInputsToSession();
 			$this->showSearchResults();
@@ -188,6 +188,36 @@ class ilRoomSharingSearchGUI
 			}
 		}
 		return $filtered_inputs;
+	}
+
+	/**
+	 * Checks if the given date and time combination is valid for search
+	 * and shows an error-massage if it's not.
+	 *
+	 * @return bool if form valid
+	 * @param ilRoomSharingSearchFormGUI the search form
+	 */
+	private function checkTime($search_form)
+	{
+		$datenow = new DateTime(date('Y-m-d H:i:s'));
+		$date = $search_form->getInput("date", false);
+		$time_from = $search_form->getInput("time_from", false);
+		$time_to = $search_form->getInput("time_to", false);
+		$dateFrom = new DateTime($date['date'] . ' ' . $time_from['time']);
+		$dateTo = new DateTime($date['date'] . ' ' . $time_to['time']);
+
+		if ($dateFrom >= $dateTo)
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_search_range_to_small"));
+		}
+		else if ($dateFrom < $datenow)
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_search_time_in_past"));
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	/**
@@ -311,7 +341,7 @@ class ilRoomSharingSearchGUI
 		$time_from_given = unserialize($_SESSION ["form_searchform"] ["time_from"]);
 		$time_to_given = unserialize($_SESSION ["form_searchform"] ["time_to"]);
 
-		if ($time_from_given['time'] == '00:00:00')
+		if (empty($time_from_given['time']) || $time_from_given['time'] == '00:00:00')
 		{
 			//set controls according to current time
 			//
@@ -323,6 +353,9 @@ class ilRoomSharingSearchGUI
 
 			$time_from_given['time'] = $hr_from . ':00:00';
 			$time_to_given['time'] = $hr_to . ':00:00';
+
+			$time_from_given['date'] = date('Y-m-d');
+			$time_to_given['date'] = date('Y-m-d');
 		}
 
 		if (!empty($time_from_given['date']) && !empty($time_from_given['time']))
