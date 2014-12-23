@@ -292,6 +292,19 @@ class ilRoomSharingDatabase
 	}
 
 	/**
+	 * Get the max book time from the pool.
+	 *
+	 * @return integer
+	 */
+	public function getMaxBookTime()
+	{
+		$set = $this->ilDB->query('SELECT max_book_time FROM ' . dbc::POOLS_TABLE .
+			' WHERE id = ' . $this->ilDB->quote($this->pool_id, 'integer'));
+		$row = $this->ilDB->fetchAssoc($set);
+		return strtotime($row['max_book_time']) + 3600;
+	}
+
+	/**
 	 * Insert a booking into the database.
 	 *
 	 * @global type $this->ilDB

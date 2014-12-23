@@ -258,6 +258,10 @@ class ilRoomSharingBook
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_min_allocation_not_reached"));
 		}
+		if ($this->isBookingReachHigherThenMaxBookTime())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_booking_time_bigger_max_book_time"));
+		}
 	}
 
 	/**
@@ -283,6 +287,34 @@ class ilRoomSharingBook
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_max_allocation_exceeded"));
 		}
+		if ($this->isRoomUnderbooked())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_min_allocation_not_reached"));
+		}
+		if ($this->isBookingReachHigherThenMaxBookTime())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_booking_time_bigger_max_book_time"));
+		}
+	}
+
+	/**
+	 * Methode to check if the booking reach is smaller or equals the max book time of the pool.
+	 *
+	 * @return boolean
+	 */
+	private function isBookingReachHigherThenMaxBookTime()
+	{
+		return (strtotime($this->date_to) - strtotime($this->date_from)) > $this->getMaxBookTime();
+	}
+
+	/**
+	 * Get the max book time from the pool.
+	 *
+	 * @return integer
+	 */
+	private function getMaxBookTime()
+	{
+		return $this->ilRoomsharingDatabase->getMaxBookTime();
 	}
 
 	/**

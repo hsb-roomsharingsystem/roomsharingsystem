@@ -41,6 +41,7 @@ bookings#:#Buchungen
 bookings_confirm#:#Möchten Sie wirklich die ausgewählten Buchungen stornieren?
 bookings_deleted#:#Die Buchungen wurde gelöscht! (mögliche Serientermine nicht betroffen)
 bookings_were_updated#:#Buchungen wurden aktualisiert.
+booking_time_bigger_max_book_time#:#Der Buchungszeitraum ist größer, als die Maximal zulässige Buchungsdauer des Pools.
 cancel#:#Abbrechen
 choose_action#:#Wählen Sie die gewünschte Aktion:
 choose_attribute#:#Wählen Sie ein vorhandenes Attribut

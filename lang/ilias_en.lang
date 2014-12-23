@@ -40,6 +40,7 @@ booking#:#Booking
 bookings#:#Bookings
 bookings_confirm#:#Are you sure you want to cancel the following bookings?
 bookings_deleted#:#Bookings deleted! (possible sequence bookings are not affected)
+booking_time_bigger_max_book_time#:#The booking reach is bigger then the max book time of the pool.
 bookings_were_updated#:#bookings were updated.
 cancel#:#Cancel
 choose_action#:#Choose the wished action:
