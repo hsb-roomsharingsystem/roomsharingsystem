@@ -51,10 +51,9 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Test functions for adding new floorplans
-	 * @test
+	 * Test functions for adding new floorplans.
 	 */
-	public function testAddingFloorPlans()
+	public function tstAddingFloorPlans()
 	{
 		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
 
@@ -207,9 +206,38 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 	/**
 	 *
 	 */
-	public function tstAssignmentEffectsOfFloorplans()
+	public function testAssignmentEffectsOfFloorplans()
 	{
+		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
+		self::$helper->createFloorPlan('Test_A', self::$test_file_absolut_path . 'sucess.jpg', 'Test');
+		//#1 Use a new floorplan by creating a room with it
+		self::$helper->createRoom('123', '1', '20', "TEST", "Test_A", array());
+		self::$webDriver->findElement(WebDriverBy::linkText(' Zurück zu allen Räumen '))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('123'))->click();
+		$text = self::$webDriver->findElement(WebDriverBy::xpath("//option[text()='Test_A']"))->getAttribute('selected');
+		$this->assertEquals(false, empty($text), '#1 Using a new floorplan on a room has failed!');
 
+		//#2 Change a floorplan which is assigend to a room
+		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
+		$menu = $this->webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
+		$menu->findElement(WebDriverBy::linkText('Aktionen'))->click();
+		$menu->findElement(WebDriverBy::linkText('Bearbeiten'))->click();
+		self::$webDriver->findElement(WebDriverBy::id('title'))->clear();
+		self::$webDriver->findElement(WebDriverBy::id('title'))->sendKeys('Test_B');
+		self::$webDriver->findElement(WebDriverBy::id('file_mode_replace'))->click();
+		self::$webDriver->findElement(WebDriverBy::id('upload_file'))->sendKeys(self::$test_file_absolut_path . 'sucess.bmp');
+		self::$webDriver->findElement(WebDriverBy::name('cmd[update]'))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('123'))->click();
+		$text = self::$webDriver->findElement(WebDriverBy::xpath("//option[text()='Test_B']"))->getAttribute('selected');
+		$this->assertEquals(false, empty($text), '#2 Changing an assigend floorplan has failed!');
+
+		//#3 Delete an assigned floorplan
+		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
+		self::$helper->deleteAllFloorPlans();
+		self::$webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('123'))->click();
+		//Hier endet die Erstellung, denn es kommt ein Fehler bei der Vortestdurchführung
 	}
 
 	/**
