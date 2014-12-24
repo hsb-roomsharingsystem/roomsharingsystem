@@ -193,7 +193,7 @@ class ilRoomSharingShowAndEditBookGUI
 	 */
 	private function createAndSetFormItems()
 	{
-		$booking = new ilRoomSharingBookings($this->pool_id);
+		$booking = new ilRoomSharingBook($this->pool_id);
 		$bookingData = $booking->getBookingData($this->booking_id);
 		$this->date_from = $bookingData['booking_values']['date_from'];
 		$this->date_to = $bookingData['booking_values']['date_to'];
@@ -725,5 +725,4 @@ class ilRoomSharingShowAndEditBookGUI
 	}
 
 }
-
 ?>

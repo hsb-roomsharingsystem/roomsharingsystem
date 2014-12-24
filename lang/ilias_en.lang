@@ -103,6 +103,8 @@ mail_participation_creator_subject#:#A participant left your booking.
 mail_participation_creator_message#:#A participant left your booking. The following participant left your booking:
 mail_room_changed_subject#:#A room you booked has been changed.
 mail_room_changed_message#:#A room you booked has been changed. Your following bookings are affected:
+mail_removing participant_subject#:#You have been removed from a booking as participant. 
+mail_removing participant_message#:#You have been removed from a room booking by the creator as participant. Relating to the following booking:
 manage#:#Manage
 max_book_time#:#Maximal time of a booking
 missing_agreement_entries#:#The Rooms use agreement is not accepted.

@@ -336,33 +336,4 @@ class ilRoomSharingBookings
 		return $this->ilRoomsharingDatabase->getAllBookingAttributeNames();
 	}
 
-	/**
-	 * Get the booking Data of the given ID
-	 *
-	 * @param type $a_booking_id
-	 * @return Array(
-	 * 				['user_id']
-	 * 				['seq_id']
-	 * 				['booking_values']
-	 * 				['attr_values']
-	 * 				['participants']
-	 * 				'participants_org'])
-	 */
-	public function getBookingData($a_booking_id)
-	{
-		$this->checkBookingId($a_booking_id);
-		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
-
-		$booking = array();
-		$booking['user_id'] = $row['user_id'];
-		$booking['seq_id'] = $row['seq_id'];
-		$booking['booking_values'] = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
-		$booking['attr_values'] = $this->ilRoomsharingDatabase->getBookingAttributeValues($a_booking_id);
-		$booking['participants'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id,
-			1);
-		$booking['participants_org'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
-
-		return $booking;
-	}
-
 }

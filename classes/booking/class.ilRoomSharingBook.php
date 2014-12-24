@@ -76,24 +76,6 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Method to show a booking and get his data
-	 *
-	 * @param type $a_booking_id
-	 */
-	public function showBooking($a_booking_id)
-	{
-		$booking = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
-		$booking_attributes = $this->ilRoomsharingDatabase->getBookingAttributeValues($a_booking_id);
-		$booking_participants = $this->ilRoomsharingDatabase->getParticipantsForBooking($a_booking_id);
-
-		$this->date_from = $booking ['from'] ['date'] . " " . $booking ['from'] ['time'];
-		$this->date_to = $booking ['to'] ['date'] . " " . $booking ['to'] ['time'];
-		$this->room_id = $booking ['room'];
-		$this->attribut = $booking_attributes;
-		$this->participants = $booking_participants;
-	}
-
-	/**
 	 * Method to edit a booking and update database entry
 	 *
 	 * @param type $a_booking_values
@@ -165,6 +147,34 @@ class ilRoomSharingBook
 				throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
 			}
 		}
+	}
+
+	/**
+	 * Get the booking Data of the given ID
+	 *
+	 * @param type $a_booking_id
+	 * @return Array(
+	 * 				['user_id']
+	 * 				['seq_id']
+	 * 				['booking_values']
+	 * 				['attr_values']
+	 * 				['participants']
+	 * 				'participants_org'])
+	 */
+	public function getBookingData($a_booking_id)
+	{
+		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
+
+		$booking = array();
+		$booking['user_id'] = $row['user_id'];
+		$booking['seq_id'] = $row['seq_id'];
+		$booking['booking_values'] = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
+		$booking['attr_values'] = $this->ilRoomsharingDatabase->getBookingAttributeValues($a_booking_id);
+		$booking['participants'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id,
+			1);
+		$booking['participants_org'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
+
+		return $booking;
 	}
 
 	/**
@@ -310,11 +320,20 @@ class ilRoomSharingBook
 	/**
 	 * Get the max book time from the pool.
 	 *
-	 * @return integer
+	 * @return integer =  time in s
 	 */
 	private function getMaxBookTime()
 	{
-		return $this->ilRoomsharingDatabase->getMaxBookTime();
+		//Get the standard timezone of the system, to recover the normal standard
+		//after the interpretation of the time to a interger.
+		$string = $this->ilRoomsharingDatabase->getMaxBookTime();
+		//format the given timestamp to the HH:MM Format
+		$time1 = date("H:i", strtotime($string));
+		//format the standard start timestamp to the HH:MM Format
+		$time2 = date("H:i", strtotime('1970-01-01 00:00'));
+		//calculate the difference from given and the standard timestamp
+		//and return the resulting integer value.
+		return strtotime($time1) - strtotime($time2);
 	}
 
 	/**

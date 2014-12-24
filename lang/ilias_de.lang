@@ -103,6 +103,8 @@ mail_participation_creator_subject#:#Ein Teilnehmer nimmt nicht mehr an Ihrer Bu
 mail_participation_creator_message#:#Ein Teilnehmer nimmt nicht mehr an Ihrer Buchung teil. Folgender Teilnehmer ist ausgetreten:
 mail_room_changed_subject#:#Ein Raum den Sie gebucht haben wurde verändert.
 mail_room_changed_message#:#Ein Raum den Sie gebucht haben wurde verändert. Dies Betrifft Ihre folgenden Buchungen:
+mail_removing participant_subject#:#Sie wurden als Teilnehmer von einer Buchung ausgetragen.
+mail_removing participant_message#:#Sie wurden vom Ersteller der Raum-Buchung als Teilnehmer ausgetragen. Es betraf folgende Buchung:
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
 missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.
