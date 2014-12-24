@@ -18,6 +18,17 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 	private static $rssObjectName; // name of RoomSharing pool
 	private static $login_user = 'root';
 	private static $login_pass = 'homer';
+	/**
+	 * Must contain:
+	 * - sucess.jpg with size > 0
+	 * - sucess.bmp with size > 0
+	 * - fail.pdf with size > 0
+	 * - fail.txt with size > 0
+	 * - empty.txt with size = 0
+	 * - big.jpg with size bigger than upload limit
+	 * @var string
+	 */
+	private static $test_file_absolut_path = 'C:\Users\Dan\Desktop\\';
 	private static $helper;
 
 	public static function setUpBeforeClass()
@@ -40,13 +51,202 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * Test functions for adding new floorplans.
+	 */
+	public function tstAddingFloorPlans()
+	{
+		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
+
+		//#1 Test for Back Links from Adding a floor plan
+		self::$webDriver->findElement(WebDriverBy::linkText(' Gebäudeplan hinzufügen '))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('Zurück zu den Gebäudeplänen'))->click();
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::linkText('Gebäudepläne anzeigen'));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#1.1: Return from adding floorplans to floorplans overview via backtab does not work.");
+		}
+		self::$webDriver->findElement(WebDriverBy::linkText(' Gebäudeplan hinzufügen '))->click();
+		self::$webDriver->findElement(WebDriverBy::name('cmd[render]'))->click();
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::linkText('Gebäudepläne anzeigen'));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#1.2: Return from adding floorplans to floorplans overview via backtab does not work.");
+		}
+
+		//#2 Test empty Title
+		self::$helper->createFloorPlan('', self::$test_file_absolut_path . 'sucess.jpg', 'Test');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#2 Add an no-title floorplan seems to work");
+		}
+		//self::$webDriver->findElement(WebDriverBy::linkText('Zurück zu den Gebäudeplänen'))->click();
+		self::$webDriver->findElement(WebDriverBy::name('cmd[render]'))->click();
+
+		//#3 Test empty Plan
+		self::$helper->createFloorPlan('Test_A', '', 'Test');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#3 Add an no-plan floorplan seems to work");
+		}
+		//self::$webDriver->findElement(WebDriverBy::linkText('Zurück zu den Gebäudeplänen'))->click();
+		self::$webDriver->findElement(WebDriverBy::name('cmd[render]'))->click();
+
+		//#4 Test empty.txt
+		self::$helper->createFloorPlan('Test_A', self::$test_file_absolut_path . 'empty.jpg', 'Test');
+		try
+		{
+			//self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#4 Add an empty picture as floorplan seems to work");
+		}
+		//self::$webDriver->findElement(WebDriverBy::linkText('Zurück zu den Gebäudeplänen'))->click();
+		//self::$webDriver->findElement(WebDriverBy::name('cmd[render]'))->click();
+		//#5 Test big.jpg
+		self::$helper->createFloorPlan('Test_A', self::$test_file_absolut_path . 'big.jpg', 'Test');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#5 Add an too big picture as floorplan seems to work");
+		}
+		//self::$webDriver->findElement(WebDriverBy::linkText('Zurück zu den Gebäudeplänen'))->click();
+		self::$webDriver->findElement(WebDriverBy::name('cmd[render]'))->click();
+
+		//#6 Test fail.txt
+		self::$helper->createFloorPlan('Test_A', self::$test_file_absolut_path . 'fail.txt', 'Test');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#6 Add an txt as floorplan seems to work");
+		}
+		//self::$webDriver->findElement(WebDriverBy::linkText('Zurück zu den Gebäudeplänen'))->click();
+		self::$webDriver->findElement(WebDriverBy::name('cmd[render]'))->click();
+
+		//#7 Test fail.pdf
+		self::$helper->createFloorPlan('Test_A', self::$test_file_absolut_path . 'fail.pdf', 'Test');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#7 Add an pdf as floorplan seems to work");
+		}
+		//self::$webDriver->findElement(WebDriverBy::linkText('Zurück zu den Gebäudeplänen'))->click();
+		self::$webDriver->findElement(WebDriverBy::name('cmd[render]'))->click();
+
+		//#8 Test sucess.jpg
+		self::$helper->createFloorPlan('Test_A', self::$test_file_absolut_path . 'sucess.jpg', 'Test');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::linkText(" Test_A"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#8 Adding a jpg as floorplan seems not to work");
+		}
+
+		//#9 Test sucess.bmp
+		self::$helper->createFloorPlan('Test_B', self::$test_file_absolut_path . 'sucess.bmp', 'Test2');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::linkText(" Test_B"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#9 Adding a bmp as floorplan seems not to work");
+		}
+
+		//#10 Add existing Title
+		self::$helper->createFloorPlan('Test_B', self::$test_file_absolut_path . 'sucess.bmp', 'Test2');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#10 Adding an existing title seems to work");
+		}
+		//self::$webDriver->findElement(WebDriverBy::linkText('Zurück zu den Gebäudeplänen'))->click();
+		self::$webDriver->findElement(WebDriverBy::name('cmd[render]'))->click();
+
+		self::$helper->deleteAllFloorPlans();
+	}
+
+	/**
+	 * @test
+	 */
+	public function testEditAndDeleteFloorPlans()
+	{
+		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
+		self::$helper->deleteAllFloorPlans();
+	}
+
+	/**
+	 *
+	 */
+	public function testAssignmentEffectsOfFloorplans()
+	{
+		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
+		self::$helper->createFloorPlan('Test_A', self::$test_file_absolut_path . 'sucess.jpg', 'Test');
+		//#1 Use a new floorplan by creating a room with it
+		self::$helper->createRoom('123', '1', '20', "TEST", "Test_A", array());
+		self::$webDriver->findElement(WebDriverBy::linkText(' Zurück zu allen Räumen '))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('123'))->click();
+		$text = self::$webDriver->findElement(WebDriverBy::xpath("//option[text()='Test_A']"))->getAttribute('selected');
+		$this->assertEquals(false, empty($text), '#1 Using a new floorplan on a room has failed!');
+
+		//#2 Change a floorplan which is assigend to a room
+		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
+		$menu = $this->webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
+		$menu->findElement(WebDriverBy::linkText('Aktionen'))->click();
+		$menu->findElement(WebDriverBy::linkText('Bearbeiten'))->click();
+		self::$webDriver->findElement(WebDriverBy::id('title'))->clear();
+		self::$webDriver->findElement(WebDriverBy::id('title'))->sendKeys('Test_B');
+		self::$webDriver->findElement(WebDriverBy::id('file_mode_replace'))->click();
+		self::$webDriver->findElement(WebDriverBy::id('upload_file'))->sendKeys(self::$test_file_absolut_path . 'sucess.bmp');
+		self::$webDriver->findElement(WebDriverBy::name('cmd[update]'))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('123'))->click();
+		$text = self::$webDriver->findElement(WebDriverBy::xpath("//option[text()='Test_B']"))->getAttribute('selected');
+		$this->assertEquals(false, empty($text), '#2 Changing an assigend floorplan has failed!');
+
+		//#3 Delete an assigned floorplan
+		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
+		self::$helper->deleteAllFloorPlans();
+		self::$webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		self::$webDriver->findElement(WebDriverBy::linkText('123'))->click();
+		//Hier endet die Erstellung, denn es kommt ein Fehler bei der Vortestdurchführung
+	}
+
+	/**
 	 * GUI tests for floorplans.
 	 *
 	 * These tests are not the ones from "User Story (Gebäudeplan)" because
 	 * the tests from user story use functionality which is not yet implemented.
-	 * @test
 	 */
-	public function testGebaeudePlaeneExplorativ()
+	public function tstGebaeudePlaeneExplorativ()
 	{
 		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
 		/**
