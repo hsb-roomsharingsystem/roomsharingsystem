@@ -1115,13 +1115,13 @@ class ilRoomSharingDatabase
 
 	/**
 	 * Delete floorplan - room association if floorplan will be deleted.
-	 * @param floorplan_id
-	 * @return type
+	 * @param integer floorplan_id
+	 * @return integer amount of affected rows
 	 */
 	public function deleteFloorplanRoomAssociation($a_file_id)
 	{
 		return $this->ilDB->manipulate('UPDATE ' . dbc::ROOMS_TABLE .
-				' SET building_id = 0 WHERE building_id = ' .
+				' SET file_id = 0 WHERE file_id = ' .
 				$this->ilDB->quote($a_file_id, 'integer') .
 				' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
@@ -1129,7 +1129,7 @@ class ilRoomSharingDatabase
 	public function getRoomsWithFloorplan($a_file_id)
 	{
 		$set = $this->ilDB->query('SELECT name FROM ' . dbc::ROOMS_TABLE .
-			' WHERE building_id = ' . $this->ilDB->quote($a_file_id, 'integer') .
+			' WHERE file_id = ' . $this->ilDB->quote($a_file_id, 'integer') .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$rooms = array();
 		while ($row = $this->ilDB->fetchAssoc($set))
