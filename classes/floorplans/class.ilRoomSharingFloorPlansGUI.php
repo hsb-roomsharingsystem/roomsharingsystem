@@ -304,15 +304,27 @@ class ilRoomSharingFloorPlansGUI
 			catch (ilRoomSharingFloorplanException $exc)
 			{
 				ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
-				$form->setValuesByPost();
-				$this->tpl->setContent($form->getHTML());
+				$this->resetView($form);
 			}
 		}
 		else // if that's not the case, reset the old inputs
 		{
-			$form->setValuesByPost();
-			$this->tpl->setContent($form->getHTML());
+			$this->resetView($form);
 		}
+	}
+
+	/**
+	 * Resets the current view, by reloading the template with a given form and setting special back target.
+	 *
+	 * @param ilPropertyFormGUI $a_form
+	 */
+	private function resetView(ilPropertyFormGUI $a_form)
+	{
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
+			$this->ctrl->getLinkTarget($this, 'render'));
+		$a_form->setValuesByPost();
+		$this->tpl->setContent($a_form->getHTML());
 	}
 
 	/**
@@ -455,14 +467,12 @@ class ilRoomSharingFloorPlansGUI
 			catch (ilRoomSharingFloorplanException $exc)
 			{
 				ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
-				$form->setValuesByPost();
-				$this->tpl->setContent($form->getHTML());
+				$this->resetView($form);
 			}
 		}
 		else // if that's not the case, restore the old input values
 		{
-			$form->setValuesByPost();
-			$this->tpl->setContent($form->getHTML());
+			$this->resetView($form);
 		}
 	}
 
