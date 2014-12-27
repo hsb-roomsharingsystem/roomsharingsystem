@@ -194,7 +194,8 @@ class ilRoomsharingDatabase
 	 *        	(optional)
 	 * @return array values = room ids booked in given range
 	 */
-	public function getRoomsBookedInDateTimeRange($a_dates, $a_time_from, $a_time_to, $a_room_id = null)
+	public function getRoomsBookedInDateTimeRange($a_dates, $a_time_from, $a_time_to,
+		$a_room_id = null, $a_priority = null)
 	{
 		$roomQuery = '';
 		if ($a_room_id)
@@ -203,9 +204,18 @@ class ilRoomsharingDatabase
 				$this->ilDB->quote($a_room_id, 'text') . ' AND ';
 		}
 
-		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE .
-			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
-			$roomQuery . ' (';
+		$priorityQuery = '';
+		$join_part = '';
+		if ($a_priority)
+		{
+			$priorityQuery = ' priority > ' . $this->ilDB->quote($a_priority, 'integer') . ' AND ';
+			$join_part = ' JOIN ' . dbc::CLASS_USER_TABLE . ' u ON b.user_id = u.user_id JOIN ' .
+				dbc::CLASSES_TABLE . ' c ON c.id = u.class_id';
+		}
+
+		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE . ' b ' . $join_part .
+			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
+			$roomQuery . $priorityQuery . ' (';
 
 		foreach ($a_dates as $date)
 		{

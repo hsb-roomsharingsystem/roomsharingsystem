@@ -140,10 +140,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 //		echo "<br>muh<br>";
 //		print_r($data);
-		var_dump($filter);
-		$data = $this->rooms->getList($filter);
 
-		//var_dump($data);
+		$data = $this->rooms->getList($filter);
 		return $data;
 	}
 

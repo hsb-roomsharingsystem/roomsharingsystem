@@ -148,8 +148,17 @@ class ilRoomSharingRooms
 	 */
 	private function removeRoomsNotInTimeRange()
 	{
-		$roomsBookedInTimeRange = $this->getRoomsBookedInDateTimeRange($this->filter['date'],
-			$this->filter['time_from'], $this->filter['time_to']);
+		if ($this->filter['priority'])
+		{
+			$roomsBookedInTimeRange = $this->getRoomsBookedInDateTimeRange($this->filter['date'],
+				$this->filter['time_from'], $this->filter['time_to'], null, $this->filter['priority']);
+		}
+		else
+		{
+			$roomsBookedInTimeRange = $this->getRoomsBookedInDateTimeRange($this->filter['date'],
+				$this->filter['time_from'], $this->filter['time_to']);
+		}
+
 		$roomsMatchingAttributeFilters_Temp = $this->roomsMatchingAttributeFilters;
 		$this->roomsMatchingAttributeFilters = array();
 
@@ -302,10 +311,11 @@ class ilRoomSharingRooms
 	 *        	(optional)
 	 * @return array values = room ids booked in given range
 	 */
-	public function getRoomsBookedInDateTimeRange($dates, $time_from, $time_to, $a_room_id = null)
+	public function getRoomsBookedInDateTimeRange($dates, $time_from, $time_to, $a_room_id = null,
+		$a_priority = null)
 	{
 		return $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($dates, $time_from, $time_to,
-				$a_room_id);
+				$a_room_id, $a_priority);
 	}
 
 	/**
