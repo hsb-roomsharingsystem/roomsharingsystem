@@ -67,6 +67,8 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
 				$item->clearFromSession();
 			}
 		}
+		$_SESSION ["form_searchform"] ["time_from"] = null;
+		$_SESSION ["form_searchform"] ["time_to"] = null;
 	}
 
 	/**

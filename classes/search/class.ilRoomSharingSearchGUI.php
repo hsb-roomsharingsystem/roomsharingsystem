@@ -87,7 +87,7 @@ class ilRoomSharingSearchGUI
 		$search_form = $this->createForm();
 
 		// continue only if the input data is correct
-		if ($search_form->checkInput())
+		if ($search_form->checkInput() && $this->checkTime($search_form))
 		{
 			$search_form->writeInputsToSession();
 			$this->showSearchResults();
@@ -188,6 +188,36 @@ class ilRoomSharingSearchGUI
 			}
 		}
 		return $filtered_inputs;
+	}
+
+	/**
+	 * Checks if the given date and time combination is valid for search
+	 * and shows an error-massage if it's not.
+	 *
+	 * @return bool if form valid
+	 * @param ilRoomSharingSearchFormGUI the search form
+	 */
+	private function checkTime($search_form)
+	{
+		$datenow = new DateTime(date('Y-m-d H:i:s'));
+		$date = $search_form->getInput("date", false);
+		$time_from = $search_form->getInput("time_from", false);
+		$time_to = $search_form->getInput("time_to", false);
+		$dateFrom = new DateTime($date['date'] . ' ' . $time_from['time']);
+		$dateTo = new DateTime($date['date'] . ' ' . $time_to['time']);
+
+		if ($dateFrom >= $dateTo)
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_search_range_to_small"));
+		}
+		else if ($dateFrom < $datenow)
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_search_time_in_past"));
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	/**

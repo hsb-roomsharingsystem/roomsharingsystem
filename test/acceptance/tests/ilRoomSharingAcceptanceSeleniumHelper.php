@@ -18,6 +18,72 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	}
 
 	/**
+	 * Createa a new Floorplan. Needs to be in floorplans overview GUI.
+	 * @param type $title Title of floorplan
+	 * @param type $filePath Filepath. Absolut
+	 * @param type $desc Description of Floorplan
+	 */
+	public function createFloorPlan($title, $filePath, $desc = "")
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText(' Gebäudeplan hinzufügen '))->click();
+		//Input Data
+		$this->webDriver->findElement(WebDriverBy::name('title'))->sendKeys($title);
+		$this->webDriver->findElement(WebDriverBy::name('description'))->sendKeys($desc);
+		$fileInput = $this->webDriver->findElement(WebDriverBy::name('upload_file'));
+		$fileInput->sendKeys($filePath);
+
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[save]'))->click();
+	}
+
+	public function changeFirstFloorPlan($newTitle, $newDesc, $newFilePath = false)
+	{
+		//Navigate
+		$menu = $this->webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
+		$menu->findElement(WebDriverBy::linkText('Aktionen'))->click();
+		$menu->findElement(WebDriverBy::linkText('Bearbeiten'))->click();
+
+		//Input Data
+		$this->webDriver->findElement(WebDriverBy::name('title'))->clear();
+		$this->webDriver->findElement(WebDriverBy::name('title'))->sendKeys($newTitle);
+
+		$this->webDriver->findElement(WebDriverBy::name('description'))->clear();
+		$this->webDriver->findElement(WebDriverBy::name('description'))->sendKeys($newDesc);
+
+		if ($newFilePath !== false)
+		{
+			$this->webDriver->findElement(WebDriverBy::id('file_mode_replace'))->click();
+			$fileInput = $this->webDriver->findElement(WebDriverBy::name('upload_file'));
+			$fileInput->sendKeys($newFilePath);
+		}
+
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[update]'))->click();
+	}
+
+	/**
+	 * Deletes all Floorplans. Use with Caution!
+	 */
+	public function deleteAllFloorPlans()
+	{
+		try
+		{
+			while (true)
+			{
+				$menu = $this->webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
+				$menu->findElement(WebDriverBy::linkText('Aktionen'))->click();
+				$menu->findElement(WebDriverBy::linkText('Löschen'))->click();
+				$this->webDriver->findElement(WebDriverBy::name('cmd[removeFloorplan]'))->click();
+			}
+		}
+		catch (Exception $finished)
+		{
+
+		}
+	}
+
+	/**
 	 * Createa a new bookingattribute
 	 * @param string $name
 	 */

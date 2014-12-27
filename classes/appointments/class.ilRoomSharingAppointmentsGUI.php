@@ -12,7 +12,7 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/R
  *
  * @version $Id$
  *
- * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI, ilRoomSharingBookingsTableGui
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI, ilRoomSharingBookingsTableGui, ilRoomSharingShowAndEditBookGUI
  *
  * @property ilCtrl $ctrl
  * @property ilLanguage $lng
@@ -53,6 +53,7 @@ class ilRoomSharingAppointmentsGUI
 		{
 			case 'render':
 			case 'showContent':
+			case 'saveEditBook':
 			case 'cancelBooking':
 			case 'confirmMultipleCancels':
 			case 'cancelMultipleBookings':
@@ -97,6 +98,19 @@ class ilRoomSharingAppointmentsGUI
 	function showBookings()
 	{
 		$this->setSubTabs('bookings');
+		$object_gui = & new ilRoomSharingBookingsGUI($this);
+		$this->ctrl->forwardCommand($object_gui);
+	}
+
+	/**
+	 * Shows one booking.
+	 */
+	function showBooking()
+	{
+		global $ilTabs;
+		$ilTabs->clearTargets();
+		$this->parent_obj->setTabs();
+		$this->ctrl->setCmd("showBooking");
 		$object_gui = & new ilRoomSharingBookingsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}

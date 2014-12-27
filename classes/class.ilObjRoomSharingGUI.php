@@ -9,6 +9,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/" 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("Services/User/classes/class.ilUserAutoComplete.php");
 
 use ilRoomSharingAttributesConstants as ATTRC;
 use ilRoomSharingPrivilegesConstants as PRIVC;
@@ -32,7 +33,7 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI, ilRoomSharingBookingsTableGUI
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI, ilRoomSharingShowAndEditBookGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingCalendarWeekGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingPrivilegesGUI, ilRoomSharingAttributesGUI
  *
@@ -123,6 +124,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$this->$cmd();
 			return true;
 		}
+		else if ($cmd == 'showBooking' || $cmd == 'editBooking' || $cmd == 'saveEditBooking' || $cmd == 'cancelEdit')
+		{
+			$next_class = 'ilroomsharingshowandeditbookgui';
+		}
 		/*
 		 * The special handling of the commands showSearch and showSearchResults is needed because
 		 * otherwise the wrong $next_class would be called
@@ -135,6 +140,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		else if ($cmd === 'addRoom' || $cmd === 'editRoom')
 		{
 			$next_class = ilroomsharingroomgui;
+		}
+		else if ($cmd == 'showBookings')
+		{
+			$next_class = ilroomsharingappointmentsgui;
 		}
 
 		// Extend list of last visited objects by this pool.
@@ -203,6 +212,28 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
 				$ret = & $this->ctrl->forwardCommand($book_gui);
+				break;
+			// Show and edit booking
+			case 'ilroomsharingshowandeditbookgui':
+				$this->tabs_gui->clearTargets();
+				$this->tabs_gui->setBackTarget(
+					$this->lng->txt("rep_robj_xrs_booking_back"), $ilCtrl->getLinkTarget($this, "showBookings")
+				);
+				$this->pl_obj->includeClass("booking/class.ilRoomSharingShowAndEditBookGUI.php");
+				$booking_id = (int) $_GET['booking_id'];
+				$room_id = (int) $_GET['room_id'];
+				if ($cmd == 'editBooking' || $cmd == 'saveEditBooking')
+				{
+					$mode = 'edit';
+				}
+				//$cmd == 'showBooking' || $cmd == 'cancelEdit'
+				else
+				{
+					$mode = 'show';
+				}
+				$showAndEditBook_gui = & new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, $mode);
+				$ret = & $this->ctrl->forwardCommand($showAndEditBook_gui);
+				$has_calendar = true;
 				break;
 			// Floorplans
 			case 'ilroomsharingfloorplansgui':
@@ -596,17 +627,21 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * Function that redirects to the overview of a made booking.
-	 * !!! Will probably be moved to another class in further releases !!!
-	 */
-	public function showBooking()
-	{
-		global $ilCtrl;
-		$booking_id = (int) $_GET['booking_id'];
-		$ilCtrl->setCmd("showBookings");
-		$this->render();
-	}
+	 * Function that shows a existing booking.
 
+	  public function showBooking()
+	  {
+	  $this->tabs_gui->clearTargets();
+	  $last_cmd = empty($_GET['last_cmd']) ? "showBookings" : $_GET['last_cmd'];
+	  $this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
+	  $booking_id = (int) $_GET['booking_id'];
+	  $booking = new ilRoomSharingBookGUI($this, $booking_id);
+	  $book->renderBookingForm('show');
+	  $this->tabs_gui->setBackTarget($this->lng->txt("rep_robj_xrs_booking_back"),
+	  $this->ctrl->getLinkTarget($this, $last_cmd));
+	  }
+
+	 */
 	/**
 	 * Displays a page with room information.
 	 */

@@ -8,6 +8,7 @@ require_once ("Services/Utilities/classes/class.ilConfirmationGUI.php");
 require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingShowAndEditBookGUI.php");
 
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
@@ -95,6 +96,54 @@ class ilRoomSharingBookingsGUI
 		$plink = new ilPermanentLinkGUI('xrs', $this->ref_id);
 
 		$this->tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
+	}
+
+	function showBookingObject()
+	{
+		global $ilTabs;
+
+		$ilTabs->clearTargets();
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
+		$booking_id = (int) $_GET['booking_id'];
+		$room_id = (int) $_GET['room_id'];
+		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'show');
+		$form = $booking->renderBookingForm();
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $booking_id);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room_id);
+		$this->tpl->setContent($form->getHTML());
+	}
+
+	function editBookingObject()
+	{
+		global $ilTabs;
+
+		$ilTabs->clearTargets();
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
+		$booking_id = (int) $_GET['booking_id'];
+		$room_id = (int) $_GET['room_id'];
+		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'edit');
+		$form = $booking->renderBookingForm();
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $booking_id);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room_id);
+		$this->tpl->setContent($form->getHTML());
+	}
+
+	function saveEditBookingObject()
+	{
+		global $ilTabs;
+
+		$ilTabs->clearTargets();
+		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
+		$booking_id = (int) $_GET['booking_id'];
+		$room_id = (int) $_GET['room_id'];
+		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'edit');
+		$form = $booking->renderBookingForm();
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $booking_id);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room_id);
+		$this->tpl->setContent($form->getHTML());
 	}
 
 	/**
