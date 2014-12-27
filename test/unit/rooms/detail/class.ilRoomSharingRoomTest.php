@@ -1,10 +1,13 @@
 <?php
 
 chdir("../../../../../../../../"); // necessary for the include paths that are used within the classes to be tested
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
  * Class ilRoomSharingRoomTest
  *
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
  * @group unit
  */
 class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
@@ -12,7 +15,8 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @var ilRoomSharingRoom
 	 */
-	protected $object;
+	private static $room;
+	private static $DBMock;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -20,7 +24,90 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	 */
 	protected function setUp()
 	{
-		$this->object = new ilRoomSharingRoom;
+		$test = new self();
+		self::$DBMock = $test->getMockBuilder('ilRoomSharingDatabase')->disableOriginalConstructor()->getMock();
+
+		// We assume that we have all privileges.
+		global $rssPermission;
+		$rssPermission = $test->getMockBuilder('ilRoomSharingPermissionUtils')->disableOriginalConstructor()->getMock();
+		$rssPermission->method("checkPrivilege")->willReturn(true);
+
+		$existingRoomNames = array(
+			'I012 A', 'I035', 'Dojo X', 'Pinguin'
+		);
+		self::$DBMock->method("getAllRoomNames")->willReturn($existingRoomNames);
+
+		$allRoomAttributes = array(
+			array('id' => 1,
+				'name' => 'Beamer',
+				'pool_id' => 1),
+			array('id' => 2,
+				'name' => 'Whiteboard',
+				'pool_id' => 1),
+			array('id' => 3,
+				'name' => 'Tafelstifte',
+				'pool_id' => 1),
+			array('id' => 4,
+				'name' => 'Fernseher',
+				'pool_id' => 1),
+			array('id' => 5,
+				'name' => 'Desktop PCs',
+				'pool_id' => 1),
+			array('id' => 6,
+				'name' => 'Schwämme',
+				'pool_id' => 1)
+		);
+		self::$DBMock->method("getAllRoomAttributes")->willReturn($allRoomAttributes);
+
+		$roomProperties = array(
+			'id' => 1,
+			'name' => 'I012 A',
+			'type' => 'Saal',
+			'min_alloc' => 20,
+			'max_alloc' => 100,
+			'file_id' => 450,
+			'building_id' => 230,
+			'pool_id' => 1
+		);
+		self::$DBMock->method("getRoom")->willReturn($roomProperties);
+
+		$roomAttributes = array(
+			array(
+				'id' => 1,
+				'name' => 'Beamer',
+				'count' => 3
+			),
+			array(
+				'id' => 4,
+				'name' => 'Fernseher',
+				'count' => 1
+			),
+			array(
+				'id' => 2,
+				'name' => 'Whiteboard',
+				'count' => 2
+			)
+		);
+		self::$DBMock->method("getAttributesForRoom")->willReturn($roomAttributes);
+
+		$bookings = array(
+			array(
+				'id' => 12,
+				'date_from' => '2014-12-09 15:00:00.000000',
+				'date_to' => '2014-12-09 18:00:00.000000',
+				'seq_id' => null,
+				'room_id' => 1,
+				'pool_id' => 1,
+				'user_id' => 3,
+				'subject' => 'Test',
+				'public_booking' => 0,
+				'bookingcomment' => 'Ist eine Testbuchung',
+				'calendar_entry_id' => 23
+			)
+		);
+		self::$DBMock->method("getAllBookingsForRoom")->willReturn($bookings);
+
+		self::$room = new ilRoomSharingRoom(1, 1, false, self::$DBMock);
 	}
 
 	/**
@@ -34,98 +121,305 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ilRoomSharingRoom::read
-	 * @todo   Implement testRead().
+	 * @covers ilRoomSharingRoom::getId
+	 * @covers ilRoomSharingRoom::getName
+	 * @covers ilRoomSharingRoom::getType
+	 * @covers ilRoomSharingRoom::getMinAlloc
+	 * @covers ilRoomSharingRoom::getMaxAlloc
+	 * @covers ilRoomSharingRoom::getFileId
+	 * @covers ilRoomSharingRoom::getBuildingId
+	 * @covers ilRoomSharingRoom::getPoolId
+	 * @covers ilRoomSharingRoom::getAttributes
+	 * @covers ilRoomSharingRoom::getAllAvailableAttributes
+	 * @covers ilRoomSharingRoom::getBookedTimes
 	 */
 	public function testRead()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$allAvailableAttributes = self::$room->getAllAvailableAttributes();
+
+		$this->assertEquals(6, count($allAvailableAttributes));
+
+		$this->assertEquals(1, self::$room->getId());
+		$this->assertEquals('I012 A', self::$room->getName());
+		$this->assertEquals('Saal', self::$room->getType());
+		$this->assertEquals(20, self::$room->getMinAlloc());
+		$this->assertEquals(100, self::$room->getMaxAlloc());
+		$this->assertEquals(450, self::$room->getFileId());
+		$this->assertEquals(230, self::$room->getBuildingId());
+		$this->assertEquals(1, self::$room->getPoolId());
+
+		$roomAttributes = self::$room->getAttributes();
+
+		$this->assertEquals(3, count($roomAttributes));
+
+		$firstAttr = $roomAttributes[0];
+
+		$this->assertEquals(1, $firstAttr['id']);
+		$this->assertEquals('Beamer', $firstAttr['name']);
+		$this->assertEquals(3, $firstAttr['count']);
+
+		$secondAttr = $roomAttributes[1];
+
+		$this->assertEquals(4, $secondAttr['id']);
+		$this->assertEquals('Fernseher', $secondAttr['name']);
+		$this->assertEquals(1, $secondAttr['count']);
+
+		$thirdAttr = $roomAttributes[2];
+
+		$this->assertEquals(2, $thirdAttr['id']);
+		$this->assertEquals('Whiteboard', $thirdAttr['name']);
+		$this->assertEquals(2, $thirdAttr['count']);
+
+		$expectedBookings = array(
+			array(
+				'id' => 12,
+				'date_from' => '2014-12-09 15:00:00.000000',
+				'date_to' => '2014-12-09 18:00:00.000000',
+				'seq_id' => null,
+				'room_id' => 1,
+				'pool_id' => 1,
+				'user_id' => 3,
+				'subject' => 'Test',
+				'public_booking' => 0,
+				'bookingcomment' => 'Ist eine Testbuchung',
+				'calendar_entry_id' => 23
+			)
 		);
+		$this->assertEquals($expectedBookings, self::$room->getBookedTimes());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::save
-	 * @todo   Implement testSave().
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 */
+	public function testSaveNegativeMaxAllocGiven()
+	{
+		self::$room->setMaxAlloc(-20);
+		self::$room->save();
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::save
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 */
+	public function testSaveNegativeMinAllocGiven()
+	{
+		self::$room->setMinAlloc(-20);
+		self::$room->save();
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::save
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 */
+	public function testSaveMinAllocGreaterMax()
+	{
+		self::$room->setMaxAlloc(20);
+		self::$room->setMinAlloc(21);
+		self::$room->save();
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::save
 	 */
 	public function testSave()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+
+		self::$room->setId(10);
+		self::$room->setName('CoolRoom');
+		self::$room->setType('Party');
+		self::$room->setMinAlloc(10);
+		self::$room->setMaxAlloc(20);
+		self::$room->setFileId(310);
+		self::$room->setBuildingId(730);
+
+		self::$room->setAttributes(array(
+			array(
+				'id' => 12,
+				'count' => 3
+			),
+			array(
+				'id' => 7,
+				'count' => 8
+			)
+		));
+
+		self::$room->save();
+
+		self::$DBMock->expects($this->once())->method('updateRoomProperties')->with(
+			$this->equalTo(10), $this->equalTo('CoolRoom'), $this->equalTo('Party'), $this->equalTo(10),
+			$this->equalTo(20), $this->equalTo(310), $this->equalTo(730)
+		);
+		self::$DBMock->expects($this->once())->method('deleteAllAttributesForRoom');
+		self::$DBMock->expects($this->exactly(2))->method('insertAttributeForRoom')->withConsecutive(
+			array($this->equalTo(10), $this->equalTo(12), $this->equalTo(3)),
+			array($this->equalTo(10), $this->equalTo(7), $this->equalTo(8))
 		);
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::create
-	 * @todo   Implement testCreate().
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 */
+	public function testCreateNegativeMaxAllocGiven()
+	{
+		self::$room->setMaxAlloc(-20);
+		self::$room->create();
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::create
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 */
+	public function testCreateNegativeMinAllocGiven()
+	{
+		self::$room->setMinAlloc(-20);
+		self::$room->create();
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::create
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 */
+	public function testCreateMinAllocGreaterMax()
+	{
+		self::$room->setMaxAlloc(20);
+		self::$room->setMinAlloc(21);
+		self::$room->create();
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::create
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_room_name_occupied
+	 */
+	public function testCreateNameNotFree()
+	{
+		self::$room->setName('Pinguin');
+		self::$room->create();
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::create
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_room_create_failed
+	 */
+	public function testCreateNameNotValid()
+	{
+		self::$room->setName('');
+		self::$room->create();
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::create
 	 */
 	public function testCreate()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		self::$DBMock->method("insertRoom")->willReturn(999);
+
+		$newRoom = new ilRoomSharingRoom(1, 23, true, self::$DBMock);
+
+		$newRoom->setName('Joga');
+		$newRoom->setType('Fitness');
+		// Min Alloc not given
+		$newRoom->setMaxAlloc(20);
+		$newRoom->setFileId(300);
+		$newRoom->setBuildingId(809);
+
+		$newRoom->addAttribute(1, 3);
+		$newRoom->addAttribute(4, 1);
+
+		$newRoom->create();
+
+		self::$DBMock->expects($this->once())->method('insertRoom')->with(
+			$this->equalTo('Joga'), $this->equalTo('Fitness'), $this->equalTo(0), $this->equalTo(20),
+			$this->equalTo(300), $this->equalTo(809)
+		);
+		self::$DBMock->expects($this->exactly(2))->method('insertAttributeForRoom')->withConsecutive(
+			array($this->equalTo(999), $this->equalTo(1), $this->equalTo(3)),
+			array($this->equalTo(999), $this->equalTo(4), $this->equalTo(1))
 		);
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::delete
-	 * @todo   Implement testDelete().
 	 */
 	public function testDelete()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->delete();
+		self::$DBMock->expects($this->once())->method('deleteRoom')->with($this->equalTo(1));
+		self::$DBMock->expects($this->once())->method('deleteAllAttributesForRoom')->with($this->equalTo(1));
+		self::$DBMock->expects($this->once())->method('deleteAllBookingsAssignedToRoom')->with($this->equalTo(1));
 	}
 
 	/**
-	 * @covers ilRoomSharingRoom::getAffectedAmountBeforeDelete
-	 * @todo   Implement testGetAffectedAmountBeforeDelete().
+	 * @covers ilRoomSharingRoom::getAmountOfBookings
 	 */
-	public function testGetAffectedAmountBeforeDelete()
+	public function testGetAmountOfBookings()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$bookings = array(
+			array('book_id' => 2, 'comment' => 'psss'),
+			array('book_id' => 4, 'comment' => 'woohaa'));
+		self::$DBMock->method("getCurrentBookingsForRoom")->willReturn($bookings);
+
+		$this->assertEquals(2, self::$room->getAmountOfBookings());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::addAttribute
-	 * @todo   Implement testAddAttribute().
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_add_wrong_attribute
+	 */
+	public function testAddAttributeNotExists()
+	{
+		self::$room->addAttribute(7, 10);
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::addAttribute
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_add_wrong_attribute
+	 */
+	public function testAddAttributeAlreadyDefined()
+	{
+		self::$room->addAttribute(1, 10);
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::addAttribute
+	 * @expectedException ilRoomSharingRoomException
+	 * @expectedExceptionMessage rep_robj_xrs_add_wrong_attribute_count
+	 */
+	public function testAddAttributeWrongAmount()
+	{
+		self::$room->addAttribute(6, -1);
+	}
+
+	/**
+	 * @covers ilRoomSharingRoom::addAttribute
 	 */
 	public function testAddAttribute()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->addAttribute(3, 4);
+		$this->assertEquals(4, count(self::$room->getAttributes()));
+		$needle = array('id' => 3, 'name' => 'Tafelstifte', 'count' => 4);
+		$this->assertContains($needle, self::$room->getAttributes());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::resetAttributes
-	 * @todo   Implement testResetAttributes().
 	 */
 	public function testResetAttributes()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
+		self::$room->resetAttributes();
 
-	/**
-	 * @covers ilRoomSharingRoom::getAllAvailableAttributes
-	 * @todo   Implement testGetAllAvailableAttributes().
-	 */
-	public function testGetAllAvailableAttributes()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$this->assertEquals(0, count(self::$room->getAttributes()));
 	}
 
 	/**
@@ -134,262 +428,109 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetAllFloorplans()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
 	}
 
 	/**
-	 * @covers ilRoomSharingRoom::findAttributeAmount
-	 * @todo   Implement testFindAttributeAmount().
+	 * @covers ilRoomSharingRoom::getAttributeAmountById
 	 */
-	public function testFindAttributeAmount()
+	public function testGetAttributeAmountById()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getId
-	 * @todo   Implement testGetId().
-	 */
-	public function testGetId()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::assertEquals(3, self::$room->getAttributeAmountById(1));
+		self::assertEquals(1, self::$room->getAttributeAmountById(4));
+		self::assertEquals(2, self::$room->getAttributeAmountById(2));
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setId
-	 * @todo   Implement testSetId().
 	 */
 	public function testSetId()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getName
-	 * @todo   Implement testGetName().
-	 */
-	public function testGetName()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->setId(200);
+		$this->assertEquals(200, self::$room->getId());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setName
-	 * @todo   Implement testSetName().
 	 */
 	public function testSetName()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getType
-	 * @todo   Implement testGetType().
-	 */
-	public function testGetType()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->setName('Montreal');
+		$this->assertEquals('Montreal', self::$room->getName());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setType
-	 * @todo   Implement testSetType().
 	 */
 	public function testSetType()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getMinAlloc
-	 * @todo   Implement testGetMinAlloc().
-	 */
-	public function testGetMinAlloc()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->setType('Montreal2');
+		$this->assertEquals('Montreal2', self::$room->getType());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setMinAlloc
-	 * @todo   Implement testSetMinAlloc().
 	 */
 	public function testSetMinAlloc()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getMaxAlloc
-	 * @todo   Implement testGetMaxAlloc().
-	 */
-	public function testGetMaxAlloc()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->setMinAlloc(100);
+		$this->assertEquals(100, self::$room->getMinAlloc());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setMaxAlloc
-	 * @todo   Implement testSetMaxAlloc().
 	 */
 	public function testSetMaxAlloc()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getFileId
-	 * @todo   Implement testGetFileId().
-	 */
-	public function testGetFileId()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->setMaxAlloc(1200);
+		$this->assertEquals(1200, self::$room->getMaxAlloc());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setFileId
-	 * @todo   Implement testSetFileId().
 	 */
 	public function testSetFileId()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getBuildingId
-	 * @todo   Implement testGetBuildingId().
-	 */
-	public function testGetBuildingId()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->setId(33);
+		$this->assertEquals(33, self::$room->getId());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setBuildingId
-	 * @todo   Implement testSetBuildingId().
 	 */
 	public function testSetBuildingId()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getPoolId
-	 * @todo   Implement testGetPoolId().
-	 */
-	public function testGetPoolId()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->setBuildingId(400);
+		$this->assertEquals(400, self::$room->getBuildingId());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setPoolId
-	 * @todo   Implement testSetPoolId().
 	 */
 	public function testSetPoolId()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getAttributes
-	 * @todo   Implement testGetAttributes().
-	 */
-	public function testGetAttributes()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$room->setPoolId(80);
+		$this->assertEquals(80, self::$room->getPoolId());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setAttributes
-	 * @todo   Implement testSetAttributes().
 	 */
 	public function testSetAttributes()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingRoom::getBookedTimes
-	 * @todo   Implement testGetBookedTimes().
-	 */
-	public function testGetBookedTimes()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$attributes = array(array(1), array(2), array(3));
+		self::$room->setAttributes($attributes);
+		$this->assertEquals($attributes, self::$room->getAttributes());
 	}
 
 	/**
 	 * @covers ilRoomSharingRoom::setBookedTimes
-	 * @todo   Implement testSetBookedTimes().
 	 */
 	public function testSetBookedTimes()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$bookedTimes = array(array(1), array(2), array(3));
+		self::$room->setBookedTimes($bookedTimes);
+		$this->assertEquals($bookedTimes, self::$room->getBookedTimes());
 	}
 
 }
