@@ -174,6 +174,11 @@ class ilRoomSharingFloorPlans
 			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
 		}
 
+		if ($a_newfile != null && !ilRoomSharingNumericUtils::isPositiveNumber($a_newfile['size']))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
+		}
+
 		$this->updateMediaObject($mediaObj, $fileinfo);
 	}
 
@@ -204,6 +209,11 @@ class ilRoomSharingFloorPlans
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
 		if (!$this->checkImageType($fileinfo["format"]))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
+		}
+
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_newfile['size']))
 		{
 			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
 		}
