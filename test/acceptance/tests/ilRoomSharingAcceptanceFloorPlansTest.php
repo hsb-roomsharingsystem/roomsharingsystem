@@ -52,9 +52,9 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 
 	/**
 	 * Test functions for adding new floorplans.
-	 *
+	 * @test
 	 */
-	public function tstAddingFloorPlans()
+	public function testAddingFloorPlans()
 	{
 		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
 
@@ -190,9 +190,9 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 
 	/**
 	 * Tests Changing and Deletion of a floorplan
-	 *
+	 * @test
 	 */
-	public function tstEditAndDeleteFloorPlans()
+	public function testEditAndDeleteFloorPlans()
 	{
 		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
 		self::$helper->createFloorPlan('TEST_A', self::$test_file_absolut_path . 'sucess.jpg', 'Test');
