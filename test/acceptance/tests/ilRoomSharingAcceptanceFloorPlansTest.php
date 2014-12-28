@@ -155,7 +155,7 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 		self::$helper->createFloorPlan('Test_A', self::$test_file_absolut_path . 'sucess.jpg', 'Test');
 		try
 		{
-			self::$webDriver->findElement(WebDriverBy::linkText(" Test_A"));
+			self::$webDriver->findElement(WebDriverBy::xpath("//a[contains(text(),'Test_A')]"));
 		}
 		catch (Exception $ex)
 		{
@@ -166,7 +166,7 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 		self::$helper->createFloorPlan('Test_B', self::$test_file_absolut_path . 'sucess.bmp', 'Test2');
 		try
 		{
-			self::$webDriver->findElement(WebDriverBy::linkText(" Test_B"));
+			self::$webDriver->findElement(WebDriverBy::xpath("//a[contains(text(),'Test_B')]"));
 		}
 		catch (Exception $ex)
 		{
@@ -384,13 +384,13 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 
 		//#2 Change a floorplan which is assigend to a room
 		self::$webDriver->findElement(WebDriverBy::linkText('Gebäudeplan'))->click();
-		$menu = $this->webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
+		$menu = self::$webDriver->findElement(WebDriverBy::xpath("//div[@id='il_center_col']/div[4]/table/tbody/tr[2]/td[4]"));
 		$menu->findElement(WebDriverBy::linkText('Aktionen'))->click();
 		$menu->findElement(WebDriverBy::linkText('Bearbeiten'))->click();
 		self::$webDriver->findElement(WebDriverBy::id('title'))->clear();
 		self::$webDriver->findElement(WebDriverBy::id('title'))->sendKeys('Test_B');
 		self::$webDriver->findElement(WebDriverBy::id('file_mode_replace'))->click();
-		self::$webDriver->findElement(WebDriverBy::id('upload_file'))->sendKeys(self::$test_file_absolut_path . 'sucess.bmp');
+		self::$webDriver->findElement(WebDriverBy::id('upload_file'))->sendKeys(self::$test_file_absolut_path . 'sucess.jpg');
 		self::$webDriver->findElement(WebDriverBy::name('cmd[update]'))->click();
 		self::$webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
 		self::$webDriver->findElement(WebDriverBy::linkText('123'))->click();
@@ -402,7 +402,10 @@ class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 		self::$helper->deleteAllFloorPlans();
 		self::$webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
 		self::$webDriver->findElement(WebDriverBy::linkText('123'))->click();
-		//Hier endet die Erstellung, denn es kommt ein Fehler bei der Vortestdurchführung
+		$text = self::$webDriver->findElement(WebDriverBy::xpath("//option[text()=' - Keine Zuordnung - ']"))->getAttribute('selected');
+		$this->assertEquals(false, empty($text), '#3 Deleting an assigend floorplan has failed!');
+
+		self::$helper->deleteAllRooms();
 	}
 
 	/**

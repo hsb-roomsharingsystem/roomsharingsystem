@@ -77,7 +77,8 @@ floor_plans_replace#:#Replace floorplan
 floor_plans_replace_info#:#The existing floorplan will be replaced
 floor_plans_room_assoc#:#Following room-floorplan associations of these rooms will be deleted:
 floor_plans_show#:#Show floorplans
-floor_plans_upload_error#:#Error while uploading floorplan. Possible reason for this is the using of unsupported data format
+floor_plans_upload_error#:#Error while uploading floorplan. Possible reason is a usage of unsupported format
+floorplan_title_is_already_taken#:#Titel of the floorplan is already taken
 found#:#found
 from#:#from
 illigal_room_min_max_alloc#:#Incorrect data for number of seats (min/max) were sent.
@@ -103,7 +104,7 @@ mail_participation_creator_subject#:#A participant left your booking.
 mail_participation_creator_message#:#A participant left your booking. The following participant left your booking:
 mail_room_changed_subject#:#A room you booked has been changed.
 mail_room_changed_message#:#A room you booked has been changed. Your following bookings are affected:
-mail_removing participant_subject#:#You have been removed from a booking as participant. 
+mail_removing participant_subject#:#You have been removed from a booking as participant.
 mail_removing participant_message#:#You have been removed from a room booking by the creator as participant. Relating to the following booking:
 manage#:#Manage
 max_book_time#:#Maximal time of a booking

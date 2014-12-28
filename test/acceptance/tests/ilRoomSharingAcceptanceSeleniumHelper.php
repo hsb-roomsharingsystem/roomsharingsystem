@@ -37,6 +37,12 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::name('cmd[save]'))->click();
 	}
 
+	/**
+	 * Changes the first found floorplan.
+	 * @param type $newTitle New title
+	 * @param type $newDesc New description
+	 * @param type $newFilePath New file path (absolut)
+	 */
 	public function changeFirstFloorPlan($newTitle, $newDesc, $newFilePath = false)
 	{
 		//Navigate
@@ -200,7 +206,7 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::name('type'))->sendKeys($roomType);
 		$this->webDriver->findElement(WebDriverBy::name('min_alloc'))->sendKeys($min);
 		$this->webDriver->findElement(WebDriverBy::name('max_alloc'))->sendKeys($max);
-		$this->webDriver->findElement(WebDriverBy::name('building_id'))->sendKeys($floorplan);
+		$this->webDriver->findElement(WebDriverBy::name('file_id'))->sendKeys($floorplan);
 		foreach ($attributes as $attribute => $amount)
 		{
 			$id = $this->webDriver->findElement(WebDriverBy::xpath("//label[text()='" . $attribute . "']"))->getAttribute('for');

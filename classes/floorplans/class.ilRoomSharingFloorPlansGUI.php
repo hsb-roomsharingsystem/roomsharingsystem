@@ -8,6 +8,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/floorplans/class.ilRoomSharingFloorPlansTableGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingFloorplanException.php");
 
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
@@ -81,8 +82,6 @@ class ilRoomSharingFloorPlansGUI
 	 * RoomSharingFloorPlansTableGUI to display a table that contains all
 	 * uploaded floor plans. If the user has 'write' permissions, a button for
 	 * adding a new floor plan is displayed.
-	 *
-	 * @global type $ilAccess needed for accessibility checks
 	 */
 	public function renderObject()
 	{
@@ -107,11 +106,10 @@ class ilRoomSharingFloorPlansGUI
 
 	/**
 	 * Form for adding or editing a floor plan.
-	 * @global type $lng the language instance
-	 * @global type $ilCtrl the ilias control structure
-	 * @param type $a_mode "create" or "edit" mode
-	 * @param type $a_file_id the file id for which the form is called
-	 * @return \ilPropertyFormGUI the form for adding or creating floorplans
+	 *
+	 * @param string $a_mode "create" or "edit" mode
+	 * @param integer $a_file_id the file id for which the form is called
+	 * @return ilPropertyFormGUI the form for adding or creating floorplans
 	 */
 	public function initForm($a_mode = "create", $a_file_id = NULL)
 	{
@@ -133,7 +131,7 @@ class ilRoomSharingFloorPlansGUI
 	/**
 	 * Creates a form which is used for adding new floor plans.
 	 *
-	 * @return \ilPropertyFormGUI the creation form
+	 * @return ilPropertyFormGUI the creation form
 	 */
 	protected function initCreationForm()
 	{
@@ -157,8 +155,9 @@ class ilRoomSharingFloorPlansGUI
 
 	/**
 	 * Create a form for editing existing floor plans.
-	 * @param type $a_file_id the id for the file which should be edited
-	 * @return \ilPropertyFormGUI the edit form
+	 *
+	 * @param integer $a_file_id the id for the file which should be edited
+	 * @return ilPropertyFormGUI the edit form
 	 */
 	protected function initEditForm($a_file_id)
 	{
@@ -197,7 +196,7 @@ class ilRoomSharingFloorPlansGUI
 
 	/**
 	 * Create an input field for the title.
-	 * @return \ilTextInputGUI the input form item
+	 * @return ilTextInputGUI the input form item
 	 */
 	protected function createTitleInputFormItem()
 	{
@@ -211,7 +210,7 @@ class ilRoomSharingFloorPlansGUI
 
 	/**
 	 * Create and return a text area input field for descriptions.
-	 * @return \ilTextAreaInputGUI description input item
+	 * @return ilTextAreaInputGUI description input item
 	 */
 	protected function createDescInputFormItem()
 	{
@@ -224,7 +223,7 @@ class ilRoomSharingFloorPlansGUI
 
 	/**
 	 * Creates an input field for floor plans that should be uploaded.
-	 * @return \ilFileInputGUI file input form item
+	 * @return ilFileInputGUI file input form item
 	 */
 	protected function createFileInputFormItem()
 	{
@@ -295,22 +294,37 @@ class ilRoomSharingFloorPlansGUI
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");
 			$file_new = $form->getInput("upload_file");
-			$result = $fplan->addFloorPlan($title_new, $desc_new, $file_new);
-			if ($result)
+
+			try
 			{
+				$fplan->addFloorPlan($title_new, $desc_new, $file_new);
 				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_added"), true);
+				$this->renderObject();
 			}
-			else
+			catch (ilRoomSharingFloorplanException $exc)
 			{
-				ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_floor_plans_upload_error'), true);
+				ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+				$this->resetView($form);
 			}
-			$this->renderObject();
 		}
 		else // if that's not the case, reset the old inputs
 		{
-			$form->setValuesByPost();
-			$this->tpl->setContent($form->getHTML());
+			$this->resetView($form);
 		}
+	}
+
+	/**
+	 * Resets the current view, by reloading the template with a given form and setting special back target.
+	 *
+	 * @param ilPropertyFormGUI $a_form
+	 */
+	private function resetView(ilPropertyFormGUI $a_form)
+	{
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
+			$this->ctrl->getLinkTarget($this, 'render'));
+		$a_form->setValuesByPost();
+		$this->tpl->setContent($a_form->getHTML());
 	}
 
 	/**
@@ -436,30 +450,29 @@ class ilRoomSharingFloorPlansGUI
 			$title_new = $form->getInput("title");
 			$desc_new = $form->getInput("description");
 
-			if ($form->getInput("file_mode") === "keep")
+			try
 			{
-				$fplan->updateFloorPlanInfos($file_id, $title_new, $desc_new);
+				if ($form->getInput("file_mode") === "keep")
+				{
+					$fplan->updateFloorPlanInfos($file_id, $title_new, $desc_new);
+				}
+				else // create a new file, if the current floor plan shouldn't be kept
+				{
+					$file_new = $form->getInput("upload_file");
+					$fplan->updateFloorPlanInfosAndFile($file_id, $title_new, $desc_new, $file_new);
+				}
 				ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_edited"), true);
+				$this->renderObject();
 			}
-			else // create a new file, if the current floor plan shouldn't be kept
+			catch (ilRoomSharingFloorplanException $exc)
 			{
-				$file_new = $form->getInput("upload_file");
-				$result = $fplan->updateFloorPlanInfosAndFile($file_id, $title_new, $desc_new, $file_new);
-				if ($result)
-				{
-					ilUtil::sendSuccess($this->lng->txt("rep_robj_xrs_floor_plans_edited"), true);
-				}
-				else
-				{
-					ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_floor_plans_upload_error'), true);
-				}
+				ilUtil::sendFailure($this->lng->txt($exc->getMessage()), true);
+				$this->resetView($form);
 			}
-			$this->renderObject();
 		}
 		else // if that's not the case, restore the old input values
 		{
-			$form->setValuesByPost();
-			$this->tpl->setContent($form->getHTML());
+			$this->resetView($form);
 		}
 	}
 

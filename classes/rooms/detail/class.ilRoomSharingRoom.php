@@ -53,14 +53,22 @@ class ilRoomSharingRoom
 	 * @param int $a_room_id the id of the room from where the data should be read from
 	 * @param bool $a_create if set to true, a new room can be created
 	 */
-	public function __construct($a_pool_id, $a_room_id, $a_create = false)
+	public function __construct($a_pool_id, $a_room_id, $a_create = false,
+		ilRoomsharingDatabase $a_db = null)
 	{
 		global $lng, $rssPermission;
 
 		$this->lng = $lng;
 		$this->permission = $rssPermission;
 		$this->pool_id = $a_pool_id;
-		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+		if ($a_db != null)
+		{
+			$this->ilRoomsharingDatabase = $a_db;
+		}
+		else
+		{
+			$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
+		}
 		$this->all_available_attributes = $this->ilRoomsharingDatabase->getAllRoomAttributes();
 
 		if (!$a_create)
@@ -110,6 +118,10 @@ class ilRoomSharingRoom
 			return false;
 		}
 		$this->checkMinMaxAlloc();
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($this->min_alloc, true))
+		{
+			$this->min_alloc = 0;
+		}
 		$this->updateMainProperties();
 		$this->updateAttributes();
 		$this->sendChangeNotification();
@@ -228,7 +240,8 @@ class ilRoomSharingRoom
 	 */
 	public function addAttribute($a_attr_id, $a_amount)
 	{
-		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_attr_id, true) || !$this->isAttributeExisting($a_attr_id))
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_attr_id, true) || !$this->isAttributeExisting($a_attr_id)
+			|| $this->isAttributeDefined($a_attr_id))
 		{
 			throw new ilRoomSharingRoomException('rep_robj_xrs_add_wrong_attribute');
 		}
@@ -262,6 +275,26 @@ class ilRoomSharingRoom
 			}
 		}
 		return $attribute_exists;
+	}
+
+	/**
+	 * Returns true if the attribute with given id is already defined for the room.
+	 *
+	 * @param integer $a_attr_id
+	 * @return boolean existance of the attribute
+	 */
+	private function isAttributeDefined($a_attr_id)
+	{
+		$rVal = false;
+		foreach ($this->attributes as $attribute)
+		{
+			if ($attribute['id'] == $a_attr_id)
+			{
+				$rVal = true;
+				break;
+			}
+		}
+		return $rVal;
 	}
 
 	/**
@@ -382,13 +415,15 @@ class ilRoomSharingRoom
 	 */
 	private function checkMinMaxAlloc()
 	{
-		if (!ilRoomSharingNumericUtils::isPositiveNumber($this->max_alloc, true))
+		$min_alloc_given = !empty($this->min_alloc);
+		$min_alloc_valid = ilRoomSharingNumericUtils::isPositiveNumber($this->min_alloc, true);
+		$max_alloc_valid = ilRoomSharingNumericUtils::isPositiveNumber($this->max_alloc, true);
+		if (($min_alloc_given && !$min_alloc_valid) || !$max_alloc_valid)
 		{
 			throw new ilRoomSharingRoomException('rep_robj_xrs_illigal_room_min_max_alloc');
 		}
 
-		$min_alloc_given = ilRoomSharingNumericUtils::isPositiveNumber($this->min_alloc, true);
-		if ($min_alloc_given && (((int) $this->min_alloc) > ((int) $this->max_alloc)))
+		if ($min_alloc_given && $min_alloc_valid && (((int) $this->min_alloc) > ((int) $this->max_alloc)))
 		{
 			throw new ilRoomSharingRoomException('rep_robj_xrs_illigal_room_min_max_alloc');
 		}
@@ -642,9 +677,12 @@ class ilRoomSharingRoom
 	 */
 	private function sendChangeNotification()
 	{
-
-		$mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
-		$mailer->sendRoomChangeMail($this->id);
+		global $rssObjectName;
+		if (!isset($rssObjectName))
+		{
+			$mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
+			$mailer->sendRoomChangeMail($this->id);
+		}
 	}
 
 }

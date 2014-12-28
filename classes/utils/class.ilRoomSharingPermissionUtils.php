@@ -17,18 +17,26 @@ class ilRoomSharingPermissionUtils
 	private $allUserPrivileges;
 
 	/**
+	 * Constructor of ilRoomSharingPermissionUtils.
 	 *
-	 * @global type $ilUser
+	 * @global ilObjUser $ilUser
 	 * @param integer $a_pool_id
 	 * @param integer $a_owner_id
 	 */
-	public function __construct($a_pool_id, $a_owner_id)
+	public function __construct($a_pool_id, $a_owner_id, ilRoomsharingPrivileges $a_privileges = null)
 	{
 		global $ilUser;
 
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
-		$this->privileges = new ilRoomsharingPrivileges($this->pool_id);
+		if ($a_privileges != null)
+		{
+			$this->privileges = $a_privileges;
+		}
+		else
+		{
+			$this->privileges = new ilRoomsharingPrivileges($this->pool_id);
+		}
 		$this->owner = $a_owner_id;
 		$this->user_id = $ilUser->getId();
 		$this->allUserPrivileges = $this->getAllUserPrivileges();
