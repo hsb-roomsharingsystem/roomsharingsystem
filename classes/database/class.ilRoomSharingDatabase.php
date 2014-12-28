@@ -2155,3 +2155,5 @@ class ilRoomSharingDatabase
 	}
 
 }
+
+?>
