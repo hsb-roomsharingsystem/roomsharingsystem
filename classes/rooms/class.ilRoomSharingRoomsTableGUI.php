@@ -105,7 +105,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
 				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
 				$weekdays = unserialize($filter ["recurrence"]["weekdays"]);
-				$$filter['date'] = $this->getWeeklyFilteredData($date, $repeat_type, $repeat_amount,
+				$filter['date'] = $this->getWeeklyFilteredData($date, $repeat_type, $repeat_amount,
 					$repeat_until, $weekdays);
 				break;
 			case "MONTHLY":
@@ -201,7 +201,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		return $days;
 	}
 
-	//So kompliziert sieht derzeit die Funktion aus, wenn täglich gewählt ist
 	private function getDailyFilteredData($a_date, $a_repeat_type, $a_repeat_amount, $a_repeat_until)
 	{
 		if ($a_repeat_type == "max_date")

@@ -4,6 +4,9 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingSequenceBookingUtils.php");
+
+use ilRoomSharingSequenceBookingUtils as seqUtils;
 
 /**
  * Backend-Class for the booking form.
@@ -20,6 +23,8 @@ class ilRoomSharingBook
 	private $date_to;
 	private $room_id;
 	private $participants;
+	private $permission;
+	private $recurrence;
 
 	/**
 	 * Constructor
@@ -30,11 +35,12 @@ class ilRoomSharingBook
 	 */
 	public function __construct($a_pool_id)
 	{
-		global $lng, $ilUser;
+		global $lng, $ilUser, $rssPermission;
 
 		$this->lng = $lng;
 		$this->user = $ilUser;
 		$this->pool_id = $a_pool_id;
+		$this->permission = $rssPermission;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 
@@ -44,14 +50,17 @@ class ilRoomSharingBook
 	 * @param type $a_booking_values Array with the values of the booking
 	 * @param type $a_booking_attr_values Array with the values of the booking-attributes
 	 * @param type $a_booking_participants Array with the values of the participants
+	 * @param type $a_recurrence_entries Array with recurrence information
 	 * @throws ilRoomSharingBookException
 	 */
-	public function addBooking($a_booking_values, $a_booking_attr_values, $a_booking_participants)
+	public function addBooking($a_booking_values, $a_booking_attr_values, $a_booking_participants,
+		$a_recurrence_entries)
 	{
 		$this->date_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
 		$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
 		$this->room_id = $a_booking_values ['room'];
 		$this->participants = $a_booking_participants;
+		$this->recurrence = $a_recurrence_entries;
 
 		$this->validateBookingInput();
 		$success = $this->insertBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants);
@@ -114,8 +123,69 @@ class ilRoomSharingBook
 	 */
 	private function isAlreadyBooked()
 	{
-		$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($this->date_from,
-			$this->date_to, $this->room_id);
+		print_r($this->date_from);
+		echo "<br><br>";
+		print_r($this->recurrence);
+		die();
+		$return_value = false;
+		$time_from = date('H:i:s', strtotime($this->date_from));
+		$time_to = date('H:i:s', strtotime($this->date_to));
+		$date_from = date('Y-m-d', strtotime($this->date_from));
+		$date_to = date('Y-m-d', strtotime($this->date_to));
+
+		if ($date_from != $date_to)
+		{
+			$day_difference = floor(abs(strtotime($date_from) - strtotime($date_to)) / (60 * 60 * 24));
+		}
+		else
+		{
+			$day_difference = null;
+		}
+
+		$datetimes_from = array();
+		$datetimes_to = array();
+		switch ($this->recurrence['frequence'])
+		{
+			case "DAILY":
+				$days = seqUtils::getDailyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'], $time_from, $time_to,
+						$day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			case "WEEKLY":
+				$days = seqUtils::getWeeklyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
+						$this->recurrence['weekdays'], $time_from, $time_to, $day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			case "MONTHLY":
+				$days = seqUtils::getMonthlyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
+						$this->recurrence['repeat_until'], $this->recurrence['monthday'],
+						$this->recurrence['weekday_1'], $this->recurrence['weekday_2'], $time_from, $time_to,
+						$day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			default:
+				$datetimes_from[] = $date_from . " " . $time_from;
+				$datetimes_to[] = $date_to . " " . $time_to;
+
+				break;
+		}
+		if ($this->permission->checkPrivilege(ilRoomSharingPrivilegesConstants::CANCEL_BOOKING_LOWER_PRIORITY))
+		{
+			$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($datetimes_from,
+				$datetimes_to, $this->room_id, $this->permission->getUserPriority());
+		}
+		else
+		{
+			$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($datetimes_from,
+				$datetimes_to, $this->room_id);
+		}
+
 		return ($temp !== array());
 	}
 

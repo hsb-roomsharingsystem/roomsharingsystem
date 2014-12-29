@@ -11,49 +11,138 @@ class ilRoomSharingSequenceBookingUtils
 {
 	// Diese Methode dient dazu, die Tage in täglichem Abstand zu generieren
 	// bis zu einem Endtermin
-	public static function generateDailyDaysWithEndDate($a_startday, $a_untilday, $a_every_x_days)
+	public static function generateDailyDaysWithEndDate($a_startday, $a_untilday, $a_every_x_days,
+		$a_time_from = null, $a_time_to = null, $a_day_difference = null)
 	{
-		$days = array($a_startday);
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
+		{
+			$day_difference_to_end_day = $a_day_difference;
+		}
+		else
+		{
+			$day_difference_to_end_day = 0;
+		}
+
+		if ($a_time_from != null)
+		{
+			$time = " " . $a_time_from;
+			$time_format = " H:i:s";
+		}
+		else
+		{
+			$time = "";
+			$time_format = "";
+		}
+
+		$days['from'] = array($a_startday . $time);
+		$days['to'] = array();
 		if ($a_startday < $a_untilday)
 		{
 			$nextday = $a_startday;
 			$i = 0;
 			while ($nextday != $a_untilday && $i < 2000)
 			{
-				$nextday = date('Y-m-d', strtotime($nextday . ' + ' . $a_every_x_days . ' day'));
+				$nextday = date('Y-m-d' . $time_format, strtotime($nextday . ' + ' . $a_every_x_days . ' day'));
 				$days[] = $nextday;
 				$i++;
 			}
-			$days[] = $a_untilday;
+			$days['from'][] = $a_untilday;
 		}
-		return $days;
-	}
 
-	// Diese Methode dient dazu, die Tage in täglichem Abstand zu generieren
-	// bei einer festen Anzahl an Wiederholungen
-	public static function generateDailyDaysWithCount($a_startday, $a_count, $a_every_x_days)
-	{
-		$days = array($a_startday);
-		if (ilRoomSharingNumericUtils::isPositiveNumber($a_count))
+		foreach ($days['from'] as $start_day)
 		{
-			$nextday = $a_startday;
-			for ($i = 0; $i < $a_count; $i++)
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			if ($a_time_to != null)
 			{
-				$nextday = date('Y-m-d', strtotime($nextday . ' + ' . $a_every_x_days . '  day'));
-				$days[] = $nextday;
+				$days['to'][] = $to_date . " " . $a_time_to;
+			}
+			else
+			{
+				$days['to'][] = $to_date;
 			}
 		}
+
 		return $days;
 	}
 
-	// Diese Methode dient dazu, die Tage in wöchentlichem Abstand zu generieren
-	// bis zu einem festen Datum
-	public static function generateWeeklyDaysWithEndDate($a_startday, $a_enddate, $a_weekdays,
-		$a_every_x_weeks)
+	public static function generateDailyDaysWithCount($a_startday, $a_count, $a_every_x_days,
+		$a_time_from = null, $a_time_to = null, $a_day_difference = null)
 	{
-		$startday = $a_startday;
-		//Packe den Starttag als Start in das Array, sonst würde er verloren gehen
-		$days = array($startday);
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
+		{
+			$day_difference_to_end_day = $a_day_difference;
+		}
+		else
+		{
+			$day_difference_to_end_day = 0;
+		}
+
+		if ($a_time_from != null)
+		{
+			$time = " " . $a_time_from;
+			$time_format = " H:i:s";
+		}
+		else
+		{
+			$time = "";
+			$time_format = "";
+		}
+
+		$days['from'] = array($a_startday . $time);
+		$days['to'] = array();
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_count))
+		{
+			$nextday = $days[0];
+			for ($i = 0; $i < $a_count; $i++)
+			{
+				$nextday = date('Y-m-d' . $time_format, strtotime($nextday . ' + ' . $a_every_x_days . '  day'));
+				$days['from'][] = $nextday;
+			}
+		}
+
+		foreach ($days['from'] as $start_day)
+		{
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			if ($a_time_to != null)
+			{
+				$days['to'][] = $to_date . " " . $a_time_to;
+			}
+			else
+			{
+				$days['to'][] = $to_date;
+			}
+		}
+
+		return $days;
+	}
+
+	public static function generateWeeklyDaysWithEndDate($a_startday, $a_enddate, $a_weekdays,
+		$a_every_x_weeks, $a_time_from = null, $a_time_to = null, $a_day_difference = null)
+	{
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
+		{
+			$day_difference_to_end_day = $a_day_difference;
+		}
+		else
+		{
+			$day_difference_to_end_day = 0;
+		}
+
+		if ($a_time_from != null)
+		{
+			$time = " " . $a_time_from;
+			$time_format = " H:i:s";
+		}
+		else
+		{
+			$time = "";
+			$time_format = "";
+		}
+
+		$startday = $a_startday . $time;
+
+		$days['from'] = array();
+		$days['to'] = array();
 		$i = 0;
 		while (true)
 		{
@@ -61,11 +150,12 @@ class ilRoomSharingSequenceBookingUtils
 			//in $days gepackt, wobei $days mit übergeben werden muss
 			//damit schon generierte vorherige Werte nicht überschrieben werden
 			//Abhängig von der Auswahl wie "Mo", "Di", "Do", "Sa"
-			$days = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $days);
+			$days['from'] = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $days['from']);
 
 			//Für die nächste Wiederholung X Wochen vorspringen
 			//Abhängig von Auswahl bei "Alle X Wochen"
-			$startday = date('Y-m-d', strtotime($startday . ' + ' . $a_every_x_weeks . ' week'));
+			$startday = date('Y-m-d' . $time_format,
+				strtotime($startday . ' + ' . $a_every_x_weeks . ' week'));
 
 			//Wiederholung beenden, wenn das neue Wochendatum
 			//größer als das gewählte Enddatum ist
@@ -75,29 +165,51 @@ class ilRoomSharingSequenceBookingUtils
 			}
 		}
 
-		$return_days = array();
+		$days['from'] = self::removeDatesAfterDay($days['from'], $a_enddate);
 
-		//Es kann noch sein, dass ein paar Termine über dem Enddatum liegen
-		//die werden dann nochmal gefiltert
-		for ($i = 0; $i < count($days); $i++)
+		foreach ($days['from'] as $start_day)
 		{
-			if ($days[$i] <= $a_enddate)
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			if ($a_time_to != null)
 			{
-				$return_days[] = $days[$i];
+				$days['to'][] = $to_date . " " . $a_time_to;
+			}
+			else
+			{
+				$days['to'][] = $to_date;
 			}
 		}
 
-		return $return_days;
+		return $days;
 	}
 
-	// Diese Methode dient dazu, die Tage in wöchentlichem Abstand zu generieren
-	// bei einer festen Anzahl an Wiederholungen
 	public static function generateWeeklyDaysWithCount($a_startday, $a_count, $a_weekdays,
-		$a_every_x_weeks)
+		$a_every_x_weeks, $a_time_from = null, $a_time_to = null, $a_day_difference = null)
 	{
-		$startday = $a_startday;
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
+		{
+			$day_difference_to_end_day = $a_day_difference;
+		}
+		else
+		{
+			$day_difference_to_end_day = 0;
+		}
+
+		if ($a_time_from != null)
+		{
+			$time = " " . $a_time_from;
+			$time_format = " H:i:s";
+		}
+		else
+		{
+			$time = "";
+			$time_format = "";
+		}
+
+		$startday = $a_startday . $time;
 		//Packe den Starttag als Start in das Array, sonst würde er verloren gehen
-		$days = array($a_startday);
+		$days['from'] = array();
+		$days['to'] = array();
 		//Solange durchlaufen, wie Wiederholungen vorhanden sind
 		for ($i = 0; $i < $a_count; $i++)
 		{
@@ -105,25 +217,60 @@ class ilRoomSharingSequenceBookingUtils
 			//in $days gepackt, wobei $days mit übergeben werden muss
 			//damit schon generierte vorherige Werte nicht überschrieben werden
 			//Abhängig von der Auswahl wie "Mo", "Di", "Do", "Sa"
-			$days = self::getFollowingWeekdaysByWeekdayNames($a_startday, $a_weekdays, $days);
+			$days['from'] = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $days['from']);
 
 			//Für die nächste Wiederholung X Wochen vorspringen
 			//Abhängig von Auswahl bei "Alle X Wochen"
-			$startday = date('Y-m-d', strtotime($startday . ' + ' . $a_every_x_weeks . ' week'));
+			$startday = date('Y-m-d' . $time_format,
+				strtotime($startday . ' + ' . $a_every_x_weeks . ' week'));
 		}
+
+		foreach ($days['from'] as $start_day)
+		{
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			if ($a_time_to != null)
+			{
+				$days['to'][] = $to_date . " " . $a_time_to;
+			}
+			else
+			{
+				$days['to'][] = $to_date;
+			}
+		}
+
 		return $days;
 	}
 
-	// Diese Methode dient dazu, die Tage in monatlichen Abstand zu generieren
-	// bis zu einem End-Datum
 	public static function generateMonthlyDaysAtVariableDateWithEndDate($a_startday,
-		$a_variable_number, $a_each_day, $a_enddate, $a_every_x_months)
+		$a_variable_number, $a_each_day, $a_enddate, $a_every_x_months, $a_time_from = null,
+		$a_time_to = null, $a_day_difference = null)
 	{
-		$startday = $a_startday;
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
+		{
+			$day_difference_to_end_day = $a_day_difference;
+		}
+		else
+		{
+			$day_difference_to_end_day = 0;
+		}
+
+		if ($a_time_from != null)
+		{
+			$time = " " . $a_time_from;
+			$time_format = " H:i:s";
+		}
+		else
+		{
+			$time = "";
+			$time_format = "";
+		}
+
+		$startday = $a_startday . $time;
 		$variable_name = self::getEnumerationName($a_variable_number);
 		$each_day_name = self::getFullDayNameByShortName($a_each_day);
 
-		$days = array();
+		$days['from'] = array();
+		$days['to'] = array();
 
 		$i = 0;
 		while (true)
@@ -134,15 +281,16 @@ class ilRoomSharingSequenceBookingUtils
 			//Wird z.B. fifth monday genommen und den gibt es nicht, wie z.B.
 			//im Januar, dann nimmt php den ersten vom Februar,
 			//ich denke das ist ok
-			$days[] = date('Y-m-d',
+			$days['from'][] = date('Y-m-d' . $time_format,
 				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
 
-			$days = self::convertSelectedDayOfMonthWithoutStrtotime($days, $each_day_name, $variable_name,
-					$monthname_with_year_of_startday);
+			$days['from'] = self::convertSelectedDayOfMonthWithoutStrtotime($days['from'], $each_day_name,
+					$variable_name, $monthname_with_year_of_startday);
 
 			//Für die nächste Wiederholung X Monate vorspringen
 			//Abhängig von Auswahl bei "Alle X Monate"
-			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+			$startday = date('Y-m-d' . $time_format,
+				strtotime($startday . " + " . $a_every_x_months . " month"));
 
 			if ($startday > $a_enddate || $i++ > 500)
 			{
@@ -150,83 +298,141 @@ class ilRoomSharingSequenceBookingUtils
 			}
 		}
 
-		$return_days = array();
+		$days['from'] = self::removeDatesAfterDay($days['from'], $a_enddate);
 
-		//Es kann noch sein, dass ein paar Termine über dem Enddatum liegen
-		//die werden dann nochmal gefiltert
-		for ($i = 0; $i < count($days); $i++)
+		foreach ($days['from'] as $start_day)
 		{
-			if ($days[$i] <= $a_enddate)
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			if ($a_time_to != null)
 			{
-				$return_days[] = $days[$i];
+				$days['to'][] = $to_date . " " . $a_time_to;
 			}
-		}
-		return $return_days;
-	}
-
-	// Diese Methode dient dazu, die Tage in monatlichen Abstand zu generieren
-	// bei einer festen Anzahl an Wiederholungen
-	public static function generateMonthlyDaysAtVariableDateWithCount($a_startday, $a_variable_number,
-		$a_each_day, $a_count, $a_every_x_months)
-	{
-		$startday = $a_startday;
-		$variable_name = self::getEnumerationName($a_variable_number);
-		$each_day_name = self::getFullDayNameByShortName($a_each_day);
-
-		$days = array();
-		//Solange durchlaufen, wie Wiederholungen vorhanden sind
-		for ($i = 0; $i < $a_count; $i++)
-		{
-			$monthname_with_year_of_startday = date("F Y", strtotime($startday));
-
-			//Ein Beispiel wäre hier: strtotime("fourth friday of january 2015")
-			//Wird z.B. fifth monday genommen und den gibt es nicht, wie im
-			//Januar halt,dann nimmt der den ersten vom Februar,
-			//ich denke das ist ok
-			$days[] = date('Y-m-d',
-				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
-
-			$days = self::convertSelectedDayOfMonthWithoutStrtotime($days, $each_day_name, $variable_name,
-					$monthname_with_year_of_startday);
-
-			//Für die nächste Wiederholung X Monate vorspringen
-			//Abhängig von Auswahl bei "Alle X Monate"
-			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+			else
+			{
+				$days['to'][] = $to_date;
+			}
 		}
 
 		return $days;
 	}
 
-	// Diese Methode dient dazu, die Tage in monatlichen Abstand zu generieren
-	// bei einer festen Anzahl an Wiederholungen
-	public static function generateMonthlyDaysAtFixedDateWithEndDate($a_startday, $a_monthday,
-		$a_enddate, $a_every_x_months)
+	public static function generateMonthlyDaysAtVariableDateWithCount($a_startday, $a_variable_number,
+		$a_each_day, $a_count, $a_every_x_months, $a_time_from = null, $a_time_to = null,
+		$a_day_difference = null)
 	{
-		$startday = $a_startday;
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
+		{
+			$day_difference_to_end_day = $a_day_difference;
+		}
+		else
+		{
+			$day_difference_to_end_day = 0;
+		}
+
+		if ($a_time_from != null)
+		{
+			$time = " " . $a_time_from;
+			$time_format = " H:i:s";
+		}
+		else
+		{
+			$time = "";
+			$time_format = "";
+		}
+
+		$startday = $a_startday . $time;
+		$variable_name = self::getEnumerationName($a_variable_number);
+		$each_day_name = self::getFullDayNameByShortName($a_each_day);
+
+		$days['from'] = array();
+		$days['to'] = array();
+
+		for ($i = 0; $i < $a_count; $i++)
+		{
+			$monthname_with_year_of_startday = date("F Y", strtotime($startday));
+
+			$days['from'][] = date('Y-m-d' . $time_format,
+				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
+
+			$days['from'] = self::convertSelectedDayOfMonthWithoutStrtotime($days['from'], $each_day_name,
+					$variable_name, $monthname_with_year_of_startday);
+
+			//Für die nächste Wiederholung X Monate vorspringen
+			//Abhängig von Auswahl bei "Alle X Monate"
+			$startday = date('Y-m-d' . $time_format,
+				strtotime($startday . " + " . $a_every_x_months . " month"));
+		}
+
+		foreach ($days['from'] as $start_day)
+		{
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			if ($a_time_to != null)
+			{
+				$days['to'][] = $to_date . " " . $a_time_to;
+			}
+			else
+			{
+				$days['to'][] = $to_date;
+			}
+		}
+
+		return $days;
+	}
+
+	public static function generateMonthlyDaysAtFixedDateWithEndDate($a_startday, $a_monthday,
+		$a_enddate, $a_every_x_months, $a_time_from = null, $a_time_to = null, $a_day_difference = null)
+	{
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
+		{
+			$day_difference_to_end_day = $a_day_difference;
+		}
+		else
+		{
+			$day_difference_to_end_day = 0;
+		}
+
+		if ($a_time_from != null)
+		{
+			$time = " " . $a_time_from;
+			$time_format = " H:i:s";
+		}
+		else
+		{
+			$time = "";
+			$time_format = "";
+		}
+
+		$startday = $a_startday . $time;
 		$day_of_startday = date("d", strtotime($startday));
 		//Is the startday in the future? Then skip the month of the startday!
 		if ($day_of_startday > $a_monthday)
 		{
-			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+			$startday = date('Y-m-d' . $time_format,
+				strtotime($startday . " + " . $a_every_x_months . " month"));
 		}
 
-		$days = array();
+		$days['from'] = array();
+		$days['to'] = array();
+
 		$i = 0;
 		while (true)
 		{
 			$startmonth = date('m', strtotime($startday));
 			$startyear = date('m', strtotime($startday));
+			$starttime = date($time_format, strtotime($startday));
 			if (checkdate($startmonth, $a_monthday, $startyear))
 			{
-				$days[] = $startyear . "-" . $startmonth . "-" . $a_monthday;
+				$days['from'][] = $startyear . "-" . $startmonth . "-" . $a_monthday . $starttime;
 			}
 			else
 			{
 				//If the day is not valid (e.g. 31 February), what to do?
+				//--> Calendar does nothing! So here nothing, too!
 			}
 
 			//Set the startday to the next X month (depending on user choice)
-			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+			$startday = date('Y-m-d' . $time_format,
+				strtotime($startday . " + " . $a_every_x_months . " month"));
 
 			if ($startday > $a_enddate || $i++ > 500)
 			{
@@ -234,51 +440,164 @@ class ilRoomSharingSequenceBookingUtils
 			}
 		}
 
-		$return_days = array();
+		$days['from'] = self::removeDatesAfterDay($days['from'], $a_enddate);
 
-		//Es kann noch sein, dass ein paar Termine über dem Enddatum liegen
-		//die werden dann nochmal gefiltert
-		for ($i = 0; $i < count($days); $i++)
+		foreach ($days['from'] as $start_day)
 		{
-			if ($days[$i] <= $a_enddate)
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			if ($a_time_to != null)
 			{
-				$return_days[] = $days[$i];
+				$days['to'][] = $to_date . " " . $a_time_to;
+			}
+			else
+			{
+				$days['to'][] = $to_date;
 			}
 		}
-		return $return_days;
 
 		return $days;
 	}
 
-	// Diese Methode dient dazu, die Tage in monatlichen Abstand zu generieren
-	// bei einer festen Anzahl an Wiederholungen
 	public static function generateMonthlyDaysAtFixedDateWithCount($a_startday, $a_monthday, $a_count,
-		$a_every_x_months)
+		$a_every_x_months, $a_time_from = null, $a_time_to = null, $a_day_difference = null)
 	{
-		$startday = $a_startday;
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
+		{
+			$day_difference_to_end_day = $a_day_difference;
+		}
+		else
+		{
+			$day_difference_to_end_day = 0;
+		}
+
+		if ($a_time_from != null)
+		{
+			$time = " " . $a_time_from;
+			$time_format = " H:i:s";
+		}
+		else
+		{
+			$time = "";
+			$time_format = "";
+		}
+
+		$startday = $a_startday . $time;
 		$day_of_startday = date("d", strtotime($startday));
 		//Is the startday in the future? Then skip the month of the startday!
 		if ($day_of_startday > $a_monthday)
 		{
-			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+			$startday = date('Y-m-d' . $time_format,
+				strtotime($startday . " + " . $a_every_x_months . " month"));
 		}
 
-		$days = array();
+		$days['from'] = array();
+		$days['to'] = array();
 		for ($i = 0; $i < $a_count; $i++)
 		{
 			$startmonth = date('m', strtotime($startday));
 			$startyear = date('m', strtotime($startday));
+			$starttime = date($time_format, strtotime($startday));
 			if (checkdate($startmonth, $a_monthday, $startyear))
 			{
-				$days[] = $startyear . "-" . $startmonth . "-" . $a_monthday;
+				$days['from'][] = $startyear . "-" . $startmonth . "-" . $a_monthday . $starttime;
 			}
 			else
 			{
 				//If the day is not valid (e.g. 31 February), what to do?
+				//--> Calendar does nothing! So here nothing, too!
 			}
 
 			//Set the startday to the next X month (depending on user choice)
-			$startday = date('Y-m-d', strtotime($startday . " + " . $a_every_x_months . " month"));
+			$startday = date('Y-m-d' . $time_format,
+				strtotime($startday . " + " . $a_every_x_months . " month"));
+		}
+
+		foreach ($days['from'] as $start_day)
+		{
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			if ($a_time_to != null)
+			{
+				$days['to'][] = $to_date . " " . $a_time_to;
+			}
+			else
+			{
+				$days['to'][] = $to_date;
+			}
+		}
+
+		return $days;
+	}
+
+	public static function getMonthlyFilteredData($a_date, $a_repeat_type, $a_repeat_amount,
+		$a_repeat_until, $a_start_type, $a_monthday, $a_weekday_1, $a_weekday_2, $a_time_from = null,
+		$a_time_to = null, $a_day_difference = null)
+	{
+		$days = array();
+		if ($a_start_type == "weekday")
+		{
+			if ($a_repeat_type == "max_date")
+			{
+				$days = self::generateMonthlyDaysAtVariableDateWithEndDate($a_date, $a_weekday_1, $a_weekday_2,
+						$a_repeat_until, $a_repeat_amount, $a_time_from, $a_time_to, $a_day_difference);
+			}
+			elseif ($a_repeat_type == "max_amount")
+			{
+				$days = self::generateMonthlyDaysAtVariableDateWithCount($a_date, $a_weekday_1, $a_weekday_2,
+						$a_repeat_until, $a_repeat_amount, $a_time_from, $a_time_to, $a_day_difference);
+			}
+		}
+		elseif ($a_start_type == "monthday")
+		{
+			if ($a_repeat_type == "max_date")
+			{
+				$days = self::generateMonthlyDaysAtFixedDateWithEndDate($a_date, $a_monthday, $a_repeat_until,
+						$a_repeat_amount, $a_time_from, $a_time_to, $a_day_difference);
+			}
+			elseif ($a_repeat_type == "max_amount")
+			{
+				$days = self::generateMonthlyDaysAtFixedDateWithCount($a_date, $a_monthday, $a_repeat_until,
+						$a_repeat_amount, $a_time_from, $a_time_to, $a_day_difference);
+			}
+		}
+
+		return $days;
+	}
+
+	public static function getWeeklyFilteredData($a_date, $a_repeat_type, $a_repeat_amount,
+		$a_repeat_until, $a_weekdays, $a_time_from = null, $a_time_to = null, $a_day_difference = null)
+	{
+		if ($a_repeat_type == "max_date")
+		{
+			$a_repeat_until = date('Y-m-d',
+				mktime(23, 59, 59, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
+					$a_repeat_until['date']['y']));
+			$days = self::generateWeeklyDaysWithEndDate($a_date, $a_repeat_until, $a_weekdays,
+					$a_repeat_amount, $a_time_from, $a_time_to, $a_day_difference);
+		}
+		elseif ($a_repeat_type == "max_amount")
+		{
+			$days = self::generateWeeklyDaysWithCount($a_date, $a_repeat_until, $a_weekdays,
+					$a_repeat_amount, $a_time_from, $a_time_to, $a_day_difference);
+		}
+
+		return $days;
+	}
+
+	public static function getDailyFilteredData($a_date_from, $a_repeat_type, $a_repeat_amount,
+		$a_repeat_until, $a_time_from = null, $a_time_to = null, $a_day_difference = null)
+	{
+		if ($a_repeat_type == "max_date")
+		{
+			$a_repeat_until = date('Y-m-d',
+				mktime(23, 59, 59, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
+					$a_repeat_until['date']['y']));
+			$days = self::generateDailyDaysWithEndDate($a_date_from, $a_repeat_until, $a_repeat_amount,
+					$a_time_from, $a_time_to, $a_day_difference);
+		}
+		elseif ($a_repeat_type == "max_amount")
+		{
+			$days = self::generateDailyDaysWithCount($a_date_from, $a_repeat_until, $a_repeat_amount,
+					$a_time_from, $a_time_to, $a_day_difference);
 		}
 
 		return $days;
@@ -320,6 +639,19 @@ class ilRoomSharingSequenceBookingUtils
 			}
 		}
 		return $days;
+	}
+
+	private static function removeDatesAfterDay($a_dates, $a_enddate)
+	{
+		$filtered_days = array();
+		foreach ($a_dates as $day)
+		{
+			if ($day <= $a_enddate)
+			{
+				$filtered_days[] = $day;
+			}
+		}
+		return $filtered_days;
 	}
 
 	// Diese Methode wandelt die Keys für z.B. "ersten" oder "letzten"
