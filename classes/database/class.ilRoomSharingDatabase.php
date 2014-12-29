@@ -194,7 +194,7 @@ class ilRoomsharingDatabase
 	 *        	(optional)
 	 * @return array values = room ids booked in given range
 	 */
-	public function getRoomsBookedInDateTimeRange($a_dates, $a_time_from, $a_time_to,
+	public function getRoomsBookedInDateTimeRange($a_datetimes_from, $a_datetimes_to,
 		$a_room_id = null, $a_priority = null)
 	{
 		$roomQuery = '';
@@ -217,22 +217,27 @@ class ilRoomsharingDatabase
 			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
 			$roomQuery . $priorityQuery . ' (';
 
-		foreach ($a_dates as $date)
+		$count = count($a_datetimes_from);
+		if ($count == count($a_datetimes_to))
 		{
-			$a_date_from = $date . ' ' . $a_time_from;
-			$a_date_to = $date . ' ' . $a_time_to;
+			// thorw exception if arrays not same size?
+			for ($i = 0; $i < $count; $i++)
+			{
+				$a_datetime_from = $a_datetimes_from[$i];
+				$a_datetime_to = $a_datetimes_to[$i];
 
-			$query .= ' (' . $this->ilDB->quote($a_date_from, 'timestamp') .
-				' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_date_to, 'timestamp') .
-				' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
-				$this->ilDB->quote($a_date_from, 'timestamp') . ' AND ' .
-				$this->ilDB->quote($a_date_to, 'timestamp') . ' OR date_to BETWEEN '
-				. $this->ilDB->quote($a_date_from, 'timestamp') . ' AND ' .
-				$this->ilDB->quote($a_date_to, 'timestamp') . ') OR';
+				$query .= ' (' . $this->ilDB->quote($a_datetime_from, 'timestamp') .
+					' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_datetime_to, 'timestamp') .
+					' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
+					$this->ilDB->quote($a_datetime_from, 'timestamp') . ' AND ' .
+					$this->ilDB->quote($a_datetime_to, 'timestamp') . ' OR date_to BETWEEN '
+					. $this->ilDB->quote($a_datetime_from, 'timestamp') . ' AND ' .
+					$this->ilDB->quote($a_datetime_to, 'timestamp') . ') OR';
+			}
+
+			$query = substr($query, 0, -2);
+			$query .= ')';
 		}
-
-		$query = substr($query, 0, -2);
-		$query .= ')';
 
 		$set = $this->ilDB->query($query);
 		$res_room = array();
