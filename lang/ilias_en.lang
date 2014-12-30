@@ -71,6 +71,7 @@ floor_plans_deleted#:#Floorplan deleted
 floor_plans_deleted_error#:#Error while deleting floorplan
 floor_plans_edit#:#Edit floorplan
 floor_plans_edited#:#Floorplan updated
+floor_plans_filetypes#:#Supported filetypes:
 floor_plans_keep#:#Keep floorplan
 floor_plans_keep_info#:#The existing floorplan will be kept
 floor_plans_replace#:#Replace floorplan

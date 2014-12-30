@@ -71,6 +71,7 @@ floor_plans_deleted#:#Gebäudeplan erfolgreich gelöscht
 floor_plans_deleted_error#:#Fehler beim Löschen des Gebäudeplans
 floor_plans_edit#:#Gebäudeplan bearbeiten
 floor_plans_edited#:#Gebäudeplan erfolgreich aktualisiert
+floor_plans_filetypes#:#Unterstützte Dateiformate:
 floor_plans_keep#:#Gebäudeplan beibehalten
 floor_plans_keep_info#:#Der bisherige Gebäudeplan wird behalten
 floor_plans_replace#:#Gebäudeplan ersetzen

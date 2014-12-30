@@ -231,6 +231,7 @@ class ilRoomSharingFloorPlansGUI
 		$file->setSize(50);
 		$file->setRequired(true);
 		$file->setALlowDeletion(true);
+		$file->setInfo($this->lng->txt("rep_robj_xrs_floor_plans_filetypes") . " .bmp, .jpg, .jpeg, .png, .gif");
 
 		return $file;
 	}
