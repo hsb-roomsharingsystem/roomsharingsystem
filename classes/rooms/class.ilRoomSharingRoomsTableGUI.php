@@ -90,22 +90,24 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	//für jedes Datum, welches generiert wird
 	public function getFilteredData(array $filter)
 	{
-		$date = $filter["date"];
+		//Filter hier datetime? also $filter['datetimes']['from'] und $filter['datetimes']['to']??
+		$date = $filter['date'];
 		$freq = unserialize($filter['recurrence']["frequence"]);
 		switch ($freq)
 		{
 			case "DAILY":
+				//DATETIMES in den Funktionen !!!!
 				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
 				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
 				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
-				$filter['date'] = $this->getDailyFilteredData($date, $repeat_type, $repeat_amount, $repeat_until);
+				$filter['date'] = seqUtils::getDailyFilteredData($date, $repeat_type, $repeat_amount, $repeat_until);
 				break;
 			case "WEEKLY":
 				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
 				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
 				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
 				$weekdays = unserialize($filter ["recurrence"]["weekdays"]);
-				$filter['date'] = $this->getWeeklyFilteredData($date, $repeat_type, $repeat_amount,
+				$filter['date'] = seqUtils::getWeeklyFilteredData($date, $repeat_type, $repeat_amount,
 					$repeat_until, $weekdays);
 				break;
 			case "MONTHLY":
@@ -118,14 +120,14 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 					$w1 = unserialize($filter['recurrence']["weekday_1"]);
 					$w2 = unserialize($filter['recurrence']["weekday_2"]);
 					// monatlich mit startwochentag
-					$filter['date'] = $this->getMonthlyFilteredData($date, $repeat_type, $repeat_amount,
+					$filter['date'] = seqUtils::getMonthlyFilteredData($date, $repeat_type, $repeat_amount,
 						$repeat_until, $start_type, null, $w1, $w2);
 				}
 				elseif ($start_type == "monthday")
 				{
 					// monatlich mit festem monatstag
 					$md = unserialize($filter['recurrence']["monthday"]);
-					$filter['date'] = $this->getMonthlyFilteredData($date, $repeat_type, $repeat_amount,
+					$filter['date'] = seqUtils::getMonthlyFilteredData($date, $repeat_type, $repeat_amount,
 						$repeat_until, $start_type, $md, null, null);
 				}
 				break;
@@ -143,79 +145,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 		$data = $this->rooms->getList($filter);
 		return $data;
-	}
-
-	//Diese Funktion ist noch nicht fertig und diente nur zum Test der
-	//Tagesgenerator Funktionen für Monate
-	private function getMonthlyFilteredData($a_date, $a_repeat_type, $a_repeat_amount, $a_repeat_until,
-		$a_start_type, $a_monthday, $a_weekday_1, $a_weekday_2)
-	{
-		$days = array();
-		if ($a_start_type == "weekday")
-		{
-			if ($a_repeat_type == "max_date")
-			{
-				$days = seqUtils::generateMonthlyDaysAtVariableDateWithEndDate($a_date, $a_weekday_1,
-						$a_weekday_2, $a_repeat_until, $a_repeat_amount);
-			}
-			elseif ($a_repeat_type == "max_amount")
-			{
-				$days = seqUtils::generateMonthlyDaysAtVariableDateWithCount($a_date, $a_weekday_1,
-						$a_weekday_2, $a_repeat_until, $a_repeat_amount);
-			}
-		}
-		elseif ($a_start_type == "monthday")
-		{
-			if ($a_repeat_type == "max_date")
-			{
-				$days = seqUtils::generateMonthlyDaysAtFixedDateWithEndDate($a_date, $a_monthday,
-						$a_repeat_until, $a_repeat_amount);
-			}
-			elseif ($a_repeat_type == "max_amount")
-			{
-				$days = seqUtils::generateMonthlyDaysAtFixedDateWithCount($a_date, $a_monthday, $a_repeat_until,
-						$a_repeat_amount);
-			}
-		}
-
-		return $days;
-	}
-
-	private function getWeeklyFilteredData($a_date, $a_repeat_type, $a_repeat_amount, $a_repeat_until,
-		$a_weekdays)
-	{
-		if ($a_repeat_type == "max_date")
-		{
-			$a_repeat_until = date('Y-m-d',
-				mktime(0, 0, 0, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
-					$a_repeat_until['date']['y']));
-			$days = seqUtils::generateWeeklyDaysWithEndDate($a_date, $a_repeat_until, $a_weekdays,
-					$a_repeat_amount);
-		}
-		elseif ($a_repeat_type == "max_amount")
-		{
-			$days = seqUtils::generateWeeklyDaysWithCount($a_date, $a_repeat_until, $a_weekdays,
-					$a_repeat_amount);
-		}
-
-		return $days;
-	}
-
-	private function getDailyFilteredData($a_date, $a_repeat_type, $a_repeat_amount, $a_repeat_until)
-	{
-		if ($a_repeat_type == "max_date")
-		{
-			$a_repeat_until = date('Y-m-d',
-				mktime(0, 0, 0, $a_repeat_until['date']['m'], $a_repeat_until['date']['d'],
-					$a_repeat_until['date']['y']));
-			$days = seqUtils::generateDailyDaysWithEndDate($a_date, $a_repeat_until, $a_repeat_amount);
-		}
-		elseif ($a_repeat_type == "max_amount")
-		{
-			$days = seqUtils::generateDailyDaysWithCount($a_date, $a_repeat_until, $a_repeat_amount);
-		}
-
-		return $days;
 	}
 
 	/**
