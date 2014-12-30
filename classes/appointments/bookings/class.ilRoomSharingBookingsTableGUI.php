@@ -102,7 +102,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		}
 
 		$user_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_user"), "user");
-		$user_name_input = new ilRoomSharingTextInputGUI("", "user_id");
+		$user_name_input = new ilRoomSharingTextInputGUI("", "login");
 		$user_name_input->setMaxLength(14);
 		$user_name_input->setSize(14);
 		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
@@ -112,23 +112,6 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->addFilterItem($user_comb);
 		$user_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["user"] = $user_comb->getValue();
-	}
-
-	/**
-	 * Method that realizes the auto-completion for the user filter.
-	 */
-	private function doUserAutoComplete()
-	{
-		$search_fields = array("login", "firstname", "lastname", "email");
-		$result_field = "login";
-
-		$auto = new ilUserAutoComplete();
-		$auto->setSearchFields($search_fields);
-		$auto->setResultField($result_field);
-		$auto->enableFieldSearchableCheck(true);
-
-		echo $auto->getList($_REQUEST['term']);
-		exit();
 	}
 
 	private function createRoomFormItem()

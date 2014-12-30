@@ -164,6 +164,20 @@ class ilRoomSharingAppointmentsGUI
 		$gui->resetFilterObject();
 	}
 
+	private function doUserAutoComplete()
+	{
+		$search_fields = array("login", "firstname", "lastname", "email");
+		$result_field = "login";
+
+		$auto = new ilUserAutoComplete();
+		$auto->setSearchFields($search_fields);
+		$auto->setResultField($result_field);
+		$auto->enableFieldSearchableCheck(true);
+
+		echo $auto->getList($_REQUEST['term']);
+		exit();
+	}
+
 }
 
 ?>
