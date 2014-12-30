@@ -141,6 +141,10 @@ class ilRoomSharingFloorPlans
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return FALSE;
 		}
+		if ($this->isTitleAlreadyTaken($a_title))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
+		}
 		$media_obj = new ilObjMediaObject($a_file_id);
 		$media_obj->setTitle($a_title);
 		$media_item = $media_obj->getMediaItem("Standard");
@@ -165,6 +169,10 @@ class ilRoomSharingFloorPlans
 			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return FALSE;
+		}
+		if ($this->isTitleAlreadyTaken($a_title))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
 		}
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, $a_file_id);
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
