@@ -9,7 +9,8 @@ include_once './acceptance/tests/ilRoomSharingAcceptanceSeleniumHelper.php';
  * @group selenium-floorplans
  * @property WebDriver $webDriver
  *
- * created by: Thomas Wolscht
+ * @author Thomas Wolscht
+ * @author Dan Sörgel
  */
 class ilRoomSharingAcceptanceFloorPlansTest extends PHPUnit_Framework_TestCase
 {

@@ -18,6 +18,32 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	}
 
 	/**
+	 * Applys a new filter for rooms
+	 * @param string $roomName Name of room
+	 * @param integer $seats Minimum seats
+	 * @param array $attributes minimum attributes as ATTR_NAME => ATTR_MINIMUM
+	 */
+	public function applyRoomFilter($roomName, $seats, array $attributes)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+
+		//Input
+		$this->webDriver->findElement(WebDriverBy::id('room_name'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($roomName);
+		$this->webDriver->findElement(WebDriverBy::id('room_seats'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('room_seats'))->sendKeys($seats);
+		foreach ($attributes as $attr => $min)
+		{
+			$this->webDriver->findElement(WebDriverBy::id('attribute_' . $attr . '_amount'))->clear();
+			$this->webDriver->findElement(WebDriverBy::id('attribute_' . $attr . '_amount'))->sendKeys($min);
+		}
+
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[applyRoomFilter]'))->click();
+	}
+
+	/**
 	 * Createa a new Floorplan. Needs to be in floorplans overview GUI.
 	 * @param type $title Title of floorplan
 	 * @param type $filePath Filepath. Absolut
@@ -222,6 +248,7 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	public function deleteAllRooms()
 	{
 		$this->webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		$this->webDriver->findElement(WebDriverBy::name('cmd[resetRoomFilter]'))->click();
 		while (true)
 		{
 			try
