@@ -312,6 +312,62 @@ class ilRoomsharingDatabase
 		return 1;
 	}
 
+	/**
+	 * // STILL UNDER CONSTRUCTION
+	 *
+	 * Diese Methode hat denselben Parametersatz wie 'insertBooking(...)'
+	 * @Robert: Hoffe mal, dass die funktioniert ;)
+	 *          -> guten Rutsch (bzw. Frohes Neues!)
+	 *
+	 * @global type $ilDB
+	 * @param type $a_booking_values
+	 * @return type
+	 */
+	public function insertBookingRecurrence($a_booking_attr_values, $a_booking_values,
+		$a_booking_participants)
+	{
+		global $ilDB, $ilUser;
+		$next_seq_id = $this->ilDB->nextID(dbc::BOOKING_SEQUENCES_TABLE);
+		$query = "INSERT INTO " . dbc::BOOKINGS_TABLE . " (id, date_from, date_to, seq_id, room_id, pool_id, user_id, subject, public_booking, bookingcomment) VALUES ";
+		// create SQL query
+		$newBookIds = array();
+		for ($i = 0; $i < count($a_booking_values['from']); $i++)
+		{
+			$book_id = $this->ilDB->nextID(dbc::BOOKINGS_TABLE);
+			$newBookIds[] = $book_id;
+			$query .= "(" .
+				$this->ilDB->quote($book_id, 'integer') . ", " .
+				$this->ilDB->quote($a_booking_values['from'][$i], 'timestamp') . ", " .
+				$this->ilDB->quote($a_booking_values['to'][$i], 'timestamp') . ", " .
+				$this->ilDB->quote($next_seq_id, 'integer') . ", " .
+				$this->ilDB->quote($a_booking_values['room_id'], 'integer') . ", " .
+				$this->ilDB->quote($this->pool_id, 'integer') . ", " .
+				$this->ilDB->quote($ilUser->getId(), 'integer') . ", " .
+				$this->ilDB->quote($a_booking_values['subject'], 'text') . ", " .
+				$this->ilDB->quote($a_booking_values['book_public'] == '1', 'boolean') . ", " .
+				$this->ilDB->quote($a_booking_values['comment'], 'text') .
+				"), ";
+		}
+		$q = substr($query, 0, -2); // delete last comma and blank
+		$ilDB->manipulate($q); // SQL
+		$insertedId = $this->ilDB->getLastInsertId();
+		if ($insertedId == - 1)
+		{
+			return - 1;
+		}
+		/**
+		 *  add bookingAttributes, bookingParticipants, bookingAppointments
+		 *  for each booking entry
+		 */
+		foreach ($newBookIds as $id)
+		{
+			$this->insertBookingAttributes($id, $a_booking_attr_values);
+			$this->insertBookingParticipants($id, $a_booking_participants);
+			$this->insertBookingAppointment($id, $a_booking_values);
+		}
+		return 1;
+	}
+
 	/*
 	 * Creates an appointment in the RoomSharing-Calendar and save id in booking-table.
 	 *
