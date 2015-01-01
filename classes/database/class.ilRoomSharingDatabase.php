@@ -317,9 +317,6 @@ class ilRoomsharingDatabase
 	 * // STILL UNDER CONSTRUCTION
 	 *
 	 * Diese Methode hat denselben Parametersatz wie 'insertBooking(...)'
-	 * @Robert: Hoffe mal, dass die funktioniert ;)
-	 *          -> guten Rutsch (bzw. Frohes Neues!)
-	 *
 	 * @global type $ilDB
 	 * @param type $a_booking_values
 	 * @return type
