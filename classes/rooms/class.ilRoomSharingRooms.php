@@ -311,10 +311,11 @@ class ilRoomSharingRooms
 	 *        	(optional)
 	 * @return array values = room ids booked in given range
 	 */
-	public function getRoomsBookedInDateTimeRange($a_datetimes_from, $a_datetimes_to, $a_room_id = null,
-		$a_priority = null)
+	public function getRoomsBookedInDateTimeRange($a_datetimes_from, $a_datetimes_to,
+		$a_room_id = null, $a_priority = null)
 	{
-		return $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($a_datetimes_from, $a_datetimes_to, $a_room_id, $a_priority);
+		return $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($a_datetimes_from,
+				$a_datetimes_to, $a_room_id, $a_priority);
 	}
 
 	/**

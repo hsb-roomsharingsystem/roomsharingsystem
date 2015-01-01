@@ -181,7 +181,7 @@ class ilRoomsharingDatabase
 			' WHERE id = ' . $this->ilDB->quote($a_room_id, 'integer') .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$roomNameRow = $this->ilDB->fetchAssoc($roomNameSet);
-		return $roomNameRow ['name'];
+		return $roomNameRow['name'];
 	}
 
 	/**
@@ -338,7 +338,7 @@ class ilRoomsharingDatabase
 				$this->ilDB->quote($a_booking_values['from'][$i], 'timestamp') . ", " .
 				$this->ilDB->quote($a_booking_values['to'][$i], 'timestamp') . ", " .
 				$this->ilDB->quote($next_seq_id, 'integer') . ", " .
-				$this->ilDB->quote($a_booking_values['room_id'], 'integer') . ", " .
+				$this->ilDB->quote($a_booking_values['room'], 'integer') . ", " .
 				$this->ilDB->quote($this->pool_id, 'integer') . ", " .
 				$this->ilDB->quote($ilUser->getId(), 'integer') . ", " .
 				$this->ilDB->quote($a_booking_values['subject'], 'text') . ", " .
