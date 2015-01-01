@@ -325,11 +325,21 @@ class ilRoomsharingDatabase
 		$a_booking_participants)
 	{
 		global $ilDB, $ilUser;
-		$next_seq_id = $this->ilDB->nextID(dbc::BOOKING_SEQUENCES_TABLE);
+		$count_booking_values_from = count($a_booking_values['from']);
+		//Are there more than one startdays? Then its a sequence booking, so generate a new id
+		if ($count_booking_values_from > 1)
+		{
+			$next_seq_id = $this->ilDB->nextID(dbc::BOOKING_SEQUENCES_TABLE);
+		}
+		else
+		{
+			$next_seq_id = NULL;
+		}
 		$query = "INSERT INTO " . dbc::BOOKINGS_TABLE . " (id, date_from, date_to, seq_id, room_id, pool_id, user_id, subject, public_booking, bookingcomment) VALUES ";
 		// create SQL query
 		$newBookIds = array();
-		for ($i = 0; $i < count($a_booking_values['from']); $i++)
+
+		for ($i = 0; $i < $count_booking_values_from; $i++)
 		{
 			$book_id = $this->ilDB->nextID(dbc::BOOKINGS_TABLE);
 			$newBookIds[] = $book_id;
