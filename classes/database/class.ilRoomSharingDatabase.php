@@ -221,7 +221,7 @@ class ilRoomsharingDatabase
 		$count = count($a_datetimes_from);
 		if ($count == count($a_datetimes_to))
 		{
-			// thorw exception if arrays not same size?
+			// throw exception if arrays not same size?
 			for ($i = 0; $i < $count; $i++)
 			{
 				$a_datetime_from = $a_datetimes_from[$i];
@@ -1003,6 +1003,50 @@ class ilRoomsharingDatabase
 			$bookings[] = $row;
 		}
 		return $bookings;
+	}
+
+	/**
+	 * Gets all booking ids for one room in given datetime ranges.
+	 *
+	 * @param integer $a_room_id
+	 * @param array $a_datetimes_from
+	 * @param array $a_datetimes_to
+	 * @return array booking ids
+	 */
+	public function getBookingIdsForRoomInDateimeRanges($a_room_id, $a_datetimes_from, $a_datetimes_to)
+	{
+		$query = 'SELECT id FROM ' . dbc::BOOKINGS_TABLE . ' WHERE room_id = ' .
+			$this->ilDB->quote($a_room_id, 'integer') . ' AND (';
+
+		$count = count($a_datetimes_from);
+		if ($count == count($a_datetimes_to))
+		{
+			// throw exception if arrays not same size?
+			for ($i = 0; $i < $count; $i++)
+			{
+				$a_datetime_from = $a_datetimes_from[$i];
+				$a_datetime_to = $a_datetimes_to[$i];
+
+				$query .= ' (' . $this->ilDB->quote($a_datetime_from, 'timestamp') .
+					' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_datetime_to, 'timestamp') .
+					' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
+					$this->ilDB->quote($a_datetime_from, 'timestamp') . ' AND ' .
+					$this->ilDB->quote($a_datetime_to, 'timestamp') . ' OR date_to BETWEEN '
+					. $this->ilDB->quote($a_datetime_from, 'timestamp') . ' AND ' .
+					$this->ilDB->quote($a_datetime_to, 'timestamp') . ') OR';
+			}
+
+			$query = substr($query, 0, -2);
+			$query .= ')';
+		}
+
+		$set = $this->ilDB->query($query);
+		$res_book_id = array();
+		while ($row = $this->ilDB->fetchAssoc($set))
+		{
+			$res_book_id [] = $row ['id'];
+		}
+		return $res_book_id;
 	}
 
 	public function getInfoForBooking($booking_id)
