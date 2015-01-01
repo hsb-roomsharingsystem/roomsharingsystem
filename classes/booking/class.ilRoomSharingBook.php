@@ -62,9 +62,15 @@ class ilRoomSharingBook
 		$this->room_id = $a_booking_values ['room'];
 		$this->participants = $a_booking_participants;
 		$this->recurrence = $a_recurrence_entries;
+		$datetimes = $this->generateDatetimesForBooking();
 
-		$this->validateBookingInput();
-		$success = $this->insertBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants);
+		$this->validateBookingInput($datetimes['from'], $datetimes['to']);
+
+		$a_booking_values['from'] = $datetimes['from'];
+		$a_booking_values['to'] = $datetimes['to'];
+
+		$success = $this->ilRoomsharingDatabase->insertBookingRecurrence($a_booking_attr_values,
+			$a_booking_values, $a_booking_participants);
 
 		if ($success)
 		{
@@ -76,12 +82,65 @@ class ilRoomSharingBook
 		}
 	}
 
+	private function generateDatetimesForBooking()
+	{
+		$time_from = date('H:i:s', strtotime($this->date_from));
+		$time_to = date('H:i:s', strtotime($this->date_to));
+		$date_from = date('Y-m-d', strtotime($this->date_from));
+		$date_to = date('Y-m-d', strtotime($this->date_to));
+		if ($date_from != $date_to)
+		{
+			$date1 = strtotime($date_from);
+			$date2 = strtotime($date_to);
+			$day_difference = ceil(abs($date1 - $date2) / 86400);
+		}
+		else
+		{
+			$day_difference = null;
+		}
+
+		$datetimes_from = array();
+		$datetimes_to = array();
+		switch ($this->recurrence['frequence'])
+		{
+			case "DAILY":
+				$days = seqUtils::getDailyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'], $time_from, $time_to,
+						$day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			case "WEEKLY":
+				$days = seqUtils::getWeeklyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
+						$this->recurrence['weekdays'], $time_from, $time_to, $day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			case "MONTHLY":
+				$days = seqUtils::getMonthlyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
+						$this->recurrence['start_type'], $this->recurrence['monthday'],
+						$this->recurrence['weekday_1'], $this->recurrence['weekday_2'], $time_from, $time_to,
+						$day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			default:
+				$datetimes_from[] = $date_from . " " . $time_from;
+				$datetimes_to[] = $date_to . " " . $time_to;
+				break;
+		}
+
+		return array("from" => $datetimes_from, "to" => $datetimes_to);
+	}
+
 	/**
 	 * Checks if the given booking input is valid (e.g. valid dates, already booked rooms, ...)
 	 *
 	 * @throws ilRoomSharingBookException
 	 */
-	private function validateBookingInput()
+	private function validateBookingInput($a_datetimes_from, $a_datetimes_to)
 	{
 		if ($this->isBookingInPast())
 		{
@@ -91,7 +150,7 @@ class ilRoomSharingBook
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_bigger_dateto"));
 		}
-		if ($this->isAlreadyBooked())
+		if ($this->isAlreadyBooked($a_datetimes_from, $a_datetimes_to))
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_already_booked"));
 		}
@@ -122,68 +181,17 @@ class ilRoomSharingBook
 	 * Method to check if the selected room is already booked in the given time range
 	 *
 	 */
-	private function isAlreadyBooked()
+	private function isAlreadyBooked($a_datetimes_from, $a_datetimes_to)
 	{
-		print_r($this->date_from);
-		echo "<br><br>";
-		print_r($this->recurrence);
-		die();
-		$return_value = false;
-		$time_from = date('H:i:s', strtotime($this->date_from));
-		$time_to = date('H:i:s', strtotime($this->date_to));
-		$date_from = date('Y-m-d', strtotime($this->date_from));
-		$date_to = date('Y-m-d', strtotime($this->date_to));
-
-		if ($date_from != $date_to)
-		{
-			$day_difference = floor(abs(strtotime($date_from) - strtotime($date_to)) / (60 * 60 * 24));
-		}
-		else
-		{
-			$day_difference = null;
-		}
-
-		$datetimes_from = array();
-		$datetimes_to = array();
-		switch ($this->recurrence['frequence'])
-		{
-			case "DAILY":
-				$days = seqUtils::getDailyFilteredData($date_from, $this->recurrence['repeat_type'],
-						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'], $time_from, $time_to,
-						$day_difference);
-				$datetimes_from = $days['from'];
-				$datetimes_to = $days['to'];
-				break;
-			case "WEEKLY":
-				$days = seqUtils::getWeeklyFilteredData($date_from, $this->recurrence['repeat_type'],
-						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
-						$this->recurrence['weekdays'], $time_from, $time_to, $day_difference);
-				$datetimes_from = $days['from'];
-				$datetimes_to = $days['to'];
-				break;
-			case "MONTHLY":
-				$days = seqUtils::getMonthlyFilteredData($date_from, $this->recurrence['repeat_type'],
-						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
-						$this->recurrence['repeat_until'], $this->recurrence['monthday'],
-						$this->recurrence['weekday_1'], $this->recurrence['weekday_2'], $time_from, $time_to,
-						$day_difference);
-				$datetimes_from = $days['from'];
-				$datetimes_to = $days['to'];
-				break;
-			default:
-				$datetimes_from[] = $date_from . " " . $time_from;
-				$datetimes_to[] = $date_to . " " . $time_to;
-				break;
-		}
 		if ($this->permission->checkPrivilege(ilRoomSharingPrivilegesConstants::CANCEL_BOOKING_LOWER_PRIORITY))
 		{
-			$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($datetimes_from,
-				$datetimes_to, $this->room_id, $this->permission->getUserPriority());
+			$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($a_datetimes_from,
+				$a_datetimes_to, $this->room_id, $this->permission->getUserPriority());
 		}
 		else
 		{
-			$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($datetimes_from,
-				$datetimes_to, $this->room_id);
+			$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($a_datetimes_from,
+				$a_datetimes_to, $this->room_id);
 		}
 
 		return ($temp !== array());
@@ -212,19 +220,6 @@ class ilRoomSharingBook
 	private function filterValidParticipants($a_participant)
 	{
 		return (empty($a_participant) || $this->user->getLogin() === $a_participant) ? false : ilObjUser::_lookupId($a_participant);
-	}
-
-	/**
-	 * Method to insert the booking
-	 *
-	 * @param array $booking_attr_values
-	 *        	Array with the values of the booking-attributes
-	 * @return type -1 failed insert, 1 successful insert
-	 */
-	private function insertBooking($booking_attr_values, $booking_values, $booking_participants)
-	{
-		return $this->ilRoomsharingDatabase->insertBooking($booking_attr_values, $booking_values,
-				$booking_participants);
 	}
 
 	/**

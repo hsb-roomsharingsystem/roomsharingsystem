@@ -208,7 +208,7 @@ class ilRoomsharingDatabase
 		$join_part = '';
 		if ($a_priority)
 		{
-			$priorityQuery = ' priority > ' . $this->ilDB->quote($a_priority, 'integer') . ' AND ';
+			$priorityQuery = ' priority < ' . $this->ilDB->quote($a_priority, 'integer') . ' AND ';
 			$join_part = ' JOIN ' . dbc::CLASS_USER_TABLE . ' u ON b.user_id = u.user_id JOIN ' .
 				dbc::CLASSES_TABLE . ' c ON c.id = u.class_id';
 		}
@@ -216,6 +216,7 @@ class ilRoomsharingDatabase
 		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE . ' b ' . $join_part .
 			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
 			$roomQuery . $priorityQuery . ' (';
+
 
 		$count = count($a_datetimes_from);
 		if ($count == count($a_datetimes_to))

@@ -11,6 +11,7 @@ use ilRoomSharingSequenceBookingUtils as seqUtils;
  * Class ilRoomSharingRoomsTableGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  * @version $Id$
  *
  */
@@ -73,7 +74,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			!== $new_name)
 		{
 			$filter["room_name"] = $new_name;
-			//Hier sind die Daten der Räume drin, die extra gefiltert werden
+
 			$data = $this->getFilteredData($filter);
 
 			$message = $this->lng->txt('rep_robj_xrs_no_match_for') . " $old_name " .
@@ -90,25 +91,23 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	//für jedes Datum, welches generiert wird
 	public function getFilteredData(array $filter)
 	{
-		//Filter hier datetime? also $filter['datetimes']['from'] und $filter['datetimes']['to']??
-		$date = $filter['date'];
 		$freq = unserialize($filter['recurrence']["frequence"]);
 		switch ($freq)
 		{
 			case "DAILY":
-				//DATETIMES in den Funktionen !!!!
 				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
 				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
 				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
-				$filter['date'] = seqUtils::getDailyFilteredData($date, $repeat_type, $repeat_amount, $repeat_until);
+				$filter['datetimes'] = seqUtils::getDailyFilteredData($filter['date'], $repeat_type,
+						$repeat_amount, $repeat_until, $filter['time_from'], $filter['time_to']);
 				break;
 			case "WEEKLY":
 				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
 				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
 				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
 				$weekdays = unserialize($filter ["recurrence"]["weekdays"]);
-				$filter['date'] = seqUtils::getWeeklyFilteredData($date, $repeat_type, $repeat_amount,
-					$repeat_until, $weekdays);
+				$filter['datetimes'] = seqUtils::getWeeklyFilteredData($filter['date'], $repeat_type,
+						$repeat_amount, $repeat_until, $weekdays, $filter['time_from'], $filter['time_to']);
 				break;
 			case "MONTHLY":
 				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
@@ -119,29 +118,24 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				{
 					$w1 = unserialize($filter['recurrence']["weekday_1"]);
 					$w2 = unserialize($filter['recurrence']["weekday_2"]);
-					// monatlich mit startwochentag
-					$filter['date'] = seqUtils::getMonthlyFilteredData($date, $repeat_type, $repeat_amount,
-						$repeat_until, $start_type, null, $w1, $w2);
+					$filter['datetimes'] = seqUtils::getMonthlyFilteredData($filter['date'], $repeat_type,
+							$repeat_amount, $repeat_until, $start_type, null, $w1, $w2, $filter['time_from'],
+							$filter['time_to']);
 				}
 				elseif ($start_type == "monthday")
 				{
-					// monatlich mit festem monatstag
 					$md = unserialize($filter['recurrence']["monthday"]);
-					$filter['date'] = seqUtils::getMonthlyFilteredData($date, $repeat_type, $repeat_amount,
-						$repeat_until, $start_type, $md, null, null);
+					$filter['datetimes'] = seqUtils::getMonthlyFilteredData($date, $repeat_type, $repeat_amount,
+							$repeat_until, $start_type, $md, null, null, $filter['time_from'], $filter['time_to']);
 				}
 				break;
 			default:
-				if ($filter['date'])
-				{
-					$filter['date'] = array();
-					$filter['date'][] = $date;
-				}
+				$filter['datetimes']['from'] = array();
+				$filter['datetimes']['from'][] = $filter['date'] . " " . $filter['time_from'];
+				$filter['datetimes']['to'] = array();
+				$filter['datetimes']['to'][] = $filter['date'] . " " . $filter['time_to'];
 				break;
 		}
-
-//		echo "<br>muh<br>";
-//		print_r($data);
 
 		$data = $this->rooms->getList($filter);
 		return $data;

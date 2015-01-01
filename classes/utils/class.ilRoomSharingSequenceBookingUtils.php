@@ -9,8 +9,6 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  */
 class ilRoomSharingSequenceBookingUtils
 {
-	// Diese Methode dient dazu, die Tage in täglichem Abstand zu generieren
-	// bis zu einem Endtermin
 	public static function generateDailyDaysWithEndDate($a_startday, $a_untilday, $a_every_x_days,
 		$a_time_from = null, $a_time_to = null, $a_day_difference = null)
 	{
@@ -49,9 +47,11 @@ class ilRoomSharingSequenceBookingUtils
 			$days['from'][] = $a_untilday;
 		}
 
+		$days['from'] = self::removeDatesBeforeNow($days['from'], $time_format);
+
 		foreach ($days['from'] as $start_day)
 		{
-			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $day_difference_to_end_day . ' day'));
 			if ($a_time_to != null)
 			{
 				$days['to'][] = $to_date . " " . $a_time_to;
@@ -100,9 +100,11 @@ class ilRoomSharingSequenceBookingUtils
 			}
 		}
 
+		$days['from'] = self::removeDatesBeforeNow($days['from'], $time_format);
+
 		foreach ($days['from'] as $start_day)
 		{
-			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $day_difference_to_end_day . ' day'));
 			if ($a_time_to != null)
 			{
 				$days['to'][] = $to_date . " " . $a_time_to;
@@ -146,30 +148,23 @@ class ilRoomSharingSequenceBookingUtils
 		$i = 0;
 		while (true)
 		{
-			//Ausgewählte Wochentage für die Woche, in der $startday ist werden
-			//in $days gepackt, wobei $days mit übergeben werden muss
-			//damit schon generierte vorherige Werte nicht überschrieben werden
-			//Abhängig von der Auswahl wie "Mo", "Di", "Do", "Sa"
 			$days['from'] = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $days['from']);
 
-			//Für die nächste Wiederholung X Wochen vorspringen
-			//Abhängig von Auswahl bei "Alle X Wochen"
 			$startday = date('Y-m-d' . $time_format,
 				strtotime($startday . ' + ' . $a_every_x_weeks . ' week'));
 
-			//Wiederholung beenden, wenn das neue Wochendatum
-			//größer als das gewählte Enddatum ist
 			if ($startday > $a_enddate || $i++ > 2000)
 			{
 				break;
 			}
 		}
 
+		$days['from'] = self::removeDatesBeforeNow($days['from'], $time_format);
 		$days['from'] = self::removeDatesAfterDay($days['from'], $a_enddate);
 
 		foreach ($days['from'] as $start_day)
 		{
-			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $day_difference_to_end_day . ' day'));
 			if ($a_time_to != null)
 			{
 				$days['to'][] = $to_date . " " . $a_time_to;
@@ -207,27 +202,23 @@ class ilRoomSharingSequenceBookingUtils
 		}
 
 		$startday = $a_startday . $time;
-		//Packe den Starttag als Start in das Array, sonst würde er verloren gehen
+
 		$days['from'] = array();
 		$days['to'] = array();
-		//Solange durchlaufen, wie Wiederholungen vorhanden sind
+
 		for ($i = 0; $i < $a_count; $i++)
 		{
-			//Ausgewählte Wochentage für die Woche, in der $startday ist werden
-			//in $days gepackt, wobei $days mit übergeben werden muss
-			//damit schon generierte vorherige Werte nicht überschrieben werden
-			//Abhängig von der Auswahl wie "Mo", "Di", "Do", "Sa"
 			$days['from'] = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $days['from']);
 
-			//Für die nächste Wiederholung X Wochen vorspringen
-			//Abhängig von Auswahl bei "Alle X Wochen"
 			$startday = date('Y-m-d' . $time_format,
 				strtotime($startday . ' + ' . $a_every_x_weeks . ' week'));
 		}
 
+		$days['from'] = self::removeDatesBeforeNow($days['from'], $time_format);
+
 		foreach ($days['from'] as $start_day)
 		{
-			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $day_difference_to_end_day . ' day'));
 			if ($a_time_to != null)
 			{
 				$days['to'][] = $to_date . " " . $a_time_to;
@@ -275,20 +266,14 @@ class ilRoomSharingSequenceBookingUtils
 		$i = 0;
 		while (true)
 		{
-			$monthname_with_year_of_startday = date("F Y", strtotime($startday));
+			$monthname_with_year_of_startday = date("F Y" . $time_format, strtotime($startday));
 
-			//Ein Beispiel wäre hier: strtotime("fourth friday of january 2015")
-			//Wird z.B. fifth monday genommen und den gibt es nicht, wie z.B.
-			//im Januar, dann nimmt php den ersten vom Februar,
-			//ich denke das ist ok
 			$days['from'][] = date('Y-m-d' . $time_format,
 				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
 
 			$days['from'] = self::convertSelectedDayOfMonthWithoutStrtotime($days['from'], $each_day_name,
-					$variable_name, $monthname_with_year_of_startday);
+					$variable_name, $monthname_with_year_of_startday, $time);
 
-			//Für die nächste Wiederholung X Monate vorspringen
-			//Abhängig von Auswahl bei "Alle X Monate"
 			$startday = date('Y-m-d' . $time_format,
 				strtotime($startday . " + " . $a_every_x_months . " month"));
 
@@ -298,11 +283,12 @@ class ilRoomSharingSequenceBookingUtils
 			}
 		}
 
+		$days['from'] = self::removeDatesBeforeNow($days['from'], $time_format);
 		$days['from'] = self::removeDatesAfterDay($days['from'], $a_enddate);
 
 		foreach ($days['from'] as $start_day)
 		{
-			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $day_difference_to_end_day . ' day'));
 			if ($a_time_to != null)
 			{
 				$days['to'][] = $to_date . " " . $a_time_to;
@@ -349,23 +335,23 @@ class ilRoomSharingSequenceBookingUtils
 
 		for ($i = 0; $i < $a_count; $i++)
 		{
-			$monthname_with_year_of_startday = date("F Y", strtotime($startday));
+			$monthname_with_year_of_startday = date("F Y" . $time_format, strtotime($startday));
 
 			$days['from'][] = date('Y-m-d' . $time_format,
 				strtotime($variable_name . " " . $each_day_name . " of " . $monthname_with_year_of_startday));
 
 			$days['from'] = self::convertSelectedDayOfMonthWithoutStrtotime($days['from'], $each_day_name,
-					$variable_name, $monthname_with_year_of_startday);
+					$variable_name, $monthname_with_year_of_startday, $time);
 
-			//Für die nächste Wiederholung X Monate vorspringen
-			//Abhängig von Auswahl bei "Alle X Monate"
 			$startday = date('Y-m-d' . $time_format,
 				strtotime($startday . " + " . $a_every_x_months . " month"));
 		}
 
+		$days['from'] = self::removeDatesBeforeNow($days['from'], $time_format);
+
 		foreach ($days['from'] as $start_day)
 		{
-			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $day_difference_to_end_day . ' day'));
 			if ($a_time_to != null)
 			{
 				$days['to'][] = $to_date . " " . $a_time_to;
@@ -375,7 +361,6 @@ class ilRoomSharingSequenceBookingUtils
 				$days['to'][] = $to_date;
 			}
 		}
-
 		return $days;
 	}
 
@@ -404,6 +389,7 @@ class ilRoomSharingSequenceBookingUtils
 
 		$startday = $a_startday . $time;
 		$day_of_startday = date("d", strtotime($startday));
+
 		//Is the startday in the future? Then skip the month of the startday!
 		if ($day_of_startday > $a_monthday)
 		{
@@ -440,11 +426,12 @@ class ilRoomSharingSequenceBookingUtils
 			}
 		}
 
+		$days['from'] = self::removeDatesBeforeNow($days['from'], $time_format);
 		$days['from'] = self::removeDatesAfterDay($days['from'], $a_enddate);
 
 		foreach ($days['from'] as $start_day)
 		{
-			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $day_difference_to_end_day . ' day'));
 			if ($a_time_to != null)
 			{
 				$days['to'][] = $to_date . " " . $a_time_to;
@@ -483,6 +470,7 @@ class ilRoomSharingSequenceBookingUtils
 
 		$startday = $a_startday . $time;
 		$day_of_startday = date("d", strtotime($startday));
+
 		//Is the startday in the future? Then skip the month of the startday!
 		if ($day_of_startday > $a_monthday)
 		{
@@ -512,9 +500,11 @@ class ilRoomSharingSequenceBookingUtils
 				strtotime($startday . " + " . $a_every_x_months . " month"));
 		}
 
+		$days['from'] = self::removeDatesBeforeNow($days['from'], $time_format);
+
 		foreach ($days['from'] as $start_day)
 		{
-			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $a_day_difference . ' day'));
+			$to_date = date('Y-m-d', strtotime($start_day . ' + ' . $day_difference_to_end_day . ' day'));
 			if ($a_time_to != null)
 			{
 				$days['to'][] = $to_date . " " . $a_time_to;
@@ -559,7 +549,6 @@ class ilRoomSharingSequenceBookingUtils
 						$a_repeat_amount, $a_time_from, $a_time_to, $a_day_difference);
 			}
 		}
-
 		return $days;
 	}
 
@@ -604,7 +593,7 @@ class ilRoomSharingSequenceBookingUtils
 	}
 
 	private static function convertSelectedDayOfMonthWithoutStrtotime($a_days, $a_each_day_name,
-		$a_variable_name, $a_monthname_with_year)
+		$a_variable_name, $a_monthname_with_year, $a_time = null)
 	{
 		$days = $a_days;
 		if ($a_each_day_name == "Day")
@@ -614,27 +603,53 @@ class ilRoomSharingSequenceBookingUtils
 				case "first":
 					array_pop($days);
 					$month_year = date('Y-m', strtotime($a_monthname_with_year));
-					$days[] = $month_year . "-1";
+					$day = $month_year . "-1";
+					if ($a_time != null)
+					{
+						$day = $day . " " . $a_time;
+					}
+					$days[] = $day;
 					break;
 				case "second":
 					array_pop($days);
 					$month_year = date('Y-m', strtotime($a_monthname_with_year));
-					$days[] = $month_year . "-2";
+					$day = $month_year . "-2";
+					if ($a_time != null)
+					{
+						$day = $day . " " . $a_time;
+					}
+					$days[] = $day;
 					break;
 				case "third":
 					array_pop($days);
 					$month_year = date('Y-m', strtotime($a_monthname_with_year));
-					$days[] = $month_year . "-3";
+					$day = $month_year . "-3";
+					if ($a_time != null)
+					{
+						$day = $day . " " . $a_time;
+					}
+					$days[] = $day;
 					break;
 				case "fourth":
 					array_pop($days);
 					$month_year = date('Y-m', strtotime($a_monthname_with_year));
-					$days[] = $month_year . "-4";
+					$day = $month_year . "-4";
+					if ($a_time != null)
+					{
+						$day = $day . " " . $a_time;
+					}
+					$days[] = $day;
 					break;
 				case "fifth":
 					array_pop($days);
 					$month_year = date('Y-m', strtotime($a_monthname_with_year));
-					$days[] = $month_year . "-5";
+					$day = $month_year . "-5";
+					if ($a_time != null)
+					{
+						$day = $day . " " . $a_time;
+					}
+
+					$days[] = $day;
 					break;
 			}
 		}
@@ -654,9 +669,23 @@ class ilRoomSharingSequenceBookingUtils
 		return $filtered_days;
 	}
 
-	// Diese Methode wandelt die Keys für z.B. "ersten" oder "letzten"
-	//jeden Monats in den entsprechend Text um, der von strtotime verarbeitet
-	//werden kann
+	private static function removeDatesBeforeNow($a_dates, $a_time_format = "")
+	{
+		$filtered_days = array();
+		if (substr($a_time_format, 0, 1) == " ")
+		{
+			$a_time_format = substr($a_time_format, 1);
+		}
+		foreach ($a_dates as $day)
+		{
+			if ($day >= date('Y-m-d ' . $a_time_format))
+			{
+				$filtered_days[] = $day;
+			}
+		}
+		return $filtered_days;
+	}
+
 	private static function getEnumerationName($a_variable_number)
 	{
 		$variable_name = "";
@@ -677,15 +706,12 @@ class ilRoomSharingSequenceBookingUtils
 			case 5:
 				$variable_name = "fifth";
 				break;
-			case -1:
-				$variable_name = "last";
+			case -1: $variable_name = "last";
 				break;
 		}
 		return $variable_name;
 	}
 
-	// Diese Methode wandelt die Kürzel der Tage in voll ausgeschriebene
-	// Tage um, da nur die von strtotime genutzt werden können
 	private static function getFullDayNameByShortName($a_shortDayName)
 	{
 		$dayname = "";
@@ -722,8 +748,6 @@ class ilRoomSharingSequenceBookingUtils
 		return $dayname;
 	}
 
-	//Packt Wochentage zu dem übergebenen Array
-	//jedoch nur die, dessen Kürzel in dem $a_weekday_shortnames array drinstehen
 	private function getFollowingWeekdaysByWeekdayNames($a_startday, $a_weekday_shortnames,
 		$append_array = array())
 	{

@@ -1,15 +1,16 @@
 <?php
 
-include_once("./Customizing/global/plugins/Services/Repository/" .
+require_once("./Customizing/global/plugins/Services/Repository/" .
 	"RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php");
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-include_once('./Services/Calendar/classes/class.ilCalendarRecurrence.php');
-include_once('./Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once('./Services/Calendar/classes/class.ilCalendarRecurrence.php');
+require_once('./Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
 
 /**
  * Class ilRoomSharingSearchQuickGUI
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  * @version $Id$
  */
 class ilRoomSharingSearchQuickGUI
@@ -82,7 +83,6 @@ class ilRoomSharingSearchQuickGUI
 		if ($qsearch_form->checkInput())
 		{
 			$qsearch_form->writeInputsToSession();
-			//echo nl2br(print_r($_SESSION['form_qsearchform'], true));
 			$this->showSearchResultsObject();
 
 			// otherwise return to the form and display an error messages if needed
@@ -172,7 +172,6 @@ class ilRoomSharingSearchQuickGUI
 			}
 		}
 
-		//ich hab das Formular hier dem Filter hinzugefügt
 		//Recurrence
 		$filter["recurrence"] = $_SESSION['form_qsearchform'];
 
@@ -288,11 +287,7 @@ class ilRoomSharingSearchQuickGUI
 	 */
 	protected function createRecurrenceFormItem($a_qsearch_form)
 	{
-		//echo nl2br(print_r($_SESSION, true));
-		//$this->rec = new ilCalendarRecurrence();
 		$this->getRecurrence();
-		// initial frequence
-		//$this->rec->setFrequenceType('NONE');
 		$rec = new ilRecurrenceInputGUI($this->lng->txt('cal_recurrences'), 'frequence');
 		// set possible frequence types (IL_CAL_FREQ_YEARLY not needed)
 		$subforms = array(IL_CAL_FREQ_DAILY, IL_CAL_FREQ_WEEKLY, IL_CAL_FREQ_MONTHLY);
