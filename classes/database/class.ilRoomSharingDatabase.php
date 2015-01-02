@@ -282,12 +282,11 @@ class ilRoomsharingDatabase
 	public function insertBooking($a_booking_attr_values, $a_booking_values, $a_booking_participants)
 	{
 		global $ilUser;
-
 		$this->ilDB->insert(dbc::BOOKINGS_TABLE,
 			array(
 			'id' => array('integer', $this->ilDB->nextID(dbc::BOOKINGS_TABLE)),
-			'date_from' => array('timestamp', $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time']),
-			'date_to' => array('timestamp', $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time']),
+			'date_from' => array('timestamp', $a_booking_values ['from'][0]),
+			'date_to' => array('timestamp', $a_booking_values ['to'][0]),
 			'room_id' => array('integer', $a_booking_values ['room']),
 			'pool_id' => array('integer', $this->pool_id),
 			'user_id' => array('integer', $ilUser->getId()),
@@ -308,7 +307,8 @@ class ilRoomsharingDatabase
 
 		$this->insertBookingParticipants($insertedId, $a_booking_participants);
 
-		$this->insertBookingAppointment($insertedId, $a_booking_values);
+		$this->insertBookingAppointment($insertedId, $a_booking_values, $a_booking_values ['from'][0],
+			$a_booking_values ['to'][0]);
 
 		return 1;
 	}
@@ -367,11 +367,12 @@ class ilRoomsharingDatabase
 		 *  add bookingAttributes, bookingParticipants, bookingAppointments
 		 *  for each booking entry
 		 */
-		foreach ($newBookIds as $id)
+		for ($i = 0; $i < $count_booking_values_from; $i++)
 		{
-			$this->insertBookingAttributes($id, $a_booking_attr_values);
-			$this->insertBookingParticipants($id, $a_booking_participants);
-			$this->insertBookingAppointment($id, $a_booking_values);
+			$this->insertBookingAttributes($newBookIds[$i], $a_booking_attr_values);
+			$this->insertBookingParticipants($newBookIds[$i], $a_booking_participants);
+			$this->insertBookingAppointment($newBookIds[$i], $a_booking_values,
+				$a_booking_values ['from'][$i], $a_booking_values ['to'][$i]);
 		}
 		return 1;
 	}
@@ -383,14 +384,12 @@ class ilRoomsharingDatabase
 	 * @param $time_start start-time
 	 * @param $time_end end-time
 	 */
-	private function insertBookingAppointment($insertedId, $a_booking_values)
+	private function insertBookingAppointment($insertedId, $a_booking_values, $from, $to)
 	{
 		//create appointment first
 		include_once('Services/Calendar/classes/class.ilDate.php');
-		$time_start = new ilDateTime($a_booking_values ['from']['date'] . ' ' . $a_booking_values ['from']['time'],
-			1);
-		$time_end = new ilDateTime($a_booking_values ['to']['date'] . ' ' . $a_booking_values ['to']['time'],
-			1);
+		$time_start = new ilDateTime($from, 1);
+		$time_end = new ilDateTime($to, 1);
 		$title = $a_booking_values['subject'];
 
 		$room_name = $this->getRoomName($a_booking_values ['room']);
