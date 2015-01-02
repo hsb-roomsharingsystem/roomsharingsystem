@@ -554,11 +554,18 @@ class ilRoomSharingBookGUI
 	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries,
 		$a_recurrence_entries)
 	{
-//adds current calendar-id to booking information
+		//adds current calendar-id to booking information
 		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
 		$this->book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries,
 			$a_recurrence_entries);
-		$this->cleanUpAfterSuccessfulSave();
+		if($a_recurrence_entries['frequence'] != "DAILY" && $a_recurrence_entries['frequence'] != "WEEKLY" && $a_recurrence_entries['frequence'] != "MONTHLY")
+		{
+			$this->cleanUpAfterSuccessfulSave(false);
+		}
+		else
+		{
+			$this->cleanUpAfterSuccessfulSave(true);
+		}
 	}
 
 	private function handleException($a_form, $a_exception)
@@ -567,7 +574,7 @@ class ilRoomSharingBookGUI
 		$this->resetInvalidForm($a_form);
 	}
 
-	private function cleanUpAfterSuccessfulSave()
+	private function cleanUpAfterSuccessfulSave($sequence = false)
 	{
 		global $ilTabs;
 
@@ -575,7 +582,14 @@ class ilRoomSharingBookGUI
 		$this->parent_obj->setTabs();
 		$this->ctrl->setCmd("render");
 		$this->parent_obj->performCommand("");
-		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
+		if($sequence)
+		{
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_seq_booking_added'), true);
+		}
+		else
+		{
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
+		}
 	}
 
 	private function handleInvalidForm($a_form)

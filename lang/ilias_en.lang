@@ -181,6 +181,7 @@ semester#:#Semester
 setting_1#:#Setting 1
 setting_2#:#Setting 2
 settings#:#Settings
+seq_booking_added#:#Sequence booking added
 singular_field_input_value_too_high_begin#:#The value of the field
 singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter is reset to the last valid request.
 status#:#Status
