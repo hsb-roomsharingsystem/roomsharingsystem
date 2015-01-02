@@ -314,12 +314,15 @@ class ilRoomsharingDatabase
 	}
 
 	/**
-	 * // STILL UNDER CONSTRUCTION
+	 * This method inserts a booking recurrence by inserting a set of data.
 	 *
-	 * Diese Methode hat denselben Parametersatz wie 'insertBooking(...)'
+	 *
 	 * @global type $ilDB
-	 * @param type $a_booking_values
-	 * @return type
+	 * @param array $a_booking_values
+	 *        	Array with the values of the booking
+	 * @param array $a_booking_attr_values
+	 *        	Array with the values of the booking-attributes
+	 * @return integer 1 = successful, -1 not successful
 	 */
 	public function insertBookingRecurrence($a_booking_attr_values, $a_booking_values,
 		$a_booking_participants)
