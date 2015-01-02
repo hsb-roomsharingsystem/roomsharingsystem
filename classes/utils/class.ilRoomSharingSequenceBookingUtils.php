@@ -148,7 +148,8 @@ class ilRoomSharingSequenceBookingUtils
 		$i = 0;
 		while (true)
 		{
-			$days['from'] = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $days['from']);
+			$days['from'] = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $time_format,
+					$days['from']);
 
 			$startday = date('Y-m-d' . $time_format,
 				strtotime($startday . ' + ' . $a_every_x_weeks . ' week'));
@@ -208,7 +209,8 @@ class ilRoomSharingSequenceBookingUtils
 
 		for ($i = 0; $i < $a_count; $i++)
 		{
-			$days['from'] = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $days['from']);
+			$days['from'] = self::getFollowingWeekdaysByWeekdayNames($startday, $a_weekdays, $time_format,
+					$days['from']);
 
 			$startday = date('Y-m-d' . $time_format,
 				strtotime($startday . ' + ' . $a_every_x_weeks . ' week'));
@@ -749,40 +751,40 @@ class ilRoomSharingSequenceBookingUtils
 	}
 
 	private function getFollowingWeekdaysByWeekdayNames($a_startday, $a_weekday_shortnames,
-		$append_array = array())
+		$a_time_format, $a_append_array = array())
 	{
 		if (is_array($a_weekday_shortnames))
 		{
 			if (in_array("MO", $a_weekday_shortnames))
 			{
-				$append_array[] = date('Y-m-d', strtotime($a_startday . ' next monday'));
+				$a_append_array[] = date('Y-m-d' . $a_time_format, strtotime($a_startday . ' next monday'));
 			}
 			if (in_array("TU", $a_weekday_shortnames))
 			{
-				$append_array[] = date('Y-m-d', strtotime($a_startday . ' next tuesday'));
+				$a_append_array[] = date('Y-m-d' . $a_time_format, strtotime($a_startday . ' next tuesday'));
 			}
 			if (in_array("WE", $a_weekday_shortnames))
 			{
-				$append_array[] = date('Y-m-d', strtotime($a_startday . ' next wednesday'));
+				$a_append_array[] = date('Y-m-d' . $a_time_format, strtotime($a_startday . ' next wednesday'));
 			}
 			if (in_array("TH", $a_weekday_shortnames))
 			{
-				$append_array[] = date('Y-m-d', strtotime($a_startday . ' next thursday'));
+				$a_append_array[] = date('Y-m-d' . $a_time_format, strtotime($a_startday . ' next thursday'));
 			}
 			if (in_array("FR", $a_weekday_shortnames))
 			{
-				$append_array[] = date('Y-m-d', strtotime($a_startday . ' next friday'));
+				$a_append_array[] = date('Y-m-d' . $a_time_format, strtotime($a_startday . ' next friday'));
 			}
 			if (in_array("SA", $a_weekday_shortnames))
 			{
-				$append_array[] = date('Y-m-d', strtotime($a_startday . ' next saturday'));
+				$a_append_array[] = date('Y-m-d' . $a_time_format, strtotime($a_startday . ' next saturday'));
 			}
 			if (in_array("SU", $a_weekday_shortnames))
 			{
-				$append_array[] = date('Y-m-d', strtotime($a_startday . ' next sunday'));
+				$a_append_array[] = date('Y-m-d' . $a_time_format, strtotime($a_startday . ' next sunday'));
 			}
 		}
-		return $append_array;
+		return $a_append_array;
 	}
 
 }
