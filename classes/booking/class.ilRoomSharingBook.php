@@ -3,6 +3,7 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingSequenceBookingUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
@@ -53,6 +54,7 @@ class ilRoomSharingBook
 	 * @param type $a_booking_participants Array with the values of the participants
 	 * @param type $a_recurrence_entries Array with recurrence information
 	 * @throws ilRoomSharingBookException
+	 * @return array Booking-IDs which are canceled
 	 */
 	public function addBooking($a_booking_values, $a_booking_attr_values, $a_booking_participants,
 		$a_recurrence_entries)
@@ -69,17 +71,36 @@ class ilRoomSharingBook
 		$a_booking_values['from'] = $datetimes['from'];
 		$a_booking_values['to'] = $datetimes['to'];
 
+		$booking_ids_of_bookings_to_be_canceled = $this->ilRoomsharingDatabase->getBookingIdsForRoomInDateimeRanges($this->room_id,
+			$a_booking_values['from'], $a_booking_values['to']);
+
+		if (ilRoomSharingNumericUtils::isPositiveNumber(count($booking_ids_of_bookings_to_be_canceled)))
+		{
+			$bookings = new ilRoomSharingBookings($this->pool_id);
+			try
+			{
+				$bookings->removeMultipleBookings($booking_ids_of_bookings_to_be_canceled, true);
+			}
+			catch (ilRoomSharingBookingsException $ex)
+			{
+				throw new ilRoomSharingBookException($ex->getMessage());
+			}
+		}
+
 		$success = $this->ilRoomsharingDatabase->insertBookingRecurrence($a_booking_attr_values,
 			$a_booking_values, $a_booking_participants);
 
 		if ($success)
 		{
 			$this->sendBookingNotification();
+			return count($booking_ids_of_bookings_to_be_canceled);
 		}
 		else
 		{
 			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
 		}
+
+		return 0;
 	}
 
 	private function generateDatetimesForBooking()

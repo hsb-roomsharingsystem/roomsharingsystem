@@ -30,6 +30,7 @@ booking_confirm#:#Are you sure you want to cancel the following booking?
 booking_confirm_cancel#:#Cancel booking
 booking_deleted#:#Booking deleted! (following sequence bookings are not affected)
 booking_doesnt_exists#:#This booking does not exist any more!
+booking_lower_priority_canceled#:#bookings, which used the same time and room and were created by users with lower priority and own bookings, are canceled automatically. The users of these bookings have been informed.
 booking_no_cancel_ids#:#Tick at least one booking to cancel.
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
 bookings#:#Bookings
@@ -85,6 +86,7 @@ mail_cancellation_creator_message#:#Your booking has been canceled. The followin
 mail_cancellation_creator_subject#:#Your booking has been canceled.
 mail_cancellation_participant_message#:#A booking in which you participated has been canceled. The following booking has been canceled:
 mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
+mail_cancellation_reason_higher_priority#:#Overwritten by a booking of a user with higher priority.
 mail_cancellation_reason_manually#:#Manual cancellation by user.
 mail_cancellation_reason_prefix#:#The booking has been cancelled due to the following reason:
 manage#:#Manage

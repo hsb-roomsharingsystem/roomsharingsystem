@@ -167,8 +167,7 @@ class ilRoomSharingBookGUI
 
 	private function getBookingAttributes()
 	{
-		$ilBookings = new ilRoomSharingBookings();
-		$ilBookings->setPoolId($this->pool_id);
+		$ilBookings = new ilRoomSharingBookings($this->pool_id);
 		return $ilBookings->getAdditionalBookingInfos();
 	}
 
@@ -556,15 +555,16 @@ class ilRoomSharingBookGUI
 	{
 		//adds current calendar-id to booking information
 		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
-		$this->book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries,
-			$a_recurrence_entries);
-		if($a_recurrence_entries['frequence'] != "DAILY" && $a_recurrence_entries['frequence'] != "WEEKLY" && $a_recurrence_entries['frequence'] != "MONTHLY")
+		$count_canceled_bookings = $this->book->addBooking($a_common_entries, $a_attribute_entries,
+			$a_participant_entries, $a_recurrence_entries);
+		if ($a_recurrence_entries['frequence'] != "DAILY" && $a_recurrence_entries['frequence'] != "WEEKLY"
+			&& $a_recurrence_entries['frequence'] != "MONTHLY")
 		{
-			$this->cleanUpAfterSuccessfulSave(false);
+			$this->cleanUpAfterSuccessfulSave(false, $count_canceled_bookings);
 		}
 		else
 		{
-			$this->cleanUpAfterSuccessfulSave(true);
+			$this->cleanUpAfterSuccessfulSave(true, $count_canceled_bookings);
 		}
 	}
 
@@ -574,7 +574,7 @@ class ilRoomSharingBookGUI
 		$this->resetInvalidForm($a_form);
 	}
 
-	private function cleanUpAfterSuccessfulSave($sequence = false)
+	private function cleanUpAfterSuccessfulSave($sequence = false, $a_count_canceled_bookings = 0)
 	{
 		global $ilTabs;
 
@@ -582,13 +582,18 @@ class ilRoomSharingBookGUI
 		$this->parent_obj->setTabs();
 		$this->ctrl->setCmd("render");
 		$this->parent_obj->performCommand("");
-		if($sequence)
+		if ($sequence)
 		{
 			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_seq_booking_added'), true);
 		}
 		else
 		{
 			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
+		}
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_count_canceled_bookings))
+		{
+			ilUtil::sendInfo($a_count_canceled_bookings . " " . $this->lng->txt('rep_robj_xrs_booking_lower_priority_canceled'),
+				true);
 		}
 	}
 

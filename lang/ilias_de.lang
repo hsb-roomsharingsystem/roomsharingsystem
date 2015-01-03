@@ -30,6 +30,7 @@ booking_confirm#:#Möchten Sie wirklich die ausgewählte Buchung stornieren?
 booking_confirm_cancel#:#Stornieren
 booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
 booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
+booking_lower_priority_canceled#:#Buchungen, welche Zeit- und Raumüberschneidungen mit erstellten Buchungen aufweisen und von Nutzern mit niedrigerer Priorität erstellt worden sind sowie eigene Buchungen, wurden automatisch storniert. Die Benutzer der betroffenen Buchungen wurden darüber informiert.
 booking_no_cancel_ids#:#Geben Sie mindestens eine Buchung zum Stornieren an.
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
 bookings#:#Buchungen
@@ -85,6 +86,7 @@ mail_cancellation_creator_message#:#Ihre Raum-Buchung wurde storniert. Der folge
 mail_cancellation_creator_subject#:#Ihre Raum-Buchung wurde storniert.
 mail_cancellation_participant_message#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert. Folgende Buchung ist storniert worden:
 mail_cancellation_participant_subject#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert.
+mail_cancellation_reason_higher_priority#:#Überschrieben durch Buchung von einem Benutzer mit höherer Priorität.
 mail_cancellation_reason_manually#:#Manuelle Stornierung durch den Benutzer.
 mail_cancellation_reason_prefix#:#Die Buchung wurde aus folgendem Grund storniert:
 manage#:#Verwalten
