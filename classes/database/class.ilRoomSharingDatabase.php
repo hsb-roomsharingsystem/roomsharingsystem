@@ -234,8 +234,6 @@ class ilRoomSharingDatabase
 	 */
 	public function getRoomsBookedInDateTimeRange($a_date_from, $a_date_to, $a_room_id = null)
 	{
-		echo 'Von ' . $a_date_from;
-		echo '<BR>Bis ' . $a_date_to;
 		$roomQuery = '';
 		if ($a_room_id)
 		{
