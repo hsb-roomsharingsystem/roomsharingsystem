@@ -125,8 +125,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				elseif ($start_type == "monthday")
 				{
 					$md = unserialize($filter['recurrence']["monthday"]);
-					$filter['datetimes'] = seqUtils::getMonthlyFilteredData($date, $repeat_type, $repeat_amount,
-							$repeat_until, $start_type, $md, null, null, $filter['time_from'], $filter['time_to']);
+					$filter['datetimes'] = seqUtils::getMonthlyFilteredData($filter['date'], $repeat_type,
+							$repeat_amount, $repeat_until, $start_type, $md, null, null, $filter['time_from'],
+							$filter['time_to']);
 				}
 				break;
 			default:

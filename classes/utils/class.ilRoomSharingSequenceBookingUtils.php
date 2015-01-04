@@ -406,7 +406,7 @@ class ilRoomSharingSequenceBookingUtils
 		while (true)
 		{
 			$startmonth = date('m', strtotime($startday));
-			$startyear = date('m', strtotime($startday));
+			$startyear = date('Y', strtotime($startday));
 			$starttime = date($time_format, strtotime($startday));
 			if (checkdate($startmonth, $a_monthday, $startyear))
 			{
@@ -485,7 +485,7 @@ class ilRoomSharingSequenceBookingUtils
 		for ($i = 0; $i < $a_count; $i++)
 		{
 			$startmonth = date('m', strtotime($startday));
-			$startyear = date('m', strtotime($startday));
+			$startyear = date('Y', strtotime($startday));
 			$starttime = date($time_format, strtotime($startday));
 			if (checkdate($startmonth, $a_monthday, $startyear))
 			{

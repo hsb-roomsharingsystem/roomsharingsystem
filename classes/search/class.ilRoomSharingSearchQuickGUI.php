@@ -363,7 +363,6 @@ class ilRoomSharingSearchQuickGUI
 			$date = unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]);
 			$date2 = date('Y-m-d H:i:s',
 				mktime(0, 0, 0, $date['date']['m'], $date['date']['d'], $date['date']['y']));
-			echo $date2;
 			$this->rec->setFrequenceUntilDate(new ilDateTime($date2, IL_CAL_DATETIME));
 		}
 	}
