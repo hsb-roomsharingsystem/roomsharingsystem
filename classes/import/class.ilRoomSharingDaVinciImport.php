@@ -89,9 +89,6 @@ class ilRoomSharingDaVinciImport {
                     {  
                         if($booking['day'] != 0)
                         {
-                            //echo $day_off_set;
-                            //echo $this->startingDate->format('Y-m-d');
-
                             $usedWeek = clone($this->startingDate);
                             for($i = 0; $i < strlen($this->activeWeeks); $i++)
                             {
@@ -166,8 +163,6 @@ class ilRoomSharingDaVinciImport {
             $this->startingDate = new DateTime($dateStr);
             $day_off_set = $this->startingDate->format('N');
             $this->startingDate->sub(new DateInterval('P'. $day_off_set . 'D'));
-            //$this->startingDate = date('Y-m-d');
-            //$this->startingDate = new DateTime('2015-01-04');s
             $this->blocks = $params[4];
             $this->units = $params[5];
             $this->mins = $params[8];
@@ -228,9 +223,6 @@ class ilRoomSharingDaVinciImport {
                 
                 array_push($this->appointments, array('id'=>$params[1],'day'=>$day,'start'=>$startTime,'end'=>$endTime,'room'=>$this->alterString($roomShrt),
                     'prof'=>$this->alterString($profShrt),'subject'=>$this->currentCourse,'classes'=>$this->current_classes,'week'=>  $this->current_weekly_rotation));
-                
-                //echo ($this->appointments[count($this->appointments)-1]['subject']);
-                //echo '<br>';
             }
         }
         
@@ -243,8 +235,6 @@ class ilRoomSharingDaVinciImport {
                 $day = $params[$n+2];
                 if($params[$n] != null && $params[$n+1] != null)
                 {
-                    //$startTime = new DateTime($this->editDateString($params[$n]));
-                    //$endTime = new DateTime($this->editDateString($params[$n+1]));
                     $startTime = clone($this->startingTimes[($params[$n+5])-1]);
                     $endTime = clone($this->startingTimes[($params[$n+1])-1]);
                     $endTime->add(new DateInterval('PT'.$params[$n+4].'M'));
@@ -284,15 +274,9 @@ class ilRoomSharingDaVinciImport {
           
         private function addDaVinciBooking($day, $start, $end, $room, $prof, $subject, $classes, $usedWeek)
         {
-            //echo ($booking['subject'] . " " . $booking['prof'] . " " . $booking['day'] . " " . $booking['start']->format('H:i:s'));
-            //echo '<br>';
-
             $date_diff = clone($usedWeek);
             $interval = $date_diff->diff(new DateTime(date('Y-m-d')));
 
-            //echo(($date_diff->format('Y-m-d')).'<br>');
-            //echo(((new DateTime(date('Y-m-d')))->format('Y-m-d')) . '<br>');
-            //echo($interval->format('%R') . '<br>');
             if(($interval->format('%R'))=== '-')
             {
                 $entry = array();
@@ -307,8 +291,6 @@ class ilRoomSharingDaVinciImport {
                 }
 
                 $tmpDate = clone($usedWeek);
-                //$tmpDate = $tmpDate->add(new DateInterval('P'. '0000-00-0'. (string)$booking[0] .'T' . date_format($booking[1], 'H:i') .':00'));
-                //$entry['from'] = $tmpDate;
                 $tmpDate->add(new DateInterval('P'. (string)$day . 'D'));
                 $entry['from']['date']=  date_format($tmpDate,'Y-m-d');
                 $entry['from']['time']= date_format($start, 'H:i:s');
@@ -357,7 +339,7 @@ class ilRoomSharingDaVinciImport {
                                     $this->ilRoomSharingDatabase->getAttributesForBooking($aBooking[0]),
                                     $this->ilRoomSharingDatabase->getParticipantsForBooking($aBooking[0]));
                             } catch (Exception $ex) {
-                                echo 'error <br>';
+                                
                             }
 
                         }
