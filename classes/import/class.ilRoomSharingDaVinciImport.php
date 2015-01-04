@@ -307,12 +307,8 @@ class ilRoomSharingDaVinciImport {
                 
                 $this->book = new ilRoomSharingBook($this->pool_id);
                 
-                var_dump ($this->ilRoomSharingDatabase->getRoomWithName($room));
-                echo '<br>';
-                echo $entry['room'] .  '<br>';
                 if($this->ilRoomSharingDatabase->getRoomWithName($room) !== array())
                 {
-                    echo 'in <br>';
                     try
                     {
                         $this->book->addBooking($entry,array(),array());
