@@ -56,6 +56,12 @@ current_rooms_user_agreement#:#Aktuelle Raumnutzungsordnung
 date#:#Termin
 datefrom_bigger_dateto#:#&quot;Von&quot; ist später oder gleich &quot;bis&quot;
 datefrom_is_earlier_than_now#:#&quot;Von&quot; liegt in der Vergangenheit
+daVinci_import_bookings#:#Buchungen importieren
+daVinci_import_button#:#Importieren
+daVinci_import_default_cap#:#Standardmäßige Anzahl Sitzplätze
+daVinci_import_file#:#daVinci Schuldatentransferdatei hochladen
+daVinci_import_rooms#:#Räume importieren
+daVinci_import_title#:#daVinci Daten importieren
 delete_attribute#:#Vorhandenes Attribut löschen
 delete_booking_attribute_info#:#Mit dieser Option können vorhandene Attribute gelöscht werden. <br>Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Buchungen.
 delete_room_attribute_info#:#Mit dieser Option können vorhandene Attribute gelöscht werden. <br>Entfernen eines Attributs verursacht die Aktualisierung der damit verbundenen Räume.

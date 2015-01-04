@@ -56,6 +56,12 @@ current_rooms_user_agreement#:#Current rooms user agreement
 date#:#Date
 datefrom_bigger_dateto#:#&quot;From&quot; is later or equal &quot;to&quot;
 datefrom_is_earlier_than_now#:#&quot;From&quot; lies in the past
+daVinci_import_bookings#:#Import Bookings
+daVinci_import_button#:#Import
+daVinci_import_default_cap#:#Default Room Capacity
+daVinci_import_file#:#Upload daVinci text-file
+daVinci_import_rooms#:#Import Rooms
+daVinci_import_title#:#Import daVinci Data
 delete_attribute#:#Delete an existing attribute
 delete_booking_attribute_info#:#With this option you can delete an existing booking attribute. <br>Deletion of an attribute causes an update of the linked bookings.
 delete_room_attribute_info#:#With this option you can delete an existing room attribute. <br>Deletion of an attribute causes an update of the linked rooms.

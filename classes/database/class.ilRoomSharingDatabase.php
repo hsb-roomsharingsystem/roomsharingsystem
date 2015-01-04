@@ -222,6 +222,25 @@ class ilRoomSharingDatabase
 		return $roomNameRow ['name'];
 	}
 
+        /**
+         * Gets the room with a given name
+         * 
+         * @param type $a_room_name
+         * @return array room
+         */
+        public function getRoomWithName($a_room_name)
+        {
+                $roomSet = $this->ilDB->query(' SELECT * FROM ' . dbc::ROOMS_TABLE .
+			' WHERE name = ' . $this->ilDB->quote($a_room_name, 'text') .
+			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
+		$rooms = array();
+                while ($namerow = $this->ilDB->fetchAssoc($roomSet))
+		{
+			$rooms[] = $namerow;
+		}
+		return $rooms;
+        }
+        
 	/**
 	 * Get the room-ids from all rooms that are booked in the given timerange.
 	 * A specific room_id can be given if a single room should be queried (used for bookings).
@@ -268,7 +287,7 @@ class ilRoomSharingDatabase
 	public function getBookingIdForRoomInDateTimeRange($a_date_from, $a_date_to, $a_room_id,
 		$a_booking_id)
 	{
-		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE .
+		$query = 'SELECT DISTINCT id FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
 			' room_id = ' . $this->ilDB->quote($a_room_id, 'text') . ' AND ' .
 			' id != ' . $this->ilDB->quote($a_booking_id, 'integer') . ' AND ' .

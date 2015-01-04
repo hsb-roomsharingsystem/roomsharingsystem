@@ -41,6 +41,7 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilConsultationHoursGUI, ilCalendarBlockGUI, ilColumnGUI
  *
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingDaVinciImportGUI
  *
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
  * @ilCtrl_IsCalledBy ilObjRoomSharingGUI: ilColumnGUI
@@ -242,6 +243,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
 				break;
+                        // daVinci import
+                        case 'ilroomsharingdavinciimportgui':
+                                $this->tabs_gui->setTabActive('daVinci_import');
+                                $this->pl_obj->includeClass("import/class.ilRoomSharingDaVinciImportGUI.php");
+                                $import_gui = & new ilRoomSharingDaVinciImportGUI($this);
+                                $ret = & $this->ctrl->forwardCommand($import_gui);
+                                break;
 			// Permissions
 			case 'ilpermissiongui':
 				$this->tabs_gui->setTabActive('perm_settings');
@@ -426,6 +434,17 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, $specifiedActions)
 			);
 		}
+                
+                //check for privilege
+                if(true)
+                {
+                        // daVinci import tab
+                        $this->tabs_gui->addTab(
+                                "daVinci_import", $this->txt("daVinci_import"),
+                                $this->ctrl->getLinkTargetByClass("ilroomsharingdavinciimportgui","render")
+                                );
+                }
+                
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
 		{
 			// Settings
