@@ -1,16 +1,13 @@
 <?php
 
 require_once("Services/Table/classes/class.ilTable2GUI.php");
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-	"RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
-require_once ("./Services/Form/classes/class.ilPropertyFormGUI.php");
-require_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
-require_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-	"RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
-require_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-	"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
+require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 require_once("Services/User/classes/class.ilUserAutoComplete.php");
 
 use ilRoomSharingPrivilegesConstants as PRIVC;
@@ -71,8 +68,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
 		// checkboxes labeled with "bookings" get affected by the "Select All"-Checkbox
 		$this->setSelectAllCheckbox('bookings');
-		$this->setRowTemplate("tpl.room_appointment_row.html",
-			"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
+		$this->setRowTemplate("tpl.room_appointment_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
 		// command for cancelling bookings
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS) || $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY))
 		{
@@ -107,8 +103,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$user_name_input->setSize(14);
 		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
 		$user_name_input->setDataSource($ajax_datasource);
-		$user_comb->addCombinationItem("user_id", $user_name_input,
-			$this->lng->txt("rep_robj_xrs_user_id"));
+		$user_comb->addCombinationItem("user_id", $user_name_input, $this->lng->txt("rep_robj_xrs_user_id"));
 		$this->addFilterItem($user_comb);
 		$user_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["user"] = $user_comb->getValue();
@@ -120,8 +115,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$room_name_input = new ilRoomSharingTextInputGUI("", "room_name");
 		$room_name_input->setMaxLength(14);
 		$room_name_input->setSize(14);
-		$room_comb->addCombinationItem("room_name", $room_name_input,
-			$this->lng->txt("rep_robj_xrs_room_name"));
+		$room_comb->addCombinationItem("room_name", $room_name_input, $this->lng->txt("rep_robj_xrs_room_name"));
 		$this->addFilterItem($room_comb);
 		$room_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["room"] = $room_comb->getValue();
@@ -133,8 +127,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$subject_input = new ilRoomSharingTextInputGUI("", "booking_subject");
 		$subject_input->setMaxLength(14);
 		$subject_input->setSize(14);
-		$subject_comb->addCombinationItem("booking_subject", $subject_input,
-			$this->lng->txt("rep_robj_xrs_subject"));
+		$subject_comb->addCombinationItem("booking_subject", $subject_input, $this->lng->txt("rep_robj_xrs_subject"));
 		$this->addFilterItem($subject_comb);
 		$subject_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["subject"] = $subject_comb->getValue();
@@ -146,8 +139,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$comment_input = new ilRoomSharingTextInputGUI("", "booking_comment");
 		$comment_input->setMaxLength(14);
 		$comment_input->setSize(14);
-		$comment_comb->addCombinationItem("booking_comment", $comment_input,
-			$this->lng->txt("rep_robj_xrs_comment"));
+		$comment_comb->addCombinationItem("booking_comment", $comment_input, $this->lng->txt("rep_robj_xrs_comment"));
 		$this->addFilterItem($comment_comb);
 		$comment_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["comment"] = $comment_comb->getValue();
@@ -160,12 +152,10 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		{
 			// setup an ilCombinationInputGUI for the room attributes
 			$room_attribute_comb = new ilCombinationInputGUI($room_attribute, "attribute_" . $room_attribute);
-			$room_attribute_input = new ilRoomSharingTextInputGUI("",
-				"attribute_" . $room_attribute . "_value");
+			$room_attribute_input = new ilRoomSharingTextInputGUI("", "attribute_" . $room_attribute . "_value");
 			$room_attribute_input->setMaxLength(14);
 			$room_attribute_input->setSize(14);
-			$room_attribute_comb->addCombinationItem("amount", $room_attribute_input,
-				$this->lng->txt("rep_robj_xrs_value"));
+			$room_attribute_comb->addCombinationItem("amount", $room_attribute_input, $this->lng->txt("rep_robj_xrs_value"));
 
 			$this->addFilterItem($room_attribute_comb);
 			$room_attribute_comb->readFromSession();
@@ -264,8 +254,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 			// icon for the recurrence date
 			$this->tpl->setVariable('IMG_RECURRENCE_PATH', ilUtil::getImagePath("cmd_move_s.png"));
 		}
-		$this->tpl->setVariable('IMG_RECURRENCE_TITLE',
-			$this->lng->txt("rep_robj_xrs_room_date_recurrence"));
+		$this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("rep_robj_xrs_room_date_recurrence"));
 	}
 
 	/**
@@ -275,17 +264,13 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	private function setAppointment($a_rowData)
 	{
-		// ### Appointment ###
 		$this->tpl->setVariable('TXT_DATE', $a_rowData ['date']);
 		// link for the date overview
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_APPOINTMENTS))
 		{
-			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id',
-				$a_rowData['id']);
-			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id',
-				$a_rowData['room_id']);
-			$this->tpl->setVariable('HREF_DATE',
-				$this->ctrl->getLinkTargetByClass('ilRoomSharingShowAndEditBookGUI', 'showBooking'));
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id', $a_rowData['id']);
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id', $a_rowData['room_id']);
+			$this->tpl->setVariable('HREF_DATE', $this->ctrl->getLinkTargetByClass('ilRoomSharingShowAndEditBookGUI', 'showBooking'));
 			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id', '');
 			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id', '');
 		}
@@ -298,13 +283,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	private function setRoom($a_rowData)
 	{
-		// ### Room ###
 		$this->tpl->setVariable('TXT_ROOM', $a_rowData ['room']);
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
 		{
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_rowData ['room_id']);
-			$this->tpl->setVariable('HREF_ROOM',
-				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
+			$this->tpl->setVariable('HREF_ROOM', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
 		}
 	}
@@ -316,8 +299,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	private function setComment($a_rowData)
 	{
-		$this->tpl->setVariable('TXT_COMMENT',
-			($a_rowData ['comment'] === null ? '' : $a_rowData ['comment']));
+		$this->tpl->setVariable('TXT_COMMENT', ($a_rowData ['comment'] === null ? '' : $a_rowData ['comment']));
 	}
 
 	/**
@@ -327,8 +309,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	private function setSubject($a_rowData)
 	{
-		$this->tpl->setVariable('TXT_SUBJECT',
-			($a_rowData ['subject'] === null ? '' : $a_rowData ['subject']));
+		$this->tpl->setVariable('TXT_SUBJECT', ($a_rowData ['subject'] === null ? '' : $a_rowData ['subject']));
 	}
 
 	/**
@@ -345,10 +326,8 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 			$this->tpl->setVariable("TXT_USER", $a_rowData ['participants'] [$i]);
 
 			// put together a link for the user profile view
-			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id',
-				$a_rowData ['participants_ids'] [$i]);
-			$this->tpl->setVariable('HREF_PROFILE',
-				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
+			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', $a_rowData ['participants_ids'] [$i]);
+			$this->tpl->setVariable('HREF_PROFILE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
 			// unset the parameter for safety purposes
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', '');
 
@@ -386,12 +365,9 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->tpl->setCurrentBlock("actions");
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
-			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id',
-				$a_rowData ['id']);
-			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id',
-				$a_rowData ['room_id']);
-			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTargetByClass('ilRoomSharingShowAndEditBookGUI', 'editBooking'));
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id', $a_rowData ['id']);
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id', $a_rowData ['room_id']);
+			$this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilRoomSharingShowAndEditBookGUI', 'editBooking'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_edit'));
 			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id', '');
 			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id', '');
@@ -402,11 +378,9 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS) || $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY))
 		{
-			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject',
-				$a_rowData ['subject']);
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', $a_rowData ['subject']);
 			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_rowData ['id']);
-			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'confirmCancel'));
+			$this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'confirmCancel'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_cancel'));
 			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', '');
 			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', '');
@@ -426,13 +400,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		{
 			$filter ["room_name"] = $this->filter ["room"] ["room_name"];
 		}
-		if ($this->filter ["subject"] ["booking_subject"] || $this->filter ["subject"] ["booking_subject"]
-			=== "0")
+		if ($this->filter ["subject"] ["booking_subject"] || $this->filter ["subject"] ["booking_subject"] === "0")
 		{
 			$filter ["subject"] = $this->filter ["subject"] ["booking_subject"];
 		}
-		if ($this->filter ["comment"] ["booking_comment"] || $this->filter ["comment"] ["booking_comment"]
-			=== "0")
+		if ($this->filter ["comment"] ["booking_comment"] || $this->filter ["comment"] ["booking_comment"] === "0")
 		{
 			$filter ["comment"] = $this->filter["comment"] ["booking_comment"];
 		}

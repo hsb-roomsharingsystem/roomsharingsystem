@@ -18,28 +18,23 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
  * @version $Id$
  * @property ilRoomsharingDatabase $ilRoomsharingDatabase
  * @property ilRoomSharingPermissionUtils $permission
- * @property ilDB $ilDB
  */
 class ilRoomSharingRoomAttributes
 {
 	private $pool_id;
 	private $allAvailableAttributes = array();
 	private $ilRoomsharingDatabase;
-	private $ilDB;
-	private $permission;
 
 	/**
 	 * Constructor of ilRoomSharingRoomAttributes
 	 *
 	 * @param integer $a_pool_id
+	 * @param ilRoomsharingDatabase $a_ilRoomsharingDatabase
 	 */
-	public function __construct($a_pool_id)
+	public function __construct($a_pool_id, $a_ilRoomsharingDatabase)
 	{
-		global $ilDB, $rssPermission;
-		$this->ilDB = $ilDB;
-		$this->permission = $rssPermission;
 		$this->pool_id = $a_pool_id;
-		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($a_pool_id);
+		$this->ilRoomsharingDatabase = $a_ilRoomsharingDatabase;
 		$this->allAvailableAttributes = $this->ilRoomsharingDatabase->getAllRoomAttributes();
 	}
 
@@ -175,7 +170,8 @@ class ilRoomSharingRoomAttributes
 	 */
 	private function checkUserPrivileges()
 	{
-		if (!$this->permission->checkPrivilege(PRIVC::ADMIN_ROOM_ATTRIBUTES))
+		global $rssPermission;
+		if (!$rssPermission->checkPrivilege(PRIVC::ADMIN_ROOM_ATTRIBUTES))
 		{
 			throw new ilRoomSharingAttributesException('rep_robj_xrs_attributes_change_not_allowed');
 		}

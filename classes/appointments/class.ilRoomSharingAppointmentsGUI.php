@@ -1,7 +1,7 @@
 <?php
 
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
 
 /**
  * Class ilRoomSharingAppointmentsGUI
@@ -12,7 +12,9 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/R
  *
  * @version $Id$
  *
- * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI, ilRoomSharingBookingsTableGui, ilRoomSharingShowAndEditBookGUI
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilCommonActionDispatcherGUI, ilRoomSharingBookingsTableGUI
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingShowAndEditBookGUI
  *
  * @property ilCtrl $ctrl
  * @property ilLanguage $lng
@@ -75,20 +77,17 @@ class ilRoomSharingAppointmentsGUI
 	/**
 	 * Adds SubTabs for the MainTab "appointments".
 	 *
-	 * @param type $a_active
-	 *        	SubTab which should be activated after method call.
+	 * @param type $a_active SubTab which should be activated after method call.
 	 */
 	protected function setSubTabs($a_active)
 	{
 		global $ilTabs;
 		$ilTabs->setTabActive('appointments');
 		// Bookings
-		$ilTabs->addSubTab('bookings', $this->lng->txt('rep_robj_xrs_bookings'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBookings'));
+		$ilTabs->addSubTab('bookings', $this->lng->txt('rep_robj_xrs_bookings'), $this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBookings'));
 
 		// Participations
-		$ilTabs->addSubTab('participations', $this->lng->txt('rep_robj_xrs_participations'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingparticipationsgui', 'showParticipations'));
+		$ilTabs->addSubTab('participations', $this->lng->txt('rep_robj_xrs_participations'), $this->ctrl->getLinkTargetByClass('ilroomsharingparticipationsgui', 'showParticipations'));
 		$ilTabs->activateSubTab($a_active);
 	}
 
@@ -179,5 +178,4 @@ class ilRoomSharingAppointmentsGUI
 	}
 
 }
-
 ?>
