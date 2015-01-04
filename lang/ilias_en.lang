@@ -56,6 +56,7 @@ current_rooms_user_agreement#:#Current rooms user agreement
 date#:#Date
 datefrom_bigger_dateto#:#&quot;From&quot; is later or equal &quot;to&quot;
 datefrom_is_earlier_than_now#:#&quot;From&quot; lies in the past
+daVinci_import#:#Import
 daVinci_import_bookings#:#Import Bookings
 daVinci_import_button#:#Import
 daVinci_import_default_cap#:#Default Room Capacity
