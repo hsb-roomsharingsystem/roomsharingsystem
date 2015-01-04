@@ -410,7 +410,7 @@ class ilRoomSharingSequenceBookingUtils
 			$starttime = date($time_format, strtotime($startday));
 			if (checkdate($startmonth, $a_monthday, $startyear))
 			{
-				$days['from'][] = $startyear . "-" . $startmonth . "-" . $a_monthday . $starttime;
+				$days['from'][] = $startyear . "-" . $startmonth . "-" . sprintf('%02d', $a_monthday) . $starttime;
 			}
 			else
 			{
