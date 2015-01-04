@@ -62,7 +62,7 @@ class ilRoomSharingDateUtils
 	 */
 	public static function isEqualDay($a_datetime1, $a_datetime2)
 	{
-		return ($a_datetime1->format('dmY') !== $a_datetime2->format('dmY'));
+		return ($a_datetime1->format('dmY') == $a_datetime2->format('dmY'));
 	}
 
 }

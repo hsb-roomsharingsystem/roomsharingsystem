@@ -10,7 +10,6 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  */
 class ilRoomSharingBookingUtils
 {
-
 	/**
 	 * Reads the date of the booking and converts it into a printed version.
 	 *
@@ -26,7 +25,7 @@ class ilRoomSharingBookingUtils
 		$date .= " - ";
 
 		// Check whether the date_from differs from the date_to
-		if (ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
+		if (!ilRoomSharingDateUtils::isEqualDay($date_from, $date_to))
 		{
 			//Display the date_to in the next line
 			$date .= '<br>';
@@ -37,6 +36,7 @@ class ilRoomSharingBookingUtils
 
 		return $date;
 	}
+
 }
 
 ?>
