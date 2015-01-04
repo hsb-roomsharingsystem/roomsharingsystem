@@ -50,10 +50,8 @@ class ilRoomSharingBookings
 	/**
 	 * Remove a booking
 	 *
-	 * @param int $a_booking_id
-	 *        	The id of the booking
-	 * @param bool $a_seq
-	 *        	True if the all sequence bookings should be deleted
+	 * @param int $a_booking_id The id of the booking
+	 * @param bool $a_seq True if the all sequence bookings should be deleted
 	 * @global ilLanguage $lng
 	 */
 	public function removeBooking($a_booking_id, $a_seq = false)
@@ -82,7 +80,8 @@ class ilRoomSharingBookings
 	}
 
 	/**
-	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal 1 and exists as booking ID.
+	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal
+	 * 1 and exists as booking ID.
 	 * Sends all participants a cancellation notice.
 	 * @param array $a_booking_ids nummerical array of booking_ids to delete
 	 */

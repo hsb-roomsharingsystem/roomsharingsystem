@@ -44,7 +44,6 @@ class ilRoomSharingParticipationsGUI
 	 */
 	function executeCommand()
 	{
-		//$this->showParticipations();
 		$cmd = $this->ctrl->getCmd("showParticipations");
 
 		if ($cmd == 'render')
@@ -103,8 +102,7 @@ class ilRoomSharingParticipationsGUI
 		if (!empty($a_ids))
 		{
 			$ilTabs->clearTargets();
-			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_participations_back'),
-				$this->ctrl->getLinkTarget($this, 'showParticipations'));
+			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_participations_back'), $this->ctrl->getLinkTarget($this, 'showParticipations'));
 
 			// create the confirmation GUI
 			$confirmation = new ilConfirmationGUI();
@@ -117,8 +115,7 @@ class ilRoomSharingParticipationsGUI
 				$confirmation->addItem('booking_ids[' . $num . ']', $parts[0], $parts[1]);
 			}
 
-			$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_participations_confirm_leave'),
-				'leaveMultipleParticipations'); // cancel the bookings
+			$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_participations_confirm_leave'), 'leaveMultipleParticipations'); // cancel the bookings
 			$confirmation->setCancel($this->lng->txt('cancel'), 'showParticipations'); // cancel the confirmation dialog
 
 			$this->tpl->setContent($confirmation->getHTML()); // display
@@ -135,8 +132,7 @@ class ilRoomSharingParticipationsGUI
 	 */
 	function showParticipationsObject()
 	{
-		$participationsTable = new ilRoomSharingParticipationsTableGUI($this, 'showParticipations',
-			$this->ref_id);
+		$participationsTable = new ilRoomSharingParticipationsTableGUI($this, 'showParticipations', $this->ref_id);
 		$this->tpl->setContent($participationsTable->getHTML());
 	}
 
@@ -161,5 +157,4 @@ class ilRoomSharingParticipationsGUI
 	}
 
 }
-
 ?>

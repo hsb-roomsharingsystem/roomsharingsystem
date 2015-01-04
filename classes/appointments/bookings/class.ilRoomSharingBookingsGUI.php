@@ -1,11 +1,11 @@
 <?php
 
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
-require_once ("Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
-require_once ("Services/PermanentLink/classes/class.ilPermanentLinkGUI.php");
-require_once ("Services/Utilities/classes/class.ilConfirmationGUI.php");
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
+require_once("Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
+require_once("Services/PermanentLink/classes/class.ilPermanentLinkGUI.php");
+require_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/booking/class.ilRoomSharingShowAndEditBookGUI.php");
@@ -33,6 +33,7 @@ class ilRoomSharingBookingsGUI
 	private $ctrl;
 	private $lng;
 	private $tpl;
+	private $tabs;
 
 	/**
 	 * Constructor of ilRoomSharingBookingsGUI
@@ -44,7 +45,7 @@ class ilRoomSharingBookingsGUI
 	 */
 	function __construct(ilRoomSharingAppointmentsGUI $a_parent_obj)
 	{
-		global $ilCtrl, $lng, $tpl, $rssPermission;
+		global $ilCtrl, $lng, $tpl, $rssPermission, $ilTabs;
 
 		$this->ref_id = $a_parent_obj->ref_id;
 		$this->pool_id = $a_parent_obj->getPoolId();
@@ -52,6 +53,7 @@ class ilRoomSharingBookingsGUI
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
+		$this->tabs = $ilTabs;
 	}
 
 	/**
@@ -85,8 +87,7 @@ class ilRoomSharingBookingsGUI
 
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
-				$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearch"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'), $this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearch"));
 		}
 
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
@@ -100,11 +101,8 @@ class ilRoomSharingBookingsGUI
 
 	function showBookingObject()
 	{
-		global $ilTabs;
-
-		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'), $this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
 		$booking_id = (int) $_GET['booking_id'];
 		$room_id = (int) $_GET['room_id'];
 		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'show');
@@ -116,11 +114,8 @@ class ilRoomSharingBookingsGUI
 
 	function editBookingObject()
 	{
-		global $ilTabs;
-
-		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'), $this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
 		$booking_id = (int) $_GET['booking_id'];
 		$room_id = (int) $_GET['room_id'];
 		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'edit');
@@ -132,11 +127,8 @@ class ilRoomSharingBookingsGUI
 
 	function saveEditBookingObject()
 	{
-		global $ilTabs;
-
-		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'), $this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', "showBookings"));
 		$booking_id = (int) $_GET['booking_id'];
 		$room_id = (int) $_GET['room_id'];
 		$booking = new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, 'edit');
@@ -167,16 +159,13 @@ class ilRoomSharingBookingsGUI
 
 	/**
 	 * Asks Confirmation from the user while canceling multiple Bookings.
-	 * @global ilTabs $ilTabs
 	 */
 	public function confirmMultipleCancelsObject()
 	{
-		global $ilTabs;
 		if (!empty($_POST['bookings']))
 		{
-			$ilTabs->clearTargets();
-			$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
-				$this->ctrl->getLinkTarget($this, 'showBookings'));
+			$this->tabs->clearTargets();
+			$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'), $this->ctrl->getLinkTarget($this, 'showBookings'));
 
 			// create the confirmation GUI
 			$confirmation = new ilConfirmationGUI();
@@ -189,8 +178,7 @@ class ilRoomSharingBookingsGUI
 				$confirmation->addItem('booking_ids[' . $num . ']', $parts[0], $parts[1]);
 			}
 
-			$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_booking_confirm_cancel'),
-				'cancelMultipleBookings'); // cancel the bookings
+			$confirmation->setConfirm($this->lng->txt('rep_robj_xrs_booking_confirm_cancel'), 'cancelMultipleBookings'); // cancel the bookings
 			$confirmation->setCancel($this->lng->txt('cancel'), 'showBookings'); // cancel the confirmation dialog
 
 			$this->tpl->setContent($confirmation->getHTML()); // display
@@ -224,16 +212,11 @@ class ilRoomSharingBookingsGUI
 	/**
 	 * Displays a confirmation dialog, in which the user is given the chance
 	 * to decline or confirm his decision.
-	 *
-	 * @global ilTabs $ilTabs
 	 */
 	public function confirmCancelObject()
 	{
-		global $ilTabs;
-
-		$ilTabs->clearTargets();
-		$ilTabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'),
-			$this->ctrl->getLinkTarget($this, 'showBookings'));
+		$this->tabs->clearTargets();
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_booking_back'), $this->ctrl->getLinkTarget($this, 'showBookings'));
 
 		// create the confirmation GUI
 		$confirmation = new ilConfirmationGUI();
@@ -293,5 +276,4 @@ class ilRoomSharingBookingsGUI
 	}
 
 }
-
 ?>

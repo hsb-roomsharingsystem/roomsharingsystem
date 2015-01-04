@@ -20,7 +20,7 @@ class ilRoomSharingParticipations
 	private $pool_id;
 	private $ilRoomsharingDatabase;
 	private $ilUser;
-        private $lng;
+	private $lng;
 
 	/**
 	 * Construct of ilRoomSharingParticipations.
@@ -30,7 +30,7 @@ class ilRoomSharingParticipations
 	function __construct($a_pool_id)
 	{
 		global $ilUser, $lng;
-                $this->lng = $lng;
+		$this->lng = $lng;
 		$this->ilUser = $ilUser;
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
@@ -40,32 +40,28 @@ class ilRoomSharingParticipations
 	 * Remove a participations.
 	 *
 	 * @param integer $booking_id The booking id of the participation.
-	 * @global type $lng, $ilUser
 	 */
 	public function removeParticipations(array $a_booking_ids)
 	{
-		global $lng;
-                
 		foreach ($a_booking_ids as $a_booking_id)
 		{
 			if (!ilRoomSharingNumericUtils::isPositiveNumber($a_booking_id))
 			{
-				ilUtil::sendFailure($lng->txt("rep_robj_xrs_no_id_submitted"), true);
+				ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_id_submitted"), true);
 			}
 		}
 		//In order to prevent unnessary prepareManip statements, use different function if only one booking shoud be left.
 		if (count($a_booking_ids) == 1)
 		{
 			$this->ilRoomsharingDatabase->deleteParticipation($this->ilUser->getId(), $a_booking_ids[0]);
-                        $this->sendQuitMail($a_booking_ids);
-                        
+			$this->sendQuitMail($a_booking_ids);
 		}
 		else
 		{
 			$this->ilRoomsharingDatabase->deleteParticipations($this->ilUser->getId(), $a_booking_ids);
-                        $this->sendQuitMail($a_booking_ids);
+			$this->sendQuitMail($a_booking_ids);
 		}
-		ilUtil::sendSuccess($lng->txt('rep_robj_xrs_participations_left'), true);
+		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_participations_left'), true);
 	}
 
 	/**
@@ -180,17 +176,17 @@ class ilRoomSharingParticipations
 	{
 		$this->pool_id = $a_pool_id;
 	}
-        
+
 	/**
 	 * Send quit mail
 	 *
 	 * @param integer $a_booking_ids booking ids
 	 */
-        private function sendQuitMail($a_booking_ids)
-        {
-            $mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
-            $mailer->sendParticipationCancelMail($this->ilUser->getId(), $a_booking_ids);
-            $mailer->sendParticipationCancelMailForCreator($this->ilUser->getId(), $a_booking_ids);
-        }
+	private function sendQuitMail($a_booking_ids)
+	{
+		$mailer = new ilRoomSharingMailer($this->lng, $this->pool_id);
+		$mailer->sendParticipationCancelMail($this->ilUser->getId(), $a_booking_ids);
+		$mailer->sendParticipationCancelMailForCreator($this->ilUser->getId(), $a_booking_ids);
+	}
 
 }
