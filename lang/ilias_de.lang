@@ -89,6 +89,8 @@ mail_cancellation_participant_subject#:#Eine Raum-Buchung, bei der Sie als Teiln
 mail_cancellation_reason_higher_priority#:#Überschrieben durch Buchung von einem Benutzer mit höherer Priorität.
 mail_cancellation_reason_manually#:#Manuelle Stornierung durch den Benutzer.
 mail_cancellation_reason_prefix#:#Die Buchung wurde aus folgendem Grund storniert:
+mail_sequencebook_creator_subject#:#Sie haben eine Serienbuchung für einen Raum erstellt.
+mail_sequencebook_creator_message#:#Sie haben eine Serienbuchung für einen Raum erstellt. Der Raum ist nun zu folgenden Zeiten gebucht:
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
 missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.

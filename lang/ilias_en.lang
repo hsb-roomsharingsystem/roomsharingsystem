@@ -89,6 +89,8 @@ mail_cancellation_participant_subject#:#A booking in which you participated has 
 mail_cancellation_reason_higher_priority#:#Overwritten by a booking of a user with higher priority.
 mail_cancellation_reason_manually#:#Manual cancellation by user.
 mail_cancellation_reason_prefix#:#The booking has been cancelled due to the following reason:
+mail_sequencebook_creator_subject#:#You successfully created a series of bookings for a room.
+mail_sequencebook_creator_message#:#You successfully created a series of bookings for a room. The room is now booked at the following times:
 manage#:#Manage
 max_book_time#:#Maximal time of a booking
 missing_agreement_entries#:#The Rooms use agreement is not accepted.
