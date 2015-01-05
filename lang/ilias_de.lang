@@ -238,6 +238,8 @@ xrs_new#:#Neues RoomSharing
 xrs_read#:#Lesezugriff auf RoomSharing
 xrs_visible#:#RoomSharing ist sichtbar
 xrs_write#:#RoomSharing bearbeiten
+sequence_bookings_addable#:#Serienbuchungen anlegbar
+is_offline#:#ist offline
 
 //Privileges
 access_appointments#:#Termine aufrufen
@@ -308,5 +310,4 @@ see_booking_of_rooms_description#:#Buchungen von einzelnen Räumen in Detailansi
 see_non_public_booking_information#:#Nicht öffentliche Buchungen einsehen
 see_non_public_booking_information_description#:#Informationen von nicht öffentlichen Buchungen einsehbar
 sequence_bookings#:#Serienbuchungen
-sequence_bookings_addable#:#Serienbuchungen anlegbar
-is_offline#:#ist offline
+import_bookings_from_external_file#:#Import von Buchungen aus externen Dateien

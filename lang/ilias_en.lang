@@ -237,6 +237,9 @@ xrs_new#:#Add New RoomSharing
 xrs_read#:#Read access to RoomSharing
 xrs_visible#:#RoomSharing is visible
 xrs_write#:#Edit RoomSharing
+sequence_bookings_addable#:#Recurring bookings creatable
+is_offline#:#is offline
+
 
 //Privileges
 access_appointments#:#Access Appointments
@@ -307,5 +310,4 @@ see_booking_of_rooms_description#:#Room bookings are visible in the detail-view
 see_non_public_booking_information#:#Look up non-public booking information
 see_non_public_booking_information_description#:#Look up information of non-public bookings
 sequence_bookings#:#Recurring bookings
-sequence_bookings_addable#:#Recurring bookings creatable
-is_offline#:#is offline
+import_bookings_from_external_file#:#Import of bookings from an external file

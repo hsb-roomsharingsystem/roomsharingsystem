@@ -85,6 +85,9 @@ class ilRoomSharingPrivileges
 			$privilegesMatrix[] = $this->addPrivilege("seeNonPublicBookingInformation",
 				"rep_robj_xrs_see_non_public_booking_information",
 				"rep_robj_xrs_see_non_public_booking_information_description");
+			$privilegesMatrix[] = $this->addPrivilege("accessImport",
+				"rep_robj_xrs_import_bookings_from_external_file",
+				"rep_robj_xrs_import_bookings_from_external_file_description");
 			$privilegesMatrix[] = $this->addPrivilege("adminBookingAttributes",
 				"rep_robj_xrs_create_edit_delete_booking_attributes",
 				"rep_robj_xrs_create_edit_delete_booking_attributes_description");
@@ -186,6 +189,7 @@ class ilRoomSharingPrivileges
 		$priv[] = 'deleteClass';
 		$priv[] = 'editPrivileges';
 		$priv[] = 'lockPrivileges';
+		$priv[] = 'accessImport';
 
 		return $priv;
 	}
