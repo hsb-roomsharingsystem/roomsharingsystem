@@ -138,7 +138,7 @@ class ilRoomSharingBook
 				}
 				else if ($dateChange)
 				{
-					//Send a email notifications to the creator and participants
+					//Send a email notifications to the participants
 					$this->sendBookingUpdatedNotification($booking_participants);
 				}
 			}
@@ -507,7 +507,7 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Generates a update booking acknowledgement via mail.
+	 * Generates a update booking acknowledgement via mail to the participants.
 	 *
 	 * @parm array $a_participants with the user-ids
 	 */
@@ -519,7 +519,7 @@ class ilRoomSharingBook
 		$mailer->setRoomname($room_name);
 		$mailer->setDateStart($this->date_from);
 		$mailer->setDateEnd($this->date_to);
-		$mailer->sendUpdateBookingMail($this->user->getId(), $a_participants);
+		$mailer->sendUpdateBookingMailToParticipants($a_participants);
 	}
 
 	/**

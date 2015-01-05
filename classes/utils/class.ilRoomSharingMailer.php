@@ -544,17 +544,14 @@ class ilRoomSharingMailer extends ilMailNotification
 	}
 
 	/**
-	 * Send a update booking notification to creator and participants.
+	 * Send a update booking notification to the participants.
 	 *
 	 * @param string $a_user_id = userid of creator
 	 * @param array $a_participants_ids = userids of participants
 	 *
-	 * Returns nothing
 	 */
-	public function sendUpdateBookingMail($a_user_id, array $a_participants_ids)
+	public function sendUpdateBookingMailToParticipants(array $a_participants_ids)
 	{
-		$this->composeUpdateBookingMailForCreator($a_user_id);
-		parent::sendMail(array($a_user_id), array('system'), is_numeric($a_user_id));
 		foreach (array_unique($a_participants_ids) as $participant_id)
 		{
 			$this->composeUpdatingBookingMailForParticipant($participant_id);

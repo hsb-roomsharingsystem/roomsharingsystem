@@ -436,6 +436,7 @@ class ilRoomSharingShowAndEditBookGUI
 		$checkbox_agreement->setRequired(true);
 		$checkbox_agreement->setOptionTitle($link);
 		$checkbox_agreement->setChecked(true);
+		$checkbox_agreement->setValue(1);
 		$checkbox_agreement->setDisabled(true);
 
 		return $checkbox_agreement;
@@ -450,7 +451,7 @@ class ilRoomSharingShowAndEditBookGUI
 	private function getFileLinkForUserAgreementId($a_file_id)
 	{
 		$agreement_file = new ilObjMediaObject($a_file_id);
-		$media = $agreement_file->getMediaItem("Agreement");
+		$media = $agreement_file->getMediaItem("Standard");
 		$source = $agreement_file->getDataDirectory() . "/" . $media->getLocation();
 
 		$link = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
@@ -725,4 +726,5 @@ class ilRoomSharingShowAndEditBookGUI
 	}
 
 }
+
 ?>
