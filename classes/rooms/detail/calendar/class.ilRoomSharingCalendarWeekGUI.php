@@ -1,6 +1,15 @@
 <?php
 
-include_once './Services/Calendar/classes/class.ilCalendarWeekGUI.php';
+require_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("./Services/YUI/classes/class.ilYuiUtil.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarSchedule.php");
+require_once("Services/Calendar/classes/class.ilCalendarSettings.php");
+require_once("./Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingCalendarWeekGUI
@@ -9,6 +18,7 @@ include_once './Services/Calendar/classes/class.ilCalendarWeekGUI.php';
  *
  * @author Tim Röhrig
  *
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 {
@@ -16,6 +26,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	private $pool_id;
 	// Color of appointments in week-view
 	private $color = 'lightblue';
+	private $permission;
 
 	/**
 	 * Constructor
@@ -24,11 +35,14 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	 * @param
 	 *
 	 */
-	public function __construct(ilDate $seed_date, $pool_id, $room_id)
+	public function __construct(ilDate $a_seed_date, $a_pool_id, $a_room_id)
 	{
-		$this->room_id = $room_id;
-		$this->pool_id = $pool_id;
-		parent::__construct($seed_date);
+		global $rssPermission;
+		$this->permission = $rssPermission;
+
+		$this->room_id = $a_room_id;
+		$this->pool_id = $a_pool_id;
+		parent::__construct($a_seed_date);
 	}
 
 	/**
@@ -63,6 +77,13 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	 */
 	public function show()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::SEE_BOOKINGS_OF_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
+
 		global $ilUser, $lng;
 		$this->setSubTabs('weekview');
 
@@ -82,7 +103,6 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		$this->tpl = new ilTemplate('tpl.room_week_view.html', true, true,
 			'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing');
 
-		include_once('./Services/YUI/classes/class.ilYuiUtil.php');
 		ilYuiUtil::initDragDrop();
 		ilYuiUtil::initPanel();
 
@@ -107,14 +127,12 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			$disable_empty = false;
 			$no_add = false;
 		}
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 
 		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
 
 		$this->tpl->setVariable('ROOM',
 			$this->lng->txt('rep_robj_xrs_room_occupation_title') . " " . $room->getName());
 
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarSchedule.php");
 		$this->scheduler = new ilRoomSharingCalendarSchedule($this->seed, ilCalendarSchedule::TYPE_WEEK,
 			$user_id, $room);
 		$this->scheduler->addSubitemCalendars(true);
@@ -138,7 +156,6 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 
 		$colspans = $this->calculateColspans($hours);
 
-		include_once('Services/Calendar/classes/class.ilCalendarSettings.php');
 		$settings = ilCalendarSettings::_getInstance();
 
 		// Table header
@@ -239,9 +256,10 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 				$num_apps = $hour['apps_num'];
 				$colspan = max($colspans[$num_day], 1);
 
-
 				// Show new apointment link
-				if (!$hour['apps_num'] && !$ilUser->prefs["screen_reader_optimization"] && !$no_add)
+				$userCanAddBooking = $this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS);
+				$calStuffAllowed = !$hour['apps_num'] && !$ilUser->prefs["screen_reader_optimization"] && !$no_add;
+				if ($userCanAddBooking && $calStuffAllowed)
 				{
 					$this->tpl->setCurrentBlock('new_app_link');
 
@@ -341,7 +359,6 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			$this->tpl->setCurrentBLock('scrd_not_empty');
 		}
 
-		include_once('./Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php');
 		$this->tpl->setVariable('PANEL_DATA',
 			ilCalendarAppointmentPanelGUI::_getInstance($this->seed)->getHTML($a_app));
 

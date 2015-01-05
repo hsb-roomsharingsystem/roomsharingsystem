@@ -5,6 +5,13 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/"
 	"RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once ("./Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
+require_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+	"RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
+require_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
+	"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
+require_once("Services/User/classes/class.ilUserAutoComplete.php");
 
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
@@ -71,8 +78,117 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		{
 			$this->addMultiCommand('confirmMultipleCancels', $this->lng->txt('rep_robj_xrs_booking_cancel'));
 		}
+	}
 
-		$this->getItems();
+	/**
+	 * Initialize a search filter for ilRoomSharingRoomsTableGUI.
+	 */
+	public function initFilter()
+	{
+		$this->createUserFormItem();
+		$this->createRoomFormItem();
+		$this->createSubjectFormItem();
+		$this->createCommentFormItem();
+		$this->createAttributeFormItem();
+	}
+
+	private function createUserFormItem()
+	{
+		if (!$this->permission->checkPrivilege(PRIVC::SEE_NON_PUBLIC_BOOKINGS_INFORMATION))
+		{
+			global $ilUser;
+			$this->filter ["user"] ['user_id'] = $ilUser->getId();
+			return;
+		}
+
+		$user_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_user"), "user");
+		$user_name_input = new ilRoomSharingTextInputGUI("", "user_id");
+		$user_name_input->setMaxLength(14);
+		$user_name_input->setSize(14);
+		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
+		$user_name_input->setDataSource($ajax_datasource);
+		$user_comb->addCombinationItem("user_id", $user_name_input,
+			$this->lng->txt("rep_robj_xrs_user_id"));
+		$this->addFilterItem($user_comb);
+		$user_comb->readFromSession(); // get the value that was submitted
+		$this->filter ["user"] = $user_comb->getValue();
+	}
+
+	/**
+	 * Method that realizes the auto-completion for the user filter.
+	 */
+	private function doUserAutoComplete()
+	{
+		$search_fields = array("login", "firstname", "lastname", "email");
+		$result_field = "login";
+
+		$auto = new ilUserAutoComplete();
+		$auto->setSearchFields($search_fields);
+		$auto->setResultField($result_field);
+		$auto->enableFieldSearchableCheck(true);
+
+		echo $auto->getList($_REQUEST['term']);
+		exit();
+	}
+
+	private function createRoomFormItem()
+	{
+		$room_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_room"), "room");
+		$room_name_input = new ilRoomSharingTextInputGUI("", "room_name");
+		$room_name_input->setMaxLength(14);
+		$room_name_input->setSize(14);
+		$room_comb->addCombinationItem("room_name", $room_name_input,
+			$this->lng->txt("rep_robj_xrs_room_name"));
+		$this->addFilterItem($room_comb);
+		$room_comb->readFromSession(); // get the value that was submitted
+		$this->filter ["room"] = $room_comb->getValue();
+	}
+
+	private function createSubjectFormItem()
+	{
+		$subject_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_subject"), "subject");
+		$subject_input = new ilRoomSharingTextInputGUI("", "booking_subject");
+		$subject_input->setMaxLength(14);
+		$subject_input->setSize(14);
+		$subject_comb->addCombinationItem("booking_subject", $subject_input,
+			$this->lng->txt("rep_robj_xrs_subject"));
+		$this->addFilterItem($subject_comb);
+		$subject_comb->readFromSession(); // get the value that was submitted
+		$this->filter ["subject"] = $subject_comb->getValue();
+	}
+
+	private function createCommentFormItem()
+	{
+		$comment_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_comment"), "comment");
+		$comment_input = new ilRoomSharingTextInputGUI("", "booking_comment");
+		$comment_input->setMaxLength(14);
+		$comment_input->setSize(14);
+		$comment_comb->addCombinationItem("booking_comment", $comment_input,
+			$this->lng->txt("rep_robj_xrs_comment"));
+		$this->addFilterItem($comment_comb);
+		$comment_comb->readFromSession(); // get the value that was submitted
+		$this->filter ["comment"] = $comment_comb->getValue();
+	}
+
+	private function createAttributeFormItem()
+	{
+		$attributes = $this->bookings->getAllAttributes();
+		foreach ($attributes as $room_attribute)
+		{
+			// setup an ilCombinationInputGUI for the room attributes
+			$room_attribute_comb = new ilCombinationInputGUI($room_attribute, "attribute_" . $room_attribute);
+			$room_attribute_input = new ilRoomSharingTextInputGUI("",
+				"attribute_" . $room_attribute . "_value");
+			$room_attribute_input->setMaxLength(14);
+			$room_attribute_input->setSize(14);
+			$room_attribute_comb->addCombinationItem("amount", $room_attribute_input,
+				$this->lng->txt("rep_robj_xrs_value"));
+
+			$this->addFilterItem($room_attribute_comb);
+			$room_attribute_comb->readFromSession();
+
+			$this->filter ["attributes"] [$room_attribute] = $room_attribute_comb->getValue();
+		}
 	}
 
 	/**
@@ -80,7 +196,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	public function getItems()
 	{
-		$data = $this->bookings->getList();
+		$data = $this->bookings->getList($this->getCurrentFilter());
 
 		$this->setMaxCount(count($data));
 		$this->setData($data);
@@ -176,15 +292,18 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 	 */
 	private function setAppointment($a_rowData)
 	{
-		// ### Appointment ###
 		$this->tpl->setVariable('TXT_DATE', $a_rowData ['date']);
 		// link for the date overview
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_APPOINTMENTS))
 		{
-			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', $a_rowData['id']);
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id',
+				$a_rowData['id']);
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id',
+				$a_rowData['room_id']);
 			$this->tpl->setVariable('HREF_DATE',
-				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showBooking'));
-			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'booking_id', '');
+				$this->ctrl->getLinkTargetByClass('ilRoomSharingShowAndEditBookGUI', 'showBooking'));
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id', '');
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id', '');
 		}
 	}
 
@@ -283,24 +402,74 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->tpl->setCurrentBlock("actions");
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id',
+				$a_rowData ['id']);
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id',
+				$a_rowData ['room_id']);
 			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTarget($this->parent_obj, 'showBookings'));
-			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
+				$this->ctrl->getLinkTargetByClass('ilRoomSharingShowAndEditBookGUI', 'editBooking'));
+			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_edit'));
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'booking_id', '');
+			$this->ctrl->setParameterByClass('ilRoomSharingShowAndEditBookGUI', 'room_id', '');
 		}
 		$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 		$this->tpl->parseCurrentBlock();
 
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_rowData ['id']);
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject',
-			$a_rowData ['subject']);
+
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS) || $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY))
 		{
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject',
+				$a_rowData ['subject']);
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', $a_rowData ['id']);
 			$this->tpl->setVariable('LINK_ACTION',
 				$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'confirmCancel'));
 			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_booking_cancel'));
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', '');
+			$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', '');
 		}
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_id', '');
-		$this->ctrl->setParameterByClass('ilroomsharingbookingsgui', 'booking_subject', '');
+	}
+
+	/**
+	 * Build a filter that can used for database-queries.
+	 *
+	 * @return array the filter
+	 */
+	private function getCurrentFilter()
+	{
+		$filter = array();
+		// make sure that "0"-strings are not ignored
+		if ($this->filter ["room"] ["room_name"] || $this->filter ["room"] ["room_name"] === "0")
+		{
+			$filter ["room_name"] = $this->filter ["room"] ["room_name"];
+		}
+		if ($this->filter ["subject"] ["booking_subject"] || $this->filter ["subject"] ["booking_subject"]
+			=== "0")
+		{
+			$filter ["subject"] = $this->filter ["subject"] ["booking_subject"];
+		}
+		if ($this->filter ["comment"] ["booking_comment"] || $this->filter ["comment"] ["booking_comment"]
+			=== "0")
+		{
+			$filter ["comment"] = $this->filter["comment"] ["booking_comment"];
+		}
+
+		if ($this->filter ["user"] ["user_id"] || $this->filter ["user"] ["user_id"] === 0.0)
+		{
+			$filter ["user_id"] = $this->filter ["user"] ["user_id"];
+		}
+
+		if ($this->filter ["attributes"])
+		{
+			foreach ($this->filter ["attributes"] as $key => $value)
+			{
+				if ($value ["amount"])
+				{
+					$filter ["attributes"] [$key] = $value ["amount"];
+				}
+			}
+		}
+
+		return $filter;
 	}
 
 }

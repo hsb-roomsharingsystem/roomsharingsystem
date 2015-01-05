@@ -214,7 +214,7 @@ class ilRoomSharingBookGUI
 	private function getRecurrenceFromSession()
 	{
 		$this->rec = new ilCalendarRecurrence();
-		$fre = unserialize($_SESSION ["form_qsearchform"] ["frequence"]);
+		$fre = unserialize($_SESSION ["form_searchform"] ["frequence"]);
 		$this->rec->setFrequenceType($fre);
 		switch ($fre)
 		{
@@ -223,7 +223,7 @@ class ilRoomSharingBookGUI
 			case "DAILY":
 				break;
 			case "WEEKLY":
-				$days = unserialize($_SESSION ["form_qsearchform"] ["weekdays"]);
+				$days = unserialize($_SESSION ["form_searchform"] ["weekdays"]);
 				$d = array();
 				if (is_array($days))
 				{
@@ -235,11 +235,11 @@ class ilRoomSharingBookGUI
 				$this->rec->setBYDAY(implode(",", $d));
 				break;
 			case "MONTHLY":
-				$start_type = unserialize($_SESSION ["form_qsearchform"] ["start_type"]);
+				$start_type = unserialize($_SESSION ["form_searchform"] ["start_type"]);
 				if ($start_type == "weekday")
 				{
-					$w1 = unserialize($_SESSION ["form_qsearchform"] ["weekday_1"]);
-					$w2 = unserialize($_SESSION ["form_qsearchform"] ["weekday_2"]);
+					$w1 = unserialize($_SESSION ["form_searchform"] ["weekday_1"]);
+					$w2 = unserialize($_SESSION ["form_searchform"] ["weekday_2"]);
 					if ($w2 == 8)
 					{
 						$this->rec->setBYSETPOS($w1);
@@ -256,21 +256,21 @@ class ilRoomSharingBookGUI
 				}
 				elseif ($start_type == "monthday")
 				{
-					$this->rec->setBYMONTHDAY(unserialize($_SESSION ["form_qsearchform"] ["monthday"]));
+					$this->rec->setBYMONTHDAY(unserialize($_SESSION ["form_searchform"] ["monthday"]));
 				}
 				break;
 			default:
 				break;
 		}
-		$repeat_type = unserialize($_SESSION ["form_qsearchform"] ["repeat_type"]);
-		$this->rec->setInterval(unserialize($_SESSION ["form_qsearchform"] ["repeat_amount"]));
+		$repeat_type = unserialize($_SESSION ["form_searchform"] ["repeat_type"]);
+		$this->rec->setInterval(unserialize($_SESSION ["form_searchform"] ["repeat_amount"]));
 		if ($repeat_type == "max_amount")
 		{
-			$this->rec->setFrequenceUntilCount(unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]));
+			$this->rec->setFrequenceUntilCount(unserialize($_SESSION ["form_searchform"] ["repeat_until"]));
 		}
 		elseif ($repeat_type == "max_date")
 		{
-			$date = unserialize($_SESSION ["form_qsearchform"] ["repeat_until"]);
+			$date = unserialize($_SESSION ["form_searchform"] ["repeat_until"]);
 			//print_r($date);
 			//var_dump($_SESSION);
 			//echo $date['date']['m'];
@@ -331,7 +331,7 @@ class ilRoomSharingBookGUI
 	private function getFileLinkForUserAgreementId($a_file_id)
 	{
 		$agreement_file = new ilObjMediaObject($a_file_id);
-		$media = $agreement_file->getMediaItem("Agreement");
+		$media = $agreement_file->getMediaItem("Standard");
 		$source = $agreement_file->getDataDirectory() . "/" . $media->getLocation();
 
 		$link = "<p> <a target = \"_blank\" href=\"" . $source . "\">" .
@@ -507,7 +507,7 @@ class ilRoomSharingBookGUI
 	 */
 	public function writeSingleInputToSession($a_id, $a_value)
 	{
-		$_SESSION["form_qsearchform"][$a_id] = serialize($a_value);
+		$_SESSION["form_searchform"][$a_id] = serialize($a_value);
 	}
 
 	private function fetchCommonFormEntries($a_form)

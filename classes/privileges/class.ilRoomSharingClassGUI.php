@@ -308,7 +308,7 @@ class ilRoomSharingClassGUI
 		$class_form = $this->createEditClassFormWithPrivilegeCheck();
 		if ($class_form->checkInput())
 		{
-			$this->handleValidEditClassForm($class_form);
+			$this->evaluateEditClassFormEntries($class_form);
 		}
 		else
 		{
@@ -322,13 +322,19 @@ class ilRoomSharingClassGUI
 	 *
 	 * @param $a_class_form the class form for which the values should be saved.
 	 */
-	private function handleValidEditClassForm($a_class_form)
+	private function evaluateEditClassFormEntries($a_class_form)
 	{
 		$class_form_entries = $this->getClassFormEntries($a_class_form);
-		$this->saveFormEntries($class_form_entries);
-
-		$this->renderPageWithTabs();
-		$this->renderEditClassForm();
+		$class_name = $class_form_entries["name"];
+		if ($this->isClassNameAlreadyPresent($class_name))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_privileges_class_already_exists"), true);
+			$this->handleInvalidEditClassForm($a_class_form);
+		}
+		else
+		{
+			$this->handleValidEditClassFormEntries($class_form_entries);
+		}
 	}
 
 	/**
@@ -365,6 +371,52 @@ class ilRoomSharingClassGUI
 	}
 
 	/**
+	 * Checks whether or not a given class name already exists for this pool.
+	 *
+	 * @param string $a_class_name the name of the class that needs to be checked
+	 * @return boolean true, if the name already exists; false otherwise
+	 */
+	private function isClassNameAlreadyPresent($a_class_name)
+	{
+		$all_class_names = $this->privileges->getClassNames();
+		$filtered_class_names = $this->removeCurrentClassNameFromClassNamesArray($all_class_names);
+
+		return in_array($a_class_name, $filtered_class_names);
+	}
+
+	/**
+	 * Removes the current and valid class name from the class name array. This is an important
+	 * thing to do, since otherwise the user would be presented with an error stating that the
+	 * current name is already in use.
+	 *
+	 * @param array $a_all_class_names the array of whom the class is removed
+	 */
+	private function removeCurrentClassNameFromClassNamesArray($a_all_class_names)
+	{
+		$current_class_name = $this->privileges->getClassById($this->class_id)["name"];
+		$key = array_search($current_class_name, $a_all_class_names);
+		if (isset($key))
+		{
+			unset($a_all_class_names[$key]);
+		}
+
+		return $a_all_class_names;
+	}
+
+	/**
+	 * This function saves the form entries after their successful validation
+	 * and displays the orignal form again.
+	 *
+	 * @param array $a_class_form_entries an array which contains all the form entries
+	 */
+	private function handleValidEditClassFormEntries($a_class_form_entries)
+	{
+		$this->saveFormEntries($a_class_form_entries);
+		$this->renderPageWithTabs();
+		$this->renderEditClassForm();
+	}
+
+	/**
 	 * Tries to save the form entries and displays an error message if this was not possible.
 	 *
 	 * @param array $a_entries the entries that need to be saved
@@ -391,8 +443,10 @@ class ilRoomSharingClassGUI
 	private function handleInvalidEditClassForm($a_class_form)
 	{
 		$a_class_form->setValuesByPost();
-		$this->tpl->setContent($a_class_form->getHTML());
+		$toolbar = $this->createEditClassFormToolbar();
+		$this->tpl->setContent($toolbar->getHTML() . $a_class_form->getHTML());
 		$this->tabs->setTabActive("edit_properties");
+
 		ilUtil::sendFailure($this->lng->txt("err_check_input"));
 	}
 

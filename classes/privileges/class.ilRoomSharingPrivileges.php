@@ -37,7 +37,14 @@ class ilRoomSharingPrivileges
 		$this->rbacreview = $rbacreview;
 		$this->rssPermission = $rssPermission;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
-		$this->classes_privileges = $this->getAllClassPrivileges();
+		//$this->classes_privileges = $this->getAllClassPrivileges();
+	}
+
+	public static function withDatabase($a_pool_id, $database)
+	{
+		$instance = new self($a_pool_id);
+		$instance->ilRoomsharingDatabase = $database;
+		return $instance;
 	}
 
 	/**
@@ -203,6 +210,16 @@ class ilRoomSharingPrivileges
 	}
 
 	/**
+	 * Returns the names of all existing classes for this pool.
+	 *
+	 * @return array an array with class names
+	 */
+	public function getClassNames()
+	{
+		return $this->ilRoomsharingDatabase->getClassNames();
+	}
+
+	/**
 	 * Gets a specific class values by it's id
 	 *
 	 * @param integer $a_class_id Class-ID
@@ -246,12 +263,14 @@ class ilRoomSharingPrivileges
 	{
 		$user_classes = $this->getAssignedClassesForUser($a_user_id);
 		$user_privileges = array();
+		$this->classes_privileges = $this->getAllClassPrivileges();
 		foreach ($user_classes as $user_class)
 		{
 			if ($this->getClassById($user_class)['locked'] == 1)
 			{
 				continue;
 			}
+
 			foreach ($this->classes_privileges[$user_class] as $class_privilege)
 			{
 				if (!in_array($class_privilege, $user_privileges))
@@ -550,6 +569,7 @@ class ilRoomSharingPrivileges
 	private function getClassPrivilegeValue($a_privilege_id)
 	{
 		$privilegesArray = array();
+		$this->classes_privileges = $this->getAllClassPrivileges();
 		foreach ($this->classes_privileges as $class_id => $class_privileges_ids)
 		{
 			if (in_array(strtolower($a_privilege_id), $class_privileges_ids))

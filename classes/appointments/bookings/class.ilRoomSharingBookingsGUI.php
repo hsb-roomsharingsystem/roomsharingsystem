@@ -85,10 +85,12 @@ class ilRoomSharingBookingsGUI
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'),
-				$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearchQuick"));
+				$this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearch"));
 		}
 
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
+		$bookingsTable->initFilter();
+		$bookingsTable->getItems();
 
 		$plink = new ilPermanentLinkGUI('xrs', $this->ref_id);
 
@@ -218,6 +220,27 @@ class ilRoomSharingBookingsGUI
 	function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
+	}
+
+	public function applyFilterObject()
+	{
+		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
+		$bookingsTable->initFilter();
+		$bookingsTable->writeFilterToSession(); // writes filter to session
+		$bookingsTable->resetOffset(); // set the record offset to 0 (first page)
+		$this->showBookingsObject();
+	}
+
+	/**
+	 * Resets all the input fields.
+	 */
+	public function resetFilterObject()
+	{
+		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
+		$bookingsTable->initFilter();
+		$bookingsTable->resetFilter();
+		$bookingsTable->resetOffset(); // set the record offset to 0 (first page)
+		$this->showBookingsObject();
 	}
 
 }

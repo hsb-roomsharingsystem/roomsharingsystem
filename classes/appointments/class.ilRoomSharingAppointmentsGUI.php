@@ -12,7 +12,9 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/R
  *
  * @version $Id$
  *
- * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilCommonActionDispatcherGUI, ilRoomSharingBookingsTableGUI
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingShowAndEditBookGUI
  *
  * @property ilCtrl $ctrl
  * @property ilLanguage $lng
@@ -129,6 +131,25 @@ class ilRoomSharingAppointmentsGUI
 	function setPoolId($a_pool_id)
 	{
 		$this->pool_id = $a_pool_id;
+	}
+
+	/**
+	 * Creates a new table for the bookings and writes all the input
+	 * values to the session, so that a filter can be applied.
+	 */
+	public function applyFilter()
+	{
+		$gui = new ilRoomSharingBookingsGUI($this);
+		$gui->applyFilterObject();
+	}
+
+	/**
+	 * Resets all the input fields.
+	 */
+	public function resetFilter()
+	{
+		$gui = new ilRoomSharingBookingsGUI($this);
+		$gui->resetFilterObject();
 	}
 
 }
