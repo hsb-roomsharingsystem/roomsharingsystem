@@ -102,7 +102,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i:s";
+			$time_format = " H:i";
 		}
 		else
 		{
@@ -114,7 +114,7 @@ class ilRoomSharingSequenceBookingUtils
 		$days['to'] = array();
 		if (ilRoomSharingNumericUtils::isPositiveNumber($a_count))
 		{
-			$nextday = $days[0];
+			$nextday = $days['from'][0];
 			for ($i = 0; $i < $a_count; $i++)
 			{
 				$nextday = date('Y-m-d' . $time_format, strtotime($nextday . ' + ' . $a_every_x_days . '  day'));
@@ -167,7 +167,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i:s";
+			$time_format = " H:i";
 		}
 		else
 		{
@@ -240,7 +240,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i:s";
+			$time_format = " H:i";
 		}
 		else
 		{
@@ -310,7 +310,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i:s";
+			$time_format = " H:i";
 		}
 		else
 		{
@@ -394,7 +394,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i:s";
+			$time_format = " H:i";
 		}
 		else
 		{
@@ -468,7 +468,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i:s";
+			$time_format = " H:i";
 		}
 		else
 		{
@@ -562,7 +562,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i:s";
+			$time_format = " H:i";
 		}
 		else
 		{
