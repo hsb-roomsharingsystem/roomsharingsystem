@@ -29,6 +29,7 @@ class ilRoomSharingPrivilegesConstants
 	const DELETE_CLASS = 'deleteClass';
 	const EDIT_PRIVILEGES = 'editPrivileges';
 	const LOCK_PRIVILEGES = 'lockPrivileges';
+	const ACCESS_IMPORT = 'accessImport';
 
 }
 
