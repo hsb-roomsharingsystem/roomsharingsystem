@@ -320,14 +320,15 @@ class ilRoomSharingSearchGUI
 		$date = new ilDateTimeInputGUI("", "date");
 
 		$date_given = unserialize($_SESSION ["form_searchform"] ["date"]);
-                $hr_from = (date('H') + 1 < 10 ? "0" . (date('H') + 1) : (date('H') + 1));
+		$hr_from = (date('H') + 1 < 10 ? "0" . (date('H') + 1) : (date('H') + 1));
 		if (!empty($date_given['date']))
-                {
-                    $date->setDate(new ilDate($date_given['date'], IL_CAL_DATE));
-                } else if($hr_from >= 24)
-                {   //increase the day if 23:00 or later
-                    $date->setDate(new ilDate(date('Y-m-d', strtotime($date_given['date']. ' + 1 days')), IL_CAL_DATE));
-                } 
+		{
+			$date->setDate(new ilDate($date_given['date'], IL_CAL_DATE));
+		}
+		else if ($hr_from >= 24)
+		{   //increase the day if 23:00 or later
+			$date->setDate(new ilDate(date('Y-m-d', strtotime($date_given['date'] . ' + 1 days')), IL_CAL_DATE));
+		}
 		$date_comb->setRequired(true);
 		$date_comb->addCombinationItem("date", $date, $this->lng->txt("rep_robj_xrs_on"));
 
@@ -351,39 +352,18 @@ class ilRoomSharingSearchGUI
 		$time_from_given = unserialize($_SESSION ["form_searchform"] ["time_from"]);
 		$time_to_given = unserialize($_SESSION ["form_searchform"] ["time_to"]);
 
-		if (empty($time_from_given['time']) || $time_from_given['time'] == '00:00:00')
+		if ($this->isNoTimeSet($time_from_given['time']))
 		{
-			//set controls according to current time
-			//
-			//get current time and add leading 0
-			$hr_from = (date('H') + 1 < 10 ? "0" . (date('H') + 1) : (date('H') + 1));
-
-			//add leading 0
-			$hr_to = ($hr_from + 1 < 10 ? "0" . ($hr_from + 1) : ($hr_from + 1));
-
-
-                        if($hr_from >= 24)
-                        {   //increase the day if 23:00 or later and set time from 00:00 to 01:00
-                            $time_from_given['time'] = "00:00:00";
-                            $time_to_given['time'] = "01:00:00";
-                            $date = date('Y-m-d');
-                            $time_from_given['date'] = date('Y-m-d', strtotime($date. ' + 1 days'));
-                            $time_to_given['date'] = date('Y-m-d', strtotime($date. ' + 1 days'));   
-                            
-                        } else
-                        {
-                            $time_from_given['time'] = $hr_from . ':00:00';
-                            $time_to_given['time'] = $hr_to . ':00:00';
-                            $time_from_given['date'] = date('Y-m-d');
-                            $time_to_given['date'] = date('Y-m-d');
-                        }
-			
+			$current_date_time_array = $this->getCurrentTime();
+			$time_from_given['time'] = $current_date_time_array['time']['from'];
+			$time_to_given['time'] = $current_date_time_array['time']['to'];
+			$time_from_given['date'] = $current_date_time_array['date']['from'];
+			$time_to_given['date'] = $current_date_time_array['date']['to'];
 		}
 
 		if (!empty($time_from_given['date']) && !empty($time_from_given['time']))
 		{
-			$time_from->setDate(new ilDate($time_from_given['date'] . ' ' . $time_from_given['time'],
-				IL_CAL_DATETIME, $ilUser->getTimeZone()));
+			$time_from->setDate(new ilDate($time_from_given['date'] . ' ' . $time_from_given['time'], IL_CAL_DATETIME, $ilUser->getTimeZone()));
 		}
 
 		$time_comb->addCombinationItem("time_from", $time_from, $this->lng->txt("rep_robj_xrs_between"));
@@ -394,8 +374,7 @@ class ilRoomSharingSearchGUI
 
 		if (!empty($time_to_given['date']) && !empty($time_to_given['time']))
 		{
-			$time_to->setDate(new ilDate($time_to_given['date'] . ' ' . $time_to_given['time'],
-				IL_CAL_DATETIME, $ilUser->getTimeZone()));
+			$time_to->setDate(new ilDate($time_to_given['date'] . ' ' . $time_to_given['time'], IL_CAL_DATETIME, $ilUser->getTimeZone()));
 		}
 
 		$time_comb->addCombinationItem("time_to", $time_to, $this->lng->txt("and"));
@@ -403,6 +382,50 @@ class ilRoomSharingSearchGUI
 		$time_comb->setRequired(true);
 
 		return $time_comb;
+	}
+
+	/**
+	 * Checks whether or not a time is set.
+	 * @param string $a_time_given the time to be checked
+	 * @return boolean true, if the time is NOT set; false otherwise
+	 */
+	private function isNoTimeSet($a_time_given)
+	{
+		return empty($a_time_given) || $a_time_given == '00:00:00';
+	}
+
+	/**
+	 * Returns the current time, if no time could be found in the session variable.
+	 * @return array an asociative array containing the "from" and "to" time; and the "from"
+	 * and "to" date
+	 */
+	private function getCurrentTime()
+	{
+		$date_time_array = array();
+
+		// get current time and add leading 0
+		$hr_from = (date('H') + 1 < 10 ? "0" . (date('H') + 1) : (date('H') + 1));
+
+		// add leading 0
+		$hr_to = ($hr_from + 1 < 10 ? "0" . ($hr_from + 1) : ($hr_from + 1));
+
+		if ($hr_from >= 24)
+		{   // increase the day if 23:00 or later and set time from 00:00 to 01:00
+			$date_time_array['time']['from'] = "00:00:00";
+			$date_time_array['time']['to'] = "01:00:00";
+			$date = date('Y-m-d');
+			$date_time_array['date']['from'] = date('Y-m-d', strtotime($date . ' + 1 days'));
+			$date_time_array['date']['to'] = date('Y-m-d', strtotime($date . ' + 1 days'));
+		}
+		else
+		{
+			$date_time_array['time']['from'] = $hr_from . ':00:00';
+			$date_time_array['time']['to'] = $hr_to . ':00:00';
+			$date_time_array['date']['from'] = date('Y-m-d');
+			$date_time_array['date']['to'] = date('Y-m-d');
+		}
+
+		return $date_time_array;
 	}
 
 	/**
@@ -417,8 +440,7 @@ class ilRoomSharingSearchGUI
 			// setup an ilRoomSharingNumberInputGUI for the room attributes
 			$room_attribute_title = $room_attribute . " (" . $this->lng->txt("rep_robj_xrs_amount") . ")";
 			$room_attribute_postvar = "attribute_" . $room_attribute . "_amount";
-			$room_attribute_input = new ilRoomSharingNumberInputGUI($room_attribute_title,
-				$room_attribute_postvar);
+			$room_attribute_input = new ilRoomSharingNumberInputGUI($room_attribute_title, $room_attribute_postvar);
 			$room_attribute_input->setParent($this->search_form);
 			$room_attribute_input->setMaxLength(8);
 			$room_attribute_input->setSize(8);
@@ -515,8 +537,7 @@ class ilRoomSharingSearchGUI
 		elseif ($repeat_type == "max_date")
 		{
 			$date = unserialize($_SESSION ["form_searchform"] ["repeat_until"]);
-			$date2 = date('Y-m-d H:i:s',
-				mktime(0, 0, 0, $date['date']['m'], $date['date']['d'], $date['date']['y']));
+			$date2 = date('Y-m-d H:i:s', mktime(0, 0, 0, $date['date']['m'], $date['date']['d'], $date['date']['y']));
 			$this->rec->setFrequenceUntilDate(new ilDateTime($date2, IL_CAL_DATETIME));
 		}
 	}
@@ -542,5 +563,4 @@ class ilRoomSharingSearchGUI
 	}
 
 }
-
 ?>
