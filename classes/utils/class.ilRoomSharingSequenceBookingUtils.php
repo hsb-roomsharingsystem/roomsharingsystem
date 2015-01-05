@@ -35,7 +35,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i:s";
+			$time_format = " H:i:s:s";
 		}
 		else
 		{
@@ -102,7 +102,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i";
+			$time_format = " H:i:s";
 		}
 		else
 		{
@@ -167,7 +167,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i";
+			$time_format = " H:i:s";
 		}
 		else
 		{
@@ -240,7 +240,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i";
+			$time_format = " H:i:s";
 		}
 		else
 		{
@@ -310,7 +310,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i";
+			$time_format = " H:i:s";
 		}
 		else
 		{
@@ -394,7 +394,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i";
+			$time_format = " H:i:s";
 		}
 		else
 		{
@@ -468,7 +468,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i";
+			$time_format = " H:i:s";
 		}
 		else
 		{
@@ -562,7 +562,7 @@ class ilRoomSharingSequenceBookingUtils
 		if ($a_time_from != null)
 		{
 			$time = " " . $a_time_from;
-			$time_format = " H:i";
+			$time_format = " H:i:s";
 		}
 		else
 		{
@@ -834,7 +834,7 @@ class ilRoomSharingSequenceBookingUtils
 	 * Removes dates before the current time
 	 *
 	 * @param array $a_dates Array with days which should be checked
-	 * @param string $a_time_format Optional time-format (e.g. HH:ii:ss)
+	 * @param string $a_time_format Optional time-format (e.g. HH:i:si:ss)
 	 * @return array Filtered Array with days after now
 	 */
 	private static function removeDatesBeforeNow($a_dates, $a_time_format = "")
@@ -934,7 +934,7 @@ class ilRoomSharingSequenceBookingUtils
 	 *
 	 * @param string $a_startday Startdate
 	 * @param array $a_weekday_shortnames Array with the Weekday-Shortnames (MO,TU,...,SU)
-	 * @param string $a_time_format optional time format for the days e.g. (HH:ii:ss)
+	 * @param string $a_time_format optional time format for the days e.g. (HH:i:si:ss)
 	 * @param array $a_append_array Array with days which the generated date will be added to
 	 * @return array Array with days with the generated date
 	 */
