@@ -36,6 +36,7 @@ booking_in_show#:#Booking for
 booking_save#:#Save booking
 booking_no_cancel_ids#:#Tick at least one booking to cancel.
 booking_sequence_deleted#:#This booking and all following sequence bookings has been deleted!
+booking_lower_priority_canceled#:#Buchungen, welche Zeit- und Raumüberschneidungen mit erstellten Buchungen aufweisen und von Nutzern mit niedrigerer Priorität erstellt worden sind sowie eigene Buchungen, wurden automatisch storniert. Die Benutzer der betroffenen Buchungen wurden darüber informiert.
 booking#:#Booking
 bookings#:#Bookings
 bookings_confirm#:#Are you sure you want to cancel the following bookings?
@@ -101,11 +102,14 @@ mail_update_booking_participant_message#:#A room booking where you are a partici
 mail_booking_participant_message#:#Someone booked a room and added you as a participant. You have been added for the following booking:
 mail_booking_participant_subject#:#Someone booked a room and added you as a participant.
 mail_cancellation_creator_message#:#Your booking has been canceled. The following room is no longer yours:
+mail_cancellation_reason_higher_priority#:#Überschrieben durch Buchung von einem Benutzer mit höherer Priorität.
 mail_cancellation_creator_subject#:#Your booking has been canceled.
 mail_cancellation_participant_message#:#A booking in which you participated has been canceled. The following booking has been canceled:
 mail_cancellation_participant_subject#:#A booking in which you participated has been canceled.
 mail_cancellation_reason_manually#:#Manual cancellation by user.
 mail_cancellation_reason_prefix#:#The booking has been cancelled due to the following reason:
+mail_sequencebook_creator_subject#:#Sie haben eine Serienbuchung für einen Raum erstellt.
+mail_sequencebook_creator_message#:#Sie haben eine Serienbuchung für einen Raum erstellt. Der Raum ist nun zu folgenden Zeiten gebucht:
 mail_participation_cancel_subject#:#You cancelled your participation.
 mail_participation_cancel_message#:#You cancelled your participation. You no longer take part in the following booking:
 mail_participation_creator_subject#:#A participant left your booking.

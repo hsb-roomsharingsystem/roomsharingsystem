@@ -85,7 +85,7 @@ class ilRoomSharingBookings
 	 * Sends all participants a cancellation notice.
 	 * @param array $a_booking_ids nummerical array of booking_ids to delete
 	 */
-	public function removeMultipleBookings(array $a_booking_ids)
+	public function removeMultipleBookings(array $a_booking_ids, $a_remove_by_higher_priority = false)
 	{
 		foreach ($a_booking_ids as $booking_id)
 		{
@@ -93,11 +93,14 @@ class ilRoomSharingBookings
 			$booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
 			$this->checkDeletePermission($booking_details['user_id']);
 			$participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
-			$this->sendCancellationNotification($booking_details, $participants);
+			$this->sendCancellationNotification($booking_details, $participants, $a_remove_by_higher_priority);
 		}
 		$this->ilRoomsharingDatabase->deleteCalendarEntriesOfBookings($a_booking_ids);
 		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
-		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
+		if (!$a_remove_by_higher_priority)
+		{
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
+		}
 	}
 
 	/**
@@ -293,7 +296,8 @@ class ilRoomSharingBookings
 	/**
 	 * Send cancellation email.
 	 */
-	public function sendCancellationNotification($booking_details, $participants)
+	public function sendCancellationNotification($booking_details, $participants,
+		$a_removed_by_higher_priority = false)
 	{
 		$room_id = $booking_details[0]['room_id'];
 		$room_name = $this->ilRoomsharingDatabase->getRoomName($room_id);
@@ -305,7 +309,14 @@ class ilRoomSharingBookings
 		$mailer->setRoomname($room_name);
 		$mailer->setDateStart($date_from);
 		$mailer->setDateEnd($date_to);
-		$mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
+		if ($a_removed_by_higher_priority)
+		{
+			$mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_higher_priority'));
+		}
+		else
+		{
+			$mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
+		}
 		$mailer->sendCancellationMailWithReason($user_id, $participants);
 	}
 

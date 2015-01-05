@@ -34,6 +34,7 @@ booking_succes_edit#:#Buchung erfolgreich bearbeitet
 booking_in_edit#:#in bearbeitung
 booking_in_show#:#Buchung für
 booking_save#:#Buchung speichern
+booking_lower_priority_canceled#:#Buchungen, welche Zeit- und Raumüberschneidungen mit erstellten Buchungen aufweisen und von Nutzern mit niedrigerer Priorität erstellt worden sind sowie eigene Buchungen, wurden automatisch storniert. Die Benutzer der betroffenen Buchungen wurden darüber informiert.
 booking_no_cancel_ids#:#Geben Sie mindestens eine Buchung zum Stornieren an.
 booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gelöscht!
 booking#:#Buchung
@@ -104,8 +105,11 @@ mail_cancellation_creator_message#:#Ihre Raum-Buchung wurde storniert. Der folge
 mail_cancellation_creator_subject#:#Ihre Raum-Buchung wurde storniert.
 mail_cancellation_participant_message#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert. Folgende Buchung ist storniert worden:
 mail_cancellation_participant_subject#:#Eine Raum-Buchung, bei der Sie als Teilnehmer eingetragen waren, wurde storniert.
+mail_cancellation_reason_higher_priority#:#Überschrieben durch Buchung von einem Benutzer mit höherer Priorität.
 mail_cancellation_reason_manually#:#Manuelle Stornierung durch den Benutzer.
 mail_cancellation_reason_prefix#:#Die Buchung wurde aus folgendem Grund storniert:
+mail_sequencebook_creator_subject#:#Sie haben eine Serienbuchung für einen Raum erstellt.
+mail_sequencebook_creator_message#:#Sie haben eine Serienbuchung für einen Raum erstellt. Der Raum ist nun zu folgenden Zeiten gebucht:
 mail_participation_cancel_subject#:#Sie sind aus einer Buchung ausgetreten.
 mail_participation_cancel_message#:#Sie sind aus einer Buchung ausgetreten. Sie nehmen nun nicht mehr an der folgenden Buchung teil:
 mail_participation_creator_subject#:#Ein Teilnehmer nimmt nicht mehr an Ihrer Buchung teil.
@@ -212,6 +216,7 @@ semester#:#Semester
 setting_1#:#Einstellung 1
 setting_2#:#Einstellung 2
 settings#:#Einstellungen
+seq_booking_added#:#Serienbuchung hinzugefügt
 singular_field_input_value_too_high_begin#:#Der Werte für das Feld
 singular_field_input_value_too_high_end#:#ist höher als der maximal verfügbare Wert und daher wurde der Wert ignoriert oder der Filter auf den letzten gültigen Filter zurückgesetzt.
 status#:#Status

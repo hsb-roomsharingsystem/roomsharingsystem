@@ -9,14 +9,16 @@ require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingSequenceBookingUtils.php');
 
+use ilRoomSharingSequenceBookingUtils as seqUtils;
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingRoomsTableGUI. Table with rooms.
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
- *
+ * @author Robert Heimsoth <rheimsoth@stud.hs-bremen.de>
  * @version $Id$
  *
  * @property ilRoomSharingPermissionUtils $permission
@@ -24,6 +26,7 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
 class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 {
 	private $rooms;
+	private $db;
 	private $message = '';
 	private $messageNeeded = false;
 	private $messagePlural = false;
@@ -51,8 +54,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		// $this->setId("roomtable");
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 
-		$this->rooms = new ilRoomSharingRooms($a_parent_obj->getPoolID(),
-			new ilRoomsharingDatabase($a_parent_obj->getPoolID()));
+		$this->db = new ilRoomsharingDatabase($a_parent_obj->getPoolID());
+		$this->rooms = new ilRoomSharingRooms($a_parent_obj->getPoolID(), $this->db);
 		$this->lng->loadLanguageModule("form");
 
 		$this->setTitle($this->lng->txt("rep_robj_xrs_rooms"));
@@ -72,7 +75,7 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	 */
 	public function getItems(array $filter)
 	{
-		$data = $this->rooms->getList($filter);
+		$data = $this->getFilteredData($filter);
 
 		$old_name = $filter["room_name"];
 		$new_name = preg_replace('/\D/', '', filter_var($filter["room_name"], FILTER_SANITIZE_NUMBER_INT));
@@ -81,7 +84,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 			!== $new_name)
 		{
 			$filter["room_name"] = $new_name;
-			$data = $this->rooms->getList($filter);
+
+			$data = $this->getFilteredData($filter);
 
 			$message = $this->lng->txt('rep_robj_xrs_no_match_for') . " $old_name " .
 				$this->lng->txt('rep_robj_xrs_found') . ". " .
@@ -89,9 +93,63 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 			ilUtil::sendInfo($message);
 		}
-
 		$this->setMaxCount(count($data));
 		$this->setData($data);
+	}
+
+	//Eigene Implementation für das Prüfen der Raumverfügbarkeit
+	//für jedes Datum, welches generiert wird
+	public function getFilteredData(array $filter)
+	{
+		$freq = unserialize($filter['recurrence']["frequence"]);
+		switch ($freq)
+		{
+			case "DAILY":
+				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
+				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
+				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
+				$filter['datetimes'] = seqUtils::getDailyFilteredData($filter['date'], $repeat_type,
+						$repeat_amount, $repeat_until, $filter['time_from'], $filter['time_to']);
+				break;
+			case "WEEKLY":
+				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
+				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
+				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
+				$weekdays = unserialize($filter ["recurrence"]["weekdays"]);
+				$filter['datetimes'] = seqUtils::getWeeklyFilteredData($filter['date'], $repeat_type,
+						$repeat_amount, $repeat_until, $weekdays, $filter['time_from'], $filter['time_to']);
+				break;
+			case "MONTHLY":
+				$repeat_amount = unserialize($filter['recurrence']["repeat_amount"]);
+				$repeat_type = unserialize($filter['recurrence']["repeat_type"]);
+				$repeat_until = unserialize($filter['recurrence']["repeat_until"]);
+				$start_type = unserialize($filter['recurrence']["start_type"]);
+				if ($start_type == "weekday")
+				{
+					$w1 = unserialize($filter['recurrence']["weekday_1"]);
+					$w2 = unserialize($filter['recurrence']["weekday_2"]);
+					$filter['datetimes'] = seqUtils::getMonthlyFilteredData($filter['date'], $repeat_type,
+							$repeat_amount, $repeat_until, $start_type, null, $w1, $w2, $filter['time_from'],
+							$filter['time_to']);
+				}
+				elseif ($start_type == "monthday")
+				{
+					$md = unserialize($filter['recurrence']["monthday"]);
+					$filter['datetimes'] = seqUtils::getMonthlyFilteredData($filter['date'], $repeat_type,
+							$repeat_amount, $repeat_until, $start_type, $md, null, null, $filter['time_from'],
+							$filter['time_to']);
+				}
+				break;
+			default:
+				$filter['datetimes']['from'] = array();
+				$filter['datetimes']['from'][] = $filter['date'] . " " . $filter['time_from'];
+				$filter['datetimes']['to'] = array();
+				$filter['datetimes']['to'][] = $filter['date'] . " " . $filter['time_to'];
+				break;
+		}
+
+		$data = $this->rooms->getList($filter);
+		return $data;
 	}
 
 	/**
@@ -152,7 +210,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$_SESSION['last_cmd'] = $this->parent_cmd;
 
 		// only display a booking form if a search was initialized beforehand
-		if ($this->parent_cmd === "showSearchResults")
+		if ($this->
+			parent_cmd === "showSearchResults")
 		{
 			// if this class is used to display search results, the input made
 			// must be transported to the book form
@@ -301,13 +360,16 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$seats_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["seats"] = $seats_comb->getValue();
 
-		$value = $_POST[$room_seats_input->getPostVar()];
+		$value = $_POST[$room_seats_input->getPostVar(
+		)];
 		if ($value !== "" && $value > $room_seats_input->getMaxValue())
 		{
-			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_needed_seats");
+			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_needed_seats  ");
 
-			if ($this->messagePlural == false && $this->messageNeeded == true)
+			if ($this
+				->messagePlural == false && $this->messageNeeded == true)
 			{
+
 				$this->messagePlural = true;
 			}
 			$this->messageNeeded = true;
@@ -324,9 +386,10 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		foreach ($room_attributes as $room_attribute)
 		{
 			// setup an ilCombinationInputGUI for the room attributes
-			$room_attribute_comb = new ilCombinationInputGUI($room_attribute, "attribute_" . $room_attribute);
-			$room_attribute_input = new ilRoomSharingNumberInputGUI("",
-				"attribute_" . $room_attribute . "_amount");
+			$room_attribute_comb = new ilCombinationInputGUI($room_attribute
+				, "attribute_" . $room_attribute);
+			$room_attribute_input = new ilRoomSharingNumberInputGUI("
+			", "attribute_" . $room_attribute . "_amount");
 			$room_attribute_input->setMaxLength(8);
 			$room_attribute_input->setSize(8);
 			$room_attribute_input->setMinValue(0);
@@ -382,7 +445,8 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				$msg = $msg . ' "' . $this->message;
 				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_end');
 			}
-			ilUtil::sendInfo($msg);
+			ilUtil::sendInfo($msg
+			);
 		}
 	}
 

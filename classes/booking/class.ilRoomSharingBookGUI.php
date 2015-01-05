@@ -9,6 +9,8 @@ require_once("Services/Form/classes/class.ilCombinationInputGUI.php");
 require_once("Services/Form/classes/class.ilPropertyFormGUI.php");
 require_once("Services/User/classes/class.ilUserAutoComplete.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once('Modules/Session/classes/class.ilEventRecurrence.php');
+require_once('Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
 
 /**
  * Class ilRoomSharingBookGUI
@@ -27,6 +29,7 @@ class ilRoomSharingBookGUI
 	private $date_from;
 	private $date_to;
 	private $book;
+	private $rec;
 
 	const NUM_PERSON_RESPONSIBLE = 1;
 	const BOOK_CMD = "book";
@@ -83,6 +86,8 @@ class ilRoomSharingBookGUI
 	private function createForm()
 	{
 		$form = new ilPropertyFormGUI();
+		include_once('./Services/YUI/classes/class.ilYuiUtil.php');
+		ilYuiUtil::initDomEvent();
 		$form->setFormAction($this->ctrl->getFormAction($this));
 
 		$form->setTitle($this->getFormTitle());
@@ -107,7 +112,6 @@ class ilRoomSharingBookGUI
 	{
 		$room_id = empty($this->room_id) ? $_POST['room_id'] : $this->room_id;
 		$this->room_id = $room_id;
-
 		$rooms = new ilRoomSharingRooms($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 		return $rooms->getRoomName($room_id);
 	}
@@ -120,6 +124,7 @@ class ilRoomSharingBookGUI
 		$booking_attributes = $this->createBookingAttributeTextInputs();
 		$form_items = array_merge($form_items, $booking_attributes);
 		$form_items[] = $this->createTimeRangeInput();
+		$form_items[] = $this->createRecurrenceGUI();
 		$form_items[] = $this->createPublicBookingCheckBox();
 		$form_items[] = $this->createUserAgreementCheckBoxIfPossible();
 		$form_items[] = $this->createRoomIdHiddenInputField();
@@ -192,6 +197,89 @@ class ilRoomSharingBookGUI
 		return $time_range;
 	}
 
+	private function createRecurrenceGUI()
+	{
+		$this->getRecurrenceFromSession();
+		$r = new ilRecurrenceInputGUI($this->lng->txt('cal_recurrences'), 'frequence');
+		$subforms = array(IL_CAL_FREQ_DAILY, IL_CAL_FREQ_WEEKLY, IL_CAL_FREQ_MONTHLY); //ohne jährlich
+		$r->setEnabledSubForms($subforms);
+		$r->allowUnlimitedRecurrences(false);
+		$r->setRecurrence($this->rec);
+		return $r;
+	}
+
+	/**
+	 * Get recurrence
+	 */
+	private function getRecurrenceFromSession()
+	{
+		$this->rec = new ilCalendarRecurrence();
+		$fre = unserialize($_SESSION ["form_searchform"] ["frequence"]);
+		$this->rec->setFrequenceType($fre);
+		switch ($fre)
+		{
+			case "NONE":
+				break;
+			case "DAILY":
+				break;
+			case "WEEKLY":
+				$days = unserialize($_SESSION ["form_searchform"] ["weekdays"]);
+				$d = array();
+				if (is_array($days))
+				{
+					foreach ($days as $day)
+					{
+						$d[] = $day;
+					}
+				}
+				$this->rec->setBYDAY(implode(",", $d));
+				break;
+			case "MONTHLY":
+				$start_type = unserialize($_SESSION ["form_searchform"] ["start_type"]);
+				if ($start_type == "weekday")
+				{
+					$w1 = unserialize($_SESSION ["form_searchform"] ["weekday_1"]);
+					$w2 = unserialize($_SESSION ["form_searchform"] ["weekday_2"]);
+					if ($w2 == 8)
+					{
+						$this->rec->setBYSETPOS($w1);
+						$this->rec->setBYDAY('MO,TU,WE,TH,FR');
+					}
+					elseif ($w2 == 9)
+					{
+						$this->rec->setBYMONTHDAY($w1);
+					}
+					else
+					{
+						$this->rec->setBYDAY($w1 . $w2);
+					}
+				}
+				elseif ($start_type == "monthday")
+				{
+					$this->rec->setBYMONTHDAY(unserialize($_SESSION ["form_searchform"] ["monthday"]));
+				}
+				break;
+			default:
+				break;
+		}
+		$repeat_type = unserialize($_SESSION ["form_searchform"] ["repeat_type"]);
+		$this->rec->setInterval(unserialize($_SESSION ["form_searchform"] ["repeat_amount"]));
+		if ($repeat_type == "max_amount")
+		{
+			$this->rec->setFrequenceUntilCount(unserialize($_SESSION ["form_searchform"] ["repeat_until"]));
+		}
+		elseif ($repeat_type == "max_date")
+		{
+			$date = unserialize($_SESSION ["form_searchform"] ["repeat_until"]);
+			//print_r($date);
+			//var_dump($_SESSION);
+			//echo $date['date']['m'];
+			$date2 = date('Y-m-d H:i:s',
+				mktime(0, 0, 0, $date['date']['m'], $date['date']['d'], $date['date']['y']));
+			$this->rec->setFrequenceUntilDate(new ilDateTime($date2, IL_CAL_DATETIME));
+		}
+	}
+
 	private function createDateTimeInput($a_title, $a_postvar, $a_date)
 	{
 		$date_time_input = new ilDateTimeInputGUI($a_title, $a_postvar);
@@ -246,7 +334,7 @@ class ilRoomSharingBookGUI
 		$media = $agreement_file->getMediaItem("Standard");
 		$source = $agreement_file->getDataDirectory() . "/" . $media->getLocation();
 
-		$link = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
+		$link = "<p> <a target = \"_blank\" href=\"" . $source . "\">" .
 			$this->lng->txt('rep_robj_xrs_current_rooms_user_agreement') . "</a></p>";
 		return $link;
 	}
@@ -334,8 +422,92 @@ class ilRoomSharingBookGUI
 		$common_entries = $this->fetchCommonFormEntries($a_form);
 		$attribute_entries = $this->fetchAttributeFormEntries($a_form);
 		$participant_entries = $a_form->getInput('participants');
+		$recurrence_entries = $this->fetchRecurrenceFormEntries($a_form);
 
-		$this->saveFormEntries($a_form, $common_entries, $attribute_entries, $participant_entries);
+		$this->saveFormEntries($a_form, $common_entries, $attribute_entries, $participant_entries,
+			$recurrence_entries);
+	}
+
+	private function fetchRecurrenceFormEntries($a_form)
+	{
+		$recurrence_entries = array();
+		$recurrence_entries['frequence'] = $a_form->getInput('frequence');
+		$this->writeSingleInputToSession("frequence", $recurrence_entries['frequence']);
+
+		switch ($recurrence_entries['frequence'])
+		{
+			case 'DAILY':
+				$recurrence_entries['repeat_amount'] = $a_form->getInput("count_DAILY", false);
+				$this->writeSingleInputToSession("repeat_amount", $recurrence_entries['repeat_amount']);
+				$recurrence_entries = $this->getUntilValue($a_form, $recurrence_entries);
+				break;
+
+			case 'WEEKLY':
+				$recurrence_entries['repeat_amount'] = $a_form->getInput("count_WEEKLY", false);
+				$this->writeSingleInputToSession("repeat_amount", $recurrence_entries['repeat_amount']);
+
+				$recurrence_entries['weekdays'] = $a_form->getInput("byday_WEEKLY", false);
+				$this->writeSingleInputToSession("weekdays", $recurrence_entries['weekdays']);
+				$recurrence_entries = $this->getUntilValue($a_form, $recurrence_entries);
+				break;
+			case 'MONTHLY':
+				$recurrence_entries['repeat_amount'] = $a_form->getInput("count_MONTHLY", false);
+				$this->writeSingleInputToSession("repeat_amount", $recurrence_entries['repeat_amount']);
+				$subtype = $a_form->getInput("subtype_MONTHLY", false);
+				if ($subtype == 1)
+				{
+					$recurrence_entries['start_type'] = "weekday";
+					$this->writeSingleInputToSession("start_type", "weekday");
+					$recurrence_entries['weekday_1'] = $a_form->getInput("monthly_byday_num", false);
+					$this->writeSingleInputToSession("weekday_1", $recurrence_entries['weekday_1']);
+					$recurrence_entries['weekday_2'] = $a_form->getInput("monthly_byday_day", false);
+					$this->writeSingleInputToSession("weekday_2", $recurrence_entries['weekday_2']);
+				}
+				elseif ($subtype == 2)
+				{
+					$recurrence_entries['start_type'] = "monthday";
+					$this->writeSingleInputToSession("start_type", "monthday");
+					$recurrence_entries['monthday'] = $a_form->getInput("monthly_bymonthday", false);
+					$this->writeSingleInputToSession("monthday", $recurrence_entries['monthday']);
+				}
+				$recurrence_entries = $this->getUntilValue($a_form, $recurrence_entries);
+				break;
+			default:
+				break;
+		}
+
+		return $recurrence_entries;
+	}
+
+	private function getUntilValue($a_form, $a_array)
+	{
+		$type = $a_form->getInput("until_type", false);
+		if ($type == 2)
+		{
+			$a_array['repeat_type'] = "max_amount";
+			$a_array['repeat_until'] = $a_form->getInput("count", false);
+			$this->writeSingleInputToSession("repeat_type", "max_amount");
+			$this->writeSingleInputToSession("repeat_until", $a_array['repeat_until']);
+		}
+		elseif ($type == 3)
+		{
+			$a_array['repeat_type'] = "max_date";
+			$a_array['repeat_until'] = $a_form->getInput("until_end", false);
+			$this->writeSingleInputToSession("repeat_type", "max_date");
+			$this->writeSingleInputToSession("repeat_until", $a_array['repeat_until']);
+		}
+
+		return $a_array;
+	}
+
+	/**
+	 * Writes a single input into SESSION.
+	 * @param type $a_id the id of the input
+	 * @param type $a_value and the corresponding value
+	 */
+	public function writeSingleInputToSession($a_id, $a_value)
+	{
+		$_SESSION["form_searchform"][$a_id] = serialize($a_value);
 	}
 
 	private function fetchCommonFormEntries($a_form)
@@ -365,11 +537,12 @@ class ilRoomSharingBookGUI
 	}
 
 	private function saveFormEntries($a_form, $a_common_entries, $a_attribute_entries,
-		$a_participant_entries)
+		$a_participant_entries, $a_recurrence_entries)
 	{
 		try
 		{
-			$this->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
+			$this->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries,
+				$a_recurrence_entries);
 		}
 		catch (ilRoomSharingBookException $ex)
 		{
@@ -377,12 +550,22 @@ class ilRoomSharingBookGUI
 		}
 	}
 
-	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries)
+	private function addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries,
+		$a_recurrence_entries)
 	{
 //adds current calendar-id to booking information
 		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
-		$this->book->addBooking($a_common_entries, $a_attribute_entries, $a_participant_entries);
-		$this->cleanUpAfterSuccessfulSave();
+		$count_canceled_bookings = $this->book->addBooking($a_common_entries, $a_attribute_entries,
+			$a_participant_entries, $a_recurrence_entries);
+		if ($a_recurrence_entries['frequence'] != "DAILY" && $a_recurrence_entries['frequence'] != "WEEKLY"
+			&& $a_recurrence_entries['frequence'] != "MONTHLY")
+		{
+			$this->cleanUpAfterSuccessfulSave(false, $count_canceled_bookings);
+		}
+		else
+		{
+			$this->cleanUpAfterSuccessfulSave(true, $count_canceled_bookings);
+		}
 	}
 
 	private function handleException($a_form, $a_exception)
@@ -391,7 +574,7 @@ class ilRoomSharingBookGUI
 		$this->resetInvalidForm($a_form);
 	}
 
-	private function cleanUpAfterSuccessfulSave()
+	private function cleanUpAfterSuccessfulSave($sequence = false, $a_count_canceled_bookings = 0)
 	{
 		global $ilTabs;
 
@@ -399,7 +582,19 @@ class ilRoomSharingBookGUI
 		$this->parent_obj->setTabs();
 		$this->ctrl->setCmd("render");
 		$this->parent_obj->performCommand("");
-		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
+		if ($sequence)
+		{
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_seq_booking_added'), true);
+		}
+		else
+		{
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_added'), true);
+		}
+		if (ilRoomSharingNumericUtils::isPositiveNumber($a_count_canceled_bookings))
+		{
+			ilUtil::sendInfo($a_count_canceled_bookings . " " . $this->lng->txt('rep_robj_xrs_booking_lower_priority_canceled'),
+				true);
+		}
 	}
 
 	private function handleInvalidForm($a_form)

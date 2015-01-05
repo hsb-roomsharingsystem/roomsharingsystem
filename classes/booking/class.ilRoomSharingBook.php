@@ -3,7 +3,12 @@
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingSequenceBookingUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
 
+use ilRoomSharingSequenceBookingUtils as seqUtils;
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
@@ -21,6 +26,8 @@ class ilRoomSharingBook
 	private $date_to;
 	private $room_id;
 	private $participants;
+	private $permission;
+	private $recurrence;
 	private $booking_id;
 	private $date_from_old;
 	private $date_to_old;
@@ -40,6 +47,7 @@ class ilRoomSharingBook
 		$this->lng = $lng;
 		$this->user = $ilUser;
 		$this->pool_id = $a_pool_id;
+		$this->permission = $rssPermission;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 
@@ -49,9 +57,12 @@ class ilRoomSharingBook
 	 * @param type $a_booking_values Array with the values of the booking
 	 * @param type $a_booking_attr_values Array with the values of the booking-attributes
 	 * @param type $a_booking_participants Array with the values of the participants
+	 * @param type $a_recurrence_entries Array with recurrence information
 	 * @throws ilRoomSharingBookException
+	 * @return array Booking-IDs which are canceled
 	 */
-	public function addBooking($a_booking_values, $a_booking_attr_values, $a_booking_participants)
+	public function addBooking($a_booking_values, $a_booking_attr_values, $a_booking_participants,
+		$a_recurrence_entries)
 	{
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
@@ -59,20 +70,44 @@ class ilRoomSharingBook
 			$this->date_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
 			$this->room_id = $a_booking_values ['room'];
 			$this->participants = $a_booking_participants;
+			$this->recurrence = $a_recurrence_entries;
+			$datetimes = $this->generateDatetimesForBooking();
 
-			$this->validateBookingInput();
-			$success = $this->insertBooking($a_booking_attr_values, $a_booking_values,
-				$a_booking_participants);
+			$this->validateBookingInput($datetimes['from'], $datetimes['to']);
+
+			$a_booking_values['from'] = $datetimes['from'];
+			$a_booking_values['to'] = $datetimes['to'];
+
+			$booking_ids_of_bookings_to_be_canceled = $this->ilRoomsharingDatabase->getBookingIdsForRoomInDateimeRanges($this->room_id,
+				$a_booking_values['from'], $a_booking_values['to']);
+
+			if (ilRoomSharingNumericUtils::isPositiveNumber(count($booking_ids_of_bookings_to_be_canceled)))
+			{
+				$bookings = new ilRoomSharingBookings($this->pool_id);
+				try
+				{
+					$bookings->removeMultipleBookings($booking_ids_of_bookings_to_be_canceled, true);
+				}
+				catch (ilRoomSharingBookingsException $ex)
+				{
+					throw new ilRoomSharingBookException($ex->getMessage());
+				}
+			}
+
+			$success = $this->ilRoomsharingDatabase->insertBookingRecurrence($a_booking_attr_values,
+				$a_booking_values, $a_booking_participants);
 
 			if ($success)
 			{
 				$this->sendBookingNotification();
+				return count($booking_ids_of_bookings_to_be_canceled);
 			}
 			else
 			{
 				throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
 			}
 		}
+		return 0;
 	}
 
 	/**
@@ -150,56 +185,6 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Get the booking Data of the given ID
-	 *
-	 * @param type $a_booking_id
-	 * @return Array(
-	 * 				['user_id']
-	 * 				['seq_id']
-	 * 				['booking_values']
-	 * 				['attr_values']
-	 * 				['participants']
-	 * 				'participants_org'])
-	 */
-	public function getBookingData($a_booking_id)
-	{
-		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
-
-		$booking = array();
-		$booking['user_id'] = $row['user_id'];
-		$booking['seq_id'] = $row['seq_id'];
-		$booking['booking_values'] = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
-		$booking['attr_values'] = $this->ilRoomsharingDatabase->getBookingAttributeValues($a_booking_id);
-		$booking['participants'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id,
-			1);
-		$booking['participants_org'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
-
-		return $booking;
-	}
-
-	/**
-	 * Return a array with the all deleted participants.
-	 * If no user user is deleted, a empty array will be returned.
-	 *
-	 * @param array $a_booking_participants = new participants
-	 * @param array $a_old_booking_participants = old participants
-	 * @return array
-	 */
-	private function getDeletedUser($a_booking_participants, $a_old_booking_participants)
-	{
-		$deletedUser = array();
-		foreach ($a_old_booking_participants as $user)
-		{
-			if (!in_array($user, $a_booking_participants))
-			{
-
-				$deletedUser[] = $user;
-			}
-		}
-		return $deletedUser;
-	}
-
-	/**
 	 * Return all new User from the $a_booking_participants array.
 	 *
 	 * @param array $a_booking_participants with the new participants
@@ -221,24 +206,61 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Removing all empty user entry from the $a_booking_participants array.
-	 *
-	 * @param array $a_booking_participants with the participants
-	 * @return array
-	 * 			the new array without empty users.
+	 * Generates datetimes for the (recurrence) booking
+	 * @return array ("from" => array(DATETIMES_FROM...),
+	 * 				  "to" => array(DATETIMES_TO...))
 	 */
-	private function deleteEmptyUser($a_booking_participants)
+	private function generateDatetimesForBooking()
 	{
-		$booking_booking_participants = array();
-		foreach ($a_booking_participants as $user)
+		$time_from = date('H:i:s', strtotime($this->date_from));
+		$time_to = date('H:i:s', strtotime($this->date_to));
+		$date_from = date('Y-m-d', strtotime($this->date_from));
+		$date_to = date('Y-m-d', strtotime($this->date_to));
+		if ($date_from != $date_to)
 		{
-			if ($user != '')
-			{
-				$booking_booking_participants[] = $user;
-			}
+			$date1 = strtotime($date_from);
+			$date2 = strtotime($date_to);
+			$day_difference = ceil(abs($date1 - $date2) / 86400);
+		}
+		else
+		{
+			$day_difference = null;
 		}
 
-		return $booking_booking_participants;
+		$datetimes_from = array();
+		$datetimes_to = array();
+		switch ($this->recurrence['frequence'])
+		{
+			case "DAILY":
+				$days = seqUtils::getDailyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'], $time_from, $time_to,
+						$day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			case "WEEKLY":
+				$days = seqUtils::getWeeklyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
+						$this->recurrence['weekdays'], $time_from, $time_to, $day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			case "MONTHLY":
+				$days = seqUtils::getMonthlyFilteredData($date_from, $this->recurrence['repeat_type'],
+						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
+						$this->recurrence['start_type'], $this->recurrence['monthday'],
+						$this->recurrence['weekday_1'], $this->recurrence['weekday_2'], $time_from, $time_to,
+						$day_difference);
+				$datetimes_from = $days['from'];
+				$datetimes_to = $days['to'];
+				break;
+			default:
+				$datetimes_from[] = $date_from . " " . $time_from;
+				$datetimes_to[] = $date_to . " " . $time_to;
+				break;
+		}
+
+		return array("from" => $datetimes_from, "to" => $datetimes_to);
 	}
 
 	/**
@@ -246,7 +268,7 @@ class ilRoomSharingBook
 	 *
 	 * @throws ilRoomSharingBookException
 	 */
-	private function validateBookingInput()
+	private function validateBookingInput($a_datetimes_from, $a_datetimes_to)
 	{
 		if ($this->isBookingInPast())
 		{
@@ -256,7 +278,7 @@ class ilRoomSharingBook
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_bigger_dateto"));
 		}
-		if ($this->isAlreadyBooked())
+		if ($this->isAlreadyBooked($a_datetimes_from, $a_datetimes_to))
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_already_booked"));
 		}
@@ -272,68 +294,6 @@ class ilRoomSharingBook
 		{
 			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_booking_time_bigger_max_book_time"));
 		}
-	}
-
-	/**
-	 * Checks if the edit booking input is valid (e.g. valid dates, already booked rooms, ...)
-	 *
-	 * @throws ilRoomSharingBookException
-	 */
-	private function validateEditBookingInput()
-	{
-		if ($this->isBookingInPast())
-		{
-			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_is_earlier_than_now"));
-		}
-		if ($this->checkForInvalidDateConditions())
-		{
-			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_bigger_dateto"));
-		}
-		if ($this->isAlreadyBookedForEdits())
-		{
-			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_already_booked"));
-		}
-		if ($this->isRoomOverbooked())
-		{
-			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_max_allocation_exceeded"));
-		}
-		if ($this->isRoomUnderbooked())
-		{
-			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_min_allocation_not_reached"));
-		}
-		if ($this->isBookingReachHigherThenMaxBookTime())
-		{
-			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_booking_time_bigger_max_book_time"));
-		}
-	}
-
-	/**
-	 * Methode to check if the booking reach is smaller or equals the max book time of the pool.
-	 *
-	 * @return boolean
-	 */
-	private function isBookingReachHigherThenMaxBookTime()
-	{
-		return (strtotime($this->date_to) - strtotime($this->date_from)) > $this->getMaxBookTime();
-	}
-
-	/**
-	 * Get the max book time from the pool.
-	 *
-	 * @return integer =  time in s
-	 */
-	private function getMaxBookTime()
-	{
-		//Get the standard timezone of the system, to recover the normal standard
-		//after the interpretation of the time to a interger.
-		$string = $this->ilRoomsharingDatabase->getMaxBookTime();
-		//format the given timestamp to the HH:MM Format
-		$time1 = date("H:i", strtotime($string));
-		//format the standard start timestamp to the HH:MM Format
-		$time2 = date("H:i", strtotime('1970-01-01 00:00'));
-		//calculate the difference from given and the standard timestamp
-		//and return the resulting integer value.
-		return strtotime($time1) - strtotime($time2);
 	}
 
 	/**
@@ -357,10 +317,19 @@ class ilRoomSharingBook
 	 * Method to check if the selected room is already booked in the given time range
 	 *
 	 */
-	private function isAlreadyBooked()
+	private function isAlreadyBooked($a_datetimes_from, $a_datetimes_to)
 	{
-		$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($this->date_from,
-			$this->date_to, $this->room_id);
+		if ($this->permission->checkPrivilege(ilRoomSharingPrivilegesConstants::CANCEL_BOOKING_LOWER_PRIORITY))
+		{
+			$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($a_datetimes_from,
+				$a_datetimes_to, $this->room_id, $this->permission->getUserPriority());
+		}
+		else
+		{
+			$temp = $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($a_datetimes_from,
+				$a_datetimes_to, $this->room_id);
+		}
+
 		return ($temp !== array());
 	}
 
@@ -390,17 +359,6 @@ class ilRoomSharingBook
 				$this->date_to, $this->room_id, $this->booking_id);
 			return ($temp !== array());
 		}
-	}
-
-	/**
-	 * Convert the given string time to a integer value.
-	 *
-	 * @param string $a_date
-	 * @return integer
-	 */
-	private function stringTimeToInt($a_date)
-	{
-		return strtotime($a_date);
 	}
 
 	/**
@@ -442,6 +400,122 @@ class ilRoomSharingBook
 	}
 
 	/**
+	 * Generates a booking acknowledgement via mail.
+	 *
+	 * @return array $recipient_ids List of recipients.
+	 */
+	private function sendBookingNotification()
+	{
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
+
+		$mailer = new ilRoomSharingMailer($this->lng);
+		$mailer->setRoomname($room_name);
+		$mailer->setDateStart($this->date_from);
+		$mailer->setDateEnd($this->date_to);
+		$mailer->sendBookingMail($this->user->getId(), $this->participants);
+	}
+
+	/**
+	 * Returns the room user agreement file id.
+	 */
+	public function getRoomAgreementFileId()
+	{
+		$agreement_file_id = $this->ilRoomsharingDatabase->getRoomAgreementId();
+
+		return $agreement_file_id;
+	}
+
+	/**
+	 * Get the booking Data of the given ID
+	 *
+	 * @param type $a_booking_id
+	 * @return Array(
+	 * 				['user_id']
+	 * 				['seq_id']
+	 * 				['booking_values']
+	 * 				['attr_values']
+	 * 				['participants']
+	 * 				'participants_org'])
+	 */
+	public function getBookingData($a_booking_id)
+	{
+		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
+
+		$booking = array();
+		$booking['user_id'] = $row['user_id'];
+		$booking['seq_id'] = $row['seq_id'];
+		$booking['booking_values'] = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
+		$booking['attr_values'] = $this->ilRoomsharingDatabase->getBookingAttributeValues($a_booking_id);
+		$booking['participants'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id,
+			1);
+		$booking['participants_org'] = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
+
+		return $booking;
+	}
+
+	/**
+	 * Removing all empty user entry from the $a_booking_participants array.
+	 *
+	 * @param array $a_booking_participants with the participants
+	 * @return array
+	 * 			the new array without empty users.
+	 */
+	private function deleteEmptyUser($a_booking_participants)
+	{
+		$booking_booking_participants = array();
+		foreach ($a_booking_participants as $user)
+		{
+			if ($user != '')
+			{
+				$booking_booking_participants[] = $user;
+			}
+		}
+
+		return $booking_booking_participants;
+	}
+
+	/**
+	 * Return a array with the all deleted participants.
+	 * If no user user is deleted, a empty array will be returned.
+	 *
+	 * @param array $a_booking_participants = new participants
+	 * @param array $a_old_booking_participants = old participants
+	 * @return array
+	 */
+	private function getDeletedUser($a_booking_participants, $a_old_booking_participants)
+	{
+		$deletedUser = array();
+		foreach ($a_old_booking_participants as $user)
+		{
+			if (!in_array($user, $a_booking_participants))
+			{
+
+				$deletedUser[] = $user;
+			}
+		}
+		return $deletedUser;
+	}
+
+	/**
+	 * Get the max book time from the pool.
+	 *
+	 * @return integer =  time in s
+	 */
+	private function getMaxBookTime()
+	{
+		//Get the standard timezone of the system, to recover the normal standard
+		//after the interpretation of the time to a interger.
+		$string = $this->ilRoomsharingDatabase->getMaxBookTime();
+		//format the given timestamp to the HH:MM Format
+		$time1 = date("H:i", strtotime($string));
+		//format the standard start timestamp to the HH:MM Format
+		$time2 = date("H:i", strtotime('1970-01-01 00:00'));
+		//calculate the difference from given and the standard timestamp
+		//and return the resulting integer value.
+		return strtotime($time1) - strtotime($time2);
+	}
+
+	/**
 	 * Method to insert the booking
 	 *
 	 * @param array $a_booking_attr_values
@@ -455,39 +529,13 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Methode to update a booking in the database.
+	 * Methode to check if the booking reach is smaller or equals the max book time of the pool.
 	 *
-	 * @param string $a_booking_id
-	 * @param array $a_booking_attr_values
-	 * @param array $a_old_booking_attr_values
-	 * @param array $a_booking_values
-	 * @param array $a_old_booking_values
-	 * @param array $a_booking_participants
-	 * @param array $a_old_booking_participants
-	 *
-	 * @return boolean true if the update was successful
+	 * @return boolean
 	 */
-	private function updateBooking($a_booking_id, $a_booking_attr_values, $a_old_booking_attr_values,
-		$a_booking_values, $a_old_booking_values, $a_booking_participants, $a_old_booking_participants)
+	private function isBookingReachHigherThenMaxBookTime()
 	{
-		return $this->ilRoomsharingDatabase->updateBooking($a_booking_id, $a_booking_attr_values,
-				$a_old_booking_attr_values, $a_booking_values, $a_old_booking_values, $a_booking_participants,
-				$a_old_booking_participants);
-	}
-
-	/** Generates a booking acknowledgement via mail.
-	 *
-	 * @return array $recipient_ids List of recipients.
-	 */
-	private function sendBookingNotification()
-	{
-		$room_name = $this->ilRoomsharingDatabase->getRoomName($this->room_id);
-
-		$mailer = new ilRoomSharingMailer($this->lng);
-		$mailer->setRoomname($room_name);
-		$mailer->setDateStart($this->date_from);
-		$mailer->setDateEnd($this->date_to);
-		$mailer->sendBookingMail($this->user->getId(), $this->participants);
+		return (strtotime($this->date_to) - strtotime($this->date_from)) > $this->getMaxBookTime();
 	}
 
 	/**
@@ -540,13 +588,68 @@ class ilRoomSharingBook
 	}
 
 	/**
-	 * Returns the room user agreement file id.
+	 * Convert the given string time to a integer value.
+	 *
+	 * @param string $a_date
+	 * @return integer
 	 */
-	public function getRoomAgreementFileId()
+	private function stringTimeToInt($a_date)
 	{
-		$agreement_file_id = $this->ilRoomsharingDatabase->getRoomAgreementId();
+		return strtotime($a_date);
+	}
 
-		return $agreement_file_id;
+	/**
+	 * Methode to update a booking in the database.
+	 *
+	 * @param string $a_booking_id
+	 * @param array $a_booking_attr_values
+	 * @param array $a_old_booking_attr_values
+	 * @param array $a_booking_values
+	 * @param array $a_old_booking_values
+	 * @param array $a_booking_participants
+	 * @param array $a_old_booking_participants
+	 *
+	 * @return boolean true if the update was successful
+	 */
+	private function updateBooking($a_booking_id, $a_booking_attr_values, $a_old_booking_attr_values,
+		$a_booking_values, $a_old_booking_values, $a_booking_participants, $a_old_booking_participants)
+	{
+		return $this->ilRoomsharingDatabase->updateBooking($a_booking_id, $a_booking_attr_values,
+				$a_old_booking_attr_values, $a_booking_values, $a_old_booking_values, $a_booking_participants,
+				$a_old_booking_participants);
+	}
+
+	/**
+	 * Checks if the edit booking input is valid (e.g. valid dates, already booked rooms, ...)
+	 *
+	 * @throws ilRoomSharingBookException
+	 */
+	private function validateEditBookingInput()
+	{
+		if ($this->isBookingInPast())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_is_earlier_than_now"));
+		}
+		if ($this->checkForInvalidDateConditions())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_datefrom_bigger_dateto"));
+		}
+		if ($this->isAlreadyBookedForEdits())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_already_booked"));
+		}
+		if ($this->isRoomOverbooked())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_max_allocation_exceeded"));
+		}
+		if ($this->isRoomUnderbooked())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_room_min_allocation_not_reached"));
+		}
+		if ($this->isBookingReachHigherThenMaxBookTime())
+		{
+			throw new ilRoomSharingBookException($this->lng->txt("rep_robj_xrs_booking_time_bigger_max_book_time"));
+		}
 	}
 
 	/**

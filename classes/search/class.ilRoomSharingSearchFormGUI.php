@@ -35,9 +35,8 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
 		foreach ($items as $item)
 		{
 			$field_id = $item->getFieldId();
-
-			// the time field is an ilCombinationInputGUI with two time inputs
-			// and therefore needs special treatment
+// the time field is an ilCombinationInputGUI with two time inputs
+// and therefore needs special treatment
 			if ($field_id == "time")
 			{
 				$time_from_value = $this->getInput("time_from", false);
@@ -45,6 +44,12 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
 
 				$time_to_value = $this->getInput("time_to", false);
 				$this->writeSingleInputToSession("time_to", $time_to_value);
+			}
+			elseif ($field_id == "frequence")
+			{
+				$freq = $this->getInput("frequence", false);
+				$this->writeSingleInputToSession("frequence", $freq);
+				$this->handleSeriesBookingInformations($freq);
 			}
 			else
 			{
@@ -99,6 +104,65 @@ class ilRoomSharingSearchFormGUI extends ilPropertyFormGUI
 	public function getInputFromSession($a_session_var)
 	{
 		return unserialize($_SESSION["form_" . $this->getId()][$a_session_var]);
+	}
+
+	private function handleSeriesBookingInformations($freq)
+	{
+		switch ($freq)
+		{
+			case 'DAILY':
+				$daily_every_x_days = $this->getInput("count_DAILY", false);
+				$this->writeSingleInputToSession("repeat_amount", $daily_every_x_days);
+				$this->getUntilValue();
+				break;
+
+			case 'WEEKLY':
+				$weekly_every_x_weeks = $this->getInput("count_WEEKLY", false);
+				$this->writeSingleInputToSession("repeat_amount", $weekly_every_x_weeks);
+				$weekly_days = $this->getInput("byday_WEEKLY", false);
+				$this->writeSingleInputToSession("weekdays", $weekly_days);
+				$this->getUntilValue();
+				break;
+			case 'MONTHLY':
+				$monthly_every_x_months = $this->getInput("count_MONTHLY", false);
+				$this->writeSingleInputToSession("repeat_amount", $monthly_every_x_months);
+				$subtype = $this->getInput("subtype_MONTHLY", false);
+				if ($subtype == 1)
+				{
+					$this->writeSingleInputToSession("start_type", "weekday");
+					$monthly_from_day_num = $this->getInput("monthly_byday_num", false);
+					$this->writeSingleInputToSession("weekday_1", $monthly_from_day_num);
+					$monthly_from_day = $this->getInput("monthly_byday_day", false);
+					$this->writeSingleInputToSession("weekday_2", $monthly_from_day);
+				}
+				elseif ($subtype == 2)
+				{
+					$this->writeSingleInputToSession("start_type", "monthday");
+					$monthly_every_day = $this->getInput("monthly_bymonthday", false);
+					$this->writeSingleInputToSession("monthday", $monthly_every_day);
+				}
+				$this->getUntilValue();
+				break;
+			default:
+				break;
+		}
+	}
+
+	private function getUntilValue()
+	{
+		$type = $this->getInput("until_type", false);
+		if ($type == 2)
+		{
+			$this->writeSingleInputToSession("repeat_type", "max_amount");
+			$count = $this->getInput("count", false);
+			$this->writeSingleInputToSession("repeat_until", $count);
+		}
+		elseif ($type == 3)
+		{
+			$this->writeSingleInputToSession("repeat_type", "max_date");
+			$until = $this->getInput("until_end", false);
+			$this->writeSingleInputToSession("repeat_until", $until);
+		}
 	}
 
 }
