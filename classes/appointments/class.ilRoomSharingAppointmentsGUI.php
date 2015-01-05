@@ -1,7 +1,7 @@
 <?php
 
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsGUI.php");
 
 /**
  * Class ilRoomSharingAppointmentsGUI
@@ -12,7 +12,9 @@ require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/R
  *
  * @version $Id$
  *
- * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI, ilCommonActionDispatcherGUI, ilRoomSharingBookingsExport
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingBookingsGUI, ilRoomSharingParticipationsGUI
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilCommonActionDispatcherGUI, ilRoomSharingBookingsTableGUI
+ * @ilCtrl_Calls ilRoomSharingAppointmentsGUI: ilRoomSharingShowAndEditBookGUI
  *
  * @property ilCtrl $ctrl
  * @property ilLanguage $lng
@@ -70,6 +72,7 @@ class ilRoomSharingAppointmentsGUI
 		{
 			case 'render':
 			case 'showContent':
+			case 'saveEditBook':
 			case 'cancelBooking':
 				$next_class = 'ilroomsharingbookingsgui';
 				break;
@@ -116,20 +119,17 @@ class ilRoomSharingAppointmentsGUI
 	/**
 	 * Adds SubTabs for the MainTab "appointments".
 	 *
-	 * @param type $a_active
-	 *        	SubTab which should be activated after method call.
+	 * @param type $a_active SubTab which should be activated after method call.
 	 */
 	protected function setSubTabs($a_active)
 	{
 		global $ilTabs;
 		$ilTabs->setTabActive('appointments');
 		// Bookings
-		$ilTabs->addSubTab('bookings', $this->lng->txt('rep_robj_xrs_bookings'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBookings'));
+		$ilTabs->addSubTab('bookings', $this->lng->txt('rep_robj_xrs_bookings'), $this->ctrl->getLinkTargetByClass('ilroomsharingbookingsgui', 'showBookings'));
 
 		// Participations
-		$ilTabs->addSubTab('participations', $this->lng->txt('rep_robj_xrs_participations'),
-			$this->ctrl->getLinkTargetByClass('ilroomsharingparticipationsgui', 'showParticipations'));
+		$ilTabs->addSubTab('participations', $this->lng->txt('rep_robj_xrs_participations'), $this->ctrl->getLinkTargetByClass('ilroomsharingparticipationsgui', 'showParticipations'));
 		$ilTabs->activateSubTab($a_active);
 	}
 
@@ -147,6 +147,19 @@ class ilRoomSharingAppointmentsGUI
 	{
 		$this->setSubTabs('bookings');
 		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
+		$object_gui = & new ilRoomSharingBookingsGUI($this);
+		$this->ctrl->forwardCommand($object_gui);
+	}
+
+	/**
+	 * Shows one booking.
+	 */
+	function showBooking()
+	{
+		global $ilTabs;
+		$ilTabs->clearTargets();
+		$this->parent_obj->setTabs();
+		$this->ctrl->setCmd("showBooking");
 		$object_gui = & new ilRoomSharingBookingsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}
@@ -181,14 +194,38 @@ class ilRoomSharingAppointmentsGUI
 		$this->pool_id = $a_pool_id;
 	}
 
-	function exportBookings()
+	/**
+	 * Creates a new table for the bookings and writes all the input
+	 * values to the session, so that a filter can be applied.
+	 */
+	public function applyFilter()
 	{
-		$this->setSubTabs('bookings');
-		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
-		$object_gui = & new ilRoomSharingBookingsGUI($this);
-		$this->ctrl->forwardCommand($object_gui);
+		$gui = new ilRoomSharingBookingsGUI($this);
+		$gui->applyFilterObject();
+	}
+
+	/**
+	 * Resets all the input fields.
+	 */
+	public function resetFilter()
+	{
+		$gui = new ilRoomSharingBookingsGUI($this);
+		$gui->resetFilterObject();
+	}
+
+	private function doUserAutoComplete()
+	{
+		$search_fields = array("login", "firstname", "lastname", "email");
+		$result_field = "login";
+
+		$auto = new ilUserAutoComplete();
+		$auto->setSearchFields($search_fields);
+		$auto->setResultField($result_field);
+		$auto->enableFieldSearchableCheck(true);
+
+		echo $auto->getList($_REQUEST['term']);
+		exit();
 	}
 
 }
-
 ?>

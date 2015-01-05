@@ -122,7 +122,8 @@ class ilRoomSharingBookingAttributesGUI
 	 */
 	private function proceedBookingAttributeAction()
 	{
-		$roomSharingBookingAttributes = new ilRoomSharingBookingAttributes($this->pool_id);
+		$roomSharingBookingAttributes = new ilRoomSharingBookingAttributes($this->pool_id,
+			new ilRoomsharingDatabase($this->pool_id));
 
 		switch ($this->attributesForm->getInput(ATTRC::ACTION_MODE))
 		{
@@ -162,7 +163,8 @@ class ilRoomSharingBookingAttributesGUI
 		$radioGroup->setRequired(true);
 
 		// Available attributes
-		$roomSharingBookingAttributes = new ilRoomSharingBookingAttributes($this->pool_id);
+		$roomSharingBookingAttributes = new ilRoomSharingBookingAttributes($this->pool_id,
+			new ilRoomsharingDatabase($this->pool_id));
 		$attributes = $roomSharingBookingAttributes->getAllAvailableAttributesWithIdAndName();
 
 		// Create

@@ -110,7 +110,7 @@ class ilRoomSharingRoomAttributesGUI
 	 */
 	private function createDeletionMessage($a_updated_rooms_amount)
 	{
-		return $this->lng->txt('msg_obj_modified') . ' ' . $a_updated_rooms_amount
+		return $this->lng->txt('msg_obj_modified') . ' . ' . $a_updated_rooms_amount
 			. ' ' . $this->lng->txt('rep_robj_xrs_rooms_were_updated');
 	}
 
@@ -122,7 +122,8 @@ class ilRoomSharingRoomAttributesGUI
 	 */
 	private function proceedRoomAttributeAction()
 	{
-		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id);
+		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id,
+			new ilRoomsharingDatabase($this->pool_id));
 
 		switch ($this->attributesForm->getInput(ATTRC::ACTION_MODE))
 		{
@@ -162,7 +163,8 @@ class ilRoomSharingRoomAttributesGUI
 		$radioGroup->setRequired(true);
 
 		// Available attributes
-		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id);
+		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id,
+			new ilRoomsharingDatabase($this->pool_id));
 		$attributes = $roomSharingRoomAttributes->getAllAvailableAttributesWithIdAndName();
 
 		// Create

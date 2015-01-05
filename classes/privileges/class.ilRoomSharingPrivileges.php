@@ -28,7 +28,7 @@ class ilRoomSharingPrivileges
 	 *
 	 * @param integer $a_pool_id
 	 */
-	public function __construct($a_pool_id = 1)
+	public function __construct($a_pool_id)
 	{
 		global $lng, $rbacreview, $rssPermission;
 
@@ -37,9 +37,21 @@ class ilRoomSharingPrivileges
 		$this->rbacreview = $rbacreview;
 		$this->rssPermission = $rssPermission;
 		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
-		$this->classes_privileges = $this->getAllClassPrivileges();
+		//$this->classes_privileges = $this->getAllClassPrivileges();
 	}
 
+	public static function withDatabase($a_pool_id, $database)
+	{
+		$instance = new self($a_pool_id);
+		$instance->ilRoomsharingDatabase = $database;
+		return $instance;
+	}
+
+	/**
+	 * Gets the privileges matrix with classes and their privileges set
+	 *
+	 * @return array Privileges matrix.
+	 */
 	public function getPrivilegesMatrix()
 	{
 
@@ -178,6 +190,11 @@ class ilRoomSharingPrivileges
 		return $priv;
 	}
 
+	/**
+	 * Gets all classes assigned to this pool
+	 *
+	 * @return array Array with classes and their data plus their assigned role name
+	 */
 	public function getClasses()
 	{
 		$cls = array();
@@ -192,43 +209,68 @@ class ilRoomSharingPrivileges
 		return $cls;
 	}
 
+	/**
+	 * Returns the names of all existing classes for this pool.
+	 *
+	 * @return array an array with class names
+	 */
+	public function getClassNames()
+	{
+		return $this->ilRoomsharingDatabase->getClassNames();
+	}
+
+	/**
+	 * Gets a specific class values by it's id
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @return array Array with the values of the selected class
+	 */
 	public function getClassById($a_class_id)
 	{
 		return $this->ilRoomsharingDatabase->getClassById($a_class_id);
 	}
 
+	/**
+	 * Gets all assigned classes (direct- or role-assignment) for a user
+	 *
+	 * @param integer $a_user_id User-ID
+	 * @return array Array with the assigned classes
+	 */
 	public function getAssignedClassesForUser($a_user_id)
 	{
 		$user_roles = $this->rbacreview->assignedRoles($a_user_id);
 		return $this->ilRoomsharingDatabase->getAssignedClassesForUser($a_user_id, $user_roles);
 	}
 
+	/**
+	 * Gets the priority of a user
+	 *
+	 * @param integer $a_user_id User-ID
+	 * @return integer Priority of User or 0 if not set
+	 */
 	public function getPriorityOfUser($a_user_id)
 	{
-		$user_classes = $this->getAssignedClassesForUser($a_user_id);
-		$priority = 0;
-		// Get the highest possible priority for the user
-		foreach ($user_classes as $user_class)
-		{
-			$class_priority = $this->ilRoomsharingDatabase->getPriorityOfClass($user_class);
-			if ($priority < $class_priority)
-			{
-				$priority = $class_priority;
-			}
-		}
-		return $priority;
+		return $this->ilRoomsharingDatabase->getUserPriority($a_user_id);
 	}
 
+	/**
+	 * Gets all privileges for a user
+	 *
+	 * @param integer $a_user_id User-ID
+	 * @return array Array with setted user privileges, unsetted are not in this array
+	 */
 	public function getPrivilegesForUser($a_user_id)
 	{
 		$user_classes = $this->getAssignedClassesForUser($a_user_id);
 		$user_privileges = array();
+		$this->classes_privileges = $this->getAllClassPrivileges();
 		foreach ($user_classes as $user_class)
 		{
 			if ($this->getClassById($user_class)['locked'] == 1)
 			{
 				continue;
 			}
+
 			foreach ($this->classes_privileges[$user_class] as $class_privilege)
 			{
 				if (!in_array($class_privilege, $user_privileges))
@@ -240,13 +282,18 @@ class ilRoomSharingPrivileges
 		return $user_privileges;
 	}
 
+	/**
+	 * Gets all users assigned (directly or over role-assignment) of a class
+	 *
+	 * @param integer $a_class_id Class-ID
+	 * @return array Array with user-data of the users, assigned to the class
+	 */
 	public function getAssignedUsersForClass($a_class_id)
 	{
 		$assigned_user_ids = $this->ilRoomsharingDatabase->getUsersForClass($a_class_id);
 		$assigned_users = array();
 		foreach ($assigned_user_ids as $assigned_user_id)
 		{
-
 			$user_name = ilObjUser::_lookupName($assigned_user_id);
 
 			$user_data = array();
@@ -261,6 +308,11 @@ class ilRoomSharingPrivileges
 		return $assigned_users;
 	}
 
+	/**
+	 * Get all roles that are available in the pool
+	 *
+	 * @return array Array with the roles and their id's and title's
+	 */
 	public function getParentRoles()
 	{
 		$roles = $this->rbacreview->getParentRoleIds($_GET['ref_id']);
@@ -276,7 +328,7 @@ class ilRoomSharingPrivileges
 				$transl_role_title = ilObjRole::_getTranslation($role['title']);
 				$object_id_of_role = $this->rbacreview->getObjectOfRole($role_id);
 				$object_title_of_role = ilObject::_lookupTitle($object_id_of_role);
-				$role_and_group_title = $transl_role_title . " (" . $object_title_of_role . ")";
+				$role_and_group_title = $transl_role_title . " von \"" . $object_title_of_role . "\"";
 				$global_roles[] = array('id' => $role_id, 'title' => $role_and_group_title);
 			}
 			else
@@ -287,6 +339,12 @@ class ilRoomSharingPrivileges
 		return $global_roles;
 	}
 
+	/**
+	 * Gets a title of a role
+	 *
+	 * @param integer $a_role_id Role-ID of which the title is unknown
+	 * @return string Role-Title
+	 */
 	public function getParentRoleTitle($a_role_id)
 	{
 		$roles = $this->getParentRoles();
@@ -301,6 +359,12 @@ class ilRoomSharingPrivileges
 		return $roleName;
 	}
 
+	/**
+	 * Adds a new class to the pool
+	 *
+	 * @param array $a_classData Array with class data submitted by the frontend
+	 * @throws ilRoomSharingPrivilegesException
+	 */
 	public function addClass($a_classData)
 	{
 		$insertedID = $this->ilRoomsharingDatabase->insertClass($a_classData['name'],
@@ -312,6 +376,12 @@ class ilRoomSharingPrivileges
 		}
 	}
 
+	/**
+	 * Edits a already created class values
+	 *
+	 * @param array $a_classData Array with class data submitted by the frontend
+	 * @throws ilRoomSharingPrivilegesException
+	 */
 	public function editClass($a_classData)
 	{
 		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_classData['id']))
@@ -322,6 +392,22 @@ class ilRoomSharingPrivileges
 			$a_classData['description'], $a_classData['role_id'], $a_classData['priority']);
 	}
 
+	/**
+	 * Deletes a class of the pool
+	 *
+	 * @param integer $a_class_id Class-ID of the class which should be deleted
+	 */
+	public function deleteClass($a_class_id)
+	{
+		$this->ilRoomsharingDatabase->deleteClass($a_class_id);
+	}
+
+	/**
+	 * Assign users directly to a class
+	 *
+	 * @param integer $a_class_id Class-ID of the class where the users should be assigned
+	 * @param array $a_user_ids Array with user ids which should be assigned to the class
+	 */
 	public function assignUsersToClass($a_class_id, $a_user_ids)
 	{
 		foreach ($a_user_ids as $user_id)
@@ -330,6 +416,12 @@ class ilRoomSharingPrivileges
 		}
 	}
 
+	/**
+	 * Deassign specific directly assigned users from a class
+	 *
+	 * @param integer $a_class_id Class-ID of the class where the users should be deassigned from
+	 * @param array $a_users_ids Array with user ids which should be deassigned from the class
+	 */
 	public function deassignUsersFromClass($a_class_id, $a_users_ids)
 	{
 		foreach ($a_users_ids as $user_id)
@@ -338,11 +430,11 @@ class ilRoomSharingPrivileges
 		}
 	}
 
-	public function deleteClass($a_class_id)
-	{
-		$this->ilRoomsharingDatabase->deleteClass($a_class_id);
-	}
-
+	/**
+	 * Sets all privileges for each class submitted by the frontend
+	 *
+	 * @param array $a_privileges Array with the classes which each contains an array with their setted privileges
+	 */
 	public function setPrivileges($a_privileges)
 	{
 		if (empty($a_privileges))
@@ -364,6 +456,9 @@ class ilRoomSharingPrivileges
 		}
 	}
 
+	/**
+	 * Unsets all privileges of each classes
+	 */
 	private function unsetAllPrivileges()
 	{
 		$privileges = $this->getAllPrivileges();
@@ -374,16 +469,31 @@ class ilRoomSharingPrivileges
 		}
 	}
 
+	/**
+	 * Sets the locked classes
+	 *
+	 * @param array $a_class_ids Class-IDs which should be locked. Classes not in this array will be unlocked
+	 */
 	public function setLockedClasses($a_class_ids)
 	{
 		$this->ilRoomsharingDatabase->setLockedClasses($a_class_ids);
 	}
 
+	/**
+	 * Gets all classes that are currently locked
+	 *
+	 * @return array All currently locked classes
+	 */
 	public function getLockedClasses()
 	{
 		return $this->ilRoomsharingDatabase->getLockedClasses();
 	}
 
+	/**
+	 * Gets all classes that are currently not locked
+	 *
+	 * @return array All currently not locked classes
+	 */
 	public function getUnlockedClasses()
 	{
 		return $this->ilRoomsharingDatabase->getUnlockedClasses();
@@ -425,6 +535,11 @@ class ilRoomSharingPrivileges
 		);
 	}
 
+	/**
+	 * Get each privilege for every class
+	 *
+	 * @return array Array with classes which contains an array with their privileges
+	 */
 	public function getAllClassPrivileges()
 	{
 		$privileges = array();
@@ -454,6 +569,7 @@ class ilRoomSharingPrivileges
 	private function getClassPrivilegeValue($a_privilege_id)
 	{
 		$privilegesArray = array();
+		$this->classes_privileges = $this->getAllClassPrivileges();
 		foreach ($this->classes_privileges as $class_id => $class_privileges_ids)
 		{
 			if (in_array(strtolower($a_privilege_id), $class_privileges_ids))
@@ -479,6 +595,27 @@ class ilRoomSharingPrivileges
 	private function addSelectMultipleCheckbox($a_type, $a_privilege_ids)
 	{
 		return array("show_select_all" => 1, "type" => $a_type, "privileges" => $a_privilege_ids);
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

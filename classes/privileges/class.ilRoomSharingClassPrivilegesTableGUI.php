@@ -17,6 +17,8 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
  */
 class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
 {
+	const MAX_POPUP_TEXT_WIDTH = 30;
+
 	private $ctrl;
 	private $privileges;
 	private $ref_id;
@@ -33,7 +35,7 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
 	 * @param type $a_parent_cmd
 	 * @param type $a_ref_id
 	 */
-	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id = 1)
+	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
 	{
 		global $ilCtrl, $lng, $rssPermission;
 
@@ -208,7 +210,28 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
 		}
 		else
 		{
-			return $role_assignment_text . ": " . $a_assigned_role;
+			$role_assignment_text = $role_assignment_text . ": " . $a_assigned_role;
+			return $this->createShortenedTooltipRoleTextIfMaxTextWidthReached($role_assignment_text);
+		}
+	}
+
+	/**
+	 * This function shortens the text for the role assignment whenever a certain threshold is
+	 * reached. This is needed due to the fact that the tooltip popup has a maximum pixel width
+	 * which would otherwise cut the role text in an inappropriate way.
+	 * @param string $a_role_text the role text that should be shortened
+	 * @return string the shortened role if the threshold has been reached; the unshortened
+	 * role text otherwise
+	 */
+	private function createShortenedTooltipRoleTextIfMaxTextWidthReached($a_role_text)
+	{
+		if (strlen($a_role_text) > self::MAX_POPUP_TEXT_WIDTH)
+		{
+			return substr($a_role_text, 0, self::MAX_POPUP_TEXT_WIDTH) . "...";
+		}
+		else
+		{
+			return $a_role_text;
 		}
 	}
 
@@ -369,6 +392,27 @@ class ilRoomSharingClassPrivilegesTableGUI extends ilTable2GUI
 		}
 
 		$this->tpl->parseCurrentBlock();
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

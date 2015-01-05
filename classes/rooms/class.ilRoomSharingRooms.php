@@ -1,6 +1,6 @@
 <?php
 
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
  * Class ilRoomSharingRooms
@@ -135,10 +135,10 @@ class ilRoomSharingRooms
 	{
 		$rooms = array();
 		$room_ids = $this->ilRoomsharingDatabase->getAllRoomIds();
-		$rooms [] = 0;
+
 		foreach ($room_ids as $room_id)
 		{
-			$rooms [] = $room_id;
+			$rooms [$room_id] = 1;
 		}
 		return $rooms;
 	}
@@ -158,7 +158,7 @@ class ilRoomSharingRooms
 		{
 			if (array_search($key, $roomsBookedInTimeRange) > -1)
 			{
-				//nocht nicht vollständig?
+				//noch nicht vollständig?
 			}
 			else
 			{
@@ -168,23 +168,23 @@ class ilRoomSharingRooms
 	}
 
 	/**
-	 * Removes the rooms not mathing name and seats
+	 * Removes the rooms not matching name and seats
 	 *
 	 * @return type array with room_ids, $res_room
 	 */
 	private function removeRoomsNotMatchingNameAndSeats()
 	{
-		$res_room = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
+		$res_rooms = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
 			$this->filter ["room_name"], $this->filter ["room_seats"]);
 
-		foreach ($res_room as $key => $value)
+		foreach ($res_rooms as $res_room)
 		{
-			$room_ids [] = $value ['id'];
+			$room_ids [] = $res_room ['id'];
 		}
 
 		return array(
 			$room_ids,
-			$res_room
+			$res_rooms
 		);
 	}
 
@@ -307,6 +307,27 @@ class ilRoomSharingRooms
 	{
 		return $this->ilRoomsharingDatabase->getRoomsBookedInDateTimeRange($date_from, $date_to,
 				$a_room_id);
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

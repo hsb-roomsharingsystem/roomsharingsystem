@@ -6,6 +6,10 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingBookingsException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingBookingUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingMailer.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingBookings
@@ -16,40 +20,38 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  *
  * @version $Id$
  * @property ilRoomsharingDatabase $ilRoomsharingDatabase
- * @property ilDB $ilDB
+ * @property ilRoomSharingPermissionUtils $permission
  * @property ilUser $ilUser
  * @property ilLanguage $lng
  */
 class ilRoomSharingBookings
 {
-	protected $pool_id;
-	protected $ilRoomsharingDatabase;
-	private $ilDB;
+	private $pool_id;
+	private $ilRoomsharingDatabase;
+	private $permission;
 	private $ilUser;
 	private $lng;
 
 	/**
 	 * constructor ilRoomSharingBookings
 	 *
-	 * @param integer $pool_id
+	 * @param integer $a_pool_id
 	 */
-	function __construct($pool_id = 1)
+	function __construct($a_pool_id)
 	{
-		global $ilDB, $ilUser, $lng;
-		$this->ilDB = $ilDB;
+		global $ilUser, $lng, $rssPermission;
 		$this->ilUser = $ilUser;
 		$this->lng = $lng;
-		$this->pool_id = $pool_id;
+		$this->permission = $rssPermission;
+		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase($this->pool_id);
 	}
 
 	/**
 	 * Remove a booking
 	 *
-	 * @param int $a_booking_id
-	 *        	The id of the booking
-	 * @param bool $a_seq
-	 *        	True if the all sequence bookings should be deleted
+	 * @param int $a_booking_id The id of the booking
+	 * @param bool $a_seq True if the all sequence bookings should be deleted
 	 * @global ilLanguage $lng
 	 */
 	public function removeBooking($a_booking_id, $a_seq = false)
@@ -58,7 +60,6 @@ class ilRoomSharingBookings
 		$row = $this->ilRoomsharingDatabase->getSequenceAndUserForBooking($a_booking_id);
 		$booking_details = $this->ilRoomsharingDatabase->getBooking($a_booking_id);
 		$participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($a_booking_id);
-
 
 		$this->checkResultNotEmpty($row);
 		$this->checkDeletePermission($row ['user_id']);
@@ -79,8 +80,9 @@ class ilRoomSharingBookings
 	}
 
 	/**
-	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal 1 and exists as booking ID.
-         * Sends all participants a cancellation notice.
+	 * Removes muliple Bookings from the Database. Accepts only legal ids that are greater or equal
+	 * 1 and exists as booking ID.
+	 * Sends all participants a cancellation notice.
 	 * @param array $a_booking_ids nummerical array of booking_ids to delete
 	 */
 	public function removeMultipleBookings(array $a_booking_ids)
@@ -88,9 +90,10 @@ class ilRoomSharingBookings
 		foreach ($a_booking_ids as $booking_id)
 		{
 			$this->checkBookingId($booking_id);
-                        $booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
-                        $participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
-                        $this->sendCancellationNotification($booking_details, $participants); 
+			$booking_details = $this->ilRoomsharingDatabase->getBooking($booking_id);
+			$this->checkDeletePermission($booking_details['user_id']);
+			$participants = $this->ilRoomsharingDatabase->getParticipantsForBookingShort($booking_id);
+			$this->sendCancellationNotification($booking_details, $participants);
 		}
 		$this->ilRoomsharingDatabase->deleteCalendarEntriesOfBookings($a_booking_ids);
 		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
@@ -105,7 +108,21 @@ class ilRoomSharingBookings
 	 */
 	private function checkDeletePermission($a_userId)
 	{
-		if ($a_userId != $this->ilUser->getId())
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
+		{
+			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
+		}
+		$currentUserId = $this->ilUser->getId();
+
+		$isOwnBooking = ($a_userId == $currentUserId);
+		$canDelLowPrio = $this->permission->checkPrivilege(PRIVC::CANCEL_BOOKING_LOWER_PRIORITY);
+		$isLowerPriority = $this->permission->checkForHigherPriority($currentUserId, $a_userId);
+
+		if ($isOwnBooking || ($canDelLowPrio && $isLowerPriority))
+		{
+			return TRUE;
+		}
+		else
 		{
 			throw new ilRoomSharingBookingsException("rep_robj_xrs_no_delete_permission");
 		}
@@ -158,9 +175,9 @@ class ilRoomSharingBookings
 	 *
 	 * @return array with bookings
 	 */
-	public function getList()
+	public function getList(array $filter)
 	{
-		$bookingDatas = $this->ilRoomsharingDatabase->getBookingsForUser($this->ilUser->getId());
+		$bookingDatas = $this->ilRoomsharingDatabase->getFilteredBookings($filter);
 		$allBookings = array();
 		foreach ($bookingDatas as $bookingData)
 		{
@@ -274,6 +291,25 @@ class ilRoomSharingBookings
 	}
 
 	/**
+	 * Send cancellation email.
+	 */
+	public function sendCancellationNotification($booking_details, $participants)
+	{
+		$room_id = $booking_details[0]['room_id'];
+		$room_name = $this->ilRoomsharingDatabase->getRoomName($room_id);
+		$user_id = $booking_details[0]['user_id'];
+		$date_from = $booking_details[0]['date_from'];
+		$date_to = $booking_details[0]['date_to'];
+
+		$mailer = new ilRoomSharingMailer($this->lng);
+		$mailer->setRoomname($room_name);
+		$mailer->setDateStart($date_from);
+		$mailer->setDateEnd($date_to);
+		$mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
+		$mailer->sendCancellationMailWithReason($user_id, $participants);
+	}
+
+	/**
 	 * Set the poolID of bookings
 	 *
 	 * @param integer $pool_id
@@ -294,23 +330,9 @@ class ilRoomSharingBookings
 		return (int) $this->pool_id;
 	}
 
-	/**
-	 * Send cancellation email.
-	 */
-	public function sendCancellationNotification($booking_details, $participants)
+	public function getAllAttributes()
 	{
-		$room_id = $booking_details[0]['room_id'];
-		$room_name = $this->ilRoomsharingDatabase->getRoomName($room_id);
-		$user_id = $booking_details[0]['user_id'];
-		$date_from = $booking_details[0]['date_from'];
-		$date_to = $booking_details[0]['date_to'];
-
-		$mailer = new ilRoomSharingMailer($this->lng);
-		$mailer->setRoomname($room_name);
-		$mailer->setDateStart($date_from);
-		$mailer->setDateEnd($date_to);
-                $mailer->setReason($this->lng->txt('rep_robj_xrs_mail_cancellation_reason_manually'));
-		$mailer->sendCancellationMailWithReason($user_id, $participants);
+		return $this->ilRoomsharingDatabase->getAllBookingAttributeNames();
 	}
 
 }

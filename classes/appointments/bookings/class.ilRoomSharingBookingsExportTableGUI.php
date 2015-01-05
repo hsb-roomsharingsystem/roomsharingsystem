@@ -55,7 +55,7 @@ class ilRoomSharingBookingsExportTableGUI extends ilTable2GUI
 	 */
 	public function getItems()
 	{
-		$data = $this->bookings->getList();
+		$data = $this->bookings->getList(array());
 
 		$this->setMaxCount(count($data));
 		$this->setData($data);

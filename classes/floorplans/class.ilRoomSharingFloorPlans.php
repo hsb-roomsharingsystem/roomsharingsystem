@@ -1,8 +1,14 @@
 <?php
 
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
-include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+require_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingFloorplanException.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingFloorPlans
@@ -11,11 +17,20 @@ include_once("./Services/MediaObjects/classes/class.ilMediaItem.php");
  *
  * @author Thomas Wolscht <t.wolscht@googlemail.com>
  * @author Christopher Marks <Deamp_dev@yahoo.de>
+ * @author Thomas Matern <tmatern@stud.hs-bremen.de>
+ *
+ * @property ilCtrl $ctrl
+ * @property ilLanguage $lng
+ * @property ilRoomSharingPermissionUtils $permission
+ * @property ilRoomsharingDatabase $ilRoomsharingDatabase
  */
 class ilRoomSharingFloorPlans
 {
 	private $pool_id;
 	private $ilRoomsharingDatabase;
+	private $permission;
+	private $ctrl;
+	private $lng;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlans.
@@ -25,6 +40,10 @@ class ilRoomSharingFloorPlans
 	 */
 	public function __construct($a_pool_id, $a_ilRoomsharingDatabase)
 	{
+		global $ilCtrl, $rssPermission, $lng;
+		$this->ctrl = $ilCtrl;
+		$this->permission = $rssPermission;
+		$this->lng = $lng;
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomsharingDatabase = $a_ilRoomsharingDatabase;
 	}
@@ -74,6 +93,12 @@ class ilRoomSharingFloorPlans
 	 */
 	public function deleteFloorPlan($a_file_id)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::DELETE_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
 		$res = null;
 		if ($a_file_id)
 		{
@@ -110,10 +135,21 @@ class ilRoomSharingFloorPlans
 	 */
 	public function updateFloorPlanInfos($a_file_id, $a_title, $a_desc)
 	{
-		$mediaObj = new ilObjMediaObject($a_file_id);
-		$mediaObj->setTitle($a_title);
-		$mediaObj->setDescription($a_desc);
-		$mediaObj->update();
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
+		if ($this->isTitleAlreadyTaken($a_title))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
+		}
+		$media_obj = new ilObjMediaObject($a_file_id);
+		$media_obj->setTitle($a_title);
+		$media_item = $media_obj->getMediaItem("Standard");
+		$media_item->setCaption($a_desc);
+		$media_obj->update();
 	}
 
 	/**
@@ -121,57 +157,127 @@ class ilRoomSharingFloorPlans
 	 * that a new title and a new description will be added. The old floor plan
 	 * will be removed in order to be replaced by the newly provided one.
 	 *
-	 * @param type $a_file_id the floor plan id
-	 * @param type $a_title the new title
-	 * @param type $a_desc the new description
-	 * @param type $a_newfile the new image
+	 * @param integer $a_file_id the floor plan id
+	 * @param string $a_title the new title
+	 * @param string $a_desc the new description
+	 * @param array $a_newfile the new image
 	 */
 	public function updateFloorPlanInfosAndFile($a_file_id, $a_title, $a_desc, $a_newfile = null)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::EDIT_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
+		if ($this->isTitleAlreadyTaken($a_title))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
+		}
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, $a_file_id);
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
-		if ($this->checkImageType($fileinfo["format"]) == false)
+		if (!$this->checkImageType($fileinfo["format"]))
 		{
-			return false;
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
+		}
+
+		if ($a_newfile != null && !ilRoomSharingNumericUtils::isPositiveNumber($a_newfile['size']))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
 		}
 
 		$this->updateMediaObject($mediaObj, $fileinfo);
-
-		return true;
 	}
 
 	/**
 	 * Creates a new floor plan by using the ILIAS MediaObject Service
 	 * and leaves a database entry.
 	 *
-	 * @param type $a_title the title of the floor plan
-	 * @param type $a_desc the floor plan description
-	 * @param type $a_newfile an array containing the input values of the form
-	 * @return type success or failure
+	 * @param string $a_title the title of the floor plan
+	 * @param string $a_desc the floor plan description
+	 * @param array $a_newfile an array containing the input values of the form
+	 * @return boolean success or failure
 	 */
 	public function addFloorPlan($a_title, $a_desc, $a_newfile)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ADD_FLOORPLANS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return FALSE;
+		}
+
+		if ($this->isTitleAlreadyTaken($a_title))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
+		}
+
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, null);
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
-		if ($this->checkImageType($fileinfo["format"]) == false)
+		if (!$this->checkImageType($fileinfo["format"]))
 		{
-			return false;
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
+		}
+
+		if (!ilRoomSharingNumericUtils::isPositiveNumber($a_newfile['size']))
+		{
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
 		}
 
 		$this->updateMediaObject($mediaObj, $fileinfo);
-
-		return $this->fileToDatabase($mediaObj->getId());
+		$this->fileToDatabase($mediaObj->getId());
 	}
 
 	/**
-	 * Creates the media object for the updateFloorPlanInfosWithFile and addFloorPlan function
+	 * Returns true if the given title is already taken.
 	 *
-	 * @param type $a_title
-	 * @param type $a_desc
-	 * @param type $a_file_id
-	 * @return \ilObjMediaObject
+	 * @param string $a_title
+	 * @return boolean
+	 */
+	private function isTitleAlreadyTaken($a_title)
+	{
+		$rVal = false;
+		$allFloorplansTitles = $this->getAllFloorplansTitles();
+		foreach ($allFloorplansTitles as $floorplansTitle)
+		{
+			if ($floorplansTitle == $a_title)
+			{
+				$rVal = true;
+				break;
+			}
+		}
+		return $rVal;
+	}
+
+	/**
+	 * Returns all existing floorplans titles.
+	 *
+	 * @return array with titles
+	 */
+	private function getAllFloorplansTitles()
+	{
+		$allFloorplanIds = $this->ilRoomsharingDatabase->getAllFloorplanIds();
+		$floorplansTitles = array();
+		foreach ($allFloorplanIds as $floorplanId)
+		{
+			if (ilRoomSharingNumericUtils::isPositiveNumber($floorplanId))
+			{
+				$mobj = new ilObjMediaObject($floorplanId);
+				$floorplansTitles[] = $mobj->getTitle();
+			}
+		}
+		return $floorplansTitles;
+	}
+
+	/**
+	 * Creates the media object for the updateFloorPlanInfosWithFile and addFloorPlan function.
+	 *
+	 * @param string $a_title
+	 * @param string $a_desc
+	 * @param string $a_file_id
+	 * @return ilObjMediaObject
 	 */
 	private function createMediaObject($a_title, $a_desc, $a_file_id = null)
 	{
@@ -186,22 +292,22 @@ class ilRoomSharingFloorPlans
 		}
 
 		$mediaObj->setTitle($a_title);
-		$mediaObj->setDescription($a_desc);
 		$mediaObj->removeAllMediaItems();
 
 		$media_item = new ilMediaItem();
 		$media_item->setPurpose("Standard");
+		$media_item->setCaption($a_desc);
 		$mediaObj->addMediaItem($media_item);
 
 		return $mediaObj;
 	}
 
 	/**
-	 * Configures the file for the updateFloorPlanInfosWithFile and addFloorPlan function
+	 * Configures the file for the updateFloorPlanInfosWithFile and addFloorPlan function.
 	 *
-	 * @param type $a_mediaObj
-	 * @param type $a_newfile
-	 * @return type
+	 * @param ilObjMediaObject $a_mediaObj
+	 * @param array $a_newfile
+	 * @return array with format and filename
 	 */
 	private function configureFile($a_mediaObj, $a_newfile = null)
 	{
@@ -225,9 +331,9 @@ class ilRoomSharingFloorPlans
 	}
 
 	/**
-	 * Checks if the ImageType is valid
+	 * Checks if the ImageType is valid.
 	 *
-	 * @param type $a_mimeType
+	 * @param string $a_mimeType
 	 * @return boolean
 	 */
 	public function checkImageType($a_mimeType)
@@ -272,18 +378,40 @@ class ilRoomSharingFloorPlans
 
 	/**
 	 * Updates the media object with the file informations for the updateFloorPlanInfosWithFile
-	 * and addFloorPlan function
+	 * and addFloorPlan function.
 	 *
-	 * @param type $a_mediaObj
-	 * @param type $a_fileinfo
+	 * @param ilObjMediaObject $a_mediaObj
+	 * @param array $a_fileinfo with format and filename
 	 */
 	private function updateMediaObject($a_mediaObj, $a_fileinfo)
 	{
 		$media_item = $a_mediaObj->getMediaItem("Standard");
+
 		$media_item->setFormat($a_fileinfo["format"]);
 		$media_item->setLocation($a_fileinfo["filename"]);
 		$media_item->setLocationType("LocalFile");
 		$a_mediaObj->update();
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

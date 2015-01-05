@@ -17,18 +17,26 @@ class ilRoomSharingPermissionUtils
 	private $allUserPrivileges;
 
 	/**
+	 * Constructor of ilRoomSharingPermissionUtils.
 	 *
-	 * @global type $ilUser
+	 * @global ilObjUser $ilUser
 	 * @param integer $a_pool_id
 	 * @param integer $a_owner_id
 	 */
-	public function __construct($a_pool_id, $a_owner_id)
+	public function __construct($a_pool_id, $a_owner_id, ilRoomsharingPrivileges $a_privileges = null)
 	{
 		global $ilUser;
 
 		$this->pool_id = $a_pool_id;
-		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($a_pool_id);
-		$this->privileges = new ilRoomsharingPrivileges();
+		$this->ilRoomsharingDatabase = new ilRoomSharingDatabase($this->pool_id);
+		if ($a_privileges != null)
+		{
+			$this->privileges = $a_privileges;
+		}
+		else
+		{
+			$this->privileges = new ilRoomsharingPrivileges($this->pool_id);
+		}
 		$this->owner = $a_owner_id;
 		$this->user_id = $ilUser->getId();
 		$this->allUserPrivileges = $this->getAllUserPrivileges();
@@ -79,6 +87,11 @@ class ilRoomSharingPermissionUtils
 	 */
 	public function checkForHigherPriority($a_user_id1, $a_user_id2)
 	{
+		if ($a_user_id1 === null || $a_user_id2 === null)
+		{
+			return false;
+		}
+
 		return ($this->getUserPriority($a_user_id1) > $this->getUserPriority($a_user_id2));
 	}
 
@@ -100,6 +113,27 @@ class ilRoomSharingPermissionUtils
 		}
 		$privileges = array_map('strtolower', $privileges);
 		return $privileges;
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

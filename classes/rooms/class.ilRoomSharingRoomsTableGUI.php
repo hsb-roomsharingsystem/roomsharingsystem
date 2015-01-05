@@ -1,23 +1,33 @@
 <?php
 
-include_once ('./Services/Table/classes/class.ilTable2GUI.php');
-include_once ('./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing' .
-	'/classes/rooms/class.ilRoomSharingRooms.php');
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("./Services/Table/classes/class.ilTable2GUI.php");
+require_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/class.ilRoomSharingRooms.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
+require_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
+require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+require_once("./Services/Form/classes/class.ilCombinationInputGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
- * Class ilRoomSharingRoomsTableGUI
+ * Class ilRoomSharingRoomsTableGUI. Table with rooms.
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
+ *
  * @version $Id$
  *
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 {
-	protected $rooms;
+	private $rooms;
 	private $message = '';
 	private $messageNeeded = false;
 	private $messagePlural = false;
+	private $permission;
 
 	/**
 	 * Constructor for the class ilRoomSharingRoomsTableGUI
@@ -28,12 +38,13 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	 */
 	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
 	{
-		global $ilCtrl, $lng;
+		global $ilCtrl, $lng, $rssPermission;
 
 		$this->parent_obj = $a_parent_obj;
 		$this->parent_cmd = $a_parent_cmd;
 		$this->lng = $lng;
 		$this->ctrl = $ilCtrl;
+		$this->permission = $rssPermission;
 		$this->ref_id = $a_ref_id;
 		// in order to keep filter settings, table ordering etc. set an ID
 		// this is better to be unset for debug sessions
@@ -138,22 +149,25 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $a_set ['room']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', $this->parent_cmd);
+		$_SESSION['last_cmd'] = $this->parent_cmd;
 
 		// only display a booking form if a search was initialized beforehand
 		if ($this->parent_cmd === "showSearchResults")
 		{
 			// if this class is used to display search results, the input made
 			// must be transported to the book form
-			$date = unserialize($_SESSION ["form_qsearchform"] ["date"]);
-			$time_from = unserialize($_SESSION ["form_qsearchform"] ["time_from"]);
-			$time_to = unserialize($_SESSION ["form_qsearchform"] ["time_to"]);
+			$date = unserialize($_SESSION ["form_searchform"] ["date"]);
+			$time_from = unserialize($_SESSION ["form_searchform"] ["time_from"]);
+			$time_to = unserialize($_SESSION ["form_searchform"] ["time_to"]);
 
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', $date ['date']);
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', $time_from ['time']);
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_to', $time_to ['time']);
-			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'book'));
+			if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
+			{
+				$this->tpl->setVariable('LINK_ACTION',
+					$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'book'));
+			}
 			// free those parameters, since we don't need them anymore
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'date', "");
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'time_from', "");
@@ -161,34 +175,42 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		}
 		else
 		{
-			// the user is linked to the quick search form if he is trying to book
+			// the user is linked to the search form if he is trying to book
 			// a room when the normal room list is displayed
-			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showSearchQuick'));
+			if ($this->permission->checkPrivilege(PRIVC::ACCESS_SEARCH))
+			{
+				$this->tpl->setVariable('LINK_ACTION',
+					$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showSearch'));
+			}
 		}
 
 		// unset the parameters; just in case
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', "");
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', "");
 
-		// allow administrators to edit and delete rooms, but only if the room list and not the
+		// allow  to edit and delete rooms, but only if the room list and not the
 		// search results are displayed
-		if ($ilAccess->checkAccess('write', '', $this->ref_id) && $this->parent_cmd === "showRooms")
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS) && $this->parent_cmd === "showRooms")
 		{
 			$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 			$this->tpl->parseCurrentBlock();
 			$this->tpl->setVariable('LINK_ACTION',
 				$this->ctrl->getLinkTarget($this->parent_obj, $this->parent_cmd));
 			$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
-			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'editRoom'));
-			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
-			$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
-			$this->tpl->parseCurrentBlock();
-			$this->tpl->setVariable('LINK_ACTION',
-				$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'confirmDeleteRoom'));
-			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('delete'));
-			$this->tpl->parseCurrentBlock();
+			if ($this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
+			{
+				$this->tpl->setVariable('LINK_ACTION',
+					$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'editRoom'));
+				$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('edit'));
+				$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
+				$this->tpl->parseCurrentBlock();
+			}
+			if ($this->permission->checkPrivilege(PRIVC::DELETE_ROOMS))
+			{
+				$this->tpl->setVariable('LINK_ACTION',
+					$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'confirmDeleteRoom'));
+				$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('delete'));
+				$this->tpl->parseCurrentBlock();
+			}
 		}
 		$this->tpl->parseCurrentBlock();
 	}
@@ -249,12 +271,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	protected function createRoomFormItem()
 	{
 		// Room Name
-		include_once ("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
-		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-			"RoomSharing/classes/utils/class.ilRoomSharingTextInputGUI.php");
-		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-			"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		$room_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_room"), "room");
 		$room_name_input = new ilRoomSharingTextInputGUI("", "room_name");
 		$room_name_input->setMaxLength(14);
@@ -273,10 +289,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	protected function createSeatsFormItem()
 	{
 		// Seats
-		include_once ("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
-		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-			"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		$seats_comb = new ilCombinationInputGUI($this->lng->txt("rep_robj_xrs_needed_seats"), "seats");
 		$room_seats_input = new ilRoomSharingNumberInputGUI("", "room_seats");
 		$room_seats_input->setMaxLength(8);
@@ -308,9 +320,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	 */
 	protected function createRoomAttributeFormItem()
 	{
-		include_once ("./Services/Form/classes/class.ilCombinationInputGUI.php");
-		include_once ("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-			"RoomSharing/classes/utils/class.ilRoomSharingNumberInputGUI.php");
 		$room_attributes = $this->rooms->getAllAttributes();
 		foreach ($room_attributes as $room_attribute)
 		{
@@ -363,13 +372,13 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		{
 			if (!$this->messagePlural)
 			{
-				$msg = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_beginn');
+				$msg = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_begin');
 				$msg = $msg . ' "' . $this->message;
 				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_end');
 			}
 			else
 			{
-				$msg = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_beginn');
+				$msg = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_begin');
 				$msg = $msg . ' "' . $this->message;
 				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_end');
 			}

@@ -9,6 +9,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/" 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("Services/User/classes/class.ilUserAutoComplete.php");
 
 use ilRoomSharingAttributesConstants as ATTRC;
 use ilRoomSharingPrivilegesConstants as PRIVC;
@@ -32,7 +33,7 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
  *
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI, ilRoomSharingSearchGUI
  *
- * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI, ilRoomSharingBookingsExport
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingAppointmentsGUI, ilRoomSharingRoomsGUI, ilRoomSharingFloorplansGUI, ilPublicUserProfileGUI, ilRoomSharingBookGUI, ilRoomSharingShowAndEditBookGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomsharingRoomGUI, ilRoomSharingCalendarWeekGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingPrivilegesGUI, ilRoomSharingAttributesGUI
  *
@@ -40,6 +41,7 @@ use ilRoomSharingPrivilegesConstants as PRIVC;
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilCalendarMonthGUI, ilCalendarWeekGUI, ilCalendarInboxGUI
  * @ilCtrl_Calls ilObjRoomSharingGUI: ilConsultationHoursGUI, ilCalendarBlockGUI, ilColumnGUI
  *
+ * @ilCtrl_Calls ilObjRoomSharingGUI: ilRoomSharingDaVinciImportGUI
  *
  * @ilCtrl_isCalledBy ilObjRoomSharingGUI: ilRepositoryGUI, ilAdministrationGUI, ilObjPluginDispatchGUI
  * @ilCtrl_IsCalledBy ilObjRoomSharingGUI: ilColumnGUI
@@ -54,7 +56,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	var $lng;
 	private $permission;
 	protected $settingsForm;
-	protected $pool_id;
+	private $pool_id;
 	protected $pl_obj;
 	protected $cal;
 	protected $seed;
@@ -64,11 +66,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function afterConstructor()
 	{
+		//Cannot initialize the user-calendar and permission utils before the actual object is created because of missing poolID
 		if ($this->object != null)
 		{
 			global $rssPermission;
 
-			//Cannot initialize the user-calendar and permission utils before the actual object is created because of missing poolID
 			$this->initCalendar();
 			$rssPermission = new ilRoomSharingPermissionUtils($this->object->getPoolId(),
 				$this->object->getOwner());
@@ -103,6 +105,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	function performCommand($cmd)
 	{
 		global $ilTabs, $ilCtrl, $tpl, $ilNavigationHistory, $cmd, $rssPermission;
+		$tpl->setDescription($this->object->getLongDescription());
+		$tpl->setAlertProperties($this->getAlertProperties());
 		$next_class = $ilCtrl->getNextClass($this);
 		$this->pl_obj = new ilRoomSharingPlugin();
 		$this->pl_obj->includeClass("class.ilObjRoomSharing.php");
@@ -121,12 +125,15 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$this->$cmd();
 			return true;
 		}
+		else if ($cmd == 'showBooking' || $cmd == 'editBooking' || $cmd == 'saveEditBooking' || $cmd == 'cancelEdit')
+		{
+			$next_class = 'ilroomsharingshowandeditbookgui';
+		}
 		/*
-		 * The special handling of the commands showSearchQuick and
-		 * showSearchResults is needed because otherwise the wrong $next_class
-		 * would be called
+		 * The special handling of the commands showSearch and showSearchResults is needed because
+		 * otherwise the wrong $next_class would be called
 		 */
-		else if ($cmd === 'showSearchQuick' || $cmd === 'showBookSearchResults')
+		else if ($cmd === 'showSearch' || $cmd === 'showBookSearchResults' || $cmd === "showSearchResults")
 		{
 			$next_class = empty($next_class) ? ilroomsharingsearchgui : $next_class;
 		}
@@ -134,6 +141,10 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		else if ($cmd === 'addRoom' || $cmd === 'editRoom')
 		{
 			$next_class = ilroomsharingroomgui;
+		}
+		else if ($cmd == 'showBookings')
+		{
+			$next_class = ilroomsharingappointmentsgui;
 		}
 
 		// Extend list of last visited objects by this pool.
@@ -196,11 +207,34 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			case 'ilroomsharingbookgui':
 				$this->tabs_gui->clearTargets();
 				$this->tabs_gui->setBackTarget(
-					$this->lng->txt("rep_robj_xrs_search_back"), $ilCtrl->getLinkTarget($this, "showSearchResults")
+					$this->lng->txt($_SESSION['last_cmd'] != "showRoom" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+					$this->ctrl->getLinkTarget($this, $_SESSION['last_cmd'])
 				);
 				$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 				$book_gui = & new ilRoomSharingBookGUI($this);
 				$ret = & $this->ctrl->forwardCommand($book_gui);
+				break;
+			// Show and edit booking
+			case 'ilroomsharingshowandeditbookgui':
+				$this->tabs_gui->clearTargets();
+				$this->tabs_gui->setBackTarget(
+					$this->lng->txt("rep_robj_xrs_booking_back"), $ilCtrl->getLinkTarget($this, "showBookings")
+				);
+				$this->pl_obj->includeClass("booking/class.ilRoomSharingShowAndEditBookGUI.php");
+				$booking_id = (int) $_GET['booking_id'];
+				$room_id = (int) $_GET['room_id'];
+				if ($cmd == 'editBooking' || $cmd == 'saveEditBooking')
+				{
+					$mode = 'edit';
+				}
+				//$cmd == 'showBooking' || $cmd == 'cancelEdit'
+				else
+				{
+					$mode = 'show';
+				}
+				$showAndEditBook_gui = & new ilRoomSharingShowAndEditBookGUI($this, $booking_id, $room_id, $mode);
+				$ret = & $this->ctrl->forwardCommand($showAndEditBook_gui);
+				$has_calendar = true;
 				break;
 			// Floorplans
 			case 'ilroomsharingfloorplansgui':
@@ -209,6 +243,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
 				break;
+                        // daVinci import
+                        case 'ilroomsharingdavinciimportgui':
+                                $this->tabs_gui->setTabActive('daVinci_import');
+                                $this->pl_obj->includeClass("import/class.ilRoomSharingDaVinciImportGUI.php");
+                                $import_gui = & new ilRoomSharingDaVinciImportGUI($this);
+                                $ret = & $this->ctrl->forwardCommand($import_gui);
+                                break;
 			// Permissions
 			case 'ilpermissiongui':
 				$this->tabs_gui->setTabActive('perm_settings');
@@ -254,21 +295,25 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				break;
 			// Various CalendarGUIs
 			case "ilcalendardaygui":
+                            $this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
 				$day = new ilCalendarDayGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($day);
 				break;
 			case "ilcalendarmonthgui":
+                            $this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarMonthGUI.php");
 				$month = new ilCalendarMonthGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($month);
 				break;
 			case "ilcalendarweekgui":
+                            $this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
 				$week = new ilCalendarweekGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($week);
 				break;
 			case "ilcalendarblockgui":
+                            $this->setActiveTabRegardingPrivilege();
 				$this->ctrl->forwardCommand($this->cal);
 				break;
 			// Standard cmd handling if cmd is none of the above. In that case, the next page is
@@ -294,17 +339,25 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		return true;
 	}
 
+	private function getAlertProperties()
+	{
+		global $lng;
+		$alert_props = array();
+		if (!$this->object->isOnline())
+		{
+			$alert_props[] = array("alert" => true, "property" => $lng->txt("status"),
+				"value" => $lng->txt("offline"));
+		}
+		return $alert_props;
+	}
+
 	/**
 	 * Default command that is executed if no "nextClass" can be determined.
 	 * @param boolean true
 	 */
 	public function render()
 	{
-		global $ilTabs, $ilCtrl;
-		$ilTabs->setTabActive('appointments');
-		$this->pl_obj->includeClass("appointments/class.ilRoomSharingAppointmentsGUI.php");
-		$object_gui = & new ilRoomSharingAppointmentsGUI($this);
-		$ilCtrl->forwardCommand($object_gui);
+		$this->setActiveTabRegardingPrivilege();
 		return true;
 	}
 
@@ -349,7 +402,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Search
 			$this->tabs_gui->addTab(
 				"search", $this->lng->txt("search"),
-				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearchQuick")
+				$this->ctrl->getLinkTargetByClass('ilroomsharingsearchgui', "showSearch")
 			);
 		}
 
@@ -371,13 +424,29 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			);
 		}
 
-		if ($this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		$adminRoomAttrs = $this->permission->checkPrivilege(PRIVC::ADMIN_ROOM_ATTRIBUTES);
+		if ($adminRoomAttrs || $this->permission->checkPrivilege(PRIVC::ADMIN_BOOKING_ATTRIBUTES))
 		{
-			// Attributes for rooms and bookings
+			$specifiedActions = $adminRoomAttrs ? ATTRC::SHOW_ROOM_ATTR_ACTIONS : ATTRC::SHOW_BOOKING_ATTR_ACTIONS;
+			// Attributes for rooms or bookings
 			$ilTabs->addTab(
 				ATTRC::ATTRS, $this->txt("attributes"),
-				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, ATTRC::SHOW_ROOM_ATTR_ACTIONS)
+				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, $specifiedActions)
 			);
+		}
+                
+                //check for privilege
+                if(true)
+                {
+                        // daVinci import tab
+                        $this->tabs_gui->addTab(
+                                "daVinci_import", $this->txt("daVinci_import"),
+                                $this->ctrl->getLinkTargetByClass("ilroomsharingdavinciimportgui","render")
+                                );
+                }
+                
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
 			// Settings
 			$this->tabs_gui->addTab(
 				'settings', $this->txt('settings'), $this->ctrl->getLinkTarget($this, 'editSettings')
@@ -398,16 +467,22 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$this->ctrl->getLinkTargetByClass("ilroomsharingprivilegesgui", "showPrivileges")
 			);
 		}
+	}
 
+	private function setActiveTabRegardingPrivilege()
+	{
+		global $ilCtrl;
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_APPOINTMENTS))
 		{
 			//show first tab per default
 			$this->tabs_gui->activateTab('appointments');
+			$this->pl_obj->includeClass('appointments/class.ilRoomSharingAppointmentsGUI.php');
+			$object_gui = & new ilRoomSharingAppointmentsGUI($this);
+			$ilCtrl->forwardCommand($object_gui);
 		}
 		else
 		{
-			//TODO GEHT DAS SO??
-			$this->tabs_gui->activateTab("info");
+			$ilCtrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 		}
 	}
 
@@ -416,7 +491,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	function showContent()
 	{
-		$this->tabs_gui->activateTab('appointments');
+		$this->setActiveTabRegardingPrivilege();
 	}
 
 	/**
@@ -425,6 +500,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function editSettings()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			$this->setActiveTabRegardingPrivilege();
+			return FALSE;
+		}
 		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm();
 		$this->getSettingsValues();
@@ -438,6 +518,11 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	protected function updateSettings()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
+		{
+			$this->setActiveTabRegardingPrivilege();
+			return FALSE;
+		}
 		$this->tabs_gui->activateTab('settings');
 		$this->initSettingsForm();
 
@@ -484,9 +569,12 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 
 		// Title and description (Standard)
 		$titleField = new ilTextInputGUI($this->lng->txt('title'), 'title');
+		$titleField->setMaxLength(128);
 		$titleField->setRequired(true);
 		$this->settingsForm->addItem($titleField);
 		$descField = new ilTextAreaInputGUI($this->lng->txt('description'), 'desc');
+		$descField->setCols(50);
+		$descField->setRows(5);
 		$this->settingsForm->addItem($descField);
 
 		// Online flag
@@ -520,7 +608,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	{
 		// Title and description (Standard)
 		$values ['title'] = $this->object->getTitle();
-		$values ['desc'] = $this->object->getDescription();
+		$values ['desc'] = $this->object->getLongDescription();
 
 		// Online flag
 		$values ['online'] = $this->object->isOnline();
@@ -536,7 +624,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		if (!empty($fileId) && $fileId != "0")
 		{
 			$agreementFile = new ilObjMediaObject($this->object->getRoomsAgreementFileId());
-			$media = $agreementFile->getMediaItem("Agreement");
+			$media = $agreementFile->getMediaItem("Standard");
 			$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
 
 			$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
@@ -562,17 +650,21 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	}
 
 	/**
-	 * Function that redirects to the overview of a made booking.
-	 * !!! Will probably be moved to another class in further releases !!!
-	 */
-	public function showBooking()
-	{
-		global $ilCtrl;
-		$booking_id = (int) $_GET['booking_id'];
-		$ilCtrl->setCmd("showBookings");
-		$this->render();
-	}
+	 * Function that shows a existing booking.
 
+	  public function showBooking()
+	  {
+	  $this->tabs_gui->clearTargets();
+	  $last_cmd = empty($_GET['last_cmd']) ? "showBookings" : $_GET['last_cmd'];
+	  $this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
+	  $booking_id = (int) $_GET['booking_id'];
+	  $booking = new ilRoomSharingBookGUI($this, $booking_id);
+	  $book->renderBookingForm('show');
+	  $this->tabs_gui->setBackTarget($this->lng->txt("rep_robj_xrs_booking_back"),
+	  $this->ctrl->getLinkTarget($this, $last_cmd));
+	  }
+
+	 */
 	/**
 	 * Displays a page with room information.
 	 */
@@ -615,7 +707,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	public function book()
 	{
 		$this->tabs_gui->clearTargets();
-		$last_cmd = empty($_GET['last_cmd']) ? "showRooms" : $_GET['last_cmd'];
 		$this->pl_obj->includeClass("booking/class.ilRoomSharingBookGUI.php");
 		$book = new ilRoomSharingBookGUI(
 			$this, $_GET['room_id'], $_GET['date'] . " " . $_GET['time_from'],
@@ -624,7 +715,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$book->renderBookingForm();
 		// the back button which links to where the user came from
 		$this->tabs_gui->setBackTarget(
-			$this->lng->txt("rep_robj_xrs_search_back"), $this->ctrl->getLinkTarget($this, $last_cmd)
+			$this->lng->txt($_SESSION['last_cmd'] != "showroom" ? "rep_robj_xrs_search_back" : "rep_robj_xrs_room_back"),
+			$this->ctrl->getLinkTarget($this, $_SESSION['last_cmd'])
 		);
 	}
 
@@ -645,24 +737,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$this->ctrl->getLinkTargetByClass('ilroomsharingappointmentsgui', $last_cmd)
 		);
 		$tpl->setContent($ilCtrl->getHTML($profile));
-	}
-
-	/**
-	 * Returns roomsharing pool id.
-	 * @return int current pool_id of this booking pool
-	 */
-	function getPoolId()
-	{
-		return $this->pool_id;
-	}
-
-	/**
-	 * Sets roomsharing pool id.
-	 * @param int new pool id for this booking pool
-	 */
-	function setPoolId($a_pool_id)
-	{
-		$this->pool_id = $a_pool_id;
 	}
 
 	/**
@@ -707,6 +781,27 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	public function getCalendarId()
 	{
 		return $this->cal->getCalendarId();
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
 	}
 
 }

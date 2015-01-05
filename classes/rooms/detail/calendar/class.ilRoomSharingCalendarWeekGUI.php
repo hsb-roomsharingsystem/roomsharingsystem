@@ -1,13 +1,40 @@
 <?php
 
 include_once './Services/Calendar/classes/class.ilCalendarWeekGUI.php';
+require_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+require_once("./Services/YUI/classes/class.ilYuiUtil.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarSchedule.php");
+require_once("Services/Calendar/classes/class.ilCalendarSettings.php");
+require_once("./Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php");
 
+use ilRoomSharingPrivilegesConstants as PRIVC;
+
+/**
+ * Class ilRoomSharingCalendarWeekGUI
+ *
+ * Displays room-based appointments in weekview-format.
+ *
+ * @author Tim Röhrig
+ *
+ * @ilCtrl_Calls ilRoomSharingCalendarWeekGUI: ilRoomSharingCalendarWeekGUI
+ * @ilCtrl_Calls ilRoomSharingCalendarWeekGUI: ilRoomSharingCalendarScheduleExportTableGUI
+ * @property ilRoomSharingPermissionUtils $permission
+ */
 class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 {
 	protected $room_id;
-	protected $pool_id;
+	private $pool_id;
 	// Color of appointments in week-view
 	private $color = 'lightblue';
+	protected $timeIntervals = array();
+	protected $days = array();
+	protected $bookedTimes = NULL;
+	protected $format = 'Y-m-d H:i:s';
+	protected $timeRows;
+	private $permission;
 
 	/**
 	 * Constructor
@@ -16,11 +43,14 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	 * @param
 	 *
 	 */
-	public function __construct(ilDate $seed_date, $pool_id, $room_id)
+	public function __construct(ilDate $a_seed_date, $a_pool_id, $a_room_id)
 	{
-		$this->room_id = $room_id;
-		$this->pool_id = $pool_id;
-		parent::__construct($seed_date);
+		global $rssPermission;
+		$this->permission = $rssPermission;
+
+		$this->room_id = $a_room_id;
+		$this->pool_id = $a_pool_id;
+		parent::__construct($a_seed_date);
 	}
 
 	/**
@@ -35,6 +65,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		$ilTabs->setTabActive('rooms');
 
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
+		$_SESSION['last_cmd'] = 'showroom';
 
 		// Roominfo
 		$ilTabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
@@ -47,18 +78,44 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	}
 
 	/**
+	 * Main switch for command execution.
+	 *
+	 * @return Returns always true.
+	 */
+	function executeCommand()
+	{
+		global $ilCtrl;
+		if ($this->ctrl->getCmd() == 'export')
+		{
+			$this->show(true);
+		}
+		else
+		{
+			parent::executeCommand();
+		}
+
+		return true;
+	}
+
+	/**
 	 * fill data section
 	 *
 	 * @access public
 	 *
 	 */
-	public function show()
+	public function show($export = false)
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::SEE_BOOKINGS_OF_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
+
+		global $ilUser, $lng, $ilToolbar;
 		$this->setSubTabs('weekview');
 
-		global $ilUser, $lng;
-
-		// config
+		//intervalsize
 		$raster = 15;
 		if ($this->user_settings->getDayStart())
 		{
@@ -71,14 +128,11 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		}
 		$evening_aggr = $this->user_settings->getDayEnd() * 60;
 
-
 		$this->tpl = new ilTemplate('tpl.room_week_view.html', true, true,
 			'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing');
 
-		include_once('./Services/YUI/classes/class.ilYuiUtil.php');
 		ilYuiUtil::initDragDrop();
 		ilYuiUtil::initPanel();
-
 
 		$navigation = new ilCalendarHeaderNavigationGUI($this, $this->seed, ilDateTime::WEEK);
 		$this->tpl->setVariable('NAVIGATION', $navigation->getHTML());
@@ -101,14 +155,12 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			$disable_empty = false;
 			$no_add = false;
 		}
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 
 		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
 
 		$this->tpl->setVariable('ROOM',
 			$this->lng->txt('rep_robj_xrs_room_occupation_title') . " " . $room->getName());
 
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarSchedule.php");
 		$this->scheduler = new ilRoomSharingCalendarSchedule($this->seed, ilCalendarSchedule::TYPE_WEEK,
 			$user_id, $room);
 		$this->scheduler->addSubitemCalendars(true);
@@ -132,8 +184,12 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 
 		$colspans = $this->calculateColspans($hours);
 
-		include_once('Services/Calendar/classes/class.ilCalendarSettings.php');
 		$settings = ilCalendarSettings::_getInstance();
+
+		$exportLink = $this->ctrl->getLinkTargetByClass("ilroomsharingcalendarweekgui", "export");
+		$this->tpl->setCurrentBlock("export_block");
+		$this->tpl->setVariable('EXPORT_LINK', $exportLink);
+		$this->tpl->parseCurrentBlock();
 
 		// Table header
 		$counter = 0;
@@ -146,6 +202,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			$this->ctrl->setParameterByClass('ilcalendardaygui', 'seed', $date->get(IL_CAL_DATE));
 
 			$dayname = ilCalendarUtil::_numericDayToString($date->get(IL_CAL_FKT_DATE, 'w'), true);
+			$this->days[$counter] = $date;
 			$daydate = $date_info['mday'] . ' ' . ilCalendarUtil::_numericMonthToString($date_info['mon'],
 					false);
 
@@ -194,6 +251,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 						($num_hour == $evening_aggr && $evening_aggr))
 					{
 						$first = false;
+						$this->timeIntervals[] = $hours_per_day[2];
 
 						// aggregation rows
 						if (($num_hour == $morning_aggr && $morning_aggr) ||
@@ -233,19 +291,21 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 				$num_apps = $hour['apps_num'];
 				$colspan = max($colspans[$num_day], 1);
 
-
 				// Show new apointment link
-				if (!$hour['apps_num'] && !$ilUser->prefs["screen_reader_optimization"] && !$no_add)
+				$userCanAddBooking = $this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS);
+				$calStuffAllowed = !$hour['apps_num'] && !$ilUser->prefs["screen_reader_optimization"] && !$no_add;
+				if ($userCanAddBooking && $calStuffAllowed)
 				{
 					$this->tpl->setCurrentBlock('new_app_link');
 
 					$this->tpl->setVariable('DAY_NEW_APP_LINK', $this->lng->txt('rep_robj_xrs_room_book'));
 					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $room->getName());
 					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room->getId());
-					$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', $this->parent_cmd);
+					$_SESSION['last_cmd'] = 'showroom';
 
 					$date = $this->weekdays[$num_day]->get(IL_CAL_DATE);
 
+					//convert time into suitable format (HH:ii:ss)
 					$hr = floor($num_hour / 60);
 					$hr = $hr < 10 ? "0" . $hr : $hr;
 
@@ -312,11 +372,14 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 					$this->tpl->parseCurrentBlock();
 				}
 			}
-
 			$this->tpl->touchBlock('time_row');
 		}
-
 		$this->tpl->setVariable("TXT_TIME", $lng->txt("time"));
+		if ($export)
+		{
+
+			$this->export();
+		}
 	}
 
 	protected function showAppointment($a_app)
@@ -336,7 +399,6 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			$this->tpl->setCurrentBLock('scrd_not_empty');
 		}
 
-		include_once('./Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php');
 		$this->tpl->setVariable('PANEL_DATA',
 			ilCalendarAppointmentPanelGUI::_getInstance($this->seed)->getHTML($a_app));
 
@@ -351,41 +413,33 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 		$style .= ('color:' . ilCalendarUtil::calculateFontColor($this->color));
 		$td_style = $style;
 
-
-		if ($a_app['event']->isFullDay())
+		switch ($this->user_settings->getTimeFormat())
 		{
-			$title = $a_app['event']->getPresentationTitle();
+			case ilCalendarSettings::TIME_FORMAT_24:
+				$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
+				break;
+
+			case ilCalendarSettings::TIME_FORMAT_12:
+				$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
+				break;
 		}
-		else
+		// add end time for screen readers
+		if ($ilUser->prefs["screen_reader_optimization"])
 		{
 			switch ($this->user_settings->getTimeFormat())
 			{
 				case ilCalendarSettings::TIME_FORMAT_24:
-					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
+					$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
 					break;
 
 				case ilCalendarSettings::TIME_FORMAT_12:
-					$title = $a_app['event']->getStart()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
+					$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
 					break;
 			}
-			// add end time for screen readers
-			if ($ilUser->prefs["screen_reader_optimization"])
-			{
-				switch ($this->user_settings->getTimeFormat())
-				{
-					case ilCalendarSettings::TIME_FORMAT_24:
-						$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'H:i', $this->timezone);
-						break;
-
-					case ilCalendarSettings::TIME_FORMAT_12:
-						$title.= "-" . $a_app['event']->getEnd()->get(IL_CAL_FKT_DATE, 'h:ia', $this->timezone);
-						break;
-				}
-			}
-
-			$title .= (' ' . $a_app['event']->getPresentationTitle());
-			$td_style .= $a_app['event']->getPresentationStyle();
 		}
+
+		$title .= (' ' . $a_app['event']->getPresentationTitle());
+		$td_style .= $a_app['event']->getPresentationStyle();
 
 		$this->tpl->setVariable('APP_TITLE', $title);
 		$this->tpl->setVariable('LINK_NUM', $this->num_appointments);
@@ -413,8 +467,200 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			$this->tpl->setVariable('DIV_STYLE', $style);
 			$this->tpl->parseCurrentBlock();
 		}
-
 		$this->num_appointments++;
+	}
+
+	/**
+	 * Set the poolID of bookings
+	 *
+	 * @param integer $pool_id
+	 *        	poolID
+	 */
+	public function setPoolId($pool_id)
+	{
+		$this->pool_id = $pool_id;
+	}
+
+	/**
+	 * Get the PoolID of bookings
+	 *
+	 * @return integer PoolID
+	 */
+	public function getPoolId()
+	{
+		return (int) $this->pool_id;
+	}
+
+	public function export()
+	{
+
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarScheduleExportTableGUI.php");
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharingPDFCreator.php");
+		$htmlContent = $this->tpl->get('__global__');
+		file_put_contents('htmlContent.txt', $htmlContent);
+
+		$this->writeRoomDataFromRoomObject();
+		$exportTable = new ilRoomSharingCalendarScheduleExportTableGUI($this->parent_obj,
+			'calendarscheduleexport', $this->ref_id, $this);
+
+		$tableHtml = str_replace("<nobreaks /><br /><br />", "", $exportTable->getTableHTML());
+		file_put_contents('htmlContent.txt', $tableHtml);
+		ilObjRoomSharingPDFCreator::generatePDF($tableHtml, 'D', 'file.pdf');
+	}
+
+	public function writeRoomDataFromRoomObject()
+	{
+
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
+		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
+
+		$bookedTimes = $room->getBookedTimes();
+		$resultString = "";
+		foreach ($bookedTimes as $appointment)
+		{
+			foreach ($appointment as $element)
+			{
+				$resultString .= $element;
+				$resultString .= "     ";
+			}
+		}
+		file_put_contents('bookedTimes.txt', $resultString);
+		$this->buildAppointmentsArray();
+		/*
+
+		 * $timeRows = array()
+		 * $i = 0
+		 * foreach colspans as time
+		 *     $timeRow = array()
+		 *     $k = 0
+		 *     for each days as day
+		 *         $timeRow[k] = getTableEntry(time, day)
+		 *         $k++
+		 *     end for
+		 *     $timeRows[i] = $timeRow
+		 *     $i++
+		 * end for
+
+		 */
+	}
+
+	public function buildAppointmentsArray()
+	{
+		if ($this->timeRows == NULL)
+		{
+			$timeRows = array();
+			$i = 1;
+			foreach ($this->getTimeIntervals() as $num_day => $hour)
+			{
+
+				$timeRow = array();
+				$timeRow[0] = $hour['txt'];
+				$k = 1;
+				foreach ($this->getDays() as $day)
+				{
+					$convertedDay = DateTime::createFromFormat('YmdHis', $day->get(6));
+
+					$timeRow[$k] = $this->getTableEntry($hour, $convertedDay);
+					$timeRows[0][$k] = $convertedDay;
+					$k++;
+				}
+				$timeRows[$i] = $timeRow;
+				$i++;
+			}
+			$this->timeRows = $timeRows;
+		}
+		return $this->timeRows;
+	}
+
+	public function getTimeSlots()
+	{
+		$result = array();
+		foreach ($this->getTimeIntervals() as $num_day => $hour)
+		{
+			$result[] = $hour;
+		}
+		return result;
+	}
+
+	public function getTimeIntervals()
+	{
+		return $this->timeIntervals;
+	}
+
+	public function getDays()
+	{
+		return $this->days;
+	}
+
+	public function getTableEntry($hour, $day)
+	{
+		if ($this->bookedTimes == NULL)
+		{
+			$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
+			$this->bookedTimes = $room->getBookedTimes();
+		}
+
+		$result = NULL;
+
+		$hourString = $hour['txt'];
+		$hourStart = $this->getHourStart($hourString, $day);
+		$hourEnd = $this->getHourEnd($hourString, $day);
+
+
+		foreach ($this->bookedTimes as $appointment)
+		{
+			$beginOfAppointment = DateTime::createFromFormat($this->format, $appointment['date_from']);
+			$endOfAppointment = DateTime::createFromFormat($this->format, $appointment['date_to']);
+
+			if (($endOfAppointment <= $hourStart) || ($beginOfAppointment >= $hourEnd))
+			{
+
+			}
+			else
+			{
+				$result = array(
+					'subject' => $appointment['subject'],
+					'begin' => $beginOfAppointment,
+					'end' => $endOfAppointment
+				);
+			}
+		}
+		return $result;
+	}
+
+	public function getHourStart($hourString, $day)
+	{
+		// this may be simply one hour or more or less - doesn't matter for the start time!
+		$hour = substr($hourString, 0, 2);
+		$minute = substr($hourString, 3, 2);
+		$result = clone $day;
+		date_time_set($result, intval($hour), intval($minute), 00);
+		return $result;
+	}
+
+	public function getHourEnd($hourString, $day)
+	{
+		if (strpos($hourString, '-') === FALSE)
+		{
+			// this is simply one hour - the end is implicitly one hour after the start.
+			$hour = substr($hourString, 0, 2);
+			$minute = substr($hourString, 3, 2);
+			$result = clone $day;
+			date_time_set($result, intval($hour) + 1, intval($minute), 00);
+			return $result;
+		}
+		else
+		{
+			// this is a longer time range divided by a '-', so the end time is given.
+			return $this->getHourStart(substr($hourString, strpos($hourString, '-') + 1), $day);
+		}
+	}
+
+	public function getRoomName()
+	{
+		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
+		$room = new ilRoomSharingRoom($this->pool_id, $this->room_id);
+		return $room->getName();
 	}
 
 }

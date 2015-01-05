@@ -1,7 +1,7 @@
 <?php
 
-require_once ("Services/Table/classes/class.ilTable2GUI.php");
-require_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipations.php");
+require_once("Services/Table/classes/class.ilTable2GUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipations.php");
 
 /**
  * Class ilRoomSharingParticipationsTableGUI
@@ -61,8 +61,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 		// checkboxes labeled with "participations" get
 		// affected by the "Select All"-Checkbox
 		$this->setSelectAllCheckbox('participations');
-		$this->setRowTemplate("tpl.room_appointment_row.html",
-			"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
+		$this->setRowTemplate("tpl.room_appointment_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
 		// command for leaving
 		$this->addMultiCommand('confirmLeaveMultipleParticipations', $this->lng->txt('rep_robj_xrs_leave'));
 
@@ -137,11 +136,10 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	{
 		if ($a_rowData['recurrence'])
 		{
-			// Picture for recursive appointment.
+			// Picture for recurrent appointment.
 			$this->tpl->setVariable('IMG_RECURRENCE_PATH', ilUtil::getImagePath("cmd_move_s.png"));
 		}
-		$this->tpl->setVariable('IMG_RECURRENCE_TITLE',
-			$this->lng->txt("rep_robj_xrs_room_date_recurrence"));
+		$this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("rep_robj_xrs_room_date_recurrence"));
 	}
 
 	/**
@@ -164,8 +162,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('TXT_ROOM', $a_rowData['room']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_rowData['room_id']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showParticipations');
-		$this->tpl->setVariable('HREF_ROOM',
-			$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
+		$this->tpl->setVariable('HREF_ROOM', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
 	}
 
@@ -176,8 +173,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	 */
 	private function setSubject($a_rowData)
 	{
-		$this->tpl->setVariable('TXT_SUBJECT',
-			($a_rowData['subject'] == null ? '' : $a_rowData['subject']));
+		$this->tpl->setVariable('TXT_SUBJECT', ($a_rowData['subject'] == null ? '' : $a_rowData['subject']));
 	}
 
 	/**
@@ -187,14 +183,11 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	 */
 	private function setResponsible($a_rowData)
 	{
-		// ### Person Responsible ###
 		$this->tpl->setVariable('TXT_USER', $a_rowData['person_responsible']);
 		// put together a link for the profile view
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id',
-			$a_rowData['person_responsible_id']);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', $a_rowData['person_responsible_id']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showParticipations');
-		$this->tpl->setVariable('HREF_PROFILE',
-			$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
+		$this->tpl->setVariable('HREF_PROFILE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
 		// unset the parameter for safety purposes
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', '');
 	}
@@ -222,12 +215,9 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	 */
 	private function setActions($a_rowData)
 	{
-		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_id',
-			$a_rowData ['booking_id']);
-		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_subject',
-			$a_rowData ['subject']);
-		$this->tpl->setVariable('LINK_ACTION',
-			$this->ctrl->getLinkTarget($this->parent_obj, 'confirmLeaveParticipation'));
+		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_id', $a_rowData ['booking_id']);
+		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_subject', $a_rowData ['subject']);
+		$this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'confirmLeaveParticipation'));
 		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_leave'));
 	}
 
@@ -243,5 +233,4 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	}
 
 }
-
 ?>
