@@ -103,6 +103,11 @@ class ilRoomSharingBook
 		return 0;
 	}
 
+	/**
+	 * Generates datetimes for the (recurrence) booking
+	 * @return array ("from" => array(DATETIMES_FROM...),
+	 * 				  "to" => array(DATETIMES_TO...))
+	 */
 	private function generateDatetimesForBooking()
 	{
 		$time_from = date('H:i:s', strtotime($this->date_from));
