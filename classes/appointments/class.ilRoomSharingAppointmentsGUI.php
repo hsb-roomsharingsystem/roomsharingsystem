@@ -34,11 +34,26 @@ class ilRoomSharingAppointmentsGUI
 	function __construct($a_parent_obj)
 	{
 		global $ilCtrl, $lng;
+
+		$this->parent_obj = $a_parent_obj;
+		$this->ref_id = $a_parent_obj->ref_id;
+		$this->pool_id = $a_parent_obj->getPoolId();
+
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 
 		$this->ref_id = $a_parent_obj->ref_id;
 		$this->pool_id = $a_parent_obj->getPoolId();
+	}
+
+	/**
+	 * Perform the given Command
+	 *
+	 * @param $cmd
+	 */
+	function performCommand($cmd)
+	{
+		echo $cmd;
 	}
 
 	/**
@@ -48,6 +63,8 @@ class ilRoomSharingAppointmentsGUI
 	 */
 	function executeCommand()
 	{
+		global $ilCtrl, $tpl;
+
 		// set cmd to 'showBookings' if no cmd can be found
 		$cmd = $this->ctrl->getCmd("showBookings");
 
@@ -57,20 +74,45 @@ class ilRoomSharingAppointmentsGUI
 			case 'showContent':
 			case 'saveEditBook':
 			case 'cancelBooking':
+				$next_class = 'ilroomsharingbookingsgui';
+				break;
 			case 'confirmMultipleCancels':
 			case 'cancelMultipleBookings':
 			case 'confirmCancel':
+				$next_class = 'ilroomsharingbookingsgui';
 				$cmd = 'showBookings';
 				break;
 			case 'confirmLeaveParticipation':
 			case 'confirmLeaveMultipleParticipations':
+			case 'exportBooking':
+				$next_class = 'ilroomsharingbookingsgui';
+				break;
 			case 'leaveMultipleParticipations':
 				$cmd = 'showParticipations';
 				break;
 			default:
 				break;
 		}
-		$this->$cmd();
+
+		$ilCtrl->setReturn($this, "showBookings");
+
+		switch ($next_class)
+		{
+			// Bookings
+			case 'ilroomsharingbookingsgui' :
+				$this->showBookings();
+				break;
+
+			// Participations
+			case 'ilroomsharingparticipationsgui' :
+				$this->showParticipations();
+				break;
+
+			default :
+				$this->$cmd();
+				break;
+		}
+
 		return true;
 	}
 
@@ -97,6 +139,14 @@ class ilRoomSharingAppointmentsGUI
 	function showBookings()
 	{
 		$this->setSubTabs('bookings');
+		$object_gui = & new ilRoomSharingBookingsGUI($this);
+		$this->ctrl->forwardCommand($object_gui);
+	}
+
+	function showBookingsWithExport()
+	{
+		$this->setSubTabs('bookings');
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsGUI.php");
 		$object_gui = & new ilRoomSharingBookingsGUI($this);
 		$this->ctrl->forwardCommand($object_gui);
 	}

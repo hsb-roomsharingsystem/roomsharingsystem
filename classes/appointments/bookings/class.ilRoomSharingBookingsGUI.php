@@ -69,10 +69,17 @@ class ilRoomSharingBookingsGUI
 		{
 			$cmd = 'showBookings';
 		}
-
-		$cmd .= 'Object';
-		$this->$cmd();
-
+		if ($cmd == 'exportbookingobject')
+		{
+			exportBookingObject();
+		}
+		switch ($next_class)
+		{
+			default :
+				$cmd .= 'Object';
+				$this->$cmd();
+				break;
+		}
 		return true;
 	}
 
@@ -90,6 +97,7 @@ class ilRoomSharingBookingsGUI
 			$toolbar->addButton($this->lng->txt('rep_robj_xrs_booking_add'), $this->ctrl->getLinkTargetByClass("ilobjroomsharinggui", "showSearch"));
 		}
 
+		include_once ("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookingsTableGUI.php");
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
 		$bookingsTable->initFilter();
 		$bookingsTable->getItems();

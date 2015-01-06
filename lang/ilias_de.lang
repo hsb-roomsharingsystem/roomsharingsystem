@@ -72,6 +72,8 @@ edit#:#Bearbeiten
 edit_attributes#:#Änderung der Attribute
 edit_properties#:#Einstellungen bearbeiten
 fake_attribute_id_provided#:#Es wurden fehlerhafte Daten übermittelt. Versuchen sie es nochmal.
+exportPDF#:#Exportieren
+export_pdf#:#.pdf exportieren
 floor_plans_add#:#Gebäudeplan hinzufügen
 floor_plans_added#:#Gebäudeplan hinzugefügt
 floor_plans_delete#:#Gebäudeplan löschen
