@@ -30,6 +30,9 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 	private $message = '';
 	private $messageNeeded = false;
 	private $messagePlural = false;
+	private $messageLowerZero = '';
+	private $messageNeededLowerZero = false;
+	private $messagePluralLowerZero = false;
 	private $permission;
 
 	/**
@@ -364,15 +367,22 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		)];
 		if ($value !== "" && $value > $room_seats_input->getMaxValue())
 		{
-			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_needed_seats  ");
+			$this->message = $this->message . $this->lng->txt("rep_robj_xrs_needed_seats");
 
-			if ($this
-				->messagePlural == false && $this->messageNeeded == true)
+			if (!$this->messagePlural && $this->messageNeeded)
 			{
-
 				$this->messagePlural = true;
 			}
 			$this->messageNeeded = true;
+		}
+		elseif ($value !== "" && $value < 0)
+		{
+			$this->messageLowerZero = $this->messageLowerZero . $this->lng->txt("rep_robj_xrs_needed_seats");
+			if (!$this->messagePluralLowerZero && $this->messageNeededLowerZero)
+			{
+				$this->messagePluralLowerZero = true;
+			}
+			$this->messageNeededLowerZero = true;
 		}
 	}
 
@@ -413,21 +423,38 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 				}
 				else
 				{
-					$this->message = $this->message . $room_attribute;
+					$this->message = $room_attribute;
 				}
 
-				if ($this->messagePlural == false && $this->messageNeeded == true)
+				if (!$this->messagePlural && $this->messageNeeded)
 				{
 					$this->messagePlural = true;
 				}
 				$this->messageNeeded = true;
+			}
+			elseif ($value !== "" && $value < 0)
+			{
+				if ($this->messageLowerZero != '')
+				{
+					$this->messageLowerZero = $this->messageLowerZero . ', ' . $room_attribute;
+				}
+				else
+				{
+					$this->messageLowerZero = $room_attribute;
+				}
+
+				if (!$this->messagePluralLowerZero && $this->messageNeededLowerZero)
+				{
+					$this->messagePluralLowerZero = true;
+				}
+				$this->messageNeededLowerZero = true;
 			}
 		}
 	}
 
 	/**
 	 * Generate and show a infomessage if the private variables $message and $messageNeeded are set.
-	 * They are set if one input value is bigger then the maxvalue.
+	 * They are set if one input value is bigger then the maxvalue or smaller than zero
 	 */
 	private function generateMessageIfNeeded()
 	{
@@ -435,18 +462,46 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		{
 			if (!$this->messagePlural)
 			{
-				$msg = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_begin');
-				$msg = $msg . ' "' . $this->message;
-				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_end');
+				$msg1 = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_begin');
+				$msg1 = $msg1 . ' "' . $this->message;
+				$msg1 = $msg1 . '" ' . $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_high_end');
 			}
 			else
 			{
-				$msg = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_begin');
-				$msg = $msg . ' "' . $this->message;
-				$msg = $msg . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_end');
+				$msg1 = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_begin');
+				$msg1 = $msg1 . ' "' . $this->message;
+				$msg1 = $msg1 . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_high_end');
 			}
-			ilUtil::sendInfo($msg
-			);
+		}
+		if ($this->messageNeededLowerZero)
+		{
+			if (!$this->messagePluralLowerZero)
+			{
+				$msg2 = $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_low_begin');
+				$msg2 = $msg2 . ' "' . $this->messageLowerZero;
+				$msg2 = $msg2 . '" ' . $this->lng->txt('rep_robj_xrs_singular_field_input_value_too_low_end');
+			}
+			else
+			{
+				$msg2 = $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_low_begin');
+				$msg2 = $msg2 . ' "' . $this->messageLowerZero;
+				$msg2 = $msg2 . '" ' . $this->lng->txt('rep_robj_xrs_plural_field_input_value_too_low_end');
+			}
+		}
+		if (!empty($msg1) || !empty($msg2))
+		{
+			if (empty($msg1))
+			{
+				ilUtil::sendInfo($msg2);
+			}
+			elseif (empty($msg2))
+			{
+				ilUtil::sendInfo($msg1);
+			}
+			else
+			{
+				ilUtil::sendInfo($msg1 . "<br>" . $msg2);
+			}
 		}
 	}
 

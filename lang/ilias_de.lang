@@ -147,7 +147,9 @@ participations_no_leave_ids#:#Markieren Sie bitte mindestens eine Buchung zum Ve
 person_responsible#:#Verantwortlicher
 plan#:#Plan
 plural_field_input_value_too_high_begin#:#Die Werte für die Felder
-plural_field_input_value_too_high_end#:#sind höher als der maximal verfügbare Wert und daher wurden die Werte ignoriert oder der Filter auf den letzten gültigen Zustand zurückgesetzt.
+plural_field_input_value_too_high_end#:#sind höher als der maximal verfügbare Wert und wurden daher ignoriert bzw. der Filter auf den letzten gültigen Zustand zurückgesetzt.
+plural_field_input_value_too_low_begin#:#Die Werte für die Felder
+plural_field_input_value_too_low_end#:#sind kleiner als 0 und wurden daher ignoriert bzw. der Filter auf den letzten gültigen Zustand zurückgesetzt.
 pool#:#Roomsharingpool
 pools#:#Roomsharingpools
 privileges#:#Privilegien
@@ -219,8 +221,10 @@ setting_1#:#Einstellung 1
 setting_2#:#Einstellung 2
 settings#:#Einstellungen
 seq_booking_added#:#Serienbuchung hinzugefügt
-singular_field_input_value_too_high_begin#:#Der Werte für das Feld
-singular_field_input_value_too_high_end#:#ist höher als der maximal verfügbare Wert und daher wurde der Wert ignoriert oder der Filter auf den letzten gültigen Filter zurückgesetzt.
+singular_field_input_value_too_high_begin#:#Der Wert für das Feld
+singular_field_input_value_too_high_end#:#ist höher als der maximal verfügbare Wert und wurde daher ignoriert bzw. der Filter auf den letzten gültigen Filter zurückgesetzt.
+singular_field_input_value_too_low_begin#:#Der Wert für das Feld
+singular_field_input_value_too_low_end#:#ist kleiner als 0 und wurde daher ignoriert bzw. der Filter auf den letzten gültigen Filter zurückgesetzt.
 status#:#Status
 subject#:#Betreff
 time_range#:#Zeitbereich

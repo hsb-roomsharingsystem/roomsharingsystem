@@ -145,7 +145,9 @@ participations_no_leave_ids#:#Please mark at least one participation to leave.
 person_responsible#:#Person Responsible
 plan#:#Plan
 plural_field_input_value_too_high_begin#:#The values of the fields
-plural_field_input_value_too_high_end#:#are bigger than the maximum value and because of this the values are ignored or the filter is reset to the last valid request.
+plural_field_input_value_too_high_end#:#are bigger than the maximum value. Because of this the values are ignored or the filter was resetted to the last valid request.
+plural_field_input_value_too_low_begin#:#The values of the fields
+plural_field_input_value_too_low_end#:#are lower than zero. Because of this the values are ignored or the filter was resetted to the last valid request.
 pool#:#RoomSharing Pool
 pools#:#RoomSharing Pools
 privileges#:#Privileges
@@ -217,7 +219,9 @@ setting_1#:#Setting 1
 setting_2#:#Setting 2
 settings#:#Settings
 singular_field_input_value_too_high_begin#:#The value of the field
-singular_field_input_value_too_high_end#:#is bigger then the maximum value and because of this the value is ignored or the filter is reset to the last valid request.
+singular_field_input_value_too_high_end#:#is bigger than the maximum value. Because of this the value is ignored or the filter was resetted to the last valid request.
+singular_field_input_value_too_low_begin#:#The value of the field
+singular_field_input_value_too_low_end#:#is smaller than zero. Because of this the value is ignored or the filter was resetted to the last valid request.
 status#:#Status
 subject#:#Subject
 time_range#:#Time Range
