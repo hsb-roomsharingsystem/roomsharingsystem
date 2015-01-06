@@ -456,6 +456,8 @@ class ilRoomSharingSequenceBookingUtils
 	public static function generateMonthlyDaysAtFixedDateWithEndDate($a_startday, $a_monthday,
 		$a_enddate, $a_every_x_months, $a_time_from = null, $a_time_to = null, $a_day_difference = null)
 	{
+		$enddate = $a_enddate[date][y] . "-" . $a_enddate[date][m] . "-" . $a_enddate[date][d];
+		$endd = date('Y-m-d', strtotime($enddate));
 		if (ilRoomSharingNumericUtils::isPositiveNumber($a_day_difference, true))
 		{
 			$day_difference_to_end_day = $a_day_difference;
@@ -509,7 +511,7 @@ class ilRoomSharingSequenceBookingUtils
 			$startday = date('Y-m-d' . $time_format,
 				strtotime($startday . " + " . $a_every_x_months . " month"));
 
-			if ($startday > $a_enddate || $i++ > 500)
+			if ($startday > $endd || $i++ > 500)
 			{
 				break;
 			}
