@@ -548,15 +548,21 @@ class ilRoomSharingPrivileges
 	{
 		$privileges = array();
 		$classes = $this->ilRoomsharingDatabase->getClasses();
-		foreach ($classes as $class)
+		if (is_array($classes))
 		{
-			$privileges[$class['id']] = array();
-			$cls_privileges = $this->ilRoomsharingDatabase->getPrivilegesOfClass($class['id']);
-			foreach ($cls_privileges as $privilege_id => $privilege_value)
+			foreach ($classes as $class)
 			{
-				if ($privilege_value == 1)
+				$privileges[$class['id']] = array();
+				$cls_privileges = $this->ilRoomsharingDatabase->getPrivilegesOfClass($class['id']);
+				if (is_array($cls_privileges))
 				{
-					$privileges[$class['id']][] = $privilege_id;
+					foreach ($cls_privileges as $privilege_id => $privilege_value)
+					{
+						if ($privilege_value == 1)
+						{
+							$privileges[$class['id']][] = $privilege_id;
+						}
+					}
 				}
 			}
 		}
