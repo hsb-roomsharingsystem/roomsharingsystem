@@ -201,6 +201,7 @@ class ilRoomSharingBookings
 
 		$one_booking ['recurrence'] = ilRoomSharingNumericUtils::isPositiveNumber($a_bookingData ['seq_id']);
 		$one_booking ['date'] = ilRoomSharingBookingUtils::readBookingDate($a_bookingData);
+		$one_booking ['sortdate'] = $a_bookingData['date_from'];
 
 		$one_booking ['room'] = $this->ilRoomsharingDatabase->getRoomName($a_bookingData ['room_id']);
 		$one_booking ['room_id'] = $a_bookingData ['room_id'];
