@@ -7,6 +7,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/exceptions/class.ilRoomSharingFloorplanException.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingFileUtils.php");
 
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
@@ -179,7 +180,7 @@ class ilRoomSharingFloorPlans
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, $a_file_id);
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
-		if (!$this->checkImageType($fileinfo["format"]))
+		if (!ilRoomSharingFileUtils::isImageType($fileinfo["format"]))
 		{
 			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
 		}
@@ -218,7 +219,7 @@ class ilRoomSharingFloorPlans
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, null);
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
 
-		if (!$this->checkImageType($fileinfo["format"]))
+		if (!ilRoomSharingFileUtils::isImageType($fileinfo["format"]))
 		{
 			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plans_upload_error");
 		}
@@ -335,52 +336,6 @@ class ilRoomSharingFloorPlans
 			"format" => $format,
 			"filename" => $file_name_mod
 		);
-	}
-
-	/**
-	 * Checks if the ImageType is valid.
-	 *
-	 * @param string $a_mimeType
-	 * @return boolean
-	 */
-	public function checkImageType($a_mimeType)
-	{
-		//Check for image format
-		switch ($a_mimeType)
-		{
-			//Formats for type ".bmp"
-			case "image/bmp":
-			case "image/x-bmp":
-			case "image/x-bitmap":
-			case "image/x-xbitmap":
-			case "image/x-win-bitmap":
-			case "image/x-windows-bmp":
-			case "image/x-ms-bmp":
-			case "application/bmp":
-			case "application/x-bmp":
-			case "application/x-win-bitmap":
-			//Formats for type ".png"
-			case "image/png":
-			case "application/png":
-			case "application/x-png":
-			//Formats for type ".jpg/.jpeg"
-			case "image/jpeg":
-			case "image/jpg":
-			case "image/jp_":
-			case "application/jpg":
-			case "application/x-jpg":
-			case "image/pjpeg":
-			case "image/pipeg":
-			case "image/vnd.swiftview-jpeg":
-			case "image/x-xbitmap":
-			//Formats for type ".gif"
-			case "image/gif":
-			case "image/x-xbitmap":
-			case "image/gi_":
-				return true;
-			default:
-				return false;
-		}
 	}
 
 	/**

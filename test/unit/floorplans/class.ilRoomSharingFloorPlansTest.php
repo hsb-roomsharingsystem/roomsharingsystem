@@ -263,46 +263,4 @@ class ilRoomSharingFloorPlansTest extends PHPUnit_Framework_TestCase
 		self::$floorPlans->addFloorPlan("Videossas", "Newest plan", $newfile);
 	}
 
-	/**
-	 * @covers ilRoomSharingFloorPlans::checkImageType
-	 */
-	public function testCheckImageType()
-	{
-		self::assertTrue(self::$floorPlans->checkImageType("image/bmp"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/x-bmp"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/x-bitmap"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/x-xbitmap"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/x-win-bitmap"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/x-windows-bmp"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/x-ms-bmp"));
-		self::assertTrue(self::$floorPlans->checkImageType("application/bmp"));
-		self::assertTrue(self::$floorPlans->checkImageType("application/x-bmp"));
-		self::assertTrue(self::$floorPlans->checkImageType("application/x-win-bitmap"));
-		//Formats for type ".png"
-		self::assertTrue(self::$floorPlans->checkImageType("image/png"));
-		self::assertTrue(self::$floorPlans->checkImageType("application/png"));
-		self::assertTrue(self::$floorPlans->checkImageType("application/x-png"));
-		//Formats for type ".jpg/.jpeg"
-		self::assertTrue(self::$floorPlans->checkImageType("image/jpeg"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/jpg"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/jp_"));
-		self::assertTrue(self::$floorPlans->checkImageType("application/jpg"));
-		self::assertTrue(self::$floorPlans->checkImageType("application/x-jpg"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/pjpeg"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/pipeg"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/vnd.swiftview-jpeg"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/x-xbitmap"));
-		//Formats for type ".gif"
-		self::assertTrue(self::$floorPlans->checkImageType("image/gif"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/x-xbitmap"));
-		self::assertTrue(self::$floorPlans->checkImageType("image/gi_"));
-
-		// Negative cases
-		self::assertFalse(self::$floorPlans->checkImageType("file/pdf"));
-		self::assertFalse(self::$floorPlans->checkImageType(""));
-		self::assertFalse(self::$floorPlans->checkImageType(12));
-		self::assertFalse(self::$floorPlans->checkImageType(NULL));
-		self::assertFalse(self::$floorPlans->checkImageType(1));
-	}
-
 }
