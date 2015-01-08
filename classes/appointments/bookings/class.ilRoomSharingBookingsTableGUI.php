@@ -107,7 +107,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
 		$user_name_input->setDataSource($ajax_datasource);
 		$user_comb->addCombinationItem("user_id", $user_name_input,
-			$this->lng->txt("rep_robj_xrs_user_id"));
+			$this->lng->txt("rep_robj_xrs_user_name"));
 		$this->addFilterItem($user_comb);
 		$user_comb->readFromSession(); // get the value that was submitted
 		$this->filter ["user"] = $user_comb->getValue();

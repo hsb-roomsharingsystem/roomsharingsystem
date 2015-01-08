@@ -232,6 +232,7 @@ title#:#Titel
 to#:#bis
 user#:#Benutzer
 user_id#:#Benutzer-Id
+user_name#:#Benutzer-Name
 value#:#Wert
 view#:#Ansicht
 warning_missing_rooms#:#Es sind momentan keine Räume vorhanden. Um den Roomsharingpool nutzen zu können, müssen zuerst Räume angelegt werden.

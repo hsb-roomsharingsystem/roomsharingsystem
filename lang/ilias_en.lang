@@ -229,6 +229,7 @@ title#:#Title
 to#:#to
 user#:#User
 user_id#:#User-Id
+user_name#:#User-Name
 value#:#Value
 view#:#View
 warning_missing_rooms#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
