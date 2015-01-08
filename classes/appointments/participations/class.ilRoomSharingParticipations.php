@@ -77,9 +77,9 @@ class ilRoomSharingParticipations
 		foreach ($participations as $participation)
 		{
 			$bookingDatas = $this->ilRoomsharingDatabase->getBooking($participation['booking_id']);
-			foreach ($bookingDatas as $bookingData)
+			if ($bookingDatas != array())
 			{
-				$result[] = $this->readBookingData($bookingData);
+				$result[] = $this->readBookingData($bookingDatas);
 			}
 		}
 		return $result;
