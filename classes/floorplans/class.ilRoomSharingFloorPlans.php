@@ -31,6 +31,8 @@ class ilRoomSharingFloorPlans
 	private $permission;
 	private $ctrl;
 	private $lng;
+	// Used only for Unit-Test
+	public $mobjMock;
 
 	/**
 	 * Constructor of ilRoomSharingFloorPlans.
@@ -264,7 +266,7 @@ class ilRoomSharingFloorPlans
 		{
 			if (ilRoomSharingNumericUtils::isPositiveNumber($floorplanId))
 			{
-				$mobj = new ilObjMediaObject($floorplanId);
+				$mobj = $this->getMediaObjectInstance($floorplanId);
 				$floorplansTitles[] = $mobj->getTitle();
 			}
 		}
@@ -281,14 +283,15 @@ class ilRoomSharingFloorPlans
 	 */
 	private function createMediaObject($a_title, $a_desc, $a_file_id = null)
 	{
+
 		if (is_null($a_file_id))
 		{
-			$mediaObj = new ilObjMediaObject();
+			$mediaObj = $this->getMediaObjectInstance();
 			$mediaObj->create();
 		}
 		else
 		{
-			$mediaObj = new ilObjMediaObject($a_file_id);
+			$mediaObj = $this->getMediaObjectInstance($a_file_id);
 		}
 
 		$mediaObj->setTitle($a_title);
@@ -311,8 +314,12 @@ class ilRoomSharingFloorPlans
 	 */
 	private function configureFile($a_mediaObj, $a_newfile = null)
 	{
-		$mob_dir = ilObjMediaObject::_getDirectory($a_mediaObj->getId());
+		if ($this->mobjMock)
+		{
+			return $a_newfile;
+		}
 
+		$mob_dir = ilObjMediaObject::_getDirectory($a_mediaObj->getId());
 		if (!is_dir($mob_dir))
 		{
 			$a_mediaObj->createDirectory();
@@ -412,6 +419,41 @@ class ilRoomSharingFloorPlans
 	public function getPoolId()
 	{
 		return (int) $this->pool_id;
+	}
+
+	/**
+	 * Used for Unit-Tests. Returns a mock if test is running and the mobjMock-Field is set.
+	 *
+	 * @param type $a_file_id
+	 * @return \ilObjMediaObject
+	 */
+	private function getMediaObjectInstance($a_file_id = null)
+	{
+		$mediaObj = null;
+		if (is_null($a_file_id))
+		{
+			if ($this->mobjMock)
+			{
+				$mediaObj = $this->mobjMock;
+			}
+			else
+			{
+				$mediaObj = new ilObjMediaObject();
+			}
+		}
+		else
+		{
+			if ($this->mobjMock)
+			{
+				$mediaObj = $this->mobjMock;
+				$mediaObj->setId($a_file_id);
+			}
+			else
+			{
+				$mediaObj = new ilObjMediaObject($a_file_id);
+			}
+		}
+		return $mediaObj;
 	}
 
 }

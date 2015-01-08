@@ -12,9 +12,8 @@ require_once("Services/User/classes/class.ilObjUser.php");
 require_once("Services/Utilities/classes/class.ilUtil.php");
 require_once("Services/Object/classes/class.ilObjectDataCache.php");
 require_once("Services/Logging/classes/class.ilLog.php");
-
-//require_once("Services/Object/classes/class.ilObjectDefinition.php");
-//require_once("Services/Xml/classes/class.ilSaxParser.php");
+require_once("Services/MediaObjects/classes/class.ilObjMediaObject.php");
+require_once("Services/MediaObjects/classes/class.ilMediaItem.php");
 
 class ilObjectDefinition
 {
@@ -182,44 +181,86 @@ class ilRoomSharingFloorPlansTest extends PHPUnit_Framework_TestCase
 		self::$DBMock->method("getRoomsWithFloorplan")->willReturn($roomIDs);
 
 		self::assertEquals($roomIDs, self::$floorPlans->getRoomsWithFloorplan(342));
-
-		self::$DBMock->expects($this->once())->method('getRoomsWithFloorplan')->with($this->equalTo(342));
-	}
-
-	/**
-	 * @covers ilRoomSharingFloorPlans::updateFloorPlanInfos
-	 * @todo   Implement testUpdateFloorPlanInfos().
-	 */
-	public function testUpdateFloorPlanInfos()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingFloorPlans::updateFloorPlanInfosAndFile
-	 * @todo   Implement testUpdateFloorPlanInfosAndFile().
-	 */
-	public function testUpdateFloorPlanInfosAndFile()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
 	}
 
 	/**
 	 * @covers ilRoomSharingFloorPlans::addFloorPlan
-	 * @todo   Implement testAddFloorPlan().
 	 */
 	public function testAddFloorPlan()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		self::$floorPlans->mobjMock = self::getMockBuilder('ilObjMediaObject')->disableOriginalConstructor()
+			->setMethods(array('create', 'setTitle', 'getTitle', 'update'))
+			->getMock();
+
+		self::$floorPlans->mobjMock->method("getTitle")->will(
+			self::onConsecutiveCalls("FirstPlan", "SecondPlan", "ThirdPlan", "FourthPlan"));
+		self::$floorPlans->mobjMock->method("getId")->willReturn(4000);
+
+		$allFloorPlanIds = array(1, 2, 3, 4);
+		self::$DBMock->method("getAllFloorplanIds")->willReturn($allFloorPlanIds);
+
+		$newfile = array("format" => "image/bmp", "filename" => "NewFloorplan.bmp", "size" => 2345);
+
+		self::$floorPlans->addFloorPlan("Booba", "Newest plan", $newfile);
+
+		$mediaItem = self::$floorPlans->mobjMock->getMediaItem("Standard");
+
+		self::assertEquals("Newest plan", $mediaItem->getCaption());
+		self::assertEquals("image/bmp", $mediaItem->getFormat());
+		self::assertEquals("NewFloorplan.bmp", $mediaItem->getLocation());
+		self::assertEquals("LocalFile", $mediaItem->getLocationType());
+	}
+
+	private function prepareAddFloorPlan()
+	{
+		self::$floorPlans->mobjMock = &self::getMockBuilder('ilObjMediaObject')->disableOriginalConstructor()->getMock();
+		self::$floorPlans->mobjMock->method("getTitle")->will(
+			self::onConsecutiveCalls("FirstPlan", "SecondPlan", "ThirdPlan", "FourthPlan"));
+
+		$allFloorPlanIds = array(1, 2, 3, 4);
+		self::$DBMock->method("getAllFloorplanIds")->willReturn($allFloorPlanIds);
+	}
+
+	/**
+	 * @covers ilRoomSharingFloorPlans::addFloorPlan
+	 * @expectedException ilRoomSharingFloorplanException
+	 * @expectedExceptionMessage rep_robj_xrs_floorplan_title_is_already_taken
+	 */
+	public function testAddFloorPlanTitleTaken()
+	{
+		$this->prepareAddFloorPlan();
+
+		$newfile = array("format" => "image/bmp", "filename" => "NewFloorplan", "size" => 2345);
+
+		self::$floorPlans->addFloorPlan("ThirdPlan", "Newest plan", $newfile);
+	}
+
+	/**
+	 * @covers ilRoomSharingFloorPlans::addFloorPlan
+	 * @expectedException ilRoomSharingFloorplanException
+	 * @expectedExceptionMessage rep_robj_xrs_floor_plans_upload_error
+	 */
+	public function testAddFloorPlanWrongFormat()
+	{
+		$this->prepareAddFloorPlan();
+
+		$newfile = array("format" => "video/avi", "filename" => "NewFloorplan", "size" => 2345);
+
+		self::$floorPlans->addFloorPlan("Videossas", "Newest plan", $newfile);
+	}
+
+	/**
+	 * @covers ilRoomSharingFloorPlans::addFloorPlan
+	 * @expectedException ilRoomSharingFloorplanException
+	 * @expectedExceptionMessage rep_robj_xrs_floor_plans_upload_error
+	 */
+	public function testAddFloorPlanEmptyFile()
+	{
+		$this->prepareAddFloorPlan();
+
+		$newfile = array("format" => "image/bmp", "filename" => "NewFloorplan", "size" => 0);
+
+		self::$floorPlans->addFloorPlan("Videossas", "Newest plan", $newfile);
 	}
 
 	/**
