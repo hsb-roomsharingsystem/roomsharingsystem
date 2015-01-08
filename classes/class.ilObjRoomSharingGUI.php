@@ -10,6 +10,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/attributes/class.ilRoomSharingAttributesConstants.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
 require_once("Services/User/classes/class.ilUserAutoComplete.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingFileUtils.php");
 
 use ilRoomSharingAttributesConstants as ATTRC;
 use ilRoomSharingPrivilegesConstants as PRIVC;
@@ -243,13 +244,13 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$schedule_gui = & new ilRoomSharingFloorPlansGUI($this);
 				$ret = & $this->ctrl->forwardCommand($schedule_gui);
 				break;
-                        // daVinci import
-                        case 'ilroomsharingdavinciimportgui':
-                                $this->tabs_gui->setTabActive('daVinci_import');
-                                $this->pl_obj->includeClass("import/class.ilRoomSharingDaVinciImportGUI.php");
-                                $import_gui = & new ilRoomSharingDaVinciImportGUI($this);
-                                $ret = & $this->ctrl->forwardCommand($import_gui);
-                                break;
+			// daVinci import
+			case 'ilroomsharingdavinciimportgui':
+				$this->tabs_gui->setTabActive('daVinci_import');
+				$this->pl_obj->includeClass("import/class.ilRoomSharingDaVinciImportGUI.php");
+				$import_gui = & new ilRoomSharingDaVinciImportGUI($this);
+				$ret = & $this->ctrl->forwardCommand($import_gui);
+				break;
 			// Permissions
 			case 'ilpermissiongui':
 				$this->tabs_gui->setTabActive('perm_settings');
@@ -295,25 +296,25 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				break;
 			// Various CalendarGUIs
 			case "ilcalendardaygui":
-                            $this->setActiveTabRegardingPrivilege();
+				$this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
 				$day = new ilCalendarDayGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($day);
 				break;
 			case "ilcalendarmonthgui":
-                            $this->setActiveTabRegardingPrivilege();
+				$this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarMonthGUI.php");
 				$month = new ilCalendarMonthGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($month);
 				break;
 			case "ilcalendarweekgui":
-                            $this->setActiveTabRegardingPrivilege();
+				$this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
 				$week = new ilCalendarweekGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($week);
 				break;
 			case "ilcalendarblockgui":
-                            $this->setActiveTabRegardingPrivilege();
+				$this->setActiveTabRegardingPrivilege();
 				$this->ctrl->forwardCommand($this->cal);
 				break;
 			// Standard cmd handling if cmd is none of the above. In that case, the next page is
@@ -434,17 +435,17 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				$ilCtrl->getLinkTargetByClass(ATTRC::ATTRS_GUI, $specifiedActions)
 			);
 		}
-                
-                //check for privilege
-                if(true)
-                {
-                        // daVinci import tab
-                        $this->tabs_gui->addTab(
-                                "daVinci_import", $this->txt("daVinci_import"),
-                                $this->ctrl->getLinkTargetByClass("ilroomsharingdavinciimportgui","render")
-                                );
-                }
-                
+
+		//check for privilege
+		if (true)
+		{
+			// daVinci import tab
+			$this->tabs_gui->addTab(
+				"daVinci_import", $this->txt("daVinci_import"),
+				$this->ctrl->getLinkTargetByClass("ilroomsharingdavinciimportgui", "render")
+			);
+		}
+
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_SETTINGS))
 		{
 			// Settings
@@ -541,22 +542,48 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			$this->object->setMaxBookTime($date . " " . $time);
 
 			// Rooms agreement
+			$roomAgreementAcceptable = true;
 			$agreementFile = $this->settingsForm->getInput('rooms_agreement');
-			if ($agreementFile['size'] != 0)
+			if ($agreementFile['size'] != 0 && $this->isAllowedFileType($agreementFile['type']))
 			{
 				$uploadFileId = $this->object->uploadRoomsAgreement($agreementFile,
 					$this->object->getRoomsAgreementFileId());
 				$this->object->setRoomsAgreementFileId($uploadFileId);
 			}
+			else if ($agreementFile['error'] != 4)
+			{
+				// Errorcode 4 stands for no file was provided.
+				// Send failure when file was provided, but dont meet first criteria (size and type).
+				$roomAgreementAcceptable = false;
+				$roomAgreementField = $this->settingsForm->getItemByPostVar('rooms_agreement');
+				$roomAgreementField->setAlert(" ");
+				ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_agreement_upload_error'), true);
+			}
 
 			// Start update
 			$this->object->update();
-			ilUtil::sendSuccess($this->lng->txt('msg_obj_modified'), true);
-			$this->ctrl->redirect($this, 'editSettings');
+			if ($roomAgreementAcceptable)
+			{
+				ilUtil::sendSuccess($this->lng->txt('msg_obj_modified'), true);
+			}
 		}
 
 		$this->settingsForm->setValuesByPost();
 		$this->tpl->setContent($this->settingsForm->getHtml());
+	}
+
+	/**
+	 * Returns true if the given mime type is allowed for the room agreement file.
+	 *
+	 * @param string $a_mimeType
+	 * @return boolean
+	 */
+	private function isAllowedFileType($a_mimeType)
+	{
+		$isImage = ilRoomSharingFileUtils::isImageType($a_mimeType);
+		$isPDF = ilRoomSharingFileUtils::isPDFType($a_mimeType);
+		$isTXT = ilRoomSharingFileUtils::isTXTType($a_mimeType);
+		return $isImage || $isPDF || $isTXT;
 	}
 
 	/**
@@ -594,6 +621,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			"rooms_agreement");
 		$roomsAgrField->setSize(50);
 		$roomsAgrField->setRequired(false);
+		$roomsAgrField->setInfo($this->lng->txt("rep_robj_xrs_room_agreement_filetypes") . " .bmp, .jpg, .jpeg, .png, .gif, .txt, .pdf");
 		$this->settingsForm->addItem($roomsAgrField);
 
 		$this->settingsForm->addCommandButton('updateSettings', $this->lng->txt('save'));

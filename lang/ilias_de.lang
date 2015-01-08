@@ -317,3 +317,5 @@ see_non_public_booking_information#:#Nicht öffentliche Buchungen einsehen
 see_non_public_booking_information_description#:#Informationen von nicht öffentlichen Buchungen einsehbar
 sequence_bookings#:#Serienbuchungen
 import_bookings_from_external_file#:#Import von Buchungen aus externen Dateien
+room_agreement_upload_error#:#Fehler beim Hochladen der Raumnutzungsordnung. Die Mögliche Ursache ist die Verwendung eines nicht unterstützten Formats
+room_agreement_filetypes#:#Unterstützte Dateiformate:

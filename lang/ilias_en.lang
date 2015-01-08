@@ -315,3 +315,5 @@ see_non_public_booking_information#:#Look up non-public booking information
 see_non_public_booking_information_description#:#Look up information of non-public bookings
 sequence_bookings#:#Recurring bookings
 import_bookings_from_external_file#:#Import of bookings from an external file
+room_agreement_upload_error#:#Error while uploading room agreement. Possible reason is a usage of unsupported format
+room_agreement_filetypes#:#Supported filetypes:
