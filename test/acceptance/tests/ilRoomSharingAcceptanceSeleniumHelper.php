@@ -583,4 +583,70 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		return $this->webDriver->findElement(WebDriverBy::cssSelector('div.ilSuccessMessage'))->getText();
 	}
 
+	public function createNewUser($login, $pw, $gender, $firstname, $lastname, $email)
+	{
+		$this->webDriver->findElement(WebDriverBy::linkText('Administration'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('id=mm_adm_usrf'))->click();
+		$this->webDriver->findElemend(WebDriverBy::linkText('Neuer Benutzer'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('login'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('login'))->sendKeys($login);
+		$this->webDriver->findElement(WebDriverBy::id('passwd'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('passwd'))->sendKeys($pw);
+		$this->webDriver->findElement(WebDriverBy::id('passwd_retype'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('passwd_retype'))->sendKeys($pw);
+		$gender_id = 'gender_' . $gender;
+		$this->webDriver->findElemend(WebDriverBy::id($gender_id))->click();
+		$this->webDriver->findElement(WebDriverBy::id('firstname'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('firstname'))->sendKeys($firstname);
+		$this->webDriver->findElement(WebDriverBy::id('lastname'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('lastname'))->sendKeys($lastname);
+		$this->webDriver->findElement(WebDriverBy::id('email'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('email'))->sendKeys($email);
+		$this->webDriver->findElement(WebDriverBy::name('cmd[save]'))->click();
+	}
+
+	public function logout()
+	{
+		$this->webDriver->findElement(WebDriverBy::linkText('Abmelden'))->click();
+	}
+
+	public function loginNewUserForFirstTime($login, $pw, $newpw)
+	{
+		$this->login($login, $pw);
+		$this->webDriver->findElement(WebDriverBy::id('current_password'))->sendKeys($pw);
+		$this->webDriver->findElement(WebDriverBy::id('new_password'))->sendKeys($pw);
+		$this->webDriver->findElement(WebDriverBy::id('new_password_retype'))->sendKeys($pw);
+		$this->webDriver->findElement(WebDriverBy::name('cmd[savePassword]'))->click();
+	}
+
+	public function createBooking($day, $month, $year, $time_from_h, $time_from_m, $time_to_h,
+		$time_to_m, $room_name, $seats, $subject, $acc)
+	{
+		$this->webDriver->findElement(WebDriverBy::linkText('Buchung hinzufügen'));
+		$this->webDriver->findElement(WebDriverBy::id('date[date]_d'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('date[date]_d'))->selectByVisibleText($day);
+		$this->webDriver->findElement(WebDriverBy::id('date[date]_m'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('date[date]_m'))->selectByVisibleText($month);
+		$this->webDriver->findElement(WebDriverBy::id('date[date]_y'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('date[date]_y'))->selectByVisibleText($year);
+
+		$this->webDriver->findElement(WebDriverBy::id('time_from[time]_h'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('dtime_from[time]_h'))->selectByVisibleText($time_from_h);
+		$this->webDriver->findElement(WebDriverBy::id('time_from[time]_m'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('dtime_from[time]_m'))->selectByVisibleText($time_from_m);
+
+		$this->webDriver->findElement(WebDriverBy::id('time_to[time]_h'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('dtime_to[time]_h'))->selectByVisibleText($time_to_h);
+		$this->webDriver->findElement(WebDriverBy::id('time_to[time]_m'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('dtime_to[time]_m'))->selectByVisibleText($time_to_m);
+
+		$this->webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($room_name);
+		$this->webDriver->findElement(WebDriverBy::id('seats'))->sendKeys($seats);
+
+		$this->webDriver->findElement(WebDriverBy::name('cmd[applySearch]'))->click();
+		$this->webDriver->findElemend(WebDriverBy::linkText('Buchen'))->click();
+		$this->doABooking($subject, $day, $month, $year, $time_from_h, $time_from_m, $day, $month, $year,
+			$time_to_h, $time_to_m, $acc);
+	}
+
 }
