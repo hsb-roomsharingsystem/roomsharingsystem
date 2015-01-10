@@ -11,13 +11,13 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 class ilRoomSharingDaVinciImport {
 
         private $parent_obj;
+        private $lng;
         private $pool_id;
         private $ilRoomSharingDatabase;
-        private $db_rooms;
         
         private $startingDate;
         private $blocks;
-        private $untis;
+        private $units;
         private $mins;
         private $startingTimes;
         private $appointments_info;
@@ -30,23 +30,19 @@ class ilRoomSharingDaVinciImport {
         private $current_classes;
         
         /**
-	 * Constructor of ilRoomSharingDaVinciImport.
-	 *
-	 * @param type $a_pool_id the pool id of the plugin instance
-	 * @param type $a_ilRoomsharingDatabase the Database
-	 */
-	public function __construct($a_parent_obj, $a_pool_id, $a_ilRoomsharingDatabase)
+         * Constructor
+         * 
+         * @param type $a_parent_obj
+         * @param type $lng
+         * @param type $a_pool_id
+         * @param type $a_ilRoomsharingDatabase
+         */
+	public function __construct($a_parent_obj, $lng, $a_pool_id, $a_ilRoomsharingDatabase)
 	{
                 $this->parent_obj = $a_parent_obj;
+                $this->lng = $lng;
 		$this->pool_id = $a_pool_id;
 		$this->ilRoomSharingDatabase = $a_ilRoomsharingDatabase;
-                $this->db_rooms = array();
-                $room_ids = $this->ilRoomSharingDatabase->getAllRoomIds();
-                
-                foreach($room_ids as $id)
-                {
-                    array_push($this->db_rooms, array($id, $this->ilRoomSharingDatabase->getRoomName($id)));
-                }
                 
                 $this->appointments_info = array();
                 $this->appointments = array();
@@ -54,6 +50,14 @@ class ilRoomSharingDaVinciImport {
                 $this->bookings = array();
 	}
         
+        /**
+         * Imports rooms and bookings from a given daVinci file
+         * 
+         * @param type $file    daVinci text file from file upload form
+         * @param boolean $import_rooms    true to import rooms
+         * @param boolean $import_bookings true to import bookings
+         * @param int $default_cap sets the default room capacity
+         */
         public function importBookingsFromDaVinciFile($file, $import_rooms, $import_bookings, $default_cap)
         {
                 $file_name = ilUtil::getASCIIFilename($file["name"]);
@@ -117,6 +121,11 @@ class ilRoomSharingDaVinciImport {
                 
         }
         
+        /**
+         * interprets a string
+         * 
+         * @param string $line  line to be interpreted
+         */
         private function checkForKey($line)
         {
             $params = preg_split('/;/', $line);
@@ -151,12 +160,21 @@ class ilRoomSharingDaVinciImport {
             }
         }
         
+        /**
+         * interprets the a line starting with R1 and adds the room to the array
+         * 
+         * @param array $params array containing information about the room as strings
+         */
         private function interpretR1Line($params)
         {
             array_push($this->rooms, array('name'=>$this->alterString($params[2]),'full_name'=>$params[3],'cap'=>$params[5],'type'=>$params[8]));
         }
         
-        
+        /**
+         * interprets a line starting with U0 and sets the infomation
+         * 
+         * @param array $params array containing information about the courses and bookings in daVinci
+         */
         private function interpretU0Line($params)
         {
             $dateStr = substr($params[1], 0, 4) . '-' . substr($params[1], 4, 2) . '-' . substr($params[1], 6,2);
@@ -178,6 +196,11 @@ class ilRoomSharingDaVinciImport {
         }
     
         
+        /**
+         * interprets a line starting with U1 and sets the information
+         * 
+         * @param array $params array containing the information about a course in daVinci
+         */
         private function interpretU1Line($params)
         {
             $this->current_weekly_rotation = array();
@@ -186,11 +209,21 @@ class ilRoomSharingDaVinciImport {
             array_push($this->appointments_info, array('id'=>$params[1],'course'=>$params[2],'prof'=>$params[3],'identifier'=>$params[6]));
         }
         
+        /**
+         * interprets a line starting with U5 and sets the information
+         * 
+         * @param array $params array containing the information about the weekly rotation of a course
+         */
         private function interpretU5Line($params)
         {
             $this->current_weekly_rotation = $params[2];
         }
         
+        /**
+         * interprets a line starting with U6 and sets the information
+         * 
+         * @param array $params array containing the course name of the booking
+         */
         private function interpretU6Line($params)
         {
             for($i = 3; $i < ($params[2]+2); $i++)
@@ -205,6 +238,11 @@ class ilRoomSharingDaVinciImport {
             }
         }
         
+        /**
+         * interprets a line starting with U2 and sets the information
+         * 
+         * @param array $params array containing the time, room and prof. of the booking
+         */
         private function interpretU2Line($params)
         {
          
@@ -226,6 +264,13 @@ class ilRoomSharingDaVinciImport {
             }
         }
         
+        /**
+         * interprets a line starting with U8 and sets the information
+         * used for daVinci 6
+         * ----------untested----------
+         * 
+         * @param array $params array containing the time, room and prof. of the booking
+         */
         private function interpretU8Line($params)
         {
             //used for daVinci6
@@ -248,6 +293,12 @@ class ilRoomSharingDaVinciImport {
         }
 
         
+        /**
+         * Removes the quotation ("") of the beginning and end of a string
+         * 
+         * @param string $aString
+         * @return string
+         */
         private function alterString($aString)
         {
             if($aString[0] == '"' && $aString[strlen($aString)-1] == '"' )
@@ -258,20 +309,18 @@ class ilRoomSharingDaVinciImport {
             return $aString;
         }
         
-        private function editDateString($aString)
-        {
-            $year = substr($aString, 0,4);
-            $month = substr($aString,4,2);
-            $day = substr($aString,6,2);
-            $hour = substr($aString,8,2);
-            $minute = substr($aString,10,2);
-            
-            $aString = $year . '-' . $month . '-' . $day . ' ' . $hour .  ':' . $minute;
-           
-            return $aString;
-        }
-        
-          
+        /**
+         * adds the bookings with the given information to the roomsharing system
+         * 
+         * @param int $day
+         * @param dateTime $start
+         * @param dateTime $end
+         * @param string $room
+         * @param string $prof
+         * @param string $subject
+         * @param string $classes
+         * @param dateTime $usedWeek
+         */  
         private function addDaVinciBooking($day, $start, $end, $room, $prof, $subject, $classes, $usedWeek)
         {
             $date_diff = clone($usedWeek);
@@ -300,7 +349,7 @@ class ilRoomSharingDaVinciImport {
                 $entry['accept_room_rules'] = '1';
                 
                 $entry['room'] = $this->ilRoomSharingDatabase->getRoomWithName($room)[0]['id'];
-                $entry['comment'] = 'daVinci Booking';
+                $entry['comment'] = $this->lng->txt("rep_robj_xrs_daVinci_import_tag");
                 $entry['cal_id'] = $this->parent_obj->getCalendarId();
 
 
@@ -309,14 +358,18 @@ class ilRoomSharingDaVinciImport {
                 
                 if($this->ilRoomSharingDatabase->getRoomWithName($room) !== array())
                 {
-                    try
-                    {
-                        $this->book->addBooking($entry,array(),array());
-                    } catch (Exception $ex) {
-                        $aBooking = $this->ilRoomSharingDatabase->getBookingIdForRoomInDateTimeRange($entry['from']['date'] . " "  . $entry['from']['time'], $entry['to']['date'] . " "  . $entry['to']['time'], $entry['room'],
+                    $aBooking = $this->ilRoomSharingDatabase->getBookingIdForRoomInDateTimeRange($entry['from']['date'] . " "  . $entry['from']['time'], $entry['to']['date'] . " "  . $entry['to']['time'], $entry['room'],
                             0);
-                        if($aBooking !== array() && $this->ilRoomSharingDatabase->getBooking($aBooking[0])['comment'] === 'daVinci Booking')
-                        {
+                   
+                    if ($aBooking === array() || $this->ilRoomSharingDatabase->getBooking($aBooking[0])['bookingcomment'] !== $this->lng->txt("rep_robj_xrs_daVinci_import_tag"))
+                    {
+                        try {
+                            $this->book->addBooking($entry,array(),array(),array());
+                        } catch (Exception $ex) {
+                            
+                        }
+                    }
+                    elseif ($this->ilRoomSharingDatabase->getBooking($aBooking[0])['bookingcomment'] === $this->lng->txt("rep_robj_xrs_daVinci_import_tag")) {
                             $newBookingValues = $this->ilRoomSharingDatabase->getBooking($aBooking[0]);
                             $newBookingValues['subject'] = $newBookingValues['subject'] . ' & ' . $subject . ' ' . $prof;
                             $newBookingValues['from'] = $entry['from'];
@@ -324,25 +377,21 @@ class ilRoomSharingDaVinciImport {
                             $newBookingValues['room'] = $entry['room'];
                             $newBookingValues['cal_id'] = $entry['cal_id'];
 
-                            try
-                            {
-                                $this->book->updateEditBooking(
-                                    $aBooking[0], 
-                                    $this->ilRoomSharingDatabase->getBooking($aBooking[0]),
-                                    $this->ilRoomSharingDatabase->getAttributesForBooking($aBooking[0]),
-                                    $this->ilRoomSharingDatabase->getParticipantsForBooking($aBooking[0]), 
-                                    $newBookingValues,
-                                    $this->ilRoomSharingDatabase->getAttributesForBooking($aBooking[0]),
-                                    $this->ilRoomSharingDatabase->getParticipantsForBooking($aBooking[0]));
-                            } catch (Exception $ex) {
+                        try
+                        {
+                            $this->book->updateEditBooking(
+                                $aBooking[0], 
+                                $this->ilRoomSharingDatabase->getBooking($aBooking[0]),
+                                $this->ilRoomSharingDatabase->getAttributesForBooking($aBooking[0]),
+                                $this->ilRoomSharingDatabase->getParticipantsForBooking($aBooking[0]), 
+                                $newBookingValues,
+                                $this->ilRoomSharingDatabase->getAttributesForBooking($aBooking[0]),
+                                $this->ilRoomSharingDatabase->getParticipantsForBooking($aBooking[0]));
+                        } catch (Exception $ex) {
                                 
-                            }
-
                         }
-
                     }
                 }
-                
             }
         }
 }

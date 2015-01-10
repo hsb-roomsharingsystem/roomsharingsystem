@@ -75,7 +75,7 @@ class ilRoomSharingDaVinciImportGUI {
 		$form = $this->initForm();
 		if ($form->checkInput())
 		{
-			$import = new ilRoomSharingDaVinciImport($this->parent_obj, $this->pool_id, new ilRoomsharingDatabase($this->pool_id));
+			$import = new ilRoomSharingDaVinciImport($this->parent_obj, $this->lng, $this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 			$file = $form->getInput("upload_file");
                         $import_rooms = $form->getInput("import_rooms");
                         $import_bookings = $form->getInput("import_bookings");
