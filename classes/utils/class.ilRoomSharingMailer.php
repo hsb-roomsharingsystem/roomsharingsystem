@@ -246,7 +246,7 @@ class ilRoomSharingMailer extends ilMailNotification
 	 */
 	public function sendRoomChangeMail($a_roomid)
 	{
-                $user_ids = array();
+		$user_ids = array();
 		$this->bookings = $this->ilRoomSharingDatabase->getBookingsForRoomThatAreValid($a_roomid);
 		foreach ($this->bookings as $booking)
 		{
@@ -262,13 +262,13 @@ class ilRoomSharingMailer extends ilMailNotification
 	 * Send a mail to every user when a room has been edited.
 	 *
 	 * @param array $a_user_id The users id
-	 * @param array $a_booking_id The id(s) of the booking
+	 * @param array $a_booking_ids The id(s) of the booking
 	 */
-	public function sendParticipationCancelMail($a_user_id, $a_booking_id)
+	public function sendParticipationCancelMail($a_user_id, $a_booking_ids)
 	{
-		foreach ($a_booking_id as $bookings)
+		foreach ($a_booking_ids as $booking_id)
 		{
-			$this->bookings[] = $this->ilRoomSharingDatabase->getBooking($bookings)[0];
+			$this->bookings[] = $this->ilRoomSharingDatabase->getBooking($booking_id)[0];
 		}
 		$this->composeAndSendParticipationCancelMail($a_user_id);
 	}
@@ -278,13 +278,13 @@ class ilRoomSharingMailer extends ilMailNotification
 	 *
 	 * @param array $a_user_id The id of the user who left
 	 * @param array $a_creator_id The id of the creator
-	 * @param array $a_booking_id The booking ids
+	 * @param array $a_booking_ids The booking ids
 	 */
-	public function sendParticipationCancelMailForCreator($a_user_id, $a_booking_id)
+	public function sendParticipationCancelMailForCreator($a_user_id, $a_booking_ids)
 	{
-		foreach ($a_booking_id as $bookings)
+		foreach ($a_booking_ids as $booking_id)
 		{
-			$this->bookings[0] = $this->ilRoomSharingDatabase->getBooking($bookings)[0];
+			$this->bookings[0] = $this->ilRoomSharingDatabase->getBooking($booking_id)[0];
 			$this->composeAndSendParticipationCancelMailForCreator($a_user_id, $this->bookings[0]['user_id']);
 		}
 	}

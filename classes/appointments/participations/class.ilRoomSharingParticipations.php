@@ -54,13 +54,12 @@ class ilRoomSharingParticipations
 		if (count($a_booking_ids) == 1)
 		{
 			$this->ilRoomsharingDatabase->deleteParticipation($this->ilUser->getId(), $a_booking_ids[0]);
-			$this->sendQuitMail($a_booking_ids);
 		}
 		else
 		{
 			$this->ilRoomsharingDatabase->deleteParticipations($this->ilUser->getId(), $a_booking_ids);
-			$this->sendQuitMail($a_booking_ids);
 		}
+		$this->sendQuitMail($a_booking_ids);
 		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_participations_left'), true);
 	}
 
