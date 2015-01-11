@@ -146,7 +146,8 @@ class ilRoomSharingDaVinciImportGUI {
 		$file = new ilFileInputGUI($this->lng->txt("rep_robj_xrs_daVinci_import_file"), "upload_file");
 		$file->setSize(50);
 		$file->setRequired(true);
-		$file->setAllowDeletion(true);
+		$file->setALlowDeletion(true);
+                $file->setSuffixes(array('txt'));
 
 		return $file;
 	}
