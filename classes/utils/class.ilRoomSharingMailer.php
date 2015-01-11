@@ -1,7 +1,7 @@
 <?php
 
-include_once 'Services/Mail/classes/class.ilMailNotification.php';
-include_once('Services/Calendar/classes/class.ilDate.php');
+require_once('Services/Mail/classes/class.ilMailNotification.php');
+require_once('Services/Calendar/classes/class.ilDate.php');
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
@@ -246,6 +246,7 @@ class ilRoomSharingMailer extends ilMailNotification
 	 */
 	public function sendRoomChangeMail($a_roomid)
 	{
+                $user_ids = array();
 		$this->bookings = $this->ilRoomSharingDatabase->getBookingsForRoomThatAreValid($a_roomid);
 		foreach ($this->bookings as $booking)
 		{
