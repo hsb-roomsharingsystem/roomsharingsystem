@@ -960,7 +960,7 @@ class ilRoomSharingDatabase
 	 * @param array $a_booking_attr_values
 	 *        	Array with the values of the booking-attributes
 	 */
-	private function insertBookingAttributes($a_insertedId, $a_booking_attr_values)
+	public function insertBookingAttributes($a_insertedId, $a_booking_attr_values)
 	{
 		$this->ilRoomSharingDatabaseBookingAttribute->insertBookingAttributes($a_insertedId,
 			$a_booking_attr_values);
