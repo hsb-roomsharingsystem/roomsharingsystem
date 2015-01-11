@@ -1,8 +1,8 @@
 <?php
 
-include_once('Services/Calendar/classes/class.ilDate.php');
-include_once('./Services/Calendar/interfaces/interface.ilDatePeriod.php');
-include_once('Services/Calendar/classes/class.ilCalendarEntry.php');
+require_once('Services/Calendar/classes/class.ilDate.php');
+require_once('./Services/Calendar/interfaces/interface.ilDatePeriod.php');
+require_once('Services/Calendar/classes/class.ilCalendarEntry.php');
 
 /**
  * Model for a calendar entry displayed in ilRoomSharingWeekView.
@@ -10,23 +10,19 @@ include_once('Services/Calendar/classes/class.ilCalendarEntry.php');
  * @author Tim Röhrig
  * @version $Id$
  *
- *
  * @ingroup ServicesCalendar
  */
 class ilRoomSharingCalendarEntry extends ilCalendarEntry
 {
+	private $ilRoomsharingDatabase;
+
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
-	 * @access public
 	 * @param int cal_entry id
-	 *
 	 */
 	public function __construct($a_id = 0)
 	{
-		global $ilDB, $ilLog;
-
-		$this->log = $ilLog;
 		$this->ilRoomsharingDatabase = new ilRoomsharingDatabase(0);
 
 		if ($this->entry_id = $a_id)
@@ -36,7 +32,7 @@ class ilRoomSharingCalendarEntry extends ilCalendarEntry
 	}
 
 	/**
-	 * clone instance
+	 * Clones instance.
 	 */
 	public function __clone()
 	{
@@ -44,11 +40,10 @@ class ilRoomSharingCalendarEntry extends ilCalendarEntry
 	}
 
 	/**
-	 * delete entry is forbidden
+	 * Delete entry is forbidden.
 	 *
-	 * @access public
-	 * @static
-	 *
+	 * @param integer $a_entry_id
+	 * @return boolean
 	 */
 	public static function _delete($a_entry_id)
 	{
@@ -56,10 +51,9 @@ class ilRoomSharingCalendarEntry extends ilCalendarEntry
 	}
 
 	/**
-	 * update is forbidden
+	 * Update is forbidden.
 	 *
-	 * @access public
-	 *
+	 * @return boolean
 	 */
 	public function update()
 	{
@@ -67,10 +61,9 @@ class ilRoomSharingCalendarEntry extends ilCalendarEntry
 	}
 
 	/**
-	 * save one entry is forbidden
+	 * Save one entry is forbidden.
 	 *
-	 * @access public
-	 *
+	 * @return boolean
 	 */
 	public function save()
 	{
@@ -78,10 +71,9 @@ class ilRoomSharingCalendarEntry extends ilCalendarEntry
 	}
 
 	/**
-	 * delete is forbidden
+	 * Delete is forbidden.
 	 *
-	 * @access public
-	 * @return
+	 * @return boolean
 	 */
 	public function delete()
 	{
@@ -89,11 +81,9 @@ class ilRoomSharingCalendarEntry extends ilCalendarEntry
 	}
 
 	/**
-	 * read all details for calendarEntry from database
+	 * Read all details for calendarEntry from database.
 	 *
 	 * @access protected
-	 * @param
-	 *
 	 */
 	protected function read()
 	{
@@ -117,19 +107,24 @@ class ilRoomSharingCalendarEntry extends ilCalendarEntry
 	}
 
 	/**
-	 * Write users responsible for a milestone is forbidden
+	 * Write users responsible for a milestone is forbidden.
+	 *
+	 * @param array $a_users
+	 * @return boolean
 	 */
 	function writeResponsibleUsers($a_users)
 	{
-
+		return false;
 	}
 
 	/**
-	 * Read responsible users is forbidden
+	 * Read responsible users is forbidden.
+	 *
+	 * @return boolean
 	 */
 	function readResponsibleUsers()
 	{
-
+		return false;
 	}
 
 }

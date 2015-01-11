@@ -11,6 +11,14 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
 require_once("Services/User/classes/class.ilUserAutoComplete.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingFileUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
+require_once("Services/Calendar/classes/class.ilDate.php");
+require_once("Services/Calendar/classes/class.ilCalendarSettings.php");
+require_once("Services/Calendar/classes/class.ilCalendarDayGUI.php");
+require_once("Services/Calendar/classes/class.ilCalendarMonthGUI.php");
+require_once("Services/Calendar/classes/class.ilCalendarWeekGUI.php");
+require_once("Services/User/classes/class.ilPublicUserProfileGUI.php");
+require_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
 
 use ilRoomSharingAttributesConstants as ATTRC;
 use ilRoomSharingPrivilegesConstants as PRIVC;
@@ -246,14 +254,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				break;
 			// daVinci import
 			case 'ilroomsharingdavinciimportgui':
-                                if ($this->permission->checkPrivilege(PRIVC::ACCESS_IMPORT))
-                                {
-                                    $this->tabs_gui->setTabActive('daVinci_import');
-                                    $this->pl_obj->includeClass("import/class.ilRoomSharingDaVinciImportGUI.php");
-                                    $import_gui = & new ilRoomSharingDaVinciImportGUI($this);
-                                    $ret = & $this->ctrl->forwardCommand($import_gui);
-                                    break;
-                                }	
+				if ($this->permission->checkPrivilege(PRIVC::ACCESS_IMPORT))
+				{
+					$this->tabs_gui->setTabActive('daVinci_import');
+					$this->pl_obj->includeClass("import/class.ilRoomSharingDaVinciImportGUI.php");
+					$import_gui = & new ilRoomSharingDaVinciImportGUI($this);
+					$ret = & $this->ctrl->forwardCommand($import_gui);
+					break;
+				}
 			// Permissions
 			case 'ilpermissiongui':
 				$this->tabs_gui->setTabActive('perm_settings');
@@ -278,7 +286,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Userprofile GUI
 			case 'ilpublicuserprofilegui':
 				$ilTabs->clearTargets();
-				include_once("Services/User/classes/class.ilPublicUserProfileGUI.php");
 				$profile = new ilPublicUserProfileGUI((int) $_GET["user_id"]);
 				$profile->setBackUrl($this->ctrl->getLinkTarget($this, 'log'));
 				$ret = $this->ctrl->forwardCommand($profile);
@@ -286,7 +293,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				break;
 			// Standard dispatcher GUI
 			case "ilcommonactiondispatchergui":
-				include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
 				$gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
 				$this->ctrl->forwardCommand($gui);
 				break;
@@ -300,19 +306,16 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			// Various CalendarGUIs
 			case "ilcalendardaygui":
 				$this->setActiveTabRegardingPrivilege();
-				include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
 				$day = new ilCalendarDayGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($day);
 				break;
 			case "ilcalendarmonthgui":
 				$this->setActiveTabRegardingPrivilege();
-				include_once("./Services/Calendar/classes/class.ilCalendarMonthGUI.php");
 				$month = new ilCalendarMonthGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($month);
 				break;
 			case "ilcalendarweekgui":
 				$this->setActiveTabRegardingPrivilege();
-				include_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
 				$week = new ilCalendarweekGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($week);
 				break;
@@ -332,7 +335,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		// Action menu (top right corner of the module)
 		$this->addHeaderAction();
 
-		include_once('./Services/Calendar/classes/class.ilCalendarSettings.php');
 		if (ilCalendarSettings::_getInstance()->isEnabled() && $has_calendar)
 		{
 
@@ -777,7 +779,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	private function initSeed()
 	{
-		include_once('Services/Calendar/classes/class.ilDate.php');
 		$this->seed = $_REQUEST['seed'] ? new ilDate($_REQUEST['seed'], IL_CAL_DATE) : new ilDate(date('Y-m-d',
 				time()), IL_CAL_DATE);
 		$_GET['seed'] = $this->seed->get(IL_CAL_DATE, '');
@@ -792,8 +793,6 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 	 */
 	private function initCalendar()
 	{
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/" .
-			"RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 		$db = new ilRoomsharingDatabase($this->object->getPoolId());
 
 		//Initialize the Calendar

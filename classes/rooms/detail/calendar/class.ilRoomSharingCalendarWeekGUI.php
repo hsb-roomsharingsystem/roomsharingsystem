@@ -1,14 +1,14 @@
 <?php
 
-include_once './Services/Calendar/classes/class.ilCalendarWeekGUI.php';
-require_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
+require_once("Services/Calendar/classes/class.ilCalendarWeekGUI.php");
+require_once("Services/Calendar/classes/class.ilCalendarWeekGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
-require_once("./Services/YUI/classes/class.ilYuiUtil.php");
+require_once("Services/YUI/classes/class.ilYuiUtil.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/class.ilRoomSharingRoom.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarSchedule.php");
 require_once("Services/Calendar/classes/class.ilCalendarSettings.php");
-require_once("./Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php");
+require_once("Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php");
 
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
@@ -37,11 +37,11 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	private $permission;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
-	 * @access public
-	 * @param
-	 *
+	 * @param ilDate $a_seed_date
+	 * @param integer $a_pool_id
+	 * @param integer $a_room_id
 	 */
 	public function __construct(ilDate $a_seed_date, $a_pool_id, $a_room_id)
 	{
@@ -56,35 +56,33 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	/**
 	 * Adds SubTabs for the MainTab "Rooms".
 	 *
-	 * @param type $a_active
+	 * @param string $a_active
 	 *        	SubTab which should be activated after method call.
 	 */
 	protected function setSubTabs($a_active)
 	{
-		global $ilTabs;
-		$ilTabs->setTabActive('rooms');
+		$this->tabs_gui->setTabActive('rooms');
 
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
 		$_SESSION['last_cmd'] = 'showroom';
 
 		// Roominfo
-		$ilTabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
+		$this->tabs_gui->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
 			$this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'showRoom'));
 
 		// week-view
-		$ilTabs->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'),
+		$this->tabs_gui->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'),
 			$this->ctrl->getLinkTargetByClass('ilRoomSharingCalendarWeekGUI', 'show'));
-		$ilTabs->activateSubTab($a_active);
+		$this->tabs_gui->activateSubTab($a_active);
 	}
 
 	/**
 	 * Main switch for command execution.
 	 *
-	 * @return Returns always true.
+	 * @return boolean always true.
 	 */
 	function executeCommand()
 	{
-		global $ilCtrl;
 		if ($this->ctrl->getCmd() == 'export')
 		{
 			$this->show(true);
@@ -98,10 +96,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	}
 
 	/**
-	 * fill data section
-	 *
-	 * @access public
-	 *
+	 * Fills the table with data for whole week.
 	 */
 	public function show($export = false)
 	{
@@ -112,7 +107,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			return false;
 		}
 
-		global $ilUser, $lng, $ilToolbar;
+		global $ilUser;
 		$this->setSubTabs('weekview');
 
 		//intervalsize
@@ -374,14 +369,19 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 			}
 			$this->tpl->touchBlock('time_row');
 		}
-		$this->tpl->setVariable("TXT_TIME", $lng->txt("time"));
+		$this->tpl->setVariable("TXT_TIME", $this->lng->txt("time"));
+
 		if ($export)
 		{
-
 			$this->export();
 		}
 	}
 
+	/**
+	 * Shows informations for given appointment.
+	 *
+	 * @param appointment $a_app
+	 */
 	protected function showAppointment($a_app)
 	{
 		global $ilUser;

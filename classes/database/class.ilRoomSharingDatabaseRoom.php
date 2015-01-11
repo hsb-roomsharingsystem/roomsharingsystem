@@ -198,10 +198,36 @@ class ilRoomSharingDatabaseRoom
 				$this->ilDB->quote($a_room_id, 'text') . ' AND ';
 		}
 
-		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE .
-			' WHERE pool_id =' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
-			$roomQuery . ' (' . $this->ilDB->quote($a_date_to, 'timestamp') . ' > date_from' .
-			' AND ' . $this->ilDB->quote($a_date_from, 'timestamp') . ' < date_to)';
+		$priorityQuery = '';
+		$join_part = '';
+		if ($a_priority)
+		{
+			$priorityQuery = ' priority < ' . $this->ilDB->quote($a_priority, 'integer') . ' AND ';
+			$join_part = ' JOIN ' . dbc::CLASS_USER_TABLE . ' u ON b.user_id = u.user_id JOIN ' .
+				dbc::CLASSES_TABLE . ' c ON c.id = u.class_id';
+		}
+
+		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE . ' b ' . $join_part .
+			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
+			$roomQuery . $priorityQuery . ' (';
+
+
+		$count = count($a_datetimes_from);
+		if ($count == count($a_datetimes_to))
+		{
+			// throw exception if arrays not same size?
+			for ($i = 0; $i < $count; $i++)
+			{
+				$a_datetime_from = $a_datetimes_from[$i];
+				$a_datetime_to = $a_datetimes_to[$i];
+
+				$query .= ' (' . $this->ilDB->quote($a_datetime_to, 'timestamp') . ' > date_from' .
+					' AND ' . $this->ilDB->quote($a_datetime_from, 'timestamp') . ' < date_to) OR';
+			}
+
+			$query = substr($query, 0, -2);
+			$query .= ')';
+		}
 
 		$set = $this->ilDB->query($query);
 		$res_room = array();
