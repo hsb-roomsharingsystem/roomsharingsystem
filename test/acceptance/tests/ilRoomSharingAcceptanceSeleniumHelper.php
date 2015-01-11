@@ -565,7 +565,7 @@ class ilRoomSharingAcceptanceSeleniumHelper
 
 	/**
 	 * Delete a booking by subject.
-	 * @param booking subject
+	 * @param booking $subject
 	 */
 	public function deleteBooking($subject)
 	{
@@ -583,11 +583,23 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		return $this->webDriver->findElement(WebDriverBy::cssSelector('div.ilSuccessMessage'))->getText();
 	}
 
+	/*
+	 * Creates a new user
+	 * @param type $login		Login Name
+	 * @param type $pw			Initial Password
+	 * @param type $gender		Gender
+	 * @param type $firstname	First Name of user
+	 * @param type $lastname		Last Name of user
+	 * @param type $email		Email of user - doesn't have to be valid
+	 */
 	public function createNewUser($login, $pw, $gender, $firstname, $lastname, $email)
 	{
+		//Navigate
 		$this->webDriver->findElement(WebDriverBy::linkText('Administration'))->click();
 		$this->webDriver->findElement(WebDriverBy::id('id=mm_adm_usrf'))->click();
 		$this->webDriver->findElemend(WebDriverBy::linkText('Neuer Benutzer'))->click();
+
+		//Input
 		$this->webDriver->findElement(WebDriverBy::id('login'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('login'))->sendKeys($login);
 		$this->webDriver->findElement(WebDriverBy::id('passwd'))->clear();
@@ -602,27 +614,56 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::id('lastname'))->sendKeys($lastname);
 		$this->webDriver->findElement(WebDriverBy::id('email'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('email'))->sendKeys($email);
+		//Submit
 		$this->webDriver->findElement(WebDriverBy::name('cmd[save]'))->click();
 	}
 
+	/*
+	 * Logs out the current user and returns to the Login-Screen
+	 */
 	public function logout()
 	{
 		$this->webDriver->findElement(WebDriverBy::linkText('Abmelden'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText('Bei ILIAS anmelden'))->click();
 	}
 
+	/*
+	 * Login a User for the first time - he will be asked to change his Password
+	 * @param type $login	Login name of uer
+	 * @param type $pw		Initial Password of user
+	 * @param type $newpw	New Password - can be the same as pw
+	 */
 	public function loginNewUserForFirstTime($login, $pw, $newpw)
 	{
 		$this->login($login, $pw);
 		$this->webDriver->findElement(WebDriverBy::id('current_password'))->sendKeys($pw);
 		$this->webDriver->findElement(WebDriverBy::id('new_password'))->sendKeys($pw);
-		$this->webDriver->findElement(WebDriverBy::id('new_password_retype'))->sendKeys($pw);
+		$this->webDriver->findElement(WebDriverBy::id('new_password_retype'))->sendKeys($newpw);
 		$this->webDriver->findElement(WebDriverBy::name('cmd[savePassword]'))->click();
 	}
 
+	/*
+	 * Create a booking from scratch
+	 * @param type $day					Day of Booking
+	 * @param type $month				Month of Booking (String)
+	 * @param type $time_from_h			Starting hour
+	 * @param type $time_from_m			Starting Minute
+	 * @param type $time_to_h			Ending hour
+	 * @param type $time_to_m			Ending Minute
+	 * @param type $room_name			Room to be booked
+	 * @param type $seats				Minimum Seats needed
+	 * @param type $subject				Subject of the Booking
+	 * @param bool $acc					Tick "Accept room using agreement" (Agreement must be there)
+	 * @param type $comment				Comment to the Booking
+	 */
 	public function createBooking($day, $month, $year, $time_from_h, $time_from_m, $time_to_h,
-		$time_to_m, $room_name, $seats, $subject, $acc)
+		$time_to_m, $room_name, $seats, $subject, $acc, $comment = "")
 	{
-		$this->webDriver->findElement(WebDriverBy::linkText('Buchung hinzufügen'));
+		//Navigate
+		$this->webDriver->findElemend(WebDriverBy::linkText('Termine'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText('Buchung hinzufügen'))->click();
+
+		//Input
 		$this->webDriver->findElement(WebDriverBy::id('date[date]_d'))->click();
 		$this->webDriver->findElement(WebDriverBy::id('date[date]_d'))->selectByVisibleText($day);
 		$this->webDriver->findElement(WebDriverBy::id('date[date]_m'))->click();
@@ -644,9 +685,55 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::id('seats'))->sendKeys($seats);
 
 		$this->webDriver->findElement(WebDriverBy::name('cmd[applySearch]'))->click();
+
+		//Submit the Search Form
 		$this->webDriver->findElemend(WebDriverBy::linkText('Buchen'))->click();
+		//Book
 		$this->doABooking($subject, $day, $month, $year, $time_from_h, $time_from_m, $day, $month, $year,
-			$time_to_h, $time_to_m, $acc);
+			$time_to_h, $time_to_m, $acc, $comment);
+	}
+
+	/*
+	 * Give a class a specific privilege
+	 * @param string $priv_name	Privilege to be granted
+	 * @param type $class_id		ID of the class that should have the privilege
+	 */
+	public function grantPrivilege($priv_name, $class_id)
+	{
+		$this->webDriver->findElement(WebDryverBy::name('Privilegien'))->click();
+		$el = $this->webDriver->findElement(WebDriverBy::name('priv[' . $class_id . '][' . $priv_name . ']'));
+		$checked = $el->getAttribute('checked');
+		if (!$checked)
+		{
+			$el->click();
+			$this->webDriver->findElement(WebDriverBy::name('cmd[savePrivilegeSettings]'))->click();
+		}
+	}
+
+	/*
+	 * Apply a Booking Filter
+	 * @param string $username			User that created the booking
+	 * @param type $room				Booked room
+	 * @param string $subject			Subject of the Booking
+	 * @param string $comment			Comment of the Booking
+	 */
+	public function applyBookingFilter($username = '', $room = '', $subject = '', $comment = '')
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Termine'))->click();
+
+		//Input
+		$this->webDriver->findElement(WebDriverBy::id('login'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('login'))->sendKeys($username);
+		$this->webDriver->findElement(WebDriverBy::id('room_name'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($room);
+		$this->webDriver->findElement(WebDriverBy::id('booking_subject'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('booking_subject'))->sendKeys($subject);
+		$this->webDriver->findElement(WebDriverBy::id('booking_comment'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('booking_comment'))->sendKeys($comment);
+
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[applyRoomFilter]'))->click();
 	}
 
 }
