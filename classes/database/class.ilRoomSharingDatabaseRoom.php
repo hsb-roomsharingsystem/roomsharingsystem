@@ -221,13 +221,8 @@ class ilRoomSharingDatabaseRoom
 				$a_datetime_from = $a_datetimes_from[$i];
 				$a_datetime_to = $a_datetimes_to[$i];
 
-				$query .= ' (' . $this->ilDB->quote($a_datetime_from, 'timestamp') .
-					' BETWEEN date_from AND date_to OR ' . $this->ilDB->quote($a_datetime_to, 'timestamp') .
-					' BETWEEN date_from AND date_to OR date_from BETWEEN ' .
-					$this->ilDB->quote($a_datetime_from, 'timestamp') . ' AND ' .
-					$this->ilDB->quote($a_datetime_to, 'timestamp') . ' OR date_to BETWEEN '
-					. $this->ilDB->quote($a_datetime_from, 'timestamp') . ' AND ' .
-					$this->ilDB->quote($a_datetime_to, 'timestamp') . ') OR';
+				$query .= ' (' . $this->ilDB->quote($a_datetime_to, 'timestamp') . ' > date_from' .
+					' AND ' . $this->ilDB->quote($a_datetime_from, 'timestamp') . ' < date_to) OR';
 			}
 
 			$query = substr($query, 0, -2);
