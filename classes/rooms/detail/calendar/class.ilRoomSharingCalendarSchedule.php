@@ -1,7 +1,7 @@
 <?php
 
-include_once('Services/Calendar/classes/class.ilCalendarSchedule.php');
-include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarEntry.php");
+require_once("Services/Calendar/classes/class.ilCalendarSchedule.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarEntry.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 
 /**
@@ -19,13 +19,12 @@ class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 	private $ilRoomSharingDatabase;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
-	 * @access public
 	 * @param ilDate seed date
 	 * @param int type of schedule (TYPE_DAY,TYPE_WEEK or TYPE_MONTH)
 	 * @param int user_id
-	 *
+	 * @param ilRoomSharingRoom $room
 	 */
 	public function __construct(ilDate $seed, $a_type, $a_user_id = 0, ilRoomSharingRoom $room)
 	{
@@ -54,9 +53,7 @@ class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 	}
 
 	/**
-	 * calculate
-	 *
-	 * @access protected
+	 * Calculates schedules.
 	 */
 	public function calculate()
 	{
@@ -84,12 +81,12 @@ class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 					case self::TYPE_DAY:
 					case self::TYPE_WEEK:
 						// store date info (used for calculation of overlapping events)
-						$tmp_date = new ilDateTime($this->schedule[$counter]['dstart'], IL_CAL_UNIX, $this->timezone);
-						$this->schedule[$counter]['start_info'] = $tmp_date->get(IL_CAL_FKT_GETDATE, '',
+						$start_date = new ilDateTime($this->schedule[$counter]['dstart'], IL_CAL_UNIX, $this->timezone);
+						$this->schedule[$counter]['start_info'] = $start_date->get(IL_CAL_FKT_GETDATE, '',
 							$this->timezone);
 
-						$tmp_date = new ilDateTime($this->schedule[$counter]['dend'], IL_CAL_UNIX, $this->timezone);
-						$this->schedule[$counter]['end_info'] = $tmp_date->get(IL_CAL_FKT_GETDATE, '', $this->timezone);
+						$end_date = new ilDateTime($this->schedule[$counter]['dend'], IL_CAL_UNIX, $this->timezone);
+						$this->schedule[$counter]['end_info'] = $end_date->get(IL_CAL_FKT_GETDATE, '', $this->timezone);
 						break;
 
 					default:
@@ -105,12 +102,10 @@ class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 	}
 
 	/**
-	 * get new/changed events
+	 * Get new/changed events.
 	 *
 	 * @param bool $a_include_subitem_calendars E.g include session calendars of courses.
 	 * @return object $events[] Array of changed events
-	 * @access protected
-	 * @return
 	 */
 	public function getChangedEvents($a_include_subitem_calendars = false)
 	{
@@ -118,9 +113,9 @@ class ilRoomSharingCalendarSchedule extends ilCalendarSchedule
 	}
 
 	/**
-	 * Read events (will be moved to another class, since only active and/or visible calendars are shown)
+	 * Read events (will be moved to another class, since only active and/or visible calendars are shown).
 	 *
-	 * @access protected
+	 * @return array with calendar entries.
 	 */
 	public function getEvents()
 	{
