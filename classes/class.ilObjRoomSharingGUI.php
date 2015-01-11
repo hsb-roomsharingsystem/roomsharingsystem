@@ -246,11 +246,14 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				break;
 			// daVinci import
 			case 'ilroomsharingdavinciimportgui':
-				$this->tabs_gui->setTabActive('daVinci_import');
-				$this->pl_obj->includeClass("import/class.ilRoomSharingDaVinciImportGUI.php");
-				$import_gui = & new ilRoomSharingDaVinciImportGUI($this);
-				$ret = & $this->ctrl->forwardCommand($import_gui);
-				break;
+                                if ($this->permission->checkPrivilege(PRIVC::ACCESS_IMPORT))
+                                {
+                                    $this->tabs_gui->setTabActive('daVinci_import');
+                                    $this->pl_obj->includeClass("import/class.ilRoomSharingDaVinciImportGUI.php");
+                                    $import_gui = & new ilRoomSharingDaVinciImportGUI($this);
+                                    $ret = & $this->ctrl->forwardCommand($import_gui);
+                                    break;
+                                }	
 			// Permissions
 			case 'ilpermissiongui':
 				$this->tabs_gui->setTabActive('perm_settings');
