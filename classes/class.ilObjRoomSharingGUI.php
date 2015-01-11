@@ -439,8 +439,7 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 			);
 		}
 
-		//check for privilege
-		if (true)
+		if ($this->permission->checkPrivilege(PRIVC::ACCESS_IMPORT))
 		{
 			// daVinci import tab
 			$this->tabs_gui->addTab(
