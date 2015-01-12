@@ -232,7 +232,7 @@ class ilRoomSharingDatabaseParticipants
 					continue;
 				}
 				//Get the id of the participant (user) by the given username
-				$booking_participant_id = $this->getUserIdByUsername($booking_participant_value);
+				$booking_participant_id = $this->ilRoomSharingDatabase->getUserIdByUsername($booking_participant_value);
 
 				//Check if the id has a correct format
 				if (ilRoomSharingNumericUtils::isPositiveNumber($booking_participant_id))
