@@ -30,19 +30,17 @@ class ilRoomSharingDateUtilsTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetPrintedDateTime()
 	{
-		$expected = "test., 31. test 2010, 14:02";
-		$actual = UTILS::getPrintedDateTime(new DateTime("2010-12-31 14:02:02"));
-		$this->assertEquals($expected, $actual);
+		$expected1 = "test., 31. test 2010, 14:02";
+		$actual1 = UTILS::getPrintedDateTime(new DateTime("2010-12-31 14:02:02"));
+		$this->assertEquals($expected1, $actual1);
 
+		$expected2 = "test., 01. test 2015, 15:02";
+		$actual2 = UTILS::getPrintedDateTime(new DateTime("2015-02-29 15:02:02"));
+		$this->assertEquals($expected2, $actual2);
 
-
-		$expected = "test., 01. test 2015, 15:02";
-		$actual = UTILS::getPrintedDateTime(new DateTime("2015-02-29 15:02:02"));
-		$this->assertEquals($expected, $actual);
-
-		$expected = "test., 29. test 2016, 16:02";
-		$actual = UTILS::getPrintedDateTime(new DateTime("2016-02-29 16:02:02"));
-		$this->assertEquals($expected, $actual);
+		$expected3 = "test., 29. test 2016, 16:02";
+		$actual3 = UTILS::getPrintedDateTime(new DateTime("2016-02-29 16:02:02"));
+		$this->assertEquals($expected3, $actual3);
 	}
 
 	/**
@@ -50,19 +48,17 @@ class ilRoomSharingDateUtilsTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetPrintedDate()
 	{
-		$expected = "test., 31. test 2010";
-		$actual = UTILS::getPrintedDate(new DateTime("2010-12-31 14:02:02"));
-		$this->assertEquals($expected, $actual);
+		$expected1 = "test., 31. test 2010";
+		$actual1 = UTILS::getPrintedDate(new DateTime("2010-12-31 14:02:02"));
+		$this->assertEquals($expected1, $actual1);
 
+		$expected2 = "test., 01. test 2015";
+		$actual2 = UTILS::getPrintedDate(new DateTime("2015-02-29 14:02:02"));
+		$this->assertEquals($expected2, $actual2);
 
-
-		$expected = "test., 01. test 2015";
-		$actual = UTILS::getPrintedDate(new DateTime("2015-02-29 14:02:02"));
-		$this->assertEquals($expected, $actual);
-
-		$expected = "test., 29. test 2016";
-		$actual = UTILS::getPrintedDate(new DateTime("2016-02-29 14:02:02"));
-		$this->assertEquals($expected, $actual);
+		$expected3 = "test., 29. test 2016";
+		$actual3 = UTILS::getPrintedDate(new DateTime("2016-02-29 14:02:02"));
+		$this->assertEquals($expected3, $actual3);
 	}
 
 	/**
@@ -70,17 +66,17 @@ class ilRoomSharingDateUtilsTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetPrintedTime()
 	{
-		$expected = "14:02";
-		$actual = UTILS::getPrintedTime(new DateTime("2010-12-31 14:02:02"));
-		$this->assertEquals($expected, $actual);
+		$expected1 = "14:02";
+		$actual1 = UTILS::getPrintedTime(new DateTime("2010-12-31 14:02:02"));
+		$this->assertEquals($expected1, $actual1);
 
-		$expected = "15:02";
-		$actual = UTILS::getPrintedTime(new DateTime("2015-02-29 15:02:02"));
-		$this->assertEquals($expected, $actual);
+		$expected2 = "15:02";
+		$actual2 = UTILS::getPrintedTime(new DateTime("2015-02-29 15:02:02"));
+		$this->assertEquals($expected2, $actual2);
 
-		$expected = "16:02";
-		$actual = UTILS::getPrintedTime(new DateTime("2016-02-29 16:02:02"));
-		$this->assertEquals($expected, $actual);
+		$expected3 = "16:02";
+		$actual3 = UTILS::getPrintedTime(new DateTime("2016-02-29 16:02:02"));
+		$this->assertEquals($expected3, $actual3);
 	}
 
 	/**
