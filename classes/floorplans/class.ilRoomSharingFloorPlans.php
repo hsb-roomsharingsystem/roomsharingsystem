@@ -144,7 +144,7 @@ class ilRoomSharingFloorPlans
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return FALSE;
 		}
-		if ($this->isTitleAlreadyTaken($a_title))
+		if ($this->isTitleAlreadyTaken($a_title, $a_file_id))
 		{
 			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
 		}
@@ -173,7 +173,7 @@ class ilRoomSharingFloorPlans
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return FALSE;
 		}
-		if ($this->isTitleAlreadyTaken($a_title))
+		if ($this->isTitleAlreadyTaken($a_title, $a_file_id))
 		{
 			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
 		}
@@ -237,20 +237,32 @@ class ilRoomSharingFloorPlans
 	 * Returns true if the given title is already taken.
 	 *
 	 * @param string $a_title
+	 * @param string $a_file_id
 	 * @return boolean
 	 */
-	private function isTitleAlreadyTaken($a_title)
+	private function isTitleAlreadyTaken($a_title, $a_file_id = null)
 	{
-		$rVal = false;
-		$allFloorplansTitles = $this->getAllFloorplansTitles();
-		foreach ($allFloorplansTitles as $floorplansTitle)
+		$old_title = "";
+		if ($a_file_id != null)
 		{
-			if ($floorplansTitle == $a_title)
+			$media_obj = new ilObjMediaObject($a_file_id);
+			$old_title = $media_obj->getTitle();
+		}
+		$rVal = false;
+		if ($a_file_id == null || $old_title != $a_title)
+		{
+			$allFloorplansTitles = $this->getAllFloorplansTitles();
+			foreach ($allFloorplansTitles as $floorplansTitle)
 			{
-				$rVal = true;
-				break;
+				if ($floorplansTitle == $a_title)
+				{
+					$rVal = true;
+					break;
+				}
 			}
 		}
+
+
 		return $rVal;
 	}
 
