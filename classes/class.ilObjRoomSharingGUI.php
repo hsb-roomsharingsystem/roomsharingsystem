@@ -573,6 +573,8 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		}
 
 		$this->settingsForm->setValuesByPost();
+		$roomAgreementField = $this->settingsForm->getItemByPostVar('rooms_agreement');
+		$roomAgreementField->setValue($this->getRoomAgreementLink());
 		$this->tpl->setContent($this->settingsForm->getHtml());
 	}
 
@@ -652,19 +654,30 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 		$values ['max_book_time'] = array('date' => $maxDate, 'time' => $maxTime);
 
 		/* Rooms agreement */
+		$values ['rooms_agreement'] = $this->getRoomAgreementLink();
+
+		$this->settingsForm->setValuesByArray($values);
+	}
+
+	/**
+	 * Creates link for an room agreement file if such exists.
+	 *
+	 * @return string link
+	 */
+	private function getRoomAgreementLink()
+	{
+		$linkPresentation = "";
 		$fileId = $this->object->getRoomsAgreementFileId();
 		if (!empty($fileId) && $fileId != "0")
 		{
-			$agreementFile = new ilObjMediaObject($this->object->getRoomsAgreementFileId());
+			$agreementFile = new ilObjMediaObject($fileId);
 			$media = $agreementFile->getMediaItem("Standard");
 			$source = $agreementFile->getDataDirectory() . "/" . $media->getLocation();
 
 			$linkPresentation = "<p> <a target=\"_blank\" href=\"" . $source . "\">" .
 				$this->lng->txt('rep_robj_xrs_current_rooms_user_agreement') . "</a></p>";
-			$values ['rooms_agreement'] = $linkPresentation;
 		}
-
-		$this->settingsForm->setValuesByArray($values);
+		return $linkPresentation;
 	}
 
 	/**
