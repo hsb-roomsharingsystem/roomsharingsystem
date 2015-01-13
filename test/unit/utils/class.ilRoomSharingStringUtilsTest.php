@@ -28,6 +28,10 @@ class ilRoomSharingStringUtilsTest extends PHPUnit_Framework_TestCase
 		$this->assertTrue(UTILS::startsWith("0.2String", "0.2"));
 		$this->assertTrue(UTILS::startsWith("0x5String", "0x5"));
 		$this->assertTrue(UTILS::startsWith("testString", "testString"));
+		$this->assertTrue(UTILS::startsWith("a", "a"));
+		$this->assertTrue(UTILS::startsWith("a   ", "a"));
+		$this->assertTrue(UTILS::startsWith(" a   ", " a"));
+		$this->assertTrue(UTILS::startsWith(" a   ", " a "));
 
 		$this->assertFalse(UTILS::startsWith("testString", "String"));
 		$this->assertFalse(UTILS::startsWith("0010String", "010"));
@@ -46,6 +50,13 @@ class ilRoomSharingStringUtilsTest extends PHPUnit_Framework_TestCase
 		$this->assertFalse(UTILS::startsWith(123, 1));
 		$this->assertFalse(UTILS::startsWith(0.2314, 0.2));
 		$this->assertFalse(UTILS::startsWith(0x5, 0x5));
+
+		$this->assertFalse(UTILS::startsWith(null, "0x5"));
+		$this->assertFalse(UTILS::startsWith("null", "0x5"));
+		$this->assertFalse(UTILS::startsWith("0x5", null));
+		$this->assertFalse(UTILS::startsWith("0x5", "null"));
+		$this->assertFalse(UTILS::startsWith(null, null));
+		$this->assertFalse(UTILS::startsWith(111, 111));
 	}
 
 }
