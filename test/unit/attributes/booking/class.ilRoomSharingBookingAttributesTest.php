@@ -33,8 +33,8 @@ class ilRoomSharingBookingAttributesTest extends PHPUnit_Framework_TestCase
 				->disableOriginalConstructor()->getMock();
 
 		$attributes = Array(
-			0 => Array("id" => 8, "name" => test, "pool_id" => 1),
-			1 => Array("id" => 9, "name" => test2, "pool_id" => 1));
+			0 => Array("id" => 8, "name" => "test", "pool_id" => 1),
+			1 => Array("id" => 9, "name" => "test2", "pool_id" => 1));
 
 		self::$ilRoomSharingDatabaseStub->method("getAllBookingAttributes")->willReturn($attributes);
 		self::$ilRoomSharingDatabaseStub->method("deleteAttributeBookingAssign")->willReturn(2);
