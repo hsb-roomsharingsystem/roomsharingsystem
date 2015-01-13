@@ -639,9 +639,7 @@ class ilRoomSharingMailer extends ilMailNotification
 	 *
 	 * Returns nothing.
 	 */
-	public
-		function sendCancellationMailWithReason($a_user_id, array
-	$a_participants_ids)
+	public function sendCancellationMailWithReason($a_user_id, array $a_participants_ids)
 	{
 		$this->composeAndSendCancellationMailToCreator($a_user_id, $this->reason);
 		foreach (array_unique($a_participants_ids) as $participant_id)
