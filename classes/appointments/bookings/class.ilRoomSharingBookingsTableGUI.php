@@ -457,7 +457,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
 		return $filter;
 	}
-
+        
+        /**
+         * Set the export formats
+         * @param array $formats
+         */
 	public function setExportFormats(array $formats)
 	{
 		$this->export_formats = array();
@@ -605,7 +609,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 			include_once("./Services/UIComponent/Overlay/classes/class.ilOverlayGUI.php");
 
 			// form to delete template
-			if (sizeof($templates))
+			if (count($templates))
 			{
 				$overlay = new ilOverlayGUI($delete_id);
 				$overlay->setTrigger($list_id . "_delete");
@@ -653,7 +657,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 			$alist = new ilAdvancedSelectionListGUI();
 			$alist->setId($list_id);
 			$alist->addItem($lng->txt("tbl_template_create"), "create", "#");
-			if (sizeof($templates))
+			if (count($templates))
 			{
 				$alist->addItem($lng->txt("tbl_template_delete"), "delete", "#");
 				foreach ($templates as $name)
@@ -749,7 +753,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 				}
 
 				// export
-				if (sizeof($this->export_formats) && $this->dataExists())
+				if (count($this->export_formats) && $this->dataExists())
 				{
 					include_once("./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php");
 					$alist = new ilAdvancedSelectionListGUI();
@@ -786,6 +790,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		}
 	}
 
+        /**
+         * Export the Data
+         * @param type $format
+         * @param type $send
+         */
 	public function exportData($format, $send = false)
 	{
 		if ($this->dataExists())
@@ -803,6 +812,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
 			switch ($format)
 			{
+                                default:
 				case self::EXPORT_EXCEL:
 					include_once "./Services/Excel/classes/class.ilExcelUtils.php";
 					include_once "./Services/Excel/classes/class.ilExcelWriterAdapter.php";
