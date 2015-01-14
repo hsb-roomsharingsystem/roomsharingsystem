@@ -35,7 +35,7 @@ class ilRoomSharingBookings
 	/**
 	 * constructor ilRoomSharingBookings
 	 *
-	 * @param integer $a_pool_id
+	 * @param integer $a_pool_id The pool ID
 	 */
 	function __construct($a_pool_id)
 	{
@@ -84,6 +84,7 @@ class ilRoomSharingBookings
 	 * 1 and exists as booking ID.
 	 * Sends all participants a cancellation notice.
 	 * @param array $a_booking_ids nummerical array of booking_ids to delete
+         * @param boolean $a_remove_by_higher_priority True if bookings with higher priority should be removed
 	 */
 	public function removeMultipleBookings(array $a_booking_ids, $a_remove_by_higher_priority = false)
 	{
@@ -106,7 +107,7 @@ class ilRoomSharingBookings
 	/**
 	 * Checks the permission of this user to delete this booking
 	 *
-	 * @param integer $a_userId
+	 * @param integer $a_userId The user id for which the Permission is checked
 	 * @throws ilRoomSharingBookingsException
 	 */
 	private function checkDeletePermission($a_userId)
@@ -176,6 +177,7 @@ class ilRoomSharingBookings
 	/**
 	 * Gets the bookings from the database.
 	 *
+         * @param array $filter Filter array for database query
 	 * @return array with bookings
 	 */
 	public function getList(array $filter)
@@ -296,6 +298,12 @@ class ilRoomSharingBookings
 
 	/**
 	 * Send cancellation email.
+         * 
+         * @param array $booking_details Information about the booking
+         * @param array $participants Participants of the booking who should 
+         * get the mail
+         * @param boolean $a_removed_by_higher_priority True when the booking 
+         * was cancelled due to higher priority
 	 */
 	public function sendCancellationNotification($booking_details, $participants,
 		$a_removed_by_higher_priority = false)
@@ -341,7 +349,11 @@ class ilRoomSharingBookings
 	{
 		return (int) $this->pool_id;
 	}
-
+        
+        /**
+         * Gets all attributes for this booking
+         * @return array List of attributes
+         */
 	public function getAllAttributes()
 	{
 		return $this->ilRoomsharingDatabase->getAllBookingAttributeNames();
