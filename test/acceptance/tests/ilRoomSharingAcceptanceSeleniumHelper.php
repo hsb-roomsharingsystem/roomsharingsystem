@@ -287,8 +287,9 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$priority = "", $copyFrom = "Kein")
 	{
 		//Navigation
+		$this->toRSS();
 		$this->webDriver->findElement(WebDriverBy::linkText('Privilegien'))->click();
-		$this->webDriver->findElement(WebDriverBy::linkText(' Neue Klasse anlegen '))->click();
+		$this->webDriver->findElement(WebDriverBy::partialLinkText('Neue Klasse anlegen'))->click();
 		//Data
 		$this->webDriver->findElement(WebDriverBy::id('name'))->sendKeys($className);
 		$this->webDriver->findElement(WebDriverBy::id('description'))->sendKeys($classComment);
@@ -596,8 +597,8 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	{
 		//Navigate
 		$this->webDriver->findElement(WebDriverBy::linkText('Administration'))->click();
-		$this->webDriver->findElement(WebDriverBy::id('id=mm_adm_usrf'))->click();
-		$this->webDriver->findElemend(WebDriverBy::linkText('Neuer Benutzer'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('mm_adm_usrf'))->click();
+		$this->webDriver->findElement(WebDriverBy::partialLinkText('Neuer Benutzer'))->click();
 
 		//Input
 		$this->webDriver->findElement(WebDriverBy::id('login'))->clear();
@@ -607,13 +608,14 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::id('passwd_retype'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('passwd_retype'))->sendKeys($pw);
 		$gender_id = 'gender_' . $gender;
-		$this->webDriver->findElemend(WebDriverBy::id($gender_id))->click();
+		$this->webDriver->findElement(WebDriverBy::id($gender_id))->click();
 		$this->webDriver->findElement(WebDriverBy::id('firstname'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('firstname'))->sendKeys($firstname);
 		$this->webDriver->findElement(WebDriverBy::id('lastname'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('lastname'))->sendKeys($lastname);
 		$this->webDriver->findElement(WebDriverBy::id('email'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('email'))->sendKeys($email);
+		$this->webDriver->findElement(WebDriverBy::cssSelector('select[id="language"] option[value="de"]'))->click();
 		//Submit
 		$this->webDriver->findElement(WebDriverBy::name('cmd[save]'))->click();
 	}
@@ -637,60 +639,9 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	{
 		$this->login($login, $pw);
 		$this->webDriver->findElement(WebDriverBy::id('current_password'))->sendKeys($pw);
-		$this->webDriver->findElement(WebDriverBy::id('new_password'))->sendKeys($pw);
+		$this->webDriver->findElement(WebDriverBy::id('new_password'))->sendKeys($newpw);
 		$this->webDriver->findElement(WebDriverBy::id('new_password_retype'))->sendKeys($newpw);
 		$this->webDriver->findElement(WebDriverBy::name('cmd[savePassword]'))->click();
-	}
-
-	/*
-	 * Create a booking from scratch
-	 * @param type $day					Day of Booking
-	 * @param type $month				Month of Booking (String)
-	 * @param type $time_from_h			Starting hour
-	 * @param type $time_from_m			Starting Minute
-	 * @param type $time_to_h			Ending hour
-	 * @param type $time_to_m			Ending Minute
-	 * @param type $room_name			Room to be booked
-	 * @param type $seats				Minimum Seats needed
-	 * @param type $subject				Subject of the Booking
-	 * @param bool $acc					Tick "Accept room using agreement" (Agreement must be there)
-	 * @param type $comment				Comment to the Booking
-	 */
-	public function createBooking($day, $month, $year, $time_from_h, $time_from_m, $time_to_h,
-		$time_to_m, $room_name, $seats, $subject, $acc, $comment = "")
-	{
-		//Navigate
-		$this->webDriver->findElemend(WebDriverBy::linkText('Termine'))->click();
-		$this->webDriver->findElement(WebDriverBy::linkText('Buchung hinzufügen'))->click();
-
-		//Input
-		$this->webDriver->findElement(WebDriverBy::id('date[date]_d'))->click();
-		$this->webDriver->findElement(WebDriverBy::id('date[date]_d'))->selectByVisibleText($day);
-		$this->webDriver->findElement(WebDriverBy::id('date[date]_m'))->click();
-		$this->webDriver->findElement(WebDriverBy::id('date[date]_m'))->selectByVisibleText($month);
-		$this->webDriver->findElement(WebDriverBy::id('date[date]_y'))->click();
-		$this->webDriver->findElement(WebDriverBy::id('date[date]_y'))->selectByVisibleText($year);
-
-		$this->webDriver->findElement(WebDriverBy::id('time_from[time]_h'))->click();
-		$this->webDriver->findElement(WebDriverBy::id('dtime_from[time]_h'))->selectByVisibleText($time_from_h);
-		$this->webDriver->findElement(WebDriverBy::id('time_from[time]_m'))->click();
-		$this->webDriver->findElement(WebDriverBy::id('dtime_from[time]_m'))->selectByVisibleText($time_from_m);
-
-		$this->webDriver->findElement(WebDriverBy::id('time_to[time]_h'))->click();
-		$this->webDriver->findElement(WebDriverBy::id('dtime_to[time]_h'))->selectByVisibleText($time_to_h);
-		$this->webDriver->findElement(WebDriverBy::id('time_to[time]_m'))->click();
-		$this->webDriver->findElement(WebDriverBy::id('dtime_to[time]_m'))->selectByVisibleText($time_to_m);
-
-		$this->webDriver->findElement(WebDriverBy::id('room_name'))->sendKeys($room_name);
-		$this->webDriver->findElement(WebDriverBy::id('seats'))->sendKeys($seats);
-
-		$this->webDriver->findElement(WebDriverBy::name('cmd[applySearch]'))->click();
-
-		//Submit the Search Form
-		$this->webDriver->findElemend(WebDriverBy::linkText('Buchen'))->click();
-		//Book
-		$this->doABooking($subject, $day, $month, $year, $time_from_h, $time_from_m, $day, $month, $year,
-			$time_to_h, $time_to_m, $acc, $comment);
 	}
 
 	/*
@@ -700,7 +651,6 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	 */
 	public function grantPrivilege($priv_name, $class_id)
 	{
-		$this->webDriver->findElement(WebDryverBy::name('Privilegien'))->click();
 		$el = $this->webDriver->findElement(WebDriverBy::name('priv[' . $class_id . '][' . $priv_name . ']'));
 		$checked = $el->getAttribute('checked');
 		if (!$checked)
@@ -733,7 +683,38 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::id('booking_comment'))->sendKeys($comment);
 
 		//Submit
-		$this->webDriver->findElement(WebDriverBy::name('cmd[applyRoomFilter]'))->click();
+		$this->webDriver->findElement(WebDriverBy::name('cmd[applyFilter]'))->click();
+	}
+
+	/* Deletes one user from the user-list. It cannot be specified which user to delete - but it's
+	 *  impossible to delete the root user
+	 */
+	public function deleteUser()
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Administration'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('mm_adm_usrf'))->click();
+		//delete
+		$this->webDriver->findElement(WebDriverBy::name('id[]'))->click();
+		$this->webDriver->findElement(WebDriverBy::name('selected_cmd2'))->sendKeys('Löschen');
+		$this->webDriver->findElement(WebDriverBy::cssSelector('option[value="deleteUsers"]'))->click();
+		$this->webDriver->findElement(WebDriverBy::cssSelector('div.ilLocator.xsmall'))->click();
+		$this->webDriver->findElement(WebDriverBy::name('select_cmd2'))->click();
+		$this->webDriver->findElement(WebDriverBy::name('cmd[confirmdelete]'))->click();
+	}
+
+	public function getPrivilegeClassIDByNamePartial($name)
+	{
+		$link_taget = $this->webDriver->findElement(WebDriverBy::partialLinkText($name . ' ⇒ User'))->getAttribute('href');
+		$link_taget_A_vars = explode("&", $link_taget);
+		foreach ($link_taget_A_vars as $var)
+		{
+			if (substr($var, 0, 9) === "class_id=")
+			{
+				$keyAndValue = explode("=", $var);
+				return $keyAndValue[1];
+			}
+		}
 	}
 
 }
