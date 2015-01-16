@@ -364,7 +364,7 @@ class ilRoomSharingDaVinciImport {
                     if ($aBooking === array() || $this->ilRoomSharingDatabase->getBooking($aBooking[0])['bookingcomment'] !== $this->lng->txt("rep_robj_xrs_daVinci_import_tag"))
                     {
                         try {
-                            $this->book->addBooking($entry,array(),array(),array());
+                            $this->book->addBooking($entry,array(),array(),array(),false);
                         } catch (Exception $ex) {
                             
                         }
@@ -386,7 +386,8 @@ class ilRoomSharingDaVinciImport {
                                 $this->ilRoomSharingDatabase->getParticipantsForBooking($aBooking[0]), 
                                 $newBookingValues,
                                 $this->ilRoomSharingDatabase->getAttributesForBooking($aBooking[0]),
-                                $this->ilRoomSharingDatabase->getParticipantsForBooking($aBooking[0]));
+                                $this->ilRoomSharingDatabase->getParticipantsForBooking($aBooking[0]),
+                                false);
                         } catch (Exception $ex) {
                                 
                         }
