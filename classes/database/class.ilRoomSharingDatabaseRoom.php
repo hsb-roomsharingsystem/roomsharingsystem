@@ -66,7 +66,7 @@ class ilRoomSharingDatabaseRoom
 	public function getAllRoomIds()
 	{
 		$resRoomIds = $this->ilDB->query('SELECT id FROM ' . dbc::ROOMS_TABLE . ' WHERE pool_id = ' .
-			$this->ilDB->quote($this->pool_id, 'integer') . ' ');
+			$this->ilDB->quote($this->pool_id, 'integer'));
 		$room_ids = array();
 		while ($row = $this->ilDB->fetchAssoc($resRoomIds))
 		{
@@ -152,7 +152,7 @@ class ilRoomSharingDatabaseRoom
 	 */
 	public function getRoomName($a_room_id)
 	{
-		$roomNameSet = $this->ilDB->query(' SELECT name FROM ' . dbc::ROOMS_TABLE .
+		$roomNameSet = $this->ilDB->query('SELECT name FROM ' . dbc::ROOMS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($a_room_id, 'integer') .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$roomNameRow = $this->ilDB->fetchAssoc($roomNameSet);
@@ -167,7 +167,7 @@ class ilRoomSharingDatabaseRoom
 	 */
 	public function getRoomWithName($a_room_name)
 	{
-		$roomSet = $this->ilDB->query(' SELECT * FROM ' . dbc::ROOMS_TABLE .
+		$roomSet = $this->ilDB->query('SELECT * FROM ' . dbc::ROOMS_TABLE .
 			' WHERE name = ' . $this->ilDB->quote($a_room_name, 'text') .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 		$rooms = array();
