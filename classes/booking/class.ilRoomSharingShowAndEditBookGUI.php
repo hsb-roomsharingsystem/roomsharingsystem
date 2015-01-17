@@ -613,7 +613,14 @@ class ilRoomSharingShowAndEditBookGUI
 
 	private function resetInvalidForm($a_form)
 	{
-		$a_form->setValuesByPost();
+		try
+		{
+			$a_form->setValuesByPost();
+		}
+		catch (Exception $ex)
+		{
+			//Catch other exceptions from the reset of the form
+		}
 		$this->tpl->setContent($a_form->getHTML());
 	}
 
