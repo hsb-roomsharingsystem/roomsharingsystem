@@ -150,17 +150,29 @@ class ilRoomSharingDatabaseCalendar
 
 	/*
 	 * Creates an appointment in the RoomSharing-Calendar and save id in booking-table.
+	 * Optional you assign the start and end date, if not given the will be generate them
+	 * out of the booking values.
 	 *
-	 * @param $title string appointment-title
-	 * @param $time_start start-time
-	 * @param $time_end end-time
+	 * @param $a_insertedId int Id from the booking
+	 * @param $a_booking_values array with all informations about the booking
+	 *
+	 * optional:
+	 * @param $a_from string start date of the booking
+	 * @param $a_to string end date of the booking
 	 */
-	public function insertBookingAppointment($insertedId, $a_booking_values, $from, $to)
+	public function insertBookingAppointment($a_insertedId, $a_booking_values, $a_from = null,
+		$a_to = null)
 	{
 		//create appointment first
 		include_once('Services/Calendar/classes/class.ilDate.php');
-		$time_start = new ilDateTime($from, 1);
-		$time_end = new ilDateTime($to, 1);
+		if ($a_from == null || $a_to == null)
+		{
+			$a_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
+			$a_to = $a_booking_values ['to'] ['date'] . " " . $a_booking_values ['to'] ['time'];
+		}
+
+		$time_start = new ilDateTime($a_from, 1);
+		$time_end = new ilDateTime($a_to, 1);
 		$title = $a_booking_values['subject'];
 
 		$room_name = $this->ilRoomSharingDatabase->getRoomName($a_booking_values ['room']);
@@ -189,7 +201,7 @@ class ilRoomSharingDatabaseCalendar
 		//update bookings-table afterwards
 		$this->ilDB->manipulate('UPDATE ' . dbc::BOOKINGS_TABLE .
 			' SET calendar_entry_id = ' . $this->ilDB->quote($app->getEntryId(), 'integer') .
-			' WHERE id = ' . $this->ilDB->quote($insertedId, 'integer') .
+			' WHERE id = ' . $this->ilDB->quote($a_insertedId, 'integer') .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
