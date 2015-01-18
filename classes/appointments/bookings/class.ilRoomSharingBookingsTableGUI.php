@@ -456,11 +456,13 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
 		return $filter;
 	}
-        
-        /**
-         * Set the export formats
-         * @param array $formats
-         */
+
+	/**
+	 * Set the export formats. Copied form ilTable2GUI. Changed only the footer.
+	 * See bottom of the method.
+	 *
+	 * @param array $formats
+	 */
 	public function setExportFormats(array $formats)
 	{
 		$this->export_formats = array();
@@ -789,11 +791,11 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		}
 	}
 
-        /**
-         * Export the Data
-         * @param type $format
-         * @param type $send
-         */
+	/**
+	 * Export the Data
+	 * @param type $format
+	 * @param type $send
+	 */
 	public function exportData($format, $send = false)
 	{
 		if ($this->dataExists())
@@ -811,7 +813,7 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 
 			switch ($format)
 			{
-                                default:
+				default:
 				case self::EXPORT_EXCEL:
 					include_once "./Services/Excel/classes/class.ilExcelUtils.php";
 					include_once "./Services/Excel/classes/class.ilExcelWriterAdapter.php";

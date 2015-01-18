@@ -81,6 +81,7 @@ class ilRoomSharingParticipations
 				$result[] = $this->readBookingData($bookingDatas);
 			}
 		}
+		return $result;
 	}
 
 	/**

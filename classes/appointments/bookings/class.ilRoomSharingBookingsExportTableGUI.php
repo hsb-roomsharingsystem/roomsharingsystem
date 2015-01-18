@@ -1,6 +1,7 @@
 <?php
 
-include_once('./Services/Table/classes/class.ilTable2GUI.php');
+require_once('./Services/Table/classes/class.ilTable2GUI.php');
+require_once('Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php');
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -9,7 +10,7 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
  */
 
 /**
- * Description of class
+ * ilRoomSharingBookingsExportTableGUI for export of bookings in pdf.
  *
  * @author albert
  */
@@ -17,13 +18,15 @@ class ilRoomSharingBookingsExportTableGUI extends ilTable2GUI
 {
 	protected $bookings;
 	protected $pool_id;
+	protected $lng;
+	protected $ctrl;
 
 	/**
 	 * Constructor
 	 *
-	 * @param unknown $a_parent_obj
-	 * @param unknown $a_parent_cmd
-	 * @param unknown $a_ref_id
+	 * @param ilRoomSharingBookingsTableGUI $a_parent_obj
+	 * @param string $a_parent_cmd
+	 * @param integer $a_ref_id
 	 */
 	public function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id)
 	{
@@ -34,11 +37,11 @@ class ilRoomSharingBookingsExportTableGUI extends ilTable2GUI
 		$this->ref_id = $a_ref_id;
 		$this->setId("roomobj");
 
-		include_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/' .
-			'RoomSharing/classes/appointments/bookings/class.ilRoomSharingBookings.php';
 		$this->bookings = new ilRoomSharingBookings($a_parent_obj->getPoolId());
 		$this->bookings->setPoolId($a_parent_obj->getPoolId());
+
 		parent::__construct($a_parent_obj, $a_parent_cmd);
+
 		$this->disable('action');
 		$this->setTitle($lng->txt("rep_robj_xrs_bookings"));
 		//$this->setLimit(10); // data sets per page
@@ -137,7 +140,7 @@ class ilRoomSharingBookingsExportTableGUI extends ilTable2GUI
 
 	public function getTableHTML()
 	{
-		global $lng, $ilCtrl, $ilUser;
+		global $ilCtrl, $ilUser;
 
 		$this->prepareOutput();
 
@@ -214,7 +217,7 @@ class ilRoomSharingBookingsExportTableGUI extends ilTable2GUI
 		else
 		{
 			// add standard no items text (please tell me, if it messes something up, alex, 29.8.2008)
-			$no_items_text = (trim($this->getNoEntriesText()) != '') ? $this->getNoEntriesText() : $lng->txt("no_items");
+			$no_items_text = (trim($this->getNoEntriesText()) != '') ? $this->getNoEntriesText() : $this->lng->txt("no_items");
 
 			$this->css_row = ($this->css_row != "tblrow1") ? "tblrow1" : "tblrow2";
 
