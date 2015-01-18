@@ -9,6 +9,8 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarSchedule.php");
 require_once("Services/Calendar/classes/class.ilCalendarSettings.php");
 require_once("Services/Calendar/classes/class.ilCalendarAppointmentPanelGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarScheduleExportTableGUI.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/export/class.ilRoomSharingPDFCreator.php");
 
 use ilRoomSharingPrivilegesConstants as PRIVC;
 
@@ -494,18 +496,10 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	public function export()
 	{
 
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/rooms/detail/calendar/class.ilRoomSharingCalendarScheduleExportTableGUI.php");
-		include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/class.ilObjRoomSharingPDFCreator.php");
-		$htmlContent = $this->tpl->get('__global__');
-		file_put_contents('htmlContent.txt', $htmlContent);
-
+		/* auslagern nach ilRoomSharingCalendarScheduleExportTableGUI */
 		$this->writeRoomDataFromRoomObject();
-		$exportTable = new ilRoomSharingCalendarScheduleExportTableGUI($this->parent_obj,
-			'calendarscheduleexport', $this->ref_id, $this);
-
-		$tableHtml = str_replace("<nobreaks /><br /><br />", "", $exportTable->getTableHTML());
-		file_put_contents('htmlContent.txt', $tableHtml);
-		ilObjRoomSharingPDFCreator::generatePDF($tableHtml, 'D', 'file.pdf');
+		new ilRoomSharingCalendarScheduleExportTableGUI($this->parent_obj, 'calendarscheduleexport',
+			$this->ref_id, $this);
 	}
 
 	public function writeRoomDataFromRoomObject()

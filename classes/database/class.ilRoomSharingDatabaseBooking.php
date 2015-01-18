@@ -2,9 +2,6 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 
 use ilRoomSharingDBConstants as dbc;
 
@@ -93,7 +90,7 @@ class ilRoomSharingDatabaseBooking
 	public function insertBookingRecurrence($a_booking_attr_values, $a_booking_values,
 		$a_booking_participants)
 	{
-		global $ilDB, $ilUser;
+		global $ilUser;
 		$count_booking_values_from = count($a_booking_values['from']);
 		//Are there more than one startdays? Then its a sequence booking, so generate a new id
 		if ($count_booking_values_from > 1)
@@ -126,7 +123,7 @@ class ilRoomSharingDatabaseBooking
 				"), ";
 		}
 		$q = substr($query, 0, -2); // delete last comma and blank
-		$ilDB->manipulate($q); // SQL
+		$this->ilDB->manipulate($q); // SQL
 		$insertedId = $this->ilDB->getLastInsertId();
 		if ($insertedId == - 1)
 		{
@@ -501,6 +498,13 @@ class ilRoomSharingDatabaseBooking
 		return $booking_ids;
 	}
 
+	/**
+	 * Returns the info for a booking
+	 * (title, user, description, room, start, end)
+	 *
+	 * @param type $booking_id
+	 * @return array the booking info
+	 */
 	public function getInfoForBooking($booking_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::BOOKINGS_TABLE . ' b LEFT JOIN ' .
@@ -554,6 +558,15 @@ class ilRoomSharingDatabaseBooking
 				' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
+	/**
+	 * Gets all bookings for a room in a time span
+	 *
+	 * @param $room_id
+	 * @param $start
+	 * @param $end
+	 * @param $type
+	 * @return array bookings
+	 */
 	public function getBookingsForRoomInTimeSpan($room_id, $start, $end, $type)
 	{
 		$query = 'SELECT b.id id FROM ' . dbc::BOOKINGS_TABLE . ' b';

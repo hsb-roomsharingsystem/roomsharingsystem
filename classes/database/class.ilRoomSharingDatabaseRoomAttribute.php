@@ -53,6 +53,11 @@ class ilRoomSharingDatabaseRoomAttribute
 		return $res_attribute;
 	}
 
+	/**
+	 * Returns all room attribute names
+	 *
+	 * @return array the attribute names
+	 */
 	public function getAllAttributeNames()
 	{
 		$set = $this->ilDB->query('SELECT name FROM ' . dbc::ROOM_ATTRIBUTES_TABLE . ' WHERE pool_id = ' .

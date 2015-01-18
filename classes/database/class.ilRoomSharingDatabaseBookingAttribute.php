@@ -1,8 +1,6 @@
 <?php
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
-require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 
 use ilRoomSharingDBConstants as dbc;
 
@@ -112,6 +110,11 @@ class ilRoomSharingDatabaseBookingAttribute
 		return $attributesRows;
 	}
 
+	/**
+	 * Returns all booking attribute names
+	 *
+	 * @return array the attribute names
+	 */
 	public function getAllBookingAttributeNames()
 	{
 		$set = $this->ilDB->query('SELECT name FROM ' . dbc::BOOKING_ATTRIBUTES_TABLE .
@@ -124,6 +127,12 @@ class ilRoomSharingDatabaseBookingAttribute
 		return $attributes;
 	}
 
+	/**
+	 * Returns the values for the booking attribute
+	 *
+	 * @param type $a_booking_id
+	 * @return array attribute values
+	 */
 	public function getBookingAttributeValues($a_booking_id)
 	{
 		$set = $this->ilDB->query('SELECT *' . ' FROM ' . dbc::BOOKING_TO_ATTRIBUTE_TABLE . ' WHERE booking_id = ' .

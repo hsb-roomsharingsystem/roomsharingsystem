@@ -456,8 +456,7 @@ class ilRoomSharingAcceptanceSearchTest extends PHPUnit_Framework_TestCase
 
 	public function tearDown()
 	{
-		self::$webDriver->findElement(WebDriverBy::linkText('Abmelden'))->click();
-		self::$webDriver->findElement(WebDriverBy::linkText('Bei ILIAS anmelden'))->click();
+		self::$helper->logout();
 	}
 
 }

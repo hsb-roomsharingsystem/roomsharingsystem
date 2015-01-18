@@ -1,8 +1,6 @@
 <?php
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
-require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 
 use ilRoomSharingDBConstants as dbc;
 
@@ -46,6 +44,13 @@ class ilRoomSharingDatabaseRoom
 		return $value;
 	}
 
+	/**
+	 * Gets all the room ids for rooms mathcing the attribute given
+	 *
+	 * @param $a_attribute
+	 * @param $a_count
+	 * @return array the matching room ids
+	 */
 	public function getRoomIdsWithMatchingAttribute($a_attribute, $a_count)
 	{
 		$queryString = 'SELECT room_id FROM ' . dbc::ROOM_TO_ATTRIBUTE_TABLE . ' ra ' .
@@ -63,6 +68,11 @@ class ilRoomSharingDatabaseRoom
 		return $matching;
 	}
 
+	/**
+	 * Returns all room ids
+	 *
+	 * @return array the room ids
+	 */
 	public function getAllRoomIds()
 	{
 		$resRoomIds = $this->ilDB->query('SELECT id FROM ' . dbc::ROOMS_TABLE . ' WHERE pool_id = ' .
@@ -113,6 +123,14 @@ class ilRoomSharingDatabaseRoom
 		return $roomNames;
 	}
 
+	/**
+	 * Gets all rooms matching the room name and seats
+	 *
+	 * @param $a_roomsToCheck
+	 * @param $a_room_name
+	 * @param $a_room_seats
+	 * @return array the matching rooms
+	 */
 	public function getMatchingRooms($a_roomsToCheck, $a_room_name, $a_room_seats)
 	{
 		$where_part = ' AND room.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' ';
@@ -258,6 +276,12 @@ class ilRoomSharingDatabaseRoom
 		return $room_ids;
 	}
 
+	/**
+	 * Returns all rooms matching the floorplan id
+	 *
+	 * @param type $a_file_id
+	 * @return array the rooms
+	 */
 	public function getRoomsWithFloorplan($a_file_id)
 	{
 		$set = $this->ilDB->query('SELECT name FROM ' . dbc::ROOMS_TABLE .
