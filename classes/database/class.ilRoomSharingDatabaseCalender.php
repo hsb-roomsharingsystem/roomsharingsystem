@@ -2,8 +2,6 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
-require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 require_once('Services/Calendar/classes/class.ilDate.php');
 require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
 require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
@@ -123,7 +121,6 @@ class ilRoomSharingDatabaseCalendar
 	 */
 	public function deleteCalendarEntriesOfBookings($a_booking_ids)
 	{
-
 		$set = $this->ilDB->prepare('SELECT calendar_entry_id FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE ' . $this->ilDB->in("id", $a_booking_ids) .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
@@ -168,7 +165,6 @@ class ilRoomSharingDatabaseCalendar
 		$a_to = null)
 	{
 		//create appointment first
-
 		if ($a_from == null || $a_to == null)
 		{
 			$a_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
@@ -183,7 +179,6 @@ class ilRoomSharingDatabaseCalendar
 
 		$cal_cat_id = $a_booking_values['cal_id'];
 
-
 		//use original ilCalendarEntry and let ILIAS do the work
 		$app = new ilCalendarEntry();
 		$app->setStart($time_start);
@@ -196,7 +191,6 @@ class ilRoomSharingDatabaseCalendar
 		$app->setLocation($room_name);
 		$app->validate();
 		$app->save();
-
 
 		$ass = new ilCalendarCategoryAssignments($app->getEntryId());
 		$ass->addAssignment($cal_cat_id);
