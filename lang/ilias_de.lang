@@ -123,7 +123,7 @@ mail_removing participant_subject#:#Sie wurden als Teilnehmer von einer Buchung 
 mail_removing participant_message#:#Sie wurden vom Ersteller der Raum-Buchung als Teilnehmer ausgetragen. Es betraf folgende Buchung:
 manage#:#Verwalten
 max_book_time#:#Maximale Dauer einer Buchung
-missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht Akzeptiert.
+missing_agreement_entries#:#Die Raumnutzungsvereinbarung wurde nicht akzeptiert.
 missing_required_entries#:#Einige Angaben sind unvollständig oder ungültig. Bitte korrigieren Sie Ihre Eingabe.
 module#:#Modul
 must_be_unique#:#Attributname muss eindeutig sein!
