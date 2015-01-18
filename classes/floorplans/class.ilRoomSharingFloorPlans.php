@@ -142,9 +142,9 @@ class ilRoomSharingFloorPlans
 		{
 			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
-			return FALSE;
+			return false;
 		}
-		if ($this->isTitleAlreadyTaken($a_title, $a_file_id))
+		if ($this->isTitleForUpdateAlreadyTaken($a_title, $a_file_id))
 		{
 			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
 		}
@@ -173,7 +173,7 @@ class ilRoomSharingFloorPlans
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return FALSE;
 		}
-		if ($this->isTitleAlreadyTaken($a_title, $a_file_id))
+		if ($this->isTitleForUpdateAlreadyTaken($a_title, $a_file_id))
 		{
 			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
 		}
@@ -208,7 +208,7 @@ class ilRoomSharingFloorPlans
 		{
 			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"), true);
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
-			return FALSE;
+			return false;
 		}
 
 		if ($this->isTitleAlreadyTaken($a_title))
@@ -234,56 +234,57 @@ class ilRoomSharingFloorPlans
 	}
 
 	/**
-	 * Returns true if the given title is already taken.
+	 * Returns true if the title which is about to be set is already taken.
+	 * @param string $a_title the new title that is about to be set
 	 *
-	 * @param string $a_title
-	 * @param string $a_file_id
 	 * @return boolean
 	 */
-	private function isTitleAlreadyTaken($a_title, $a_file_id = null)
+	private function isTitleAlreadyTaken($a_title)
 	{
-		$old_title = "";
-		if ($a_file_id != null)
-		{
-			$media_obj = new ilObjMediaObject($a_file_id);
-			$old_title = $media_obj->getTitle();
-		}
-		$rVal = false;
-		if ($a_file_id == null || $old_title != $a_title)
-		{
-			$allFloorplansTitles = $this->getAllFloorplansTitles();
-			foreach ($allFloorplansTitles as $floorplansTitle)
-			{
-				if ($floorplansTitle == $a_title)
-				{
-					$rVal = true;
-					break;
-				}
-			}
-		}
-
-
-		return $rVal;
+		return in_array($a_title, $this->getAllFloorplanTitles());
 	}
 
 	/**
-	 * Returns all existing floorplans titles.
+	 * Checks whether or not the new title of an existing floorplan is not already taken.
+	 * The new title of a floorplan should of course not collide with its current title.
+	 *
+	 * @param string $a_title the new title that is about to be set
+	 * @param string $a_file_id the id of the floorplan whose name is about to be changed
+	 *
+	 * @return boolean true, if the name is taken; false otherwise
+	 */
+	private function isTitleForUpdateAlreadyTaken($a_title, $a_file_id)
+	{
+		$taken = false;
+		$media_obj = new ilObjMediaObject($a_file_id);
+		$old_title = $media_obj->getTitle();
+
+		if ($a_title != $old_title)
+		{
+			$taken = $this->isTitleAlreadyTaken($a_title);
+		}
+
+		return $taken;
+	}
+
+	/**
+	 * Returns the titles of all the existing floorplans.
 	 *
 	 * @return array with titles
 	 */
-	private function getAllFloorplansTitles()
+	private function getAllFloorplanTitles()
 	{
-		$allFloorplanIds = $this->ilRoomsharingDatabase->getAllFloorplanIds();
-		$floorplansTitles = array();
-		foreach ($allFloorplanIds as $floorplanId)
+		$all_fplan_ids = $this->ilRoomsharingDatabase->getAllFloorplanIds();
+		$fplan_titles = array();
+		foreach ($all_fplan_ids as $fplan_id)
 		{
-			if (ilRoomSharingNumericUtils::isPositiveNumber($floorplanId))
+			if (ilRoomSharingNumericUtils::isPositiveNumber($fplan_id))
 			{
-				$mobj = $this->getMediaObjectInstance($floorplanId);
-				$floorplansTitles[] = $mobj->getTitle();
+				$mobj = $this->getMediaObjectInstance($fplan_id);
+				$fplan_titles[] = $mobj->getTitle();
 			}
 		}
-		return $floorplansTitles;
+		return $fplan_titles;
 	}
 
 	/**
@@ -424,5 +425,4 @@ class ilRoomSharingFloorPlans
 	}
 
 }
-
 ?>
