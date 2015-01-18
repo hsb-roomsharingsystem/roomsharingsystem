@@ -310,6 +310,13 @@ class ilRoomSharingDatabase
 				$a_date_to, $a_room_id, $a_booking_id);
 	}
 
+	/**
+	 * Returns the info for a booking
+	 * (title, user, description, room, start, end)
+	 *
+	 * @param type $booking_id
+	 * @return array the booking info
+	 */
 	public function getInfoForBooking($booking_id)
 	{
 		return $this->ilRoomSharingDatabaseBooking->getInfoForBooking($booking_id);
@@ -337,6 +344,15 @@ class ilRoomSharingDatabase
 		return $this->ilRoomSharingDatabaseBooking->deleteAllBookingsAssignedToRoom($a_room_id);
 	}
 
+	/**
+	 * Gets all bookings for a room in a time span
+	 *
+	 * @param $room_id
+	 * @param $start
+	 * @param $end
+	 * @param $type
+	 * @return array bookings
+	 */
 	public function getBookingsForRoomInTimeSpan($room_id, $start, $end, $type)
 	{
 		return $this->ilRoomSharingDatabaseBooking->getBookingsForRoomInTimeSpan($room_id, $start, $end,
@@ -669,11 +685,23 @@ class ilRoomSharingDatabase
 		return $this->ilRoomSharingDatabaseRoom->getMaxSeatCount();
 	}
 
+	/**
+	 * Gets all the room ids for rooms mathcing the attribute given
+	 *
+	 * @param $a_attribute
+	 * @param $a_count
+	 * @return array the matching room ids
+	 */
 	public function getRoomIdsWithMatchingAttribute($a_attribute, $a_count)
 	{
 		return $this->ilRoomSharingDatabaseRoom->getRoomIdsWithMatchingAttribute($a_attribute, $a_count);
 	}
 
+	/**
+	 * Returns all room ids
+	 *
+	 * @return array the room ids
+	 */
 	public function getAllRoomIds()
 	{
 		return $this->ilRoomSharingDatabaseRoom->getAllRoomIds();
@@ -699,6 +727,14 @@ class ilRoomSharingDatabase
 		return $this->ilRoomSharingDatabaseRoom->getAllRoomNames();
 	}
 
+	/**
+	 * Gets all rooms matching the room name and seats
+	 *
+	 * @param $a_roomsToCheck
+	 * @param $a_room_name
+	 * @param $a_room_seats
+	 * @return array the matching rooms
+	 */
 	public function getMatchingRooms($a_roomsToCheck, $a_room_name, $a_room_seats)
 	{
 		return $this->ilRoomSharingDatabaseRoom->getMatchingRooms($a_roomsToCheck, $a_room_name,
@@ -758,6 +794,12 @@ class ilRoomSharingDatabase
 		return $this->ilRoomSharingDatabaseRoom->getAllRoomIdsWhereSeatsAvailable($a_min_seats);
 	}
 
+	/**
+	 * Returns all rooms matching the floorplan id
+	 *
+	 * @param type $a_file_id
+	 * @return array the rooms
+	 */
 	public function getRoomsWithFloorplan($a_file_id)
 	{
 		return $this->ilRoomSharingDatabaseRoom->getRoomsWithFloorplan($a_file_id);
@@ -834,6 +876,11 @@ class ilRoomSharingDatabase
 		return $this->ilRoomSharingDatabaseRoomAttribute->getAttributesForRooms($a_room_ids);
 	}
 
+	/**
+	 * Returns all room attribute names
+	 *
+	 * @return array the attribute names
+	 */
 	public function getAllAttributeNames()
 	{
 		return $this->ilRoomSharingDatabaseRoomAttribute->getAllAttributeNames();
@@ -1001,11 +1048,22 @@ class ilRoomSharingDatabase
 		return $this->ilRoomSharingDatabaseBookingAttribute->getAllBookingAttributes();
 	}
 
+	/**
+	 * Returns all booking attribute names
+	 *
+	 * @return array the attribute names
+	 */
 	public function getAllBookingAttributeNames()
 	{
 		return $this->ilRoomSharingDatabaseBookingAttribute->getAllBookingAttributeNames();
 	}
 
+	/**
+	 * Returns the values for the booking attribute
+	 *
+	 * @param type $a_booking_id
+	 * @return array attribute values
+	 */
 	public function getBookingAttributeValues($a_booking_id)
 	{
 		return $this->ilRoomSharingDatabaseBookingAttribute->getBookingAttributeValues($a_booking_id);

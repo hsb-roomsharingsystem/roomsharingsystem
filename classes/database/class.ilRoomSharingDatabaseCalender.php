@@ -4,6 +4,10 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
+require_once('Services/Calendar/classes/class.ilDate.php');
+require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
 
 use ilRoomSharingDBConstants as dbc;
 
@@ -68,7 +72,7 @@ class ilRoomSharingDatabaseCalendar
 	 */
 	public function deleteCalendarEntryOfBooking($a_booking_id)
 	{
-		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+
 		$set = $this->ilDB->query('SELECT calendar_entry_id FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
@@ -86,7 +90,7 @@ class ilRoomSharingDatabaseCalendar
 	 */
 	public function updatingCalendarEntryOfBooking($a_booking_id)
 	{
-		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+
 		$set = $this->ilDB->query('SELECT calendar_entry_id FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE id = ' . $this->ilDB->quote($a_booking_id, 'integer') .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
@@ -119,7 +123,7 @@ class ilRoomSharingDatabaseCalendar
 	 */
 	public function deleteCalendarEntriesOfBookings($a_booking_ids)
 	{
-		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+
 		$set = $this->ilDB->prepare('SELECT calendar_entry_id FROM ' . dbc::BOOKINGS_TABLE .
 			' WHERE ' . $this->ilDB->in("id", $a_booking_ids) .
 			' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
@@ -164,7 +168,7 @@ class ilRoomSharingDatabaseCalendar
 		$a_to = null)
 	{
 		//create appointment first
-		include_once('Services/Calendar/classes/class.ilDate.php');
+
 		if ($a_from == null || $a_to == null)
 		{
 			$a_from = $a_booking_values ['from'] ['date'] . " " . $a_booking_values ['from'] ['time'];
@@ -179,8 +183,7 @@ class ilRoomSharingDatabaseCalendar
 
 		$cal_cat_id = $a_booking_values['cal_id'];
 
-		include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
-		include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+
 		//use original ilCalendarEntry and let ILIAS do the work
 		$app = new ilCalendarEntry();
 		$app->setStart($time_start);
@@ -194,7 +197,7 @@ class ilRoomSharingDatabaseCalendar
 		$app->validate();
 		$app->save();
 
-		include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+
 		$ass = new ilCalendarCategoryAssignments($app->getEntryId());
 		$ass->addAssignment($cal_cat_id);
 

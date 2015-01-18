@@ -501,6 +501,13 @@ class ilRoomSharingDatabaseBooking
 		return $booking_ids;
 	}
 
+	/**
+	 * Returns the info for a booking
+	 * (title, user, description, room, start, end)
+	 *
+	 * @param type $booking_id
+	 * @return array the booking info
+	 */
 	public function getInfoForBooking($booking_id)
 	{
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::BOOKINGS_TABLE . ' b LEFT JOIN ' .
@@ -554,6 +561,15 @@ class ilRoomSharingDatabaseBooking
 				' AND pool_id =' . $this->ilDB->quote($this->pool_id, 'integer'));
 	}
 
+	/**
+	 * Gets all bookings for a room in a time span
+	 *
+	 * @param $room_id
+	 * @param $start
+	 * @param $end
+	 * @param $type
+	 * @return array bookings
+	 */
 	public function getBookingsForRoomInTimeSpan($room_id, $start, $end, $type)
 	{
 		$query = 'SELECT b.id id FROM ' . dbc::BOOKINGS_TABLE . ' b';
