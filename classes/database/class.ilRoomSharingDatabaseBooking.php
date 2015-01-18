@@ -2,9 +2,6 @@
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
-require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 
 use ilRoomSharingDBConstants as dbc;
 
@@ -93,7 +90,7 @@ class ilRoomSharingDatabaseBooking
 	public function insertBookingRecurrence($a_booking_attr_values, $a_booking_values,
 		$a_booking_participants)
 	{
-		global $ilDB, $ilUser;
+		global $ilUser;
 		$count_booking_values_from = count($a_booking_values['from']);
 		//Are there more than one startdays? Then its a sequence booking, so generate a new id
 		if ($count_booking_values_from > 1)
@@ -126,7 +123,7 @@ class ilRoomSharingDatabaseBooking
 				"), ";
 		}
 		$q = substr($query, 0, -2); // delete last comma and blank
-		$ilDB->manipulate($q); // SQL
+		$this->ilDB->manipulate($q); // SQL
 		$insertedId = $this->ilDB->getLastInsertId();
 		if ($insertedId == - 1)
 		{

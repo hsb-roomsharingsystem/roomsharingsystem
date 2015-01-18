@@ -45,8 +45,11 @@ class ilRoomSharingDaVinciImportGUI {
 		$next_class = $this->ctrl->getNextClass($this);
 		$cmd = $this->ctrl->getCmd("render");   // the default command, if none
 		// is found
-		switch ($next_class)
-		{ 
+		switch ($cmd)
+		{       
+                        case "Importieren":
+                                $cmd = 'import';
+                    
 			default:
 				$cmd .= 'Object';
 				break;

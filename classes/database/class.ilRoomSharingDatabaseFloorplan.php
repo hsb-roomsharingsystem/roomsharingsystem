@@ -1,7 +1,6 @@
 <?php
 
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDBConstants.php");
-require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingNumericUtils.php");
 require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 
 use ilRoomSharingDBConstants as dbc;
@@ -37,7 +36,6 @@ class ilRoomSharingDatabaseFloorplan
 	 */
 	public function getAllFloorplans()
 	{
-		require_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
 		$set = $this->ilDB->query('SELECT * FROM ' . dbc::FLOORPLANS_TABLE .
 			' WHERE pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') .
 			' order by file_id DESC');

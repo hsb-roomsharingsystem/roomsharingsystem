@@ -54,6 +54,11 @@ class ilRoomSharingCalendarScheduleExportTableGUI extends ilTable2GUI
 		$this->setRowTemplate("tpl.room_weekly_export_row.html",
 			"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
 		$this->getItems();
+
+		$tableHtml = str_replace("<nobreaks /><br /><br />", "", $this->getTableHTML());
+		ilRoomSharingPDFCreator::generatePDF($tableHtml, 'D',
+			$lng->txt("rep_robj_xrs_room_occupation_title") . " " . $calendarWeekGUI->getRoomName()
+			. '.pdf');
 	}
 
 	/**
