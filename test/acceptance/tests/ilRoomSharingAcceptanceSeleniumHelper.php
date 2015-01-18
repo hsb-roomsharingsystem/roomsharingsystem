@@ -116,6 +116,38 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	}
 
 	/**
+	 * Imports a daVinci File
+	 * @param type $file absolut path to davinci file
+	 * @param type $bookingImport true if bookings shoud be imported
+	 * @param type $roomImport true if rooms shoud be imported
+	 * @param type $defaulSeats default size of a room
+	 */
+	public function importDaVinciFile($file, $bookingImport = true, $roomImport = true,
+		$defaulSeats = 20)
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Import'))->click();
+
+		//Import
+		$this->webDriver->findElement(WebDriverBy::id('upload_file'))->sendKeys($file);
+		$bookingChecked = $this->webDriver->findElement(WebDriverBy::id('import_bookings'))->getAttribute('checked');
+		if ((empty($bookingChecked) && $bookingImport) || (!$bookingImport && !empty($bookingChecked)))
+		{
+			$this->webDriver->findElement(WebDriverBy::id('import_bookings'))->click();
+		}
+		$roomChecked = $this->webDriver->findElement(WebDriverBy::id('import_rooms'))->getAttribute('checked');
+		if ((empty($roomChecked) && $roomImport) || (!$roomImport && !empty($roomChecked)))
+		{
+			$this->webDriver->findElement(WebDriverBy::id('import_rooms'))->click();
+		}
+		$this->webDriver->findElement(WebDriverBy::id('default_cap'))->clear();
+		$this->webDriver->findElement(WebDriverBy::id('default_cap'))->sendKeys($defaulSeats);
+
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[Importieren]'))->click();
+	}
+
+	/**
 	 * Createa a new bookingattribute
 	 * @param string $name
 	 */

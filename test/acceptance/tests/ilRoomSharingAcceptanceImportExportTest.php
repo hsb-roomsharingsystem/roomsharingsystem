@@ -21,12 +21,9 @@ class ilRoomSharingAcceptanceImportExportTest extends PHPUnit_Framework_TestCase
 	private static $helper;
 	/**
 	 * Must contain:
-	 * - sucess.jpg with size > 0
-	 * - sucess.bmp with size > 0
+	 * - sucess.txt with size > 0
 	 * - fail.pdf with size > 0
 	 * - fail.txt with size > 0
-	 * - empty.txt with size = 0
-	 * - big.jpg with size bigger than upload limit
 	 * @var string
 	 */
 	private static $test_file_absolut_path = 'K:\Users\Dan\Desktop\\';
@@ -55,7 +52,36 @@ class ilRoomSharingAcceptanceImportExportTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testImport()
 	{
+		#1 Import without file
+		self::$helper->importDaVinciFile('');
 
+		#2 Import with false file
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'fail.txt');
+
+		#3 Import with false file type
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'fail.pdf');
+
+		#4 Import with bookings but without rooms
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', true, false, 20);
+
+		#5 Import without bookings, only rooms with -1 seats
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, -1);
+
+		#6 Import without bookings, only rooms with "ab" seats
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, "ab");
+
+		#7 Import without bookings, only rooms with 0 seats
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, 0);
+
+		#8 Import without bookings, only rooms with 20 seats
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, 20);
+		//Check rooms here
+		#9 Import bookings to rooms
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', true, false, 20);
+		//Check bookings
+		#10 Override all
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', true, true, 10);
+		//Check bookings and rooms
 	}
 
 	/**
