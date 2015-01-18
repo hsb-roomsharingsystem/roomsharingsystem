@@ -1,15 +1,10 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/export/class.ilRoomSharingPDFGeneration.php");
+require_once("Services/Style/classes/class.ilStyleDefinition.php");
 
 /**
- * Description of class
- *
- * Klasse zur Erstellung von PDF-Dateien aus HTML
+ * Klasse zur Erstellung von PDF-Dateien aus HTML.
  *
  * @author MartinDoser
  */
@@ -28,14 +23,12 @@ class ilRoomSharingPDFCreator
 	 */
 	public static function generatePDF($html_input, $output_mode, $filename)
 	{
-		$html_input = self::preprocessHTML($html_input);
+		$preprocessed_html = self::preprocessHTML($html_input);
 
 		if (substr($filename, (strlen($filename) - 4), 4) != '.pdf')
 		{
 			$filename .= '.pdf';
 		}
-
-		require_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/export/class.ilRoomSharingPDFGeneration.php';
 
 		$job = new ilPDFGenerationJob();
 		$job->setAutoPageBreak(true)
@@ -46,7 +39,7 @@ class ilRoomSharingPDFCreator
 			->setMarginTop('20')
 			->setMarginBottom('20')
 			->setOutputMode($output_mode)
-			->addPage($html_input);
+			->addPage($preprocessed_html);
 
 		ilRoomSharingPDFGeneration::doJob($job);
 	}
@@ -54,8 +47,8 @@ class ilRoomSharingPDFCreator
 	/**
 	 * Arbeitet css-Files ein html ein.
 	 *
-	 * @param type $html
-	 * @return type
+	 * @param string $html
+	 * @return string
 	 */
 	public static function preprocessHTML($html)
 	{
@@ -64,16 +57,15 @@ class ilRoomSharingPDFCreator
 	}
 
 	/**
-	 * Returns the path of the css-File
+	 * Returns the path of the css-File.
 	 *
-	 * @param type $a_filename
+	 * @param string $a_filename
 	 * @return string
 	 */
 	protected static function getTemplatePath($a_filename)
 	{
 		$module_path = "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/";
 
-		include_once "Services/Style/classes/class.ilStyleDefinition.php";
 		if (ilStyleDefinition::getCurrentSkin() != "default")
 		{
 			$fname = "./Customizing/global/skin/" .

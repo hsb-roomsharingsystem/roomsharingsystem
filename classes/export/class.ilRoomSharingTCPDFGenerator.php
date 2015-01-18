@@ -1,36 +1,34 @@
 <?php
 
-include_once './Services/PDFGeneration/classes/class.ilTCPDFGenerator.php';
-
+require_once('./Services/PDFGeneration/classes/class.ilTCPDFGenerator.php');
+require_once('./Services/PDFGeneration/classes/tcpdf/tcpdf.php');
 
 /**
- * Inherits from ilTCPDFGeneration
- * Overrides generatePDF method to generate PDF in landscape mode instead of portrait mode
+ * Inherits from ilTCPDFGeneration.
+ * Overrides generatePDF method to generate PDF in landscape mode instead of portrait mode.
  *
  * @author MartinDoser
  */
-class ilRoomSharingTCPDFGenerator extends ilTCPDFGenerator{
-    
-    /**
-     * Method creates a PDF in landscape mode, using ilPDFGeneration Job
-     * Rest of method similar to superclass method
-     * 
-     * @param ilPDFGenerationJob $job
-     */
-    public static function generatePDF(ilPDFGenerationJob $job)
+class ilRoomSharingTCPDFGenerator extends ilTCPDFGenerator
+{
+	/**
+	 * Method creates a PDF in landscape mode, using ilPDFGeneration Job
+	 * Rest of method similar to superclass method
+	 *
+	 * @param ilPDFGenerationJob $job
+	 */
+	public static function generatePDF(ilPDFGenerationJob $job)
 	{
-		require_once './Services/PDFGeneration/classes/tcpdf/tcpdf.php';
-
 		// create new PDF document
-                // 'L' for Landscape
+		// 'L' for Landscape
 		$pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 		// set document information
-		$pdf->SetCreator( $job->getCreator() );
-		$pdf->SetAuthor( $job->getAuthor() );
-		$pdf->SetTitle( $job->getTitle() );
-		$pdf->SetSubject( $job->getSubject() );
-		$pdf->SetKeywords( $job->getKeywords() );
+		$pdf->SetCreator($job->getCreator());
+		$pdf->SetAuthor($job->getAuthor());
+		$pdf->SetTitle($job->getTitle());
+		$pdf->SetSubject($job->getSubject());
+		$pdf->SetKeywords($job->getKeywords());
 
 		//$pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 006', PDF_HEADER_STRING); // TODO
 		$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN)); // TODO
@@ -42,14 +40,14 @@ class ilRoomSharingTCPDFGenerator extends ilTCPDFGenerator{
 		$pdf->SetAutoPageBreak($job->getAutoPageBreak(), $job->getMarginBottom());
 		$pdf->setImageScale($job->getImageScale());
 		$pdf->SetFont('dejavusans', '', 10); // TODO
-        
+
 		/* // TODO
-		// set some language-dependent strings (optional)
-		if (file_exists(dirname(__FILE__).'/lang/eng.php')) {
-			require_once(dirname(__FILE__).'/lang/eng.php');
-			$pdf->setLanguageArray($l);
-		}
-		*/
+		  // set some language-dependent strings (optional)
+		  if (file_exists(dirname(__FILE__).'/lang/eng.php')) {
+		  require_once(dirname(__FILE__).'/lang/eng.php');
+		  $pdf->setLanguageArray($l);
+		  }
+		 */
 		// set font
 
 		foreach ($job->getPages() as $page)
@@ -58,6 +56,7 @@ class ilRoomSharingTCPDFGenerator extends ilTCPDFGenerator{
 			$pdf->writeHTML($page, true, false, true, false, '');
 		}
 
-		$result = $pdf->Output($job->getFilename(), $job->getOutputMode() ); // (I - Inline, D - Download, F - File)
+		$result = $pdf->Output($job->getFilename(), $job->getOutputMode()); // (I - Inline, D - Download, F - File)
 	}
+
 }
