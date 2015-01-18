@@ -113,7 +113,6 @@ class ilRoomSharingBookingsTableGUI extends ilTable2GUI
 		$this->filter ["user"] = $user_comb->getValue();
 
 		$this->setExportFormats(array(self::EXPORT_CSV, self::EXPORT_EXCEL, self::EXPORT_PDF));
-		$this->addMultiCommand('showBookings', $this->lng->txt('rep_robj_xrs_booking_cancel'));
 
 		$this->getItems();
 	}
