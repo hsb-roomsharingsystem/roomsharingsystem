@@ -55,11 +55,9 @@ class ilRoomSharingDatabaseBookingAttribute
 	 * @param integer $a_booking_attr_key
 	 * @param string $a_booking_attr_value
 	 */
-	public function insertBookingAttributeAssign($a_insertedId, $a_booking_attr_key,
-		$a_booking_attr_value)
+	public function insertBookingAttributeAssign($a_insertedId, $a_booking_attr_key, $a_booking_attr_value)
 	{
-		$this->ilDB->insert(dbc::BOOKING_TO_ATTRIBUTE_TABLE,
-			array(
+		$this->ilDB->insert(dbc::BOOKING_TO_ATTRIBUTE_TABLE, array(
 			'booking_id' => array('integer', $a_insertedId),
 			'attr_id' => array('integer', $a_booking_attr_key),
 			'value' => array('text', $a_booking_attr_value)
@@ -153,14 +151,11 @@ class ilRoomSharingDatabaseBookingAttribute
 	 * @param type $a_booking_attr_key
 	 * @param type $a_booking_attr_value
 	 */
-	public function updateBookingAttributeAssign($a_booking_id, $a_booking_attr_key,
-		$a_booking_attr_value)
+	public function updateBookingAttributeAssign($a_booking_id, $a_booking_attr_key, $a_booking_attr_value)
 	{
-		$this->ilDB->update(dbc::BOOKING_TO_ATTRIBUTE_TABLE,
-			array(
+		$this->ilDB->update(dbc::BOOKING_TO_ATTRIBUTE_TABLE, array(
 			'value' => array('text', $a_booking_attr_value)
-			),
-			array(
+			), array(
 			'booking_id' => array('integer', $a_booking_id),
 			'attr_id' => array('integer', $a_booking_attr_key)
 			)
@@ -168,47 +163,75 @@ class ilRoomSharingDatabaseBookingAttribute
 	}
 
 	/**
-	 * Method to update the booking attributes assign in the database.
+	 * Method to update the booking attributes assigned in the database.
 	 *
-	 * @param type $a_booking_id
-	 * @param type $a_booking_attr_values
+	 * @param int $a_booking_id
+	 * @param array $a_booking_attr_values
 	 * 				Array with the values of the booking-attributes
+	 * @param array $a_old_booking_attr_values needed for comparison sakes
 	 */
-	public function updateBookingAttributes($a_booking_id, $a_booking_attr_values,
-		$a_old_booking_attr_values)
+	public function updateBookingAttributes($a_booking_id, $a_booking_attr_values, $a_old_booking_attr_values)
 	{
-		// Update or delete the attributes for the booking in the conjunction table
 		foreach ($a_booking_attr_values as $booking_attr_key => $booking_attr_value)
 		{
-			$value_exist = false;
-			// Update the attribute value, if a value was submitted by the user
-			if ($booking_attr_value !== "")
-			{
-				//pass all attributes and check if it had a value before
-				//if for the attribut a value exist update him
-				foreach ($a_old_booking_attr_values as $old_booking_array)
-				{
-					if ($old_booking_array[attr_id] == $booking_attr_key)
-					{
-						$this->updateBookingAttributeAssign($a_booking_id, $booking_attr_key, $booking_attr_value);
-						$value_exist = true;
-					}
-				}
-				if (!$value_exist)
-				{
-					$this->insertBookingAttributeAssign($a_booking_id, $booking_attr_key, $booking_attr_value);
-				}
-			}
-			// Or update the attribute value with a zero, if no value was not submitted by the user
-			else
-			{
-				$this->updateDelBookingAttributeAssign($a_booking_id, $booking_attr_key);
-			}
+			$this->updateSingleBookingAttributeValue($a_booking_id, $booking_attr_key, $booking_attr_value, $a_old_booking_attr_values);
 		}
 	}
 
 	/**
-	 * Delete a booking attribute assign in the database, by updating the value with a empty String.
+	 * Updates a single booking attribute value.
+	 *
+	 * @param type $a_booking_id
+	 * @param type $a_booking_attr_key the key of the attribute that needs to be updated
+	 * @param type $a_booking_attr_value the new value for the key
+	 * @param type $a_old_booking_attr_values the old attribute values needed for comparison
+	 */
+	private function updateSingleBookingAttributeValue($a_booking_id, $a_booking_attr_key, $a_booking_attr_value, $a_old_booking_attr_values)
+	{
+		if (!empty($a_booking_attr_value))
+		{
+			if ($this->hasAttributeValue($a_booking_attr_key, $a_old_booking_attr_values))
+			{
+				$this->updateBookingAttributeAssign($a_booking_id, $a_booking_attr_key, $a_booking_attr_value);
+			}
+			else
+			{
+				$this->insertBookingAttributeAssign($a_booking_id, $a_booking_attr_key, $a_booking_attr_value);
+			}
+		}
+		// Or update the attribute value with an empty string, if no value was submitted by the user
+		else
+		{
+			$this->updateDelBookingAttributeAssign($a_booking_id, $a_booking_attr_key);
+		}
+	}
+
+	/**
+	 * Checks whether or not a booking attribute currently holds a value. This needed for
+	 * determining if an update needs to be made (a value exists) or if the attribute has to be
+	 * newly assigned with a value (no value exists).
+	 *
+	 * @param type $a_booking_attr_key the key of the attribute that needs to be checked
+	 * @param type $a_old_booking_attr_values the old values
+	 * @return boolean true if a value existed beforehand; false otherwise
+	 */
+	private function hasAttributeValue($a_booking_attr_key, $a_old_booking_attr_values)
+	{
+		$value_exists = false;
+		foreach ($a_old_booking_attr_values as $old_booking_array)
+		{
+			if ($old_booking_array[attr_id] == $a_booking_attr_key)
+			{
+				$value_exists = true;
+				break;
+			}
+		}
+		return $value_exists;
+	}
+
+	/**
+	 * Delete a booking attribute assign in the database, by updating the value with an
+	 * empty String.
 	 *
 	 * @param type $a_booking_id
 	 * @param type $a_booking_attr_key
@@ -251,8 +274,7 @@ class ilRoomSharingDatabaseBookingAttribute
 	 */
 	public function insertBookingAttribute($a_attribute_name)
 	{
-		$this->ilDB->insert(dbc::BOOKING_ATTRIBUTES_TABLE,
-			array(
+		$this->ilDB->insert(dbc::BOOKING_ATTRIBUTES_TABLE, array(
 			'id' => array('integer', $this->ilDB->nextID(dbc::BOOKING_ATTRIBUTES_TABLE)),
 			'name' => array('text', $a_attribute_name),
 			'pool_id' => array('integer', $this->pool_id),
@@ -300,5 +322,4 @@ class ilRoomSharingDatabaseBookingAttribute
 	}
 
 }
-
 ?>
