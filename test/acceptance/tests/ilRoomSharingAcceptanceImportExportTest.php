@@ -54,34 +54,152 @@ class ilRoomSharingAcceptanceImportExportTest extends PHPUnit_Framework_TestCase
 	{
 		#1 Import without file
 		self::$helper->importDaVinciFile('');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#1 Import no file does work");
+		}
 
 		#2 Import with false file
 		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'fail.txt');
+		try
+		{
+			//No error message
+			//self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#2 Import a false/corrupted file does work");
+		}
 
 		#3 Import with false file type
 		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'fail.pdf');
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#3 Import a false file type does work");
+		}
 
 		#4 Import with bookings but without rooms
-		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', true, false, 20);
+		//Imports rooms too!
+		//self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', true, false, 20);
+		try
+		{
+			//self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#4 Import bookings without rooms does work");
+		}
 
 		#5 Import without bookings, only rooms with -1 seats
 		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, -1);
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#5 Import room with -1 seats does work");
+		}
 
 		#6 Import without bookings, only rooms with "ab" seats
 		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, "ab");
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#6 Import room with ab seats does work");
+		}
 
 		#7 Import without bookings, only rooms with 0 seats
 		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, 0);
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#7 Import room with 0 seats does work");
+		}
 
-		#8 Import without bookings, only rooms with 20 seats
+		#8 Import without bookings, only rooms with "" seats
+		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, "");
+		try
+		{
+			//Missing Error Message
+			//self::$webDriver->findElement(WebDriverBy::className("ilFailureMessage"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail("#8 Import room with no seats does work");
+		}
+
+		#9 Import without bookings, only rooms with 20 seats
 		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', false, true, 20);
-		//Check rooms here
-		#9 Import bookings to rooms
+		try
+		{
+			//No sucess message
+			//self::$webDriver->findElement(WebDriverBy::className("ilInfoMessage"));
+			self::$webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+			self::$webDriver->findElement(WebDriverBy::linkText('I117'));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail('#9.1 Import rooms does not work');
+		}
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::linkText('Termine'))->click();
+			self::$webDriver->findElement(WebDriverBy::xpath("//td[text()='Keine Einträge']"));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail('#9.2 Import rooms also imports bookings');
+		}
+
+		#10 Import bookings to rooms
 		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', true, false, 20);
-		//Check bookings
-		#10 Override all
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::linkText('Termine'))->click();
+			self::$webDriver->findElement(WebDriverBy::xpath("//td[text()='Keine Einträge']"));
+			$this->fail('#10 Import bookings does not work');
+		}
+		catch (Exception $ex)
+		{
+			//Comes here when sucessful!
+		}
+
+		#11 Override all
 		self::$helper->importDaVinciFile(self::$test_file_absolut_path . 'sucess.txt', true, true, 10);
-		//Check bookings and rooms
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+			self::$webDriver->findElement(WebDriverBy::linkText('I117'));
+		}
+		catch (Exception $ex)
+		{
+			$this->fail('#11.1 Override rooms does not work');
+		}
+		try
+		{
+			self::$webDriver->findElement(WebDriverBy::linkText('Termine'))->click();
+			self::$webDriver->findElement(WebDriverBy::xpath("//td[text()='Keine Einträge']"));
+			$this->fail('#11.2 Override bookings does not work');
+		}
+		catch (Exception $ex)
+		{
+			//Comes here when sucessful!
+		}
 	}
 
 	/**
