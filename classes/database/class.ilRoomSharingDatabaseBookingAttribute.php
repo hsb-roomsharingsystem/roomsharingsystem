@@ -174,15 +174,30 @@ class ilRoomSharingDatabaseBookingAttribute
 	 * @param type $a_booking_attr_values
 	 * 				Array with the values of the booking-attributes
 	 */
-	public function updateBookingAttributes($a_booking_id, $a_booking_attr_values)
+	public function updateBookingAttributes($a_booking_id, $a_booking_attr_values,
+		$a_old_booking_attr_values)
 	{
 		// Update or delete the attributes for the booking in the conjunction table
 		foreach ($a_booking_attr_values as $booking_attr_key => $booking_attr_value)
 		{
+			$value_exist = false;
 			// Update the attribute value, if a value was submitted by the user
 			if ($booking_attr_value !== "")
 			{
-				$this->updateBookingAttributeAssign($a_booking_id, $booking_attr_key, $booking_attr_value);
+				//pass all attributes and check if it had a value before
+				//if for the attribut a value exist update him
+				foreach ($a_old_booking_attr_values as $old_booking_array)
+				{
+					if ($old_booking_array[attr_id] == $booking_attr_key)
+					{
+						$this->updateBookingAttributeAssign($a_booking_id, $booking_attr_key, $booking_attr_value);
+						$value_exist = true;
+					}
+				}
+				if (!$value_exist)
+				{
+					$this->insertBookingAttributeAssign($a_booking_id, $booking_attr_key, $booking_attr_value);
+				}
 			}
 			// Or update the attribute value with a zero, if no value was not submitted by the user
 			else
@@ -193,21 +208,16 @@ class ilRoomSharingDatabaseBookingAttribute
 	}
 
 	/**
-	 * Delete a booking attribute assign in the database, by updating the value with a 0.
+	 * Delete a booking attribute assign in the database, by updating the value with a empty String.
 	 *
 	 * @param type $a_booking_id
 	 * @param type $a_booking_attr_key
 	 */
 	public function updateDelBookingAttributeAssign($a_booking_id, $a_booking_attr_key)
 	{
-		$this->ilDB->update(dbc::BOOKING_TO_ATTRIBUTE_TABLE, array(
-			'value' => array('text', 0)
-			),
-			array(
-			'booking_id' => array('integer', $a_booking_id),
-			'attr_id' => array('integer', $a_booking_attr_key)
-			)
-		);
+		$this->ilDB->query('DELETE FROM ' . dbc::BOOKING_TO_ATTRIBUTE_TABLE . ' WHERE booking_id = '
+			. $this->ilDB->quote($a_booking_id, 'integer') . ' AND attr_id = '
+			. $this->ilDB->quote($a_booking_attr_key, 'integer'));
 	}
 
 	/**

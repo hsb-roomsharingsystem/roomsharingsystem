@@ -424,11 +424,15 @@ class ilRoomSharingDatabaseBooking
 	 * Updating a booking in the database.
 	 *
 	 * @global type $ilUser
-	 * @param type $a_booking_id
-	 * @param type $a_booking_attr_values
-	 * @param type $a_booking_values
-	 * @param type $a_booking_participants
-	 * @return int
+	 * @param int $a_booking_id the booking ID
+	 * @param array $a_booking_attr_values new Values of the attribute from the booking
+	 * @param array $a_old_booking_attr_values old Values of the attribute from the booking
+	 * @param array $a_booking_values new Values of the the booking
+	 * @param array $a_old_booking_values old Values of the the booking (temporary unused, for expansion)
+	 * @param array $a_booking_participants new Values of the participants
+	 * @param array $a_old_booking_participants old Values of the participants
+	 *
+	 * @return int 1 if succes, 0 if fail
 	 */
 	public function updateBooking($a_booking_id, $a_booking_attr_values, $a_old_booking_attr_values,
 		$a_booking_values, $a_old_booking_values, $a_booking_participants, $a_old_booking_participants)
@@ -454,7 +458,8 @@ class ilRoomSharingDatabaseBooking
 
 		$this->ilDB->update(dbc::BOOKINGS_TABLE, $fields, $where);
 
-		$this->ilRoomSharingDatabase->updateBookingAttributes($a_booking_id, $a_booking_attr_values);
+		$this->ilRoomSharingDatabase->updateBookingAttributes($a_booking_id, $a_booking_attr_values,
+			$a_old_booking_attr_values);
 
 		$this->ilRoomSharingDatabase->updateBookingParticipants($a_booking_id, $a_booking_participants,
 			$a_old_booking_participants);

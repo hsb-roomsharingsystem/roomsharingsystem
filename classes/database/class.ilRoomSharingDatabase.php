@@ -1088,10 +1088,11 @@ class ilRoomSharingDatabase
 	 * @param type $a_booking_attr_values
 	 * 				Array with the values of the booking-attributes
 	 */
-	public function updateBookingAttributes($a_booking_id, $a_booking_attr_values)
+	public function updateBookingAttributes($a_booking_id, $a_booking_attr_values,
+		$a_old_booking_attr_values)
 	{
 		$this->ilRoomSharingDatabaseBookingAttribute->updateBookingAttributes($a_booking_id,
-			$a_booking_attr_values);
+			$a_booking_attr_values, $a_old_booking_attr_values);
 	}
 
 	/**
