@@ -27,10 +27,13 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 	private static $classname = 'Users';
 	private static $standard_roomname = 'Standard_Room';
 	private static $differing_roomname = 'Differing_Room';
+	private static $unbooked_roomname = 'Unbooked';
 	private static $standard_subject = 'Standard Subject';
 	private static $differing_subject = 'Differing Subject';
+	private static $never_used_subject = 'Not Used';
 	private static $standard_comment = 'Standard Comment';
 	private static $differing_comment = 'Differing Comment';
+	private static $never_used_comment = 'Not Used';
 
 	public static function setUpBeforeClass()
 	{
@@ -67,6 +70,7 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 		self::setUpPrivilegeClass(); //Grant the privileges necessary to book
 		self::$helper->createRoom(self::$standard_roomname, '1', '10');
 		self::$helper->createRoom(self::$differing_roomname, '1', '10');
+		self::$helper->createRoom(self::$unbooked_roomname, '1', '10');
 
 		self::$helper->searchForRoomByName(self::$standard_roomname);
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
@@ -88,10 +92,11 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 		//new user will be asked to change his password at first login
 		self::$helper->loginNewUserForFirstTime(self::$new_user_login, self::$new_user_initial_pw,
 			self::$new_user_pw);
-		self::$webDriver->findElement(WebDriverBy::cssSelector('div.il_HeaderInner'))->click();
-		self::$webDriver->findElement(WebDriverBy::id('mm_rep_tr'))->click();
-		self::$webDriver->findElement(WebDriverBy::linkText('Magazin - Einstiegsseite'))->click();
-		self::$webDriver->findElement(WebDriverBy::partialLinkText('MeinRoomsharingPool'))->click();
+		//self::$webDriver->findElement(WebDriverBy::cssSelector('div.il_HeaderInner'))->click();
+		//self::$webDriver->findElement(WebDriverBy::id('mm_rep_tr'))->click();
+		//self::$webDriver->findElement(WebDriverBy::linkText('Magazin - Einstiegsseite'))->click();
+		//self::$webDriver->findElement(WebDriverBy::partialLinkText('MeinRoomsharingPool'))->click();
+		self::$helper->toRSS();
 		self::$helper->searchForRoomByName(self::$standard_roomname);
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
 		self::$helper->doABooking(self::$standard_subject, "1", "1", date("Y") + 1, "20", "00", "1", "1",
@@ -155,15 +160,19 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 	 */
 	public function testUserName()
 	{
+		//Navigate
 		self::$webDriver->findElement(WebDriverBy::linkText('Termine'))->click();
+
 		#1: See the Bookings created by root user
 		self::$helper->applyBookingFilter(self::$login_user);
 		$this->assertEquals(4, self::$helper->getNoOfResults(),
-			'#1 fgetPrivilegeClassIDByNamePartialor Username in booking filter does not work');
-		#2: See the bookings created by the user himself
+			'#1 for Username in booking filter does not work');
+
+		#2: See the bookings created by the new user
 		self::$helper->applyBookingFilter(self::$new_user_login);
 		$this->assertEquals(1, self::$helper->getNoOfResults(),
-			'#2 for sername in booking filter does not work');
+			'#2 for Username in booking filter does not work');
+
 		#3 Reset the filter
 		self::$helper->applyBookingFilter('', '', '', '');
 		$this->assertEquals(5, self::$helper->getNoOfResults(),
@@ -180,11 +189,15 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 		#1: See only the Booking of a differing room
 		self::$helper->applyBookingFilter('', self::$differing_roomname);
 		$this->assertEquals(1, self::$helper->getNoOfResults(),
-			'#1 -1 for room in booking filter does not work -> Wrong Number of Results');
+			'#1 for room in booking filter does not work -> Wrong Number of Results');
+		#2: See the Booking of a room which wasn't booked at all
+		self::$helper->applyBookingFilter('', self::$unbooked_roomname);
+		$this->assertEquals(0, self::$helper->getNoOfResults(),
+			'#2 for room in booking filter does not work -> Number of Results not 0');
 		#2: Reset the filter
 		self::$helper->applyBookingFilter('', '', '', '');
 		$this->assertEquals(5, self::$helper->getNoOfResults(),
-			'#2 for room - reset filter - does not work');
+			'#3 for room - reset filter - does not work');
 	}
 
 	/*
@@ -197,10 +210,14 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 		#1: See only the booking with a differing subject
 		self::$helper->applyBookingFilter('', '', self::$differing_subject);
 		$this->assertEquals(1, self::$helper->getNoOfResults(), '#1 for subject does not work');
-		#2: Reset the filter
+		#2: See the - not existing - bookings with a never used subject
+		self::$helper->applyBookingFilter('', '', self::$never_used_subject);
+		$this->assertEquals(0, self::$helper->getNoOfResults(),
+			'#2 for subject does not work - Number of results not 0');
+		#3: Reset the filter
 		self::$helper->applyBookingFilter('', '', '', '');
 		$this->assertEquals(5, self::$helper->getNoOfResults(),
-			'#2 for subject - reset filter - does not work');
+			'#3 for subject - reset filter - does not work');
 	}
 
 	/*
@@ -213,10 +230,14 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 		#1: See only the booking with a differing comment
 		self::$helper->applyBookingFilter('', '', '', self::$differing_comment);
 		$this->assertEquals(1, self::$helper->getNoOfResults(), '#1 for comment does not work');
-		#2: Reset the filter
+		#2: See the - not existing - booking with a never used comment
+		self::$helper->applyBookingFilter('', '', '', self::$never_used_comment);
+		$this->assertEquals(0, self::$helper->getNoOfResults(),
+			'#2 for comment does not work - Number of results not 0');
+		#3: Reset the filter
 		self::$helper->applyBookingFilter('', '', '', '');
 		$this->assertEquals(5, self::$helper->getNoOfResults(),
-			'#2 for comment - reset filter - does not work');
+			'#3 for comment - reset filter - does not work');
 	}
 
 	/**

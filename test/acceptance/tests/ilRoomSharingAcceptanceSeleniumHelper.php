@@ -475,8 +475,11 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	 */
 	public function toRSS()
 	{
+		$this->webDriver->findElement(WebDriverBy::cssSelector('div.il_HeaderInner'))->click();
+		$this->webDriver->findElement(WebDriverBy::id('mm_rep_tr'))->click();
 		$this->webDriver->findElement(WebDriverBy::linkText('Magazin - Einstiegsseite'))->click();
-		$this->webDriver->findElement(WebDriverBy::xpath("(//a[contains(text(),'" . $this->rssObjectName . "')])[2]"))->click();
+		$this->webDriver->findElement(WebDriverBy::partialLinkText('MeinRoomsharingPool'))->click();
+		//$this->webDriver->findElement(WebDriverBy::xpath("(//a[contains(text(),'" . $this->rssObjectName . "')])[2]"))->click();
 		//$this->assertContains(self::$rssObjectName, $this->webDriver->getTitle());
 	}
 
