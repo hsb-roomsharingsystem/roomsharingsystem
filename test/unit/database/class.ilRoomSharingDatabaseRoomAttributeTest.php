@@ -14,7 +14,7 @@ use ilRoomSharingDBConstants as dbc;
 class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 {
 	private static $roomAttributeDb;
-	private static $pool_id = 1;
+	private static $pool_id = 200;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -28,6 +28,7 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 		$ilDB = $test->getMock('db',
 			array('quote', 'query', 'fetchAssoc', 'in', 'prepare', 'execute', 'insert', 'nextId', 'getLastInsertId',
 			'update', 'manipulate'), array(), '', false);
+
 		self::$roomAttributeDb = new ilRoomSharingDatabaseRoomAttribute(self::$pool_id);
 	}
 
@@ -40,9 +41,13 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 		$expected = ('SELECT room_id, att.name, count FROM ' .
 			dbc::ROOM_TO_ATTRIBUTE_TABLE . ' as rta LEFT JOIN ' .
 			dbc::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id WHERE '
-			. $ilDB->in("room_id", '1') . ' AND pool_id = ' .
-			$ilDB->quote(self::$pool_id, 'integer') . ' ORDER BY room_id, att.name');
-		$ilDB->expects($this->once())->method('query')->with($this->equalTo($expected));
+			. '' . ' AND pool_id = ' . '' . ' ORDER BY room_id, att.name');
+
+		$ilDB->expects($this->once())->method('in')->with($this->equalTo("room_id"), $this->equalTo('1'));
+		$ilDB->expects($this->once())->method('quote')->with($this->equalTo(self::$pool_id),
+			$this->equalTo('integer'));
+		$ilDB->expects($this->once())->method('prepare')->with($this->equalTo($expected));
+
 		self::$roomAttributeDb->getAttributesForRooms('1');
 	}
 
@@ -53,8 +58,12 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 	{
 		global $ilDB;
 		$expected = ('SELECT name FROM ' . dbc::ROOM_ATTRIBUTES_TABLE . ' WHERE pool_id = ' .
-			$ilDB->quote(self::$pool_id, 'integer') . ' ORDER BY name');
+			'' . ' ORDER BY name');
+
+		$ilDB->expects($this->once())->method('quote')->with($this->equalTo(self::$pool_id),
+			$this->equalTo('integer'));
 		$ilDB->expects($this->once())->method('query')->with($this->equalTo($expected));
+
 		self::$roomAttributeDb->getAllAttributeNames();
 	}
 
@@ -65,15 +74,28 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 	{
 		global $ilDB;
 		$expected1 = ('SELECT id FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-			' WHERE name =' . $ilDB->quote('', 'text') . ' AND pool_id = ' .
-			$ilDB->quote(self::$pool_id, 'integer'));
+			' WHERE name =' . '' . ' AND pool_id = ' . '');
+
 		$expected2 = ('SELECT MAX(count) AS value FROM ' .
 			dbc::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
 			dbc::ROOMS_TABLE . ' as room ON room.id = rta.room_id ' .
-			' WHERE att_id =' . $ilDB->quote('1', 'integer') .
-			' AND pool_id =' . $ilDB->quote(self::$pool_id, 'integer'));
-		$ilDB->expects($this->at(0))->method('query')->with($this->equalTo($expected1));
-		$ilDB->expects($this->at(1))->method('query')->with($this->equalTo($expected2));
+			' WHERE att_id =' . '' . ' AND pool_id =' . '');
+
+		$ilDB->expects($this->at(0))->method('quote')->with($this->equalTo('1'), $this->equalTo('text'));
+		$ilDB->expects($this->at(1))->method('quote')->with($this->equalTo(self::$pool_id),
+			$this->equalTo('integer'));
+
+		$ilDB->expects($this->at(2))->method('query')->with($this->equalTo($expected1));
+
+		$ilDB->method("fetchAssoc")->willReturn(array('id' => '20'));
+
+		$ilDB->expects($this->at(4))->method('quote')->with($this->equalTo('20'),
+			$this->equalTo('integer'));
+		$ilDB->expects($this->at(5))->method('quote')->with($this->equalTo(self::$pool_id),
+			$this->equalTo('integer'));
+
+		$ilDB->expects($this->at(6))->method('query')->with($this->equalTo($expected2));
+
 		self::$roomAttributeDb->getMaxCountForAttribute('1');
 	}
 
@@ -84,10 +106,15 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 	{
 		global $ilDB;
 		$expected = ('SELECT * FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-			' WHERE id = ' . $ilDB->quote('1', 'integer') .
-			' AND pool_id =' . $ilDB->quote(self::$pool_id, 'integer'));
+			' WHERE id = ' . '' . ' AND pool_id =' . '');
+
+		$ilDB->expects($this->at(0))->method('quote')->with($this->equalTo('2'), $this->equalTo('integer'));
+		$ilDB->expects($this->at(1))->method('quote')->with($this->equalTo(self::$pool_id),
+			$this->equalTo('integer'));
+
 		$ilDB->expects($this->once())->method('query')->with($this->equalTo($expected));
-		self::$roomAttributeDb->getRoomAttribute('1');
+
+		self::$roomAttributeDb->getRoomAttribute('2');
 	}
 
 	/**
@@ -99,9 +126,14 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 		$expected = ('SELECT id, att.name, count FROM ' .
 			dbc::ROOM_TO_ATTRIBUTE_TABLE . ' rta LEFT JOIN ' .
 			dbc::ROOM_ATTRIBUTES_TABLE . ' as att ON att.id = rta.att_id' .
-			' WHERE room_id = ' . $ilDB->quote('1', 'integer') .
-			' AND pool_id =' . $ilDB->quote(self::$pool_id, 'integer') . ' ORDER BY att.name');
+			' WHERE room_id = ' . '' . ' AND pool_id =' . '' . ' ORDER BY att.name');
+
+		$ilDB->expects($this->at(0))->method('quote')->with($this->equalTo('1'), $this->equalTo('integer'));
+		$ilDB->expects($this->at(1))->method('quote')->with($this->equalTo(self::$pool_id),
+			$this->equalTo('integer'));
+
 		$ilDB->expects($this->once())->method('query')->with($this->equalTo($expected));
+
 		self::$roomAttributeDb->getAttributesForRoom('1');
 	}
 
@@ -112,8 +144,13 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 	{
 		global $ilDB;
 		$expected = ('DELETE FROM ' . dbc::ROOM_TO_ATTRIBUTE_TABLE .
-			' WHERE room_id = ' . $ilDB->quote('1', 'integer'));
+			' WHERE room_id = ' . '' );
+
+		$ilDB->expects($this->once())->method('quote')->with($this->equalTo('1'),
+			$this->equalTo('integer'));
+
 		$ilDB->expects($this->once())->method('manipulate')->with($this->equalTo($expected));
+
 		self::$roomAttributeDb->deleteAllAttributesForRoom('1');
 	}
 
@@ -128,8 +165,10 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 			'room_id' => array('integer', 1),
 			'att_id' => array('integer', 2),
 			'count' => array('integer', 3));
-		$ilDB->expects($this->once())->method('manipulate')->with($this->equalTo($expected1),
+
+		$ilDB->expects($this->once())->method('insert')->with($this->equalTo($expected1),
 			$this->equalTo($expected2));
+
 		self::$roomAttributeDb->insertAttributeForRoom(1, 2, 3);
 	}
 
@@ -140,9 +179,13 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 	{
 		global $ilDB;
 		$expected = ('SELECT * FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-			' WHERE pool_id = ' . $ilDB->quote(self::$pool_id, 'integer')
-			. ' ORDER BY name ASC');
+			' WHERE pool_id = ' . '' . ' ORDER BY name ASC');
+
+		$ilDB->expects($this->once())->method('quote')->with($this->equalTo(self::$pool_id),
+			$this->equalTo('integer'));
+
 		$ilDB->expects($this->once())->method('query')->with($this->equalTo($expected));
+
 		self::$roomAttributeDb->getAllRoomAttributes();
 	}
 
@@ -153,9 +196,14 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 	{
 		global $ilDB;
 		$expected = ('DELETE FROM ' . dbc::ROOM_ATTRIBUTES_TABLE .
-			' WHERE id = ' . $ilDB->quote('1', 'integer') .
-			' AND pool_id =' . $ilDB->quote(self::$pool_id, 'integer'));
+			' WHERE id = ' . '' . ' AND pool_id =' . '');
+
+		$ilDB->expects($this->at(0))->method('quote')->with($this->equalTo('1'), $this->equalTo('integer'));
+		$ilDB->expects($this->at(1))->method('quote')->with($this->equalTo(self::$pool_id),
+			$this->equalTo('integer'));
+
 		$ilDB->expects($this->once())->method('manipulate')->with($this->equalTo($expected));
+
 		self::$roomAttributeDb->deleteRoomAttribute('1');
 	}
 
@@ -170,8 +218,10 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 			'id' => array('integer', 0),
 			'name' => array('text', '1'),
 			'pool_id' => array('integer', self::$pool_id));
+
 		$ilDB->expects($this->once())->method('insert')->with($this->equalTo($expected1),
 			$this->equalTo($expected2));
+
 		self::$roomAttributeDb->insertRoomAttribute('1');
 	}
 
@@ -182,8 +232,13 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 	{
 		global $ilDB;
 		$expected = ('DELETE FROM ' . dbc::ROOM_TO_ATTRIBUTE_TABLE .
-			' WHERE att_id = ' . $ilDB->quote('1', 'integer'));
+			' WHERE att_id = ' . '');
+
+		$ilDB->expects($this->once())->method('quote')->with($this->equalTo('1'),
+			$this->equalTo('integer'));
+
 		$ilDB->expects($this->once())->method('manipulate')->with($this->equalTo($expected));
+
 		self::$roomAttributeDb->deleteAttributeRoomAssign('1');
 	}
 
@@ -202,6 +257,7 @@ class ilRoomSharingDatabaseRoomAttributeTest extends PHPUnit_Framework_TestCase
 
 		$ilDB->expects($this->once())->method('update')->with($this->equalTo($expected1),
 			$this->equalTo($expected2), $this->equalTo($expected3));
+
 		self::$roomAttributeDb->renameRoomAttribute('1', '2');
 	}
 
