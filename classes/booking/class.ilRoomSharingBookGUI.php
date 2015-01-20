@@ -11,6 +11,10 @@ require_once("Services/User/classes/class.ilUserAutoComplete.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/database/class.ilRoomSharingDatabase.php");
 require_once('Modules/Session/classes/class.ilEventRecurrence.php');
 require_once('Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
+require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/privileges/class.ilRoomSharingPrivilegesConstants.php");
+
+use ilRoomSharingPrivilegesConstants as PRIVC;
 
 /**
  * Class ilRoomSharingBookGUI
@@ -20,6 +24,8 @@ require_once('Services/Calendar/classes/Form/class.ilRecurrenceInputGUI.php');
  * @author Alexander Keller <a.k3ll3r@gmail.com>
  *
  * @version $Id$
+ *
+ * @property ilRoomSharingPermissionUtils $permission
  */
 class ilRoomSharingBookGUI
 {
@@ -30,6 +36,7 @@ class ilRoomSharingBookGUI
 	private $date_to;
 	private $book;
 	private $rec;
+	private $permission;
 
 	const NUM_PERSON_RESPONSIBLE = 1;
 	const BOOK_CMD = "book";
@@ -45,8 +52,9 @@ class ilRoomSharingBookGUI
 	public function __construct(ilObjRoomSharingGUI $a_parent_obj, $a_room_id = null,
 		$a_date_from = "", $a_date_to = "")
 	{
-		global $ilCtrl, $lng, $tpl;
+		global $ilCtrl, $lng, $tpl, $rssPermission;
 
+		$this->permission = $rssPermission;
 		$this->ctrl = $ilCtrl;
 		$this->lng = $lng;
 		$this->tpl = $tpl;
@@ -124,7 +132,11 @@ class ilRoomSharingBookGUI
 		$booking_attributes = $this->createBookingAttributeTextInputs();
 		$form_items = array_merge($form_items, $booking_attributes);
 		$form_items[] = $this->createTimeRangeInput();
-		$form_items[] = $this->createRecurrenceGUI();
+
+		if ($this->permission->checkPrivilege(PRIVC::ADD_SEQUENCE_BOOKINGS))
+		{
+			$form_items[] = $this->createRecurrenceGUI();
+		}
 		$form_items[] = $this->createPublicBookingCheckBox();
 		$form_items[] = $this->createUserAgreementCheckBoxIfPossible();
 		$form_items[] = $this->createRoomIdHiddenInputField();

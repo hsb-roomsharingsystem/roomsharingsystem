@@ -262,7 +262,11 @@ class ilRoomSharingSearchGUI
 		$form_items[] = $this->createSeatsFormItem();
 		$form_items[] = $this->createDateFormItem();
 		$form_items[] = $this->createTimeRangeFormItem();
-		$form_items[] = $this->createRecurrenceFormItem();
+
+		if ($this->permission->checkPrivilege(PRIVC::ADD_SEQUENCE_BOOKINGS))
+		{
+			$form_items[] = $this->createRecurrenceFormItem();
+		}
 		$room_attribute_items = $this->createRoomAttributeFormItems();
 		$form_items = array_merge($form_items, $room_attribute_items);
 
@@ -327,7 +331,8 @@ class ilRoomSharingSearchGUI
 		}
 		else if ($hr_from >= 24)
 		{   //increase the day if 23:00 or later
-			$date->setDate(new ilDate(date('Y-m-d', strtotime($date_given['date'] . ' + 1 days')), IL_CAL_DATE));
+			$date->setDate(new ilDate(date('Y-m-d', strtotime($date_given['date'] . ' + 1 days')),
+				IL_CAL_DATE));
 		}
 		$date_comb->setRequired(true);
 		$date_comb->addCombinationItem("date", $date, $this->lng->txt("rep_robj_xrs_on"));
@@ -363,7 +368,8 @@ class ilRoomSharingSearchGUI
 
 		if (!empty($time_from_given['date']) && !empty($time_from_given['time']))
 		{
-			$time_from->setDate(new ilDate($time_from_given['date'] . ' ' . $time_from_given['time'], IL_CAL_DATETIME, $ilUser->getTimeZone()));
+			$time_from->setDate(new ilDate($time_from_given['date'] . ' ' . $time_from_given['time'],
+				IL_CAL_DATETIME, $ilUser->getTimeZone()));
 		}
 
 		$time_comb->addCombinationItem("time_from", $time_from, $this->lng->txt("rep_robj_xrs_between"));
@@ -374,7 +380,8 @@ class ilRoomSharingSearchGUI
 
 		if (!empty($time_to_given['date']) && !empty($time_to_given['time']))
 		{
-			$time_to->setDate(new ilDate($time_to_given['date'] . ' ' . $time_to_given['time'], IL_CAL_DATETIME, $ilUser->getTimeZone()));
+			$time_to->setDate(new ilDate($time_to_given['date'] . ' ' . $time_to_given['time'],
+				IL_CAL_DATETIME, $ilUser->getTimeZone()));
 		}
 
 		$time_comb->addCombinationItem("time_to", $time_to, $this->lng->txt("and"));
@@ -440,7 +447,8 @@ class ilRoomSharingSearchGUI
 			// setup an ilRoomSharingNumberInputGUI for the room attributes
 			$room_attribute_title = $room_attribute . " (" . $this->lng->txt("rep_robj_xrs_amount") . ")";
 			$room_attribute_postvar = "attribute_" . $room_attribute . "_amount";
-			$room_attribute_input = new ilRoomSharingNumberInputGUI($room_attribute_title, $room_attribute_postvar);
+			$room_attribute_input = new ilRoomSharingNumberInputGUI($room_attribute_title,
+				$room_attribute_postvar);
 			$room_attribute_input->setParent($this->search_form);
 			$room_attribute_input->setMaxLength(8);
 			$room_attribute_input->setSize(8);
@@ -537,7 +545,8 @@ class ilRoomSharingSearchGUI
 		elseif ($repeat_type == "max_date")
 		{
 			$date = unserialize($_SESSION ["form_searchform"] ["repeat_until"]);
-			$date2 = date('Y-m-d H:i:s', mktime(0, 0, 0, $date['date']['m'], $date['date']['d'], $date['date']['y']));
+			$date2 = date('Y-m-d H:i:s',
+				mktime(0, 0, 0, $date['date']['m'], $date['date']['d'], $date['date']['y']));
 			$this->rec->setFrequenceUntilDate(new ilDateTime($date2, IL_CAL_DATETIME));
 		}
 	}
@@ -563,4 +572,5 @@ class ilRoomSharingSearchGUI
 	}
 
 }
+
 ?>
