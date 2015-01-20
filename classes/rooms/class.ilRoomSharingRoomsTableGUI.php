@@ -207,7 +207,11 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 
 		// actions
 		$this->tpl->setCurrentBlock("actions");
-		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
+		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
+		{
+			$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_room_book'));
+			$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
+		}
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room', $a_set ['room']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_set ['room_id']);
 		$_SESSION['last_cmd'] = $this->parent_cmd;
@@ -253,7 +257,6 @@ class ilRoomSharingRoomsTableGUI extends ilTable2GUI
 		// search results are displayed
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS) && $this->parent_cmd === "showRooms")
 		{
-			$this->tpl->setVariable('LINK_ACTION_SEPARATOR', '<br>');
 			$this->tpl->parseCurrentBlock();
 			$this->tpl->setVariable('LINK_ACTION',
 				$this->ctrl->getLinkTarget($this->parent_obj, $this->parent_cmd));

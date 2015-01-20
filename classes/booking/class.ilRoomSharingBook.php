@@ -58,7 +58,7 @@ class ilRoomSharingBook
 	 * @param type $a_booking_attr_values Array with the values of the booking-attributes
 	 * @param type $a_booking_participants Array with the values of the participants
 	 * @param type $a_recurrence_entries Array with recurrence information
-         * @param boolean $sendmessage Send message
+	 * @param boolean $sendmessage Send message
 	 * @throws ilRoomSharingBookException
 	 * @return array Booking-IDs which are canceled
 	 */
@@ -100,16 +100,20 @@ class ilRoomSharingBook
 
 			if ($success)
 			{
-                            if($sendmessage)
-                            {
-                                $this->sendBookingNotification();
-                            }
-                            return count($booking_ids_of_bookings_to_be_canceled);
+				if ($sendmessage)
+				{
+					$this->sendBookingNotification();
+				}
+				return count($booking_ids_of_bookings_to_be_canceled);
 			}
 			else
 			{
 				throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_booking_add_error'));
 			}
+		}
+		else
+		{
+			throw new ilRoomSharingBookException($this->lng->txt('rep_robj_xrs_no_permission_for_action'));
 		}
 		return 0;
 	}
@@ -120,11 +124,12 @@ class ilRoomSharingBook
 	 * @param type $a_booking_values
 	 * @param type $a_booking_attr_values
 	 * @param type $a_booking_participants
-         * @param boolean $sendmessage Send message
+	 * @param boolean $sendmessage Send message
 	 * @throws ilRoomSharingBookException
 	 */
 	public function updateEditBooking($a_booking_id, $a_old_booking_values, $a_old_booking_attr_values,
-		$a_old_booking_participants, $a_booking_values, $a_booking_attr_values, $a_booking_participants, $sendmessage = true)
+		$a_old_booking_participants, $a_booking_values, $a_booking_attr_values, $a_booking_participants,
+		$sendmessage = true)
 	{
 		if ($this->permission->checkPrivilege(PRIVC::ADD_OWN_BOOKINGS))
 		{
@@ -153,38 +158,38 @@ class ilRoomSharingBook
 			{
 				$deletedUser = $this->getDeletedUser($booking_participants, $a_old_booking_participants);
 				$newUser = $this->getNewUser($booking_participants, $a_old_booking_participants);
-                                
-                                if ($sendmessage)
-                                {
-                                    if ($participantsChange && $dateChange)
-                                    {
-                                            $this->sendBookingUpdatedNotification($booking_participants);
-                                            if ($deletedUser != array())
-                                            {
-                                                    $this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
-                                            }
-                                            if ($newUser != array())
-                                            {
-                                                    $this->sendBookingNotificationToNewUser($newUser);
-                                            }
-                                    }
-                                    else if ($participantsChange)
-                                    {
-                                            if ($deletedUser != array())
-                                            {
-                                                    $this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
-                                            }
-                                            if ($newUser != array())
-                                            {
-                                                    $this->sendBookingNotificationToNewUser($newUser);
-                                            }
-                                    }
-                                    else if ($dateChange)
-                                    {
-                                            //Send a email notifications to the participants
-                                            $this->sendBookingUpdatedNotification($booking_participants);
-                                    }
-                                }
+
+				if ($sendmessage)
+				{
+					if ($participantsChange && $dateChange)
+					{
+						$this->sendBookingUpdatedNotification($booking_participants);
+						if ($deletedUser != array())
+						{
+							$this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
+						}
+						if ($newUser != array())
+						{
+							$this->sendBookingNotificationToNewUser($newUser);
+						}
+					}
+					else if ($participantsChange)
+					{
+						if ($deletedUser != array())
+						{
+							$this->sendBookingUpdatedNotificationToCanceldUser($deletedUser);
+						}
+						if ($newUser != array())
+						{
+							$this->sendBookingNotificationToNewUser($newUser);
+						}
+					}
+					else if ($dateChange)
+					{
+						//Send a email notifications to the participants
+						$this->sendBookingUpdatedNotification($booking_participants);
+					}
+				}
 			}
 			else
 			{
