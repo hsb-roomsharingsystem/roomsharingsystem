@@ -86,12 +86,6 @@ class ilRoomSharingRoom
 	 */
 	public function read()
 	{
-		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
-		{
-			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
-			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
-			return false;
-		}
 		if ($this->hasValidId())
 		{
 			$row = $this->ilRoomsharingDatabase->getRoom($this->id);

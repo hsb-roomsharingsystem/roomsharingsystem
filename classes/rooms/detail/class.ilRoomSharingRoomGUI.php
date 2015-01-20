@@ -103,11 +103,13 @@ class ilRoomSharingRoomGUI
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $this->room_id);
 
 		// room information
-		$this->tabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'showRoom'));
+		$this->tabs->addSubTab('room', $this->lng->txt('rep_robj_xrs_room'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomgui', 'showRoom'));
 		if ($this->permission->checkPrivilege(PRIVC::SEE_BOOKINGS_OF_ROOMS))
 		{
 			// room occupation per week
-			$this->tabs->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'), $this->ctrl->getLinkTargetByClass('ilRoomSharingCalendarWeekGUI', 'show'));
+			$this->tabs->addSubTab('weekview', $this->lng->txt('rep_robj_xrs_room_occupation'),
+				$this->ctrl->getLinkTargetByClass('ilRoomSharingCalendarWeekGUI', 'show'));
 		}
 		$this->tabs->activateSubTab($a_subtab_to_be_activated);
 	}
@@ -118,21 +120,30 @@ class ilRoomSharingRoomGUI
 	 */
 	public function showRoom()
 	{
+		if (!$this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
+		{
+			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
+			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
+			return false;
+		}
 		$this->setSubTabs('room');
 		$this->room_obj = new ilRoomSharingRoom($this->pool_id, $this->room_id);
 
 		$toolbar = new ilToolbarGUI();
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
 		{
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 		}
 		if ($this->permission->checkPrivilege(PRIVC::EDIT_ROOMS))
 		{
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_room_edit'), $this->ctrl->getLinkTarget($this, "editRoom"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_room_edit'),
+				$this->ctrl->getLinkTarget($this, "editRoom"));
 		}
 		if ($this->permission->checkPrivilege(PRIVC::ADD_ROOMS))
 		{
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'), $this->ctrl->getLinkTarget($this, "addRoom"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_add_room'),
+				$this->ctrl->getLinkTarget($this, "addRoom"));
 		}
 
 		$this->form_gui = $this->initForm("show");
@@ -155,7 +166,8 @@ class ilRoomSharingRoomGUI
 		$toolbar = new ilToolbarGUI();
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
 		{
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 		}
 		$this->form_gui = $this->initForm("create");
 		$this->form_gui->clearCommandButtons();
@@ -179,7 +191,8 @@ class ilRoomSharingRoomGUI
 		$toolbar = new ilToolbarGUI();
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
 		{
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 		}
 		$this->form_gui = $this->initForm("edit");
 		$this->form_gui->clearCommandButtons();
@@ -214,11 +227,13 @@ class ilRoomSharingRoomGUI
 		$type->setDisabled(true);
 		$form_gui->addItem($type);
 
-		$min_alloc = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_room_min_alloc"), "min_alloc");
+		$min_alloc = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_room_min_alloc"),
+			"min_alloc");
 		$min_alloc->setDisabled(true);
 		$form_gui->addItem($min_alloc);
 
-		$max_alloc = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_room_max_alloc"), "max_alloc");
+		$max_alloc = new ilRoomSharingNumberInputGUI($this->lng->txt("rep_robj_xrs_room_max_alloc"),
+			"max_alloc");
 		$max_alloc->setDisabled(true);
 		$form_gui->addItem($max_alloc);
 
@@ -249,7 +264,8 @@ class ilRoomSharingRoomGUI
 			}
 			else
 			{
-				$attr_field = new ilRoomSharingNumberInputGUI($attr['name'], self::ATTRIBUTE_ID_PREFIX . $attr['id']);
+				$attr_field = new ilRoomSharingNumberInputGUI($attr['name'],
+					self::ATTRIBUTE_ID_PREFIX . $attr['id']);
 				$attr_field->setValue($attribute_amount_by_id);
 				$attr_field->setMinValue(0);
 				$attr_field->setDisabled(($a_mode == "show"));
@@ -272,7 +288,8 @@ class ilRoomSharingRoomGUI
 			if ($a_mode == "create")
 			{
 				$min_alloc->setValue("0");
-				$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"), $this->lng->txt("rep_robj_xrs_add_room"));
+				$form_gui->addCommandButton($this->ctrl->getLinkTarget($this, "addRoom"),
+					$this->lng->txt("rep_robj_xrs_add_room"));
 			}
 			else
 			{
@@ -334,7 +351,8 @@ class ilRoomSharingRoomGUI
 		$toolbar = new ilToolbarGUI();
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
 		{
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 		}
 
 		$this->form_gui = $this->initForm("create");
@@ -403,7 +421,8 @@ class ilRoomSharingRoomGUI
 		$toolbar = new ilToolbarGUI();
 		if ($this->permission->checkPrivilege(PRIVC::ACCESS_ROOMS))
 		{
-			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+			$toolbar->addButton($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+				$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 		}
 
 		$this->form_gui = $this->initForm("edit");
@@ -454,7 +473,8 @@ class ilRoomSharingRoomGUI
 			return false;
 		}
 		$this->tabs->clearTargets();
-		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_rooms'), $this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_rooms'),
+			$this->ctrl->getLinkTargetByClass('ilroomsharingroomsgui', "showRooms"));
 		$cgui = new ilConfirmationGUI();
 		$cgui->setFormAction($this->ctrl->getFormAction($this));
 		$cgui->setCancel($this->lng->txt("cancel"), "showRooms");
@@ -463,7 +483,8 @@ class ilRoomSharingRoomGUI
 		if ($amount_of_bookings > 0)
 		{
 			$cgui->setHeaderText($this->lng->txt('rep_robj_xrs_room_delete'));
-			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_delete_booking') . " <b>" . $amount_of_bookings . "</b>", true);
+			ilUtil::sendFailure($this->lng->txt('rep_robj_xrs_room_delete_booking') . " <b>" . $amount_of_bookings . "</b>",
+				true);
 		}
 		else
 		{
@@ -542,7 +563,8 @@ class ilRoomSharingRoomGUI
 		if (!empty($a_input_item))
 		{
 			$post_var = $a_input_item->getPostVar();
-			if (!empty($post_var) && ilRoomSharingStringUtils::startsWith($post_var, self::ATTRIBUTE_ID_PREFIX))
+			if (!empty($post_var) && ilRoomSharingStringUtils::startsWith($post_var,
+					self::ATTRIBUTE_ID_PREFIX))
 			{
 				$valid = ilRoomSharingNumericUtils::isPositiveNumber($a_input_item->getValue(), true);
 			}
@@ -599,4 +621,5 @@ class ilRoomSharingRoomGUI
 	}
 
 }
+
 ?>
