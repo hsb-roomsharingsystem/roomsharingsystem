@@ -71,7 +71,7 @@ class ilRoomSharingPermissionUtils
 
 		$priority = $this->privileges->getPriorityOfUser($a_user_id);
 
-		if ($this->owner === $this->user_id)
+		if ($this->owner === $a_user_id)
 		{
 			$priority = 10;
 		}
