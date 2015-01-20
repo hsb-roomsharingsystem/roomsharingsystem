@@ -247,7 +247,9 @@ class ilRoomSharingDatabaseBooking
 		$query = 'SELECT b.id, b.user_id, b.subject, b.bookingcomment,' .
 			' r.id AS room_id, b.date_from, b.date_to, b.seq_id FROM ' . dbc::BOOKINGS_TABLE . ' b ' .
 			' JOIN ' . dbc::ROOMS_TABLE . ' r ON b.room_id = r.id ' .
-			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer');
+			' WHERE (date_from >= ' . $this->ilDB->quote(date('Y-m-d H:i:s'), 'timestamp') .
+			' OR date_to >= ' . $this->ilDB->quote(date('Y-m-d H:i:s'), 'timestamp') . ')'
+			. ' AND b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer');
 
 		if ($filter['user_id'] || $filter['user_id'])
 		{
