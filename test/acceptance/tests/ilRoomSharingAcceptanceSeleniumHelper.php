@@ -702,7 +702,8 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	 * @param string $subject			Subject of the Booking
 	 * @param string $comment			Comment of the Booking
 	 */
-	public function applyBookingFilter($username = '', $room = '', $subject = '', $comment = '')
+	public function applyBookingFilter($username = '', $room = '', $subject = '', $comment = '',
+		$booking_attributes = array())
 	{
 		//Navigate
 		$this->webDriver->findElement(WebDriverBy::linkText('Termine'))->click();
@@ -717,7 +718,15 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(WebDriverBy::id('booking_comment'))->clear();
 		$this->webDriver->findElement(WebDriverBy::id('booking_comment'))->sendKeys($comment);
 
-		//Submit
+		foreach ($booking_attributes as $name => $attribute)
+		{
+			$this->webDriver->findElement(WebDriverBy::id("attribute_" . $name . "_value"))->clear();
+			$this->webDriver->findElement(WebDriverBy::id("attribute_" . $name . "_value"))
+				->sendKeys($attribute);
+		}
+
+
+//Submit
 		$this->webDriver->findElement(WebDriverBy::name('cmd[applyFilter]'))->click();
 	}
 
@@ -726,10 +735,10 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	 */
 	public function deleteUser()
 	{
-		//Navigate
+//Navigate
 		$this->webDriver->findElement(WebDriverBy::linkText('Administration'))->click();
 		$this->webDriver->findElement(WebDriverBy::id('mm_adm_usrf'))->click();
-		//delete
+//delete
 		$this->webDriver->findElement(WebDriverBy::name('id[]'))->click();
 		$this->webDriver->findElement(WebDriverBy::name('selected_cmd2'))->sendKeys('Löschen');
 		$this->webDriver->findElement(WebDriverBy::cssSelector('option[value="deleteUsers"]'))->click();
@@ -750,6 +759,31 @@ class ilRoomSharingAcceptanceSeleniumHelper
 				return $keyAndValue[1];
 			}
 		}
+	}
+
+	/*
+	 * Adds an Attribute for Bookings
+	 * @param string $attribute_name			Name for the attribute
+	 */
+	public function addAttributeForBooking($attribute_name)
+	{
+		$this->webDriver->findElement(webDriverBy::partialLinkText('Attribute'))->click();
+		$this->webDriver->findElement(webDriverBy::partialLinkText('Attribute für Buchungen'))->click();
+		$this->webDriver->findElement(webDriverBy::id('radio_action_mode_create_attribute'))->click();
+		$this->webDriver->findElement(webDriverBy::id('new_attribute_name'))->click();
+		$this->webDriver->findElement(webDriverBy::id('new_attribute_name'))->sendKeys($attribute_name);
+		$this->webDriver->findElement(webDriverBy::cssSelector('div.ilFormFooter.ilFormCommands > input[name="cmd[executeBookingAttributeAction]"]'))->click();
+	}
+
+	/*
+	 * Deletes the first Attribute for Bookings found
+	 */
+	public function deleteOneAttributeForBooking()
+	{
+		$this->webDriver->findElement(webDriverBy::partialLinkText('Attribute'))->click();
+		$this->webDriver->findElement(webDriverBy::partialLinkText('Attribute für Buchungen'))->click();
+		$this->webDriver->findElement(webDriverBy::id('radio_action_mode_delete_attribute'))->click();
+		$this->webDriver->findElement(webDriverBy::cssSelector('div.ilFormFooter.ilFormCommands > input[name="cmd[executeBookingAttributeAction]"]'))->click();
 	}
 
 }
