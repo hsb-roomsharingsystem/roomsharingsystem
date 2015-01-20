@@ -41,6 +41,7 @@ class ilRoomSharingRoom
 	private $ilRoomsharingDatabase;
 	private $lng;
 	private $permission;
+	private $ctrl;
 
 	/**
 	 * Constructor for ilRoomSharingRoom.
@@ -56,11 +57,12 @@ class ilRoomSharingRoom
 	public function __construct($a_pool_id, $a_room_id, $a_create = false,
 		ilRoomsharingDatabase $a_db = null)
 	{
-		global $lng, $rssPermission;
+		global $lng, $rssPermission, $ilCtrl;
 
 		$this->lng = $lng;
 		$this->permission = $rssPermission;
 		$this->pool_id = $a_pool_id;
+		$this->ctrl = $ilCtrl;
 		if ($a_db != null)
 		{
 			$this->ilRoomsharingDatabase = $a_db;
