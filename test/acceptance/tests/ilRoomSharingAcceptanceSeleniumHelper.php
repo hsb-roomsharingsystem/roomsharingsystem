@@ -605,7 +605,7 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	 */
 	public function deleteBooking($subject)
 	{
-		$row = $this->webDriver->findElement(WebDriverBy::xpath("//tr[contains(text(), " . $subject . ")]/td[7]"));
+		$row = $this->webDriver->findElement(WebDriverBy::xpath("//tr[contains(text(), " . $subject . ")]/td[8]"));
 		$row->findElement(WebDriverBy::linkText('Stornieren'))->click();
 		$this->webDriver->findElement(WebDriverBy::name('cmd[cancelBooking]'))->click();
 	}
