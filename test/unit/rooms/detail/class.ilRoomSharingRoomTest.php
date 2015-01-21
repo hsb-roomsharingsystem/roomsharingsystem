@@ -27,6 +27,10 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 		$test = new self();
 		self::$DBMock = $test->getMockBuilder('ilRoomSharingDatabase')->disableOriginalConstructor()->getMock();
 
+		global $lng;
+		$lng = $test->getMock('lng', array('txt'), array(), '', false);
+		$lng->method("txt")->willReturn("translation");
+
 		// We assume that we have all privileges.
 		global $rssPermission;
 		$rssPermission = $test->getMockBuilder('ilRoomSharingPermissionUtils')->disableOriginalConstructor()->getMock();
@@ -247,8 +251,6 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 			)
 		));
 
-		self::$room->save();
-
 		self::$DBMock->expects($this->once())->method('updateRoomProperties')->with(
 			$this->equalTo(10), $this->equalTo('CoolRoom'), $this->equalTo('Party'), $this->equalTo(10),
 			$this->equalTo(20), $this->equalTo(310), $this->equalTo(730)
@@ -258,6 +260,8 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 			array($this->equalTo(10), $this->equalTo(12), $this->equalTo(3)),
 			array($this->equalTo(10), $this->equalTo(7), $this->equalTo(8))
 		);
+
+		self::$room->save();
 	}
 
 	/**
@@ -335,8 +339,6 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 		$newRoom->addAttribute(1, 3);
 		$newRoom->addAttribute(4, 1);
 
-		$newRoom->create();
-
 		self::$DBMock->expects($this->once())->method('insertRoom')->with(
 			$this->equalTo('Joga'), $this->equalTo('Fitness'), $this->equalTo(0), $this->equalTo(20),
 			$this->equalTo(300), $this->equalTo(809)
@@ -345,6 +347,8 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 			array($this->equalTo(999), $this->equalTo(1), $this->equalTo(3)),
 			array($this->equalTo(999), $this->equalTo(4), $this->equalTo(1))
 		);
+
+		$newRoom->create();
 	}
 
 	/**
@@ -352,10 +356,10 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testDelete()
 	{
-		self::$room->delete();
 		self::$DBMock->expects($this->once())->method('deleteRoom')->with($this->equalTo(1));
 		self::$DBMock->expects($this->once())->method('deleteAllAttributesForRoom')->with($this->equalTo(1));
 		self::$DBMock->expects($this->once())->method('deleteAllBookingsAssignedToRoom')->with($this->equalTo(1));
+		self::$room->delete();
 	}
 
 	/**
@@ -428,7 +432,18 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetAllFloorplans()
 	{
+		$floorPlans = array(
+			array('file_id' => '100', 'title' => 'Reddy'),
+			array('file_id' => '102', 'title' => 'Floofy'),
+		);
+		self::$DBMock->method("getAllFloorplans")->willReturn($floorPlans); #
 
+		$expected = array(
+			'title' => " - translation - ",
+			'100' => 'Reddy',
+			'102' => 'Floofy'
+		);
+		self::assertEquals($expected, self::$room->getAllFloorplans());
 	}
 
 	/**
