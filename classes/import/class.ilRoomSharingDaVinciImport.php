@@ -72,7 +72,7 @@ class ilRoomSharingDaVinciImport {
                     $this->checkForKey($line);
                 }
                 
-                if($import_rooms == "1");
+                if($import_rooms == "1")
                 {
                     foreach ($this->rooms as $room) {
                         if(!($this->ilRoomSharingDatabase->getRoomWithName($room['name']) !== array()))
