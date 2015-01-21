@@ -30,25 +30,16 @@ class ilRoomSharingTCPDFGenerator extends ilTCPDFGenerator
 		$pdf->SetSubject($job->getSubject());
 		$pdf->SetKeywords($job->getKeywords());
 
-		//$pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 006', PDF_HEADER_STRING); // TODO
-		$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN)); // TODO
-		$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA)); // TODO
-		$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED); // TODO
+		$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+		$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+		$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 		$pdf->SetMargins($job->getMarginLeft(), $job->getMarginTop(), $job->getMarginRight());
-		$pdf->SetHeaderMargin(PDF_MARGIN_HEADER); // TODO
-		$pdf->SetFooterMargin(PDF_MARGIN_FOOTER); // TODO
+		$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+		$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 		$pdf->SetAutoPageBreak($job->getAutoPageBreak(), $job->getMarginBottom());
 		$pdf->setImageScale($job->getImageScale());
-		$pdf->SetFont('dejavusans', '', 10); // TODO
+		$pdf->SetFont('dejavusans', '', 10);
 
-		/* // TODO
-		  // set some language-dependent strings (optional)
-		  if (file_exists(dirname(__FILE__).'/lang/eng.php')) {
-		  require_once(dirname(__FILE__).'/lang/eng.php');
-		  $pdf->setLanguageArray($l);
-		  }
-		 */
-		// set font
 
 		foreach ($job->getPages() as $page)
 		{
