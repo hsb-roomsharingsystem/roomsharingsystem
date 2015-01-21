@@ -61,8 +61,20 @@ daVinci_import#:#Import
 daVinci_import_bookings#:#Import Bookings
 daVinci_import_button#:#Import
 daVinci_import_default_cap#:#Default Room Capacity
+daVinci_import_error_no_room_sing#:#booking could not be created, because of non-existing Room.
+daVinci_import_error_no_room_plu#:#bookings could not be created, because of non-existing Rooms.
 daVinci_import_file#:#Upload daVinci text-file
+daVinci_import_message_appointment#:#period found.
+daVinci_import_message_appointments#:#periods found.
+daVinci_import_message_end#:#Process complete.
+daVinci_import_message_room#:#room found.
+daVinci_import_message_rooms#:#rooms found.
+daVinci_import_message_start#:#DaVinci-File being read and processed. This process may take a while. Please wait...
 daVinci_import_rooms#:#Import Rooms
+daVinci_import_succ_room_created#:#room created.
+daVinci_import_succ_rooms_created#:#rooms created.
+daVinci_import_succ_booking_created#:#booking created.
+daVinci_import_succ_bookings_created#:#booking created.
 daVinci_import_tag#:#daVinci Booking
 daVinci_import_title#:#Import daVinci Data
 delete_attribute#:#Delete an existing attribute

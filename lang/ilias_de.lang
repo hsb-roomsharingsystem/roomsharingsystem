@@ -61,8 +61,20 @@ daVinci_import#:#Import
 daVinci_import_bookings#:#Buchungen importieren
 daVinci_import_button#:#Importieren
 daVinci_import_default_cap#:#Standardmäßige Anzahl Sitzplätze
+daVinci_import_error_no_room_sing#:#Veranstaltung konnte nicht angelegt werden, da der Raum nicht existiert.
+daVinci_import_error_no_room_plu#:#Veranstaltungen konnten nicht angelegt werden, da deren Räume nicht existieren.
 daVinci_import_file#:#daVinci Schuldatentransferdatei hochladen
+daVinci_import_message_appointment#:#Veranstaltung erkannt.
+daVinci_import_message_appointments#:#Veranstaltungen erkannt.
+daVinci_import_message_end#:#Vorgang beendet.
+daVinci_import_message_room#:#Raum erkannt.
+daVinci_import_message_rooms#:#Räume erkannt.
+daVinci_import_message_start#:#Die daVinci-Datei wird eingelesen und verarbeitet. Dieser Vorgang kann einige Minuten dauern. Bitte warten...
 daVinci_import_rooms#:#Räume importieren
+daVinci_import_succ_room_created#:#Raum wurde neu angelegt.
+daVinci_import_succ_rooms_created#:#Räume wurden neu angelegt.
+daVinci_import_succ_booking_created#:#Buchung wurde neu angelegt.
+daVinci_import_succ_bookings_created#:#Buchungen wurden neu angelegt.
 daVinci_import_tag#:#daVinci Buchung
 daVinci_import_title#:#daVinci Daten importieren
 delete_attribute#:#Vorhandenes Attribut löschen

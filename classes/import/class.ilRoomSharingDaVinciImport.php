@@ -29,6 +29,10 @@ class ilRoomSharingDaVinciImport {
         private $current_weekly_rotation;
         private $current_classes;
         
+        private $count_Bookings_without_Room;
+        private $count_Rooms_created;
+        private $count_Bookings_created;
+        
         /**
          * Constructor
          * 
@@ -60,19 +64,27 @@ class ilRoomSharingDaVinciImport {
          */
         public function importBookingsFromDaVinciFile($file, $import_rooms, $import_bookings, $default_cap)
         {
+                $this->count_Bookings_without_Room = 0;
+                $this->count_Rooms_created = 0;
+                $this->count_Bookings_created = 0;
+            
                 $file_name = ilUtil::getASCIIFilename($file["name"]);
 		$file_name_mod = str_replace(" ", "_", $file_name);
 		$file_path = "templates" . "/" . $file_name_mod; // construct file path
 		ilUtil::moveUploadedFile($file["tmp_name"], $file_name_mod, $file_path);
                 
                 $fileAsString = file_get_contents($file_path);
+
+                ilUtil::sendInfo($this->lng->txt("rep_robj_xrs_daVinci_import_message_start"),true);
                 
                 foreach(preg_split("/((\r?\n)|(\r\n?))/", $fileAsString)as$line)
                 {
                     $this->checkForKey($line);
                 }
                 
-                if($import_rooms == "1")
+                ilUtil::sendInfo($this->createInfoMessage($import_rooms, $import_bookings),true);
+                
+                if($import_rooms === "1")
                 {
                     foreach ($this->rooms as $room) {
                         if(!($this->ilRoomSharingDatabase->getRoomWithName($room['name']) !== array()))
@@ -83,11 +95,12 @@ class ilRoomSharingDaVinciImport {
                             }
                             //$a_name, $a_type, $a_min_alloc, $a_max_alloc, $a_file_id, $a_building_id
                             $this->ilRoomSharingDatabase->insertRoom($room['name'],$room['type'],1,$room['cap'],array(),array());
+                            $this->count_Rooms_created++;
                         }
                     }
                 }
                 
-                if($import_bookings == "1")
+                if($import_bookings === "1")
                 {
                     foreach($this->appointments as $booking)
                     {  
@@ -118,6 +131,8 @@ class ilRoomSharingDaVinciImport {
                     }
                 }
                 
+                
+                $this->displayInfo();
                 
         }
         
@@ -365,6 +380,7 @@ class ilRoomSharingDaVinciImport {
                     {
                         try {
                             $this->book->addBooking($entry,array(),array(),array(),false);
+                            $this->count_Bookings_created++;
                         } catch (Exception $ex) {
                             
                         }
@@ -376,6 +392,7 @@ class ilRoomSharingDaVinciImport {
                             $newBookingValues['to'] = $entry['to'];
                             $newBookingValues['room'] = $entry['room'];
                             $newBookingValues['cal_id'] = $entry['cal_id'];
+                            $newBookingValues['comment'] = $this->lng->txt("rep_robj_xrs_daVinci_import_tag");
 
                         try
                         {
@@ -393,6 +410,73 @@ class ilRoomSharingDaVinciImport {
                         }
                     }
                 }
+                else
+                {
+                    $this->count_Bookings_without_Room++;
+                }
             }
+        }
+        
+        private function displayInfo()
+        {
+            if($this->count_Bookings_without_Room == 1)
+            {
+                ilUtil::sendFailure($this->count_Bookings_without_Room . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_error_no_room_sing") ,true);
+            }
+            if($this->count_Bookings_without_Room > 1)
+            {
+                ilUtil::sendFailure($this->count_Bookings_without_Room . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_error_no_room_plu"),true);
+            }
+            
+            ilUtil::sendSuccess($this->createSuccessMessage(),true);
+            ilUtil::sendInfo($this->lng->txt("rep_robj_xrs_daVinci_import_message_end"),true);
+        }
+        
+        private function createSuccessMessage()
+        {
+            $successText = "";
+            
+            if($this->count_Rooms_created == 1){
+                $successText = $successText . ' ' . $this->count_Rooms_created . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_succ_room_created");
+                $successText = $successText . '<br>';
+            } elseif ($this->count_Rooms_created > 1) {
+                $successText = $successText . ' ' . $this->count_Rooms_created . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_succ_rooms_created");
+                $successText = $successText . '<br>';
+            }
+
+            if($this->count_Bookings_created == 1){
+                $successText = $successText . ' ' . $this->count_Bookings_created . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_succ_booking_created");
+            }elseif ($this->count_Bookings_created > 1) {
+                $successText = $successText . ' ' . $this->count_Bookings_created . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_succ_bookings_created");
+            }
+            
+            return $successText;
+        }
+        
+        private function createInfoMessage($import_rooms, $import_bookings)
+        {
+            $infoText = $this->lng->txt("rep_robj_xrs_daVinci_import_message_start") . '<br>';
+            
+            if($import_bookings === "1")
+            {
+                if(count($this->appointments) == 1){
+                    $infoText = $infoText . ' ' . count($this->appointments) . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_message_appointment") ;
+                    $infoText = $infoText . '<br>';
+                } elseif (count($this->appointments) > 1 || count($this->appointments) == 0) {
+                    $infoText = $infoText . ' ' . count($this->appointments) . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_message_appointments");
+                    $infoText = $infoText . '<br>';
+                }
+            }
+
+            if($import_rooms === "1")
+            {
+                if(count($this->rooms) == 1){
+                    $infoText = $infoText . ' ' . count($this->rooms) . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_message_room");
+                } elseif (count($this->rooms)> 1 || count($this->rooms) == 0) {
+                    $infoText = $infoText . ' ' . count($this->rooms) . ' ' . $this->lng->txt("rep_robj_xrs_daVinci_import_message_rooms");;
+                }
+            }
+            
+            return $infoText;
         }
 }
