@@ -1,5 +1,6 @@
 <?php
 
+session_start();
 require_once("Services/Calendar/classes/class.ilCalendarWeekGUI.php");
 require_once("Services/Calendar/classes/class.ilCalendarWeekGUI.php");
 require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/utils/class.ilRoomSharingPermissionUtils.php");
@@ -102,6 +103,16 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 	 */
 	public function show($export = false)
 	{
+
+		if ($export && isset($_SESSION['weeklySeed']))
+		{
+			$this->seed = $_SESSION['weeklySeed'];
+		}
+		else
+		{
+			$_SESSION['weeklySeed'] = $this->seed;
+		}
+
 		if (!$this->permission->checkPrivilege(PRIVC::SEE_BOOKINGS_OF_ROOMS))
 		{
 			ilUtil::sendFailure($this->lng->txt("rep_robj_xrs_no_permission_for_action"));
