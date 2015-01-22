@@ -509,7 +509,7 @@ class ilRoomSharingCalendarWeekGUI extends ilCalendarWeekGUI
 
 		/* auslagern nach ilRoomSharingCalendarScheduleExportTableGUI */
 		$this->writeRoomDataFromRoomObject();
-		new ilRoomSharingCalendarScheduleExportTableGUI($this->parent_obj, 'calendarscheduleexport',
+		new ilRoomSharingCalendarScheduleExportTableGUI($this->parent_obj, 'calendARSCHeduleexport',
 			$this->ref_id, $this);
 	}
 

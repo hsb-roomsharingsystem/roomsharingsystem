@@ -248,6 +248,8 @@ user_id#:#Benutzer-Id
 user_name#:#Benutzername
 value#:#Wert
 view#:#Ansicht
+week_capitalised#:#Woche
+week#:#Woche
 warning_missing_rooms#:#Es sind momentan keine Räume vorhanden. Um den Roomsharingpool nutzen zu können, müssen zuerst Räume angelegt werden.
 wrong_attribute_name_provided#:#Der Name des Attributs ist ungültig!
 wrong_input#:#Sie haben falsche Angaben getätigt. Bitte überprüfen Sie diese.

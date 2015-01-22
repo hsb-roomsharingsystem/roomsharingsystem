@@ -245,6 +245,8 @@ user_id#:#User-Id
 user_name#:#Username
 value#:#Value
 view#:#View
+week_capitalised#:#Week
+week#:#week
 warning_missing_rooms#:#There are no rooms available currently. In order to use the RoomSharing Pool you need to create rooms.
 wrong_attribute_name_provided#:#The name of the attribute is incorrect!
 wrong_input#:#Wrong inputs have been detected. Please check for them.

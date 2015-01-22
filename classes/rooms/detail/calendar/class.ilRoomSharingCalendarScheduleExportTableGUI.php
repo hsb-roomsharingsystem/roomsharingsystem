@@ -41,11 +41,10 @@ class ilRoomSharingCalendarScheduleExportTableGUI extends ilTable2GUI
 
 		$elements = $this->calendarWeekGUI->buildAppointmentsArray()[0];
 		$element = $elements[1];
-		$this->setTitle(date('W', $element->getTimestamp())
-			. ". "
-			. $lng->txt("rep_robj_xrs_room_occupation_title")
-			. " "
-			. $calendarWeekGUI->getRoomName());
+		$this->setTitle(
+			$lng->txt("rep_robj_xrs_room_occupation_title") . " "
+			. $calendarWeekGUI->getRoomName()
+			. " (" . $lng->txt("rep_robj_xrs_week_capitalised") . " " . date('W', $element->getTimestamp()) . ")");
 		$this->setDescription($lng->txt("rep_robj_xrs_status") . ": " . date('d') . ". " . date('m') . ". " . date('Y'));
 		$this->setLimit(20); // data sets per page
 		// $this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
