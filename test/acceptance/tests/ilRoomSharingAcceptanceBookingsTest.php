@@ -49,7 +49,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 	{
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
 		self::$helper->fillBookingForm("Test Buchung", "12", "2", "2013", "10", "00", "12", "2", "2013", "11", "00");
-
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertContains("Vergangenheit", self::$helper->getErrMessage());
 		self::$webDriver->findElement(
 				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
@@ -63,7 +63,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 	{
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
 		self::$helper->fillBookingForm("Test Buchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "10", "00");
-
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertContains("ist später oder gleich", self::$helper->getErrMessage());
 		self::$webDriver->findElement(
 				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
@@ -77,7 +77,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 	{
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
 		self::$helper->fillBookingForm("", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00");
-
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertContains("Einige Angaben sind unvollständig oder ungültig", self::$helper->getErrMessage());
 		self::$webDriver->findElement(
 				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
@@ -92,7 +92,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
 		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "11", "00", "12", "2", "2016", "10", "00");
-
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertContains("ist später oder gleich", self::$helper->getErrMessage());
 		self::$webDriver->findElement(
 				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
@@ -106,7 +106,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 	{
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
 		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00", false);
-
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertContains("Einige Angaben sind unvollständig", self::$helper->getErrMessage());
 		self::$webDriver->findElement(
 				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
@@ -120,7 +120,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 	{
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
 		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "14", "00");
-
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertContains("als die Maximal zulässige Buchungsdauer", self::$helper->getErrMessage());
 		self::$webDriver->findElement(
 				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
@@ -136,6 +136,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00", true, "",
 				true, array("aaa", "bbb", "ccc")
 		);
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertContains("Maximale Anzahl der Sitzplätze überschritten", self::$helper->getErrMessage());
 		self::$webDriver->findElement(
 				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
@@ -150,6 +151,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
 		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00"
 		);
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertEquals("Buchung hinzugefügt", self::$helper->getSuccMessage());
 		self::$helper->deleteFirstBooking();
 	}
@@ -164,6 +166,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00", true,
 				"Testkommentar"
 		);
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertEquals("Buchung hinzugefügt", self::$helper->getSuccMessage());
 		$page = self::$webDriver->findElement(WebDriverBy::tagName('body'))->getText();
 		$this->assertContains("Testkommentar", $page);
@@ -184,6 +187,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 				array(), //Participants
 				array("Modul" => "Testmodul")
 		);
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertEquals("Buchung hinzugefügt", self::$helper->getSuccMessage());
 		$page = self::$webDriver->findElement(WebDriverBy::tagName('body'))->getText();
 		$this->assertContains("Testmodul", $page);
@@ -200,6 +204,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00", true, "",
 				true, array("aaa", "bbb")
 		);
+		self::$webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 		$this->assertEquals("Buchung hinzugefügt", self::$helper->getSuccMessage());
 		$page = self::$webDriver->findElement(WebDriverBy::tagName('body'))->getText();
 		$this->assertContains("Alfred", $page);

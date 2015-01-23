@@ -865,8 +865,6 @@ class ilRoomSharingAcceptanceSeleniumHelper
 			$this->addParticipantsToBooking($participants);
 		}
 
-		//Click on booking link
-		$this->webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
 	}
 
 	/**
