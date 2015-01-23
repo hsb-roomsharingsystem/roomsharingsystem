@@ -63,8 +63,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 		// checkboxes labeled with "participations" get
 		// affected by the "Select All"-Checkbox
 		$this->setSelectAllCheckbox('participations');
-		$this->setRowTemplate("tpl.room_appointment_row.html",
-			"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
+		$this->setRowTemplate("tpl.room_appointment_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing");
 		// command for leaving
 		$this->addMultiCommand('confirmLeaveMultipleParticipations', $this->lng->txt('rep_robj_xrs_leave'));
 
@@ -77,7 +76,6 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	{
 		$this->export_formats = array();
 
-		// #11339
 		$valid = array(self::EXPORT_EXCEL => "tbl_export_excel",
 			self::EXPORT_CSV => "tbl_export_csv", self::EXPORT_PDF => $this->lng->txt("rep_robj_xrs_export_pdf"));
 
@@ -149,22 +147,18 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 		}
 
 		// table footer linkbar
-		if ($this->enabled["linkbar"] && $this->enabled["footer"] && $this->limit != 0 && $this->max_count
-			> 0)
+		if ($this->enabled["linkbar"] && $this->enabled["footer"] && $this->limit != 0 && $this->max_count > 0)
 		{
 			$layout = array(
 				"link" => $this->footer_style,
 				"prev" => $this->footer_previous,
 				"next" => $this->footer_next,
 			);
-			//if (!$this->getDisplayAsBlock())
-			//{
 			$linkbar = $this->getLinkbar("1");
 			$this->tpl->setCurrentBlock("tbl_footer_linkbar");
 			$this->tpl->setVariable("LINKBAR", $linkbar);
 			$this->tpl->parseCurrentBlock();
 			$linkbar = true;
-			//}
 			$footer = true;
 		}
 
@@ -181,8 +175,6 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 			$cb_over = new ilCheckboxListOverlayGUI("tbl_" . $this->getId());
 			$cb_over->setLinkTitle($lng->txt("columns"));
 			$cb_over->setItems($items);
-			//$cb_over->setUrl("./ilias.php?baseClass=ilTablePropertiesStorage&table_id=".
-			//		$this->getId()."&cmd=saveSelectedFields&user_id=".$ilUser->getId());
 			$cb_over->setFormCmd($this->getParentCmd());
 			$cb_over->setFieldVar("tblfs" . $this->getId());
 			$cb_over->setHiddenVar("tblfsh" . $this->getId());
@@ -303,8 +295,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 					$this->tpl->setVariable("FILA_ID", $this->getId());
 					if ($this->getId() != "")
 					{
-						$this->tpl->setVariable("SAVE_URLA",
-							"./ilias.php?baseClass=ilTablePropertiesStorage&table_id=" .
+						$this->tpl->setVariable("SAVE_URLA", "./ilias.php?baseClass=ilTablePropertiesStorage&table_id=" .
 							$this->getId() . "&cmd=showFilter&user_id=" . $ilUser->getId());
 					}
 					$this->tpl->parseCurrentBlock();
@@ -316,8 +307,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 						$this->tpl->setVariable("TXT_HIDE", $lng->txt("hide_filter"));
 						if ($this->getId() != "")
 						{
-							$this->tpl->setVariable("SAVE_URL",
-								"./ilias.php?baseClass=ilTablePropertiesStorage&table_id=" .
+							$this->tpl->setVariable("SAVE_URL", "./ilias.php?baseClass=ilTablePropertiesStorage&table_id=" .
 								$this->getId() . "&cmd=hideFilter&user_id=" . $ilUser->getId());
 							$this->tpl->setVariable("FILD_ID", $this->getId());
 						}
@@ -376,8 +366,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 						$ilCtrl->setParameter($this->parent_obj, $this->prefix . "_xpt", "");
 						$caption = $lng->txt($caption_lng_id);
 						//this part is necessary, because the labels for xls- and csv-Export are fetched from the ilias-lang-files, while the label for pdf-export is fetched from the lang-file of the plugin. If the ilias-lang-file does not contain a translation for the caption_lng_id, it will set it into '-'es. In that case the caption comes from the plugin and we just use the string that is there.
-						if (strpos($caption, '-') === 0 && strpos($caption, '-', strlen($caption) - 1) === strlen($caption)
-							- 1) //caption starts and ends with '-'
+						if (strpos($caption, '-') === 0 && strpos($caption, '-', strlen($caption) - 1) === strlen($caption) - 1) //caption starts and ends with '-'
 						{
 							$alist->addItem($caption_lng_id, $format, $url);
 						}
@@ -405,13 +394,11 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	{
 		if ($this->dataExists())
 		{
-			// #9640: sort
 			if (!$this->getExternalSorting() && $this->enabled["sort"])
 			{
 				$this->determineOffsetAndOrder(true);
 
-				$this->row_data = ilUtil::sortArray($this->row_data, $this->getOrderField(),
-						$this->getOrderDirection(), $this->numericOrdering($this->getOrderField()));
+				$this->row_data = ilUtil::sortArray($this->row_data, $this->getOrderField(), $this->getOrderDirection(), $this->numericOrdering($this->getOrderField()));
 			}
 
 			$filename = "export";
@@ -470,13 +457,11 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 					break;
 				case self::EXPORT_PDF:
 					include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/appointments/participations/class.ilRoomSharingParticipationsExportTableGUI.php");
-					$exportTable = new ilRoomSharingParticipationsExportTableGUI($this->parent_obj,
-						'showParticipations', $this->ref_id);
+					$exportTable = new ilRoomSharingParticipationsExportTableGUI($this->parent_obj, 'showParticipations', $this->ref_id);
 					include_once("Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/classes/export/class.ilRoomSharingPDFCreator.php");
 
 					$staff = $exportTable->getTableHTML();
-					ilRoomSharingPDFCreator::generatePDF($exportTable->getTableHTML(), 'D',
-						$this->lng->txt("rep_robj_xrs_participations") . '.pdf');
+					ilRoomSharingPDFCreator::generatePDF($exportTable->getTableHTML(), 'D', $this->lng->txt("rep_robj_xrs_participations") . '.pdf');
 
 					break;
 			}
@@ -559,8 +544,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 			// Picture for recurrent appointment.
 			$this->tpl->setVariable('IMG_RECURRENCE_PATH', ilUtil::getImagePath("cmd_move_s.png"));
 		}
-		$this->tpl->setVariable('IMG_RECURRENCE_TITLE',
-			$this->lng->txt("rep_robj_xrs_room_date_recurrence"));
+		$this->tpl->setVariable('IMG_RECURRENCE_TITLE', $this->lng->txt("rep_robj_xrs_room_date_recurrence"));
 	}
 
 	/**
@@ -583,8 +567,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('TXT_ROOM', $a_rowData['room']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $a_rowData['room_id']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showParticipations');
-		$this->tpl->setVariable('HREF_ROOM',
-			$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
+		$this->tpl->setVariable('HREF_ROOM', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showRoom'));
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', '');
 	}
 
@@ -595,8 +578,7 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	 */
 	private function setSubject($a_rowData)
 	{
-		$this->tpl->setVariable('TXT_SUBJECT',
-			($a_rowData['subject'] == null ? '' : $a_rowData['subject']));
+		$this->tpl->setVariable('TXT_SUBJECT', ($a_rowData['subject'] == null ? '' : $a_rowData['subject']));
 	}
 
 	/**
@@ -608,11 +590,9 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	{
 		$this->tpl->setVariable('TXT_USER', $a_rowData['person_responsible']);
 		// put together a link for the profile view
-		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id',
-			$a_rowData['person_responsible_id']);
+		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', $a_rowData['person_responsible_id']);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'last_cmd', 'showParticipations');
-		$this->tpl->setVariable('HREF_PROFILE',
-			$this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
+		$this->tpl->setVariable('HREF_PROFILE', $this->ctrl->getLinkTargetByClass('ilobjroomsharinggui', 'showProfile'));
 		// unset the parameter for safety purposes
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'user_id', '');
 	}
@@ -640,12 +620,9 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	 */
 	private function setActions($a_rowData)
 	{
-		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_id',
-			$a_rowData ['booking_id']);
-		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_subject',
-			$a_rowData ['subject']);
-		$this->tpl->setVariable('LINK_ACTION',
-			$this->ctrl->getLinkTarget($this->parent_obj, 'confirmLeaveParticipation'));
+		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_id', $a_rowData ['booking_id']);
+		$this->ctrl->setParameterByClass('ilroomsharingparticipationsgui', 'booking_subject', $a_rowData ['subject']);
+		$this->tpl->setVariable('LINK_ACTION', $this->ctrl->getLinkTarget($this->parent_obj, 'confirmLeaveParticipation'));
 		$this->tpl->setVariable('LINK_ACTION_TXT', $this->lng->txt('rep_robj_xrs_leave'));
 	}
 
@@ -661,5 +638,4 @@ class ilRoomSharingParticipationsTableGUI extends ilTable2GUI
 	}
 
 }
-
 ?>

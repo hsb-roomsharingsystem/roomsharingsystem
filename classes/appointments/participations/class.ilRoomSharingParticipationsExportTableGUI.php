@@ -2,14 +2,8 @@
 
 include_once('./Services/Table/classes/class.ilTable2GUI.php');
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of class
+ * Class ilRoomSharingParticipationsExportTableGUI
  *
  * @author albert
  */
@@ -44,8 +38,7 @@ class ilRoomSharingParticipationsExportTableGUI extends ilTable2GUI
 		$this->setFormAction($ilCtrl->getFormAction($a_parent_obj, $a_parent_cmd));
 		// add columns and column headings
 		$this->_addColumns();
-		$this->setRowTemplate("tpl.room_appointment_export_row.html",
-			"Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
+		$this->setRowTemplate("tpl.room_appointment_export_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/RoomSharing/");
 		$this->getItems();
 	}
 
@@ -177,8 +170,7 @@ class ilRoomSharingParticipationsExportTableGUI extends ilTable2GUI
 			// sort
 			if (!$this->getExternalSorting() && $this->enabled["sort"])
 			{
-				$data = ilUtil::sortArray($data, $this->getOrderField(), $this->getOrderDirection(),
-						$this->numericOrdering($this->getOrderField()));
+				$data = ilUtil::sortArray($data, $this->getOrderField(), $this->getOrderDirection(), $this->numericOrdering($this->getOrderField()));
 			}
 		}
 
@@ -190,8 +182,7 @@ class ilRoomSharingParticipationsExportTableGUI extends ilTable2GUI
 				ilDatePresentation::setUseRelativeDates(false);
 			}
 
-			$this->tpl->addBlockFile("TBL_CONTENT", "tbl_content", $this->row_template,
-				$this->row_template_dir);
+			$this->tpl->addBlockFile("TBL_CONTENT", "tbl_content", $this->row_template, $this->row_template_dir);
 
 			foreach ($data as $set)
 			{

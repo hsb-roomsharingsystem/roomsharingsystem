@@ -106,10 +106,10 @@ class ilRoomSharingBookingsGUI
 
 		$this->tpl->setContent($toolbar->getHTML() . $bookingsTable->getHTML() . $plink->getHTML());
 	}
-        
-        /**
-         * Show booking object 
-         */
+
+	/**
+	 * Show booking object
+	 */
 	function showBookingObject()
 	{
 		$this->tabs->clearTargets();
@@ -122,10 +122,10 @@ class ilRoomSharingBookingsGUI
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room_id);
 		$this->tpl->setContent($form->getHTML());
 	}
-        
-        /**
-         * Edit booking object
-         */
+
+	/**
+	 * Edit booking object
+	 */
 	function editBookingObject()
 	{
 		$this->tabs->clearTargets();
@@ -138,10 +138,10 @@ class ilRoomSharingBookingsGUI
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'room_id', $room_id);
 		$this->tpl->setContent($form->getHTML());
 	}
-        
-        /**
-         * Save edited booking object
-         */
+
+	/**
+	 * Save edited booking object
+	 */
 	function saveEditBookingObject()
 	{
 		$this->tabs->clearTargets();
@@ -271,9 +271,9 @@ class ilRoomSharingBookingsGUI
 		$this->pool_id = $a_pool_id;
 	}
 
-        /**
-         * Applys filter
-         */
+	/**
+	 * Applys filter
+	 */
 	public function applyFilterObject()
 	{
 		$bookingsTable = new ilRoomSharingBookingsTableGUI($this, 'showBookings', $this->ref_id);
