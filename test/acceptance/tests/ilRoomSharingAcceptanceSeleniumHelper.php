@@ -785,5 +785,162 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(webDriverBy::id('radio_action_mode_delete_attribute'))->click();
 		$this->webDriver->findElement(webDriverBy::cssSelector('div.ilFormFooter.ilFormCommands > input[name="cmd[executeBookingAttributeAction]"]'))->click();
 	}
+        
+        /**
+         * Fill booking form and click booking link
+         * @param string $subject	Subject
+	 * @param type $f_day		From day
+	 * @param type $f_month		From Month
+	 * @param type $f_year		From Year
+	 * @param type $f_hour		From Hour
+	 * @param type $f_minute	From Minute
+	 * @param type $t_day		To Day
+	 * @param type $t_month		To Month
+	 * @param type $t_year		To Year
+	 * @param type $t_hour		To Hour
+	 * @param type $t_minute	To Minute
+	 * @param bool $acc		Tick "Accept room using agreement" 
+         *                              (Agreement must be there)
+	 * @param string $comment	Comment
+	 * @param bool $public		Tick "Booking is public"
+	 * @param array $participants List of Participants (Must be User Names)
+	 * @param array $booking_attributes List of booking attributes 
+         *                                  that shoud be used as NAME => TEXT
+         */
+        public function fillBookingForm(
+            $subject, 
+            $f_day, $f_month, $f_year, $f_hour, $f_minute, 
+            $t_day, $t_month, $t_year, $t_hour, $t_minute, 
+            $acc = true, 
+            $comment = "", 
+            $public = true,
+            $participants = array(), 
+            $booking_attributes = array()
+            )
+        {
+            $this->webDriver->findElement(WebDriverBy::id('subject'))->clear();
+            $this->webDriver->findElement(WebDriverBy::id('subject'))->sendKeys($subject);
 
+            $this->webDriver->findElement(WebDriverBy::id('comment'))->clear();
+            $this->webDriver->findElement(WebDriverBy::id('comment'))->sendKeys($comment);
+
+            //From Date
+            $f_day_keys = $this->generateSendKeysFromString($f_day, "day");
+            $this->webDriver->findElement(WebDriverBy::id('from[date]_d'))->sendKeys($f_day_keys);
+            
+            $f_month_keys = $this->generateSendKeysFromString($f_month, "month");
+            $this->webDriver->findElement(WebDriverBy::id('from[date]_m'))->sendKeys($f_month_keys);
+            
+            $this->webDriver->findElement(WebDriverBy::id('from[date]_y'))->sendKeys($f_year);
+            
+            $f_hour_keys = $this->generateSendKeysFromString($f_hour, "hour");
+            $this->webDriver->findElement(WebDriverBy::id('from[time]_h'))->sendKeys($f_hour_keys);
+            $f_minute_keys = $this->generateSendKeysFromString($f_minute, "minute");
+            $this->webDriver->findElement(WebDriverBy::id('from[time]_m'))->sendKeys($f_minute_keys);
+            
+            //To Date
+            $t_day_keys = $this->generateSendKeysFromString($t_day, "day");
+            $this->webDriver->findElement(WebDriverBy::id('to[date]_d'))->sendKeys($t_day_keys);
+            
+            $t_month_keys = $this->generateSendKeysFromString($t_month, "month");
+            $this->webDriver->findElement(WebDriverBy::id('to[date]_m'))->sendKeys($t_month_keys);
+            
+            $this->webDriver->findElement(WebDriverBy::id('to[date]_y'))->sendKeys($t_year);
+            
+            $t_hour_keys = $this->generateSendKeysFromString($t_hour, "hour");
+            $this->webDriver->findElement(WebDriverBy::id('to[time]_h'))->sendKeys($t_hour_keys);
+            
+            $t_minute_keys = $this->generateSendKeysFromString($t_minute, "minute");
+            $this->webDriver->findElement(WebDriverBy::id('to[time]_m'))->sendKeys($t_minute_keys);
+            
+            //Click Agreement
+            if($acc == true)
+            {
+                    $this->webDriver->findElement(WebDriverBy::id('accept_room_rules'))->click();
+            }
+            
+            //Add participants
+            if(count($participants) > 0)
+            {
+                $this->addParticipantsToBooking($participants);
+            }
+            
+            //Click on booking link
+            $this->webDriver->findElement(WebDriverBy::name('cmd[book]'))->click();
+        }
+        
+        /**
+         * Generates a series of inputs from a string with two numbers in it
+         * @return string Series of inputs that represent the number
+         */
+        private function generateSendKeysFromString($string = "", $type = "")
+        {
+            $keyseries = "";
+            
+            switch($type){
+                default:
+                case "day":
+                    $number = intval($string);
+                    $keyseries = "01"; //Make sure to start at first day
+                    for($i=0;$i<$number-1;$i++)
+                    {
+                        $keyseries .= WebDriverKeys::ARROW_DOWN;
+                    }
+                    break;
+                case "month":
+                    $number = intval($string);
+                    $keyseries = "Ja"; //Make sure to start at January
+                    for($i=0;$i<$number-1;$i++)
+                    {
+                        $keyseries .= WebDriverKeys::ARROW_DOWN;
+                    }
+                    break;
+                case "hour":
+                    $number = intval($string);
+                    $keyseries = "00"; //Make sure to start at 00
+                    for($i=0;$i<$number-1;$i++)
+                    {
+                        $keyseries .= WebDriverKeys::ARROW_DOWN;
+                    }
+                    break;
+                case "minute":
+                    //Minutes only have steps of five
+                    $number = floor(intval($string)/5);
+                    $keyseries = "00"; //Make sure to start at 00
+                    for($i=0;$i<$number;$i++)
+                    {
+                        $keyseries .= WebDriverKeys::ARROW_DOWN;
+                    }
+                    break;                      
+            }
+            
+            return $keyseries;
+        }
+        
+        /**
+         * Adds a participant to booking form
+         */
+        private function addParticipantsToBooking($logins = array())
+        {
+            $number = count($logins);
+            if($number <= 0)
+            {
+                return;
+            }
+            
+            for($i=0;$i<$number;$i++)
+            {
+                if($i == 0)
+                {
+                    $this->webDriver->findElement(WebDriverBy::id('participants'))->sendKeys($logins[0]);
+                }
+                else
+                {
+                    $this->webDriver->findElement(WebDriverBy::id('participants~'.strval($i)))->sendKeys($logins[$i]);
+                }
+                $this->webDriver->findElement(webDriverBy::id('ilMultiAdd~participants~'.strval($i)))->click();
+            }
+            
+            
+        }
 }
