@@ -117,8 +117,9 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 		self::$helper->toRSS();
 		self::$helper->searchForRoomByName(self::$standard_roomname);
 		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
-		self::$helper->doABooking(self::$standard_subject, "1", "1", date("Y") + 1, "10", "00", "1", "1",
-			date("Y") + 1, "11", "00", "", self::$standard_comment);
+		self::$helper->doABooking(self::$standard_subject, "1", "1", date("Y") + 1, "8", "00", "1", "1",
+			date("Y") + 1, "9", "00", "", self::$standard_comment, false, array(),
+			array(self::$attribute_name => self::$standard_attribute));
 	}
 
 	public static function setUpPrivilegeClass()
@@ -138,7 +139,7 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 		self::$helper->grantPrivilege('accessRooms', $class_id);
 	}
 
-	/**
+	/*
 	 * Tests the filter panel itself in booking filter
 	 * @test
 	 */
@@ -193,7 +194,7 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 
 		#3: See the bookings (0) of a user that didn't create any
 		self::$helper->applyBookingFilter(self::$lazy_user_login);
-		$this->asserEquals(0, self::$helper->getNoOfResults(),
+		$this->assertEquals(0, self::$helper->getNoOfResults(),
 			'#3 for Username in booking filter does not work - not 0 results for user
 				that did not book');
 
@@ -272,13 +273,15 @@ class ilRoomSharingAcceptanceBookingFilterTest extends PHPUnit_Framework_TestCas
 	{
 		self::$webDriver->findElement(WebDriverBy::linkText('Termine'))->click();
 		#1: See only the booking with a differing Attribute
-		self::$helper->applyBookingFilter('', '', '', '', self::$standard_attribute);
+		self::$helper->applyBookingFilter('', '', '', '',
+			array(self::$attribute_name => self::$differing_attribute));
 		$this->assertEquals(1, self::$helper->getNoOfResults(), '#1 for Attribute does not work');
 		#2: See the - not existing - booking with a never used Attribute
-		self::$helper->applyBookingFilter('', '', '', '', self::$attribute_not_used);
+		self::$helper->applyBookingFilter('', '', '', '',
+			array(self::$attribute_name => self::$attribute_not_used));
 		$this->assertEquals(0, self::$helper->getNoOfResults(), '#1 for Attribute does not work');
 		#3: Reset the filter
-		self::$helper->applyBookingFilter('', '', '', '', array());
+		self::$helper->applyBookingFilter('', '', '', '', array(self::$attribute_name => ''));
 		$this->assertEquals(6, self::$helper->getNoOfResults(),
 			'#3 for attribute - reset filter - does not work');
 	}
