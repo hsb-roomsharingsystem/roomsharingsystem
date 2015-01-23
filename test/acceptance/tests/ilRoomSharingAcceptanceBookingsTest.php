@@ -13,6 +13,7 @@ include_once './acceptance/tests/ilRoomSharingAcceptanceSeleniumHelper.php';
  */
 class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 {
+
 	private static $webDriver;
 	private static $url = 'http://localhost/roomsharingsystem'; // URL to local RoomSharing
 	private static $rssObjectName; // name of RoomSharing pool
@@ -37,7 +38,7 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 	{
 		self::$helper->login(self::$login_user, self::$login_pass);  // login
 		self::$helper->toRSS();
-                self::$helper->searchForRoomByName("117");
+		self::$helper->searchForRoomByName("117");
 	}
 
 	/**
@@ -46,116 +47,166 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testInvalidBookingInPast()
 	{
-            self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
-            self::$helper->fillBookingForm("Test Buchung", 
-                    "12", "2", "2013", "10", "00",
-                    "12", "2", "2013","11", "00");
-        
-            $this->assertContains("Vergangenheit", self::$helper->getErrMessage());
-            self::$webDriver->findElement(
-		WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
-        }
-        
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Test Buchung", "12", "2", "2013", "10", "00", "12", "2", "2013", "11", "00");
+
+		$this->assertContains("Vergangenheit", self::$helper->getErrMessage());
+		self::$webDriver->findElement(
+				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
+	}
+
 	/**
 	 * Test invalid booking: "to" and "from" time is the same
 	 * @test
-	 */        
-        public function testInvalidBookingSameTime()
-        {
-            self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
-            self::$helper->fillBookingForm("Test Buchung", 
-                    "12", "2", "2016", "10", "00",
-                    "12", "2", "2016", "10", "00");
-            
-            $this->assertContains("ist später oder gleich", self::$helper->getErrMessage());
-            self::$webDriver->findElement(
-		WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
-        }
-        
+	 */
+	public function testInvalidBookingSameTime()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Test Buchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "10", "00");
+
+		$this->assertContains("ist später oder gleich", self::$helper->getErrMessage());
+		self::$webDriver->findElement(
+				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
+	}
+
 	/**
 	 * Test invalid booking: no subject
 	 * @test
-	 */               
-        public function testInvalidBookingNoSubject()
-        {
-            self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
-            self::$helper->fillBookingForm("", 
-                    "12", "2", "2016", "10", "00",
-                    "12", "2", "2016", "11", "00");
-            
-            $this->assertContains("Einige Angaben sind unvollständig oder ungültig", self::$helper->getErrMessage());
-            self::$webDriver->findElement(
-		WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
+	 */
+	public function testInvalidBookingNoSubject()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00");
+
+		$this->assertContains("Einige Angaben sind unvollständig oder ungültig", self::$helper->getErrMessage());
+		self::$webDriver->findElement(
+				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
 	}
-        
-        /**
+
+	/**
 	 * Test invalid booking: time is in wront order
 	 * @test
 	 */
-        public function testInvalidBookingTimeFlipped()
-        {
+	public function testInvalidBookingTimeFlipped()
+	{
 
-            self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
-            self::$helper->fillBookingForm("Testbuchung", 
-                    "12", "2", "2016", "11", "00",
-                    "12", "2", "2016", "10", "00");
-            
-            $this->assertContains("ist später oder gleich", self::$helper->getErrMessage());
-            self::$webDriver->findElement(
-		WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
-        }
-        
-        /**
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "11", "00", "12", "2", "2016", "10", "00");
+
+		$this->assertContains("ist später oder gleich", self::$helper->getErrMessage());
+		self::$webDriver->findElement(
+				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
+	}
+
+	/**
 	 * Test invalid booking: agreement not accepted
 	 * @test
 	 */
-        public function testInvalidBookingNoAgreementAccepted()
-        {
-            self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
-            self::$helper->fillBookingForm("Testbuchung", 
-                    "12", "2", "2016", "10", "00",
-                    "12", "2", "2016", "11", "00", 
-                    false);
-            
-            $this->assertContains("Einige Angaben sind unvollständig", self::$helper->getErrMessage());
-            self::$webDriver->findElement(
-		WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
-        }
-        
-        /**
+	public function testInvalidBookingNoAgreementAccepted()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00", false);
+
+		$this->assertContains("Einige Angaben sind unvollständig", self::$helper->getErrMessage());
+		self::$webDriver->findElement(
+				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
+	}
+
+	/**
 	 * Test invalid booking: booking time is longer than the max for this pool
 	 * @test
 	 */
-        public function testInvalidBookingTooLong()
-        {
-            self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
-            self::$helper->fillBookingForm("Testbuchung", 
-                    "12", "2", "2016", "10", "00",
-                    "12", "2", "2016", "14", "00");
-            
-            $this->assertContains("als die Maximal zulässige Buchungsdauer", self::$helper->getErrMessage());
-            self::$webDriver->findElement(
-		WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
-        }
+	public function testInvalidBookingTooLong()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "14", "00");
 
-        /**
-	 * Test valid booking: booking has one participant
+		$this->assertContains("als die Maximal zulässige Buchungsdauer", self::$helper->getErrMessage());
+		self::$webDriver->findElement(
+				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
+	}
+
+	/**
+	 * Test invalid booking: too many participants
 	 * @test
 	 */
-        public function testInvalidBookingWithTooManyParticipants()
-        {
-            self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
-            self::$helper->fillBookingForm("Testbuchung", 
-                    "12", "2", "2016", "10", "00",
-                    "12", "2", "2016", "11", "00",
-                    true, "", true,
-                    array("aaa","bbb","ccc")
-                    );
-            $this->assertContains("Maximale Anzahl der Sitzplätze überschritten", self::$helper->getErrMessage());
-            self::$webDriver->findElement(
-		WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
-        }
-        
+	public function testInvalidBookingWithTooManyParticipants()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00", true, "",
+				true, array("aaa", "bbb", "ccc")
+		);
+		$this->assertContains("Maximale Anzahl der Sitzplätze überschritten", self::$helper->getErrMessage());
+		self::$webDriver->findElement(
+				WebDriverBy::linkText('Zurück zu den Suchergebnissen'))->click();
+	}
+
+	/**
+	 * Test valid booking: only required fields
+	 * @test
+	 */
+	public function testValidBookingOnlyRequiredFields()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00"
+		);
+		$this->assertEquals("Buchung hinzugefügt", self::$helper->getSuccMessage());
+		self::$helper->deleteFirstBooking();
+	}
+
+	/**
+	 * Test valid booking: with comment
+	 * @test
+	 */
+	public function testValidBookingWithComment()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00", true,
+				"Testkommentar"
+		);
+		$this->assertEquals("Buchung hinzugefügt", self::$helper->getSuccMessage());
+		$page = self::$webDriver->findElement(WebDriverBy::tagName('body'))->getText();
+		$this->assertContains("Testkommentar", $page);
+		self::$helper->deleteFirstBooking();
+	}
+
+	/**
+	 * Test valid booking: with attribute
+	 * @test
+	 */
+	public function testValidBookingWithAttribute()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00",
+				true, //Accept agreement
+				"Testkommentar", //Comment
+				true, //Public booking
+				array(), //Participants
+				array("Modul" => "Testmodul")
+		);
+		$this->assertEquals("Buchung hinzugefügt", self::$helper->getSuccMessage());
+		$page = self::$webDriver->findElement(WebDriverBy::tagName('body'))->getText();
+		$this->assertContains("Testmodul", $page);
+		self::$helper->deleteFirstBooking();
+	}
+
+	/**
+	 * Test valid booking: participants
+	 * @test
+	 */
+	public function testValidBookingWithParticipants()
+	{
+		self::$webDriver->findElement(WebDriverBy::linktext('Buchen'))->click();
+		self::$helper->fillBookingForm("Testbuchung", "12", "2", "2016", "10", "00", "12", "2", "2016", "11", "00", true, "",
+				true, array("aaa", "bbb")
+		);
+		$this->assertEquals("Buchung hinzugefügt", self::$helper->getSuccMessage());
+		$page = self::$webDriver->findElement(WebDriverBy::tagName('body'))->getText();
+		$this->assertContains("Alfred", $page);
+		$this->assertContains("Bernd", $page);
+		self::$helper->deleteFirstBooking();
+	}
+
 	/**
 	 * Closes web browser.
 	 */
@@ -172,9 +223,5 @@ class ilRoomSharingAcceptanceBookingsTest extends PHPUnit_Framework_TestCase
 		self::$webDriver->findElement(WebDriverBy::linkText('Abmelden'))->click();
 		self::$webDriver->findElement(WebDriverBy::linkText('Bei ILIAS anmelden'))->click();
 	}
-        
-
 
 }
-
-?>
