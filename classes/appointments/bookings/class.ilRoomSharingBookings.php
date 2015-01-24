@@ -69,7 +69,7 @@ class ilRoomSharingBookings
 		{
 			$this->ilRoomsharingDatabase->deleteCalendarEntryOfBooking($a_booking_id);
 			$this->ilRoomsharingDatabase->deleteBooking($a_booking_id);
-			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_bookings_deleted'), true);
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
 		}
 		else //delete every booking in the sequence
 		{
@@ -100,7 +100,7 @@ class ilRoomSharingBookings
 		$this->ilRoomsharingDatabase->deleteBookings($a_booking_ids);
 		if (!$a_remove_by_higher_priority)
 		{
-			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_deleted'), true);
+			ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_bookings_deleted'), true);
 		}
 	}
 

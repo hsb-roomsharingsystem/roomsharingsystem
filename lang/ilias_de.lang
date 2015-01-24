@@ -26,7 +26,7 @@ booking_back#:#Zurück zu den Buchungen
 booking_cancel#:#Stornieren
 booking_confirm#:#Möchten Sie wirklich die ausgewählte Buchung stornieren?
 booking_confirm_cancel#:#Stornieren
-booking_deleted#:#Diese Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
+booking_deleted#:#Die Buchung wurde gelöscht! (folgende Serientermine nicht betroffen)
 booking_doesnt_exist#:#Diese Buchung existiert nicht (mehr)
 booking_edit#:#Bearbeiten
 booking_edit_cancel#:#Abbrechen
@@ -40,7 +40,7 @@ booking_sequence_deleted#:#Diese Buchung und alle folgenden Buchungen wurden gel
 booking#:#Buchung
 bookings#:#Buchungen
 bookings_confirm#:#Möchten Sie wirklich die ausgewählten Buchungen stornieren?
-bookings_deleted#:#Die Buchungen wurde gelöscht! (mögliche Serientermine nicht betroffen)
+bookings_deleted#:#Die Buchungen wurden gelöscht! (mögliche Serientermine nicht betroffen)
 bookings_were_updated#:#Buchungen wurden aktualisiert.
 booking_time_bigger_max_book_time#:#Der Buchungszeitraum ist größer, als die Maximal zulässige Buchungsdauer des Pools.
 cancel#:#Abbrechen
