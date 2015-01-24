@@ -183,8 +183,26 @@ class ilRoomSharingRooms
 	 */
 	private function removeRoomsNotMatchingNameAndSeats()
 	{
-		$res_rooms = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
-			$this->filter ["room_name"], $this->filter ["room_seats"]);
+		if (array_key_exists("room_name", $this->filter) && array_key_exists("room_seats", $this->filter))
+		{
+			$res_rooms = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
+				$this->filter ["room_name"], $this->filter ["room_seats"]);
+		}
+		elseif (array_key_exists("room_name", $this->filter))
+		{
+			$res_rooms = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
+				$this->filter ["room_name"], null);
+		}
+		elseif (array_key_exists("room_seats", $this->filter))
+		{
+			$res_rooms = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
+				null, $this->filter ["room_seats"]);
+		}
+		else
+		{
+			$res_rooms = $this->ilRoomsharingDatabase->getMatchingRooms($this->roomsMatchingAttributeFilters,
+				null, null);
+		}
 
 		foreach ($res_rooms as $res_room)
 		{
