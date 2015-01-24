@@ -8,7 +8,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * Class ilRoomSharingPrivilegesTest
  *
  * @group unit
- * @author Albert Koch akoch@stud.hs-bremen.de
+ * @author Albert Koch <akoch@stud.hs-bremen.de>
  */
 class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 {
@@ -20,7 +20,7 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	private static $privileges;
 
 	/**
-	 * Sets up the fixture, for example, opens a network connection.
+	 * Sets up the fixture.
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp()
@@ -31,23 +31,12 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 */
-	protected function tearDown()
-	{
-
-	}
-
-	/**
 	 * @covers ilRoomSharingPrivileges::getPrivilegesMatrix
 	 * @todo   Implement testGetPrivilegesMatrix().
 	 */
 	public function testGetPrivilegesMatrix()
 	{
-
-
-		//if there's no class, the function must return an empty array
+		// if there's no class, the function must return an empty array
 		self::$ilRoomSharingDatabaseStub->method('getClasses')->willreturn(array());
 		$returnarray = self::$privileges->getPrivilegesMatrix();
 		$this->assertEquals(0, count($returnarray));
@@ -87,8 +76,9 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 		$priv[] = 'deleteClass';
 		$priv[] = 'editPrivileges';
 		$priv[] = 'lockPrivileges';
+		$priv[] = 'accessImport';
 
-//		$this->assertEquals($priv, self::$privileges->getAllClassPrivileges());
+		$this->assertEquals($priv, self::$privileges->getAllPrivileges());
 	}
 
 	/**
@@ -97,33 +87,9 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetClasses()
 	{
-		//if there are no classes, return must be null
+		// if there are no classes, return must be null
 		self::$ilRoomSharingDatabaseStub->method('getClasses')->willReturn(array());
 		$this->assertEquals(array(), self::$privileges->getClasses());
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::getClassById
-	 * @todo   Implement testGetClassById().
-	 */
-	public function testGetClassById()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::getAssignedClassesForUser
-	 * @todo   Implement testGetAssignedClassesForUser().
-	 */
-	public function testGetAssignedClassesForUser()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
 	}
 
 	/**
@@ -132,10 +98,8 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testGetPriorityOfUser()
 	{
-
-		//Set nine users with the nine priorities below 10 and the ID of the owner which has to have a priority of 10
-		$map = array
-			(
+		// set nine users with nine priorities below 10 and the ID of the owner who has a priority of 10
+		$map = array(
 			array('42', '1'),
 			array('43', '2'),
 			array('44', '3'),
@@ -162,138 +126,6 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @covers ilRoomSharingPrivileges::getPrivilegesForUser
-	 * @todo   Implement testGetPrivilegesForUser().
-	 */
-	public function testGetPrivilegesForUser()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::getAssignedUsersForClass
-	 * @todo   Implement testGetAssignedUsersForClass().
-	 */
-	public function testGetAssignedUsersForClass()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::getParentRoles
-	 * @todo   Implement testGetParentRoles().
-	 */
-	public function testGetParentRoles()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::getParentRoleTitle
-	 * @todo   Implement testGetParentRoleTitle().
-	 */
-	public function testGetParentRoleTitle()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::addClass
-	 * @todo   Implement testAddClass().
-	 */
-	public function testAddClass()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::editClass
-	 * @todo   Implement testEditClass().
-	 */
-	public function testEditClass()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::deleteClass
-	 * @todo   Implement testDeleteClass().
-	 */
-	public function testDeleteClass()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::assignUsersToClass
-	 * @todo   Implement testAssignUsersToClass().
-	 */
-	public function testAssignUsersToClass()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::deassignUsersFromClass
-	 * @todo   Implement testDeassignUsersFromClass().
-	 */
-	public function testDeassignUsersFromClass()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::setPrivileges
-	 * @todo   Implement testSetPrivileges().
-	 */
-	public function testSetPrivileges()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::setLockedClasses
-	 * @todo   Implement testSetLockedClasses().
-	 */
-	public function testSetLockedClasses()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
-	}
-
-	/**
 	 * @covers ilRoomSharingPrivileges::getLockedClasses
 	 */
 	public function testGetLockedClasses()
@@ -311,18 +143,6 @@ class ilRoomSharingPrivilegesTest extends PHPUnit_Framework_TestCase
 		$expected = array(1, 2, 3, 4, 5, 6);
 		self::$ilRoomSharingDatabaseStub->method('getUnlockedClasses')->willreturn($expected);
 		$this->assertEquals($expected, self::$privileges->getUnlockedClasses());
-	}
-
-	/**
-	 * @covers ilRoomSharingPrivileges::getAllClassPrivileges
-	 * @todo   Implement testGetAllClassPrivileges().
-	 */
-	public function testGetAllClassPrivileges()
-	{/*
-	  $stub = $this->getMockBuilder('ilRoomSharingDatabase')
-	  ->getMock();
-	  $mockclasses = array();
-	  $mockclasses[0] = array(); */
 	}
 
 }

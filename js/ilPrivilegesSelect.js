@@ -1,6 +1,8 @@
 /**
  * Selects all checkboxes that belong to a certain privilege type.
  * 
+ * @author Alexander Keller <a.k3ll3r@gmail.com>
+ * 
  * @param {Object} a_form the form
  * @param {Object} a_varname the id of the class
  * @param {Object} a_type the privilege type
