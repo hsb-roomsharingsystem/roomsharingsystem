@@ -50,7 +50,7 @@ class ilRoomSharingRooms
 	{
 		$this->filter = $a_filter;
 
-		if ($this->filter ['attributes'])
+		if (array_key_exists('attributes', $this->filter))
 		{
 			$this->roomsMatchingAttributeFilters = $this->getRoomsWithMatchingAttributes();
 		}
@@ -59,7 +59,8 @@ class ilRoomSharingRooms
 			$this->roomsMatchingAttributeFilters = $this->getAllRooms();
 		}
 
-		if ($this->filter ["date"] && $this->filter ["time_from"] && $this->filter ["time_to"])
+		if (array_key_exists("date", $this->filter) && array_key_exists("time_from", $this->filter) && array_key_exists("time_to",
+				$this->filter))
 		{
 			$this->removeRoomsNotInTimeRange();
 		}
@@ -148,7 +149,7 @@ class ilRoomSharingRooms
 	 */
 	private function removeRoomsNotInTimeRange()
 	{
-		if ($this->filter['priority'])
+		if (array_key_exists('priority', $this->filter))
 		{
 			$roomsBookedInTimeRange = $this->getRoomsBookedInDateTimeRange($this->filter['datetimes']['from'],
 				$this->filter['datetimes']['to'], null, $this->filter['priority']);
