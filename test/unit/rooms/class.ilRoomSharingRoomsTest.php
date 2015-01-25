@@ -153,7 +153,8 @@ class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase
 
 	public function testGetListWithRoomsFilteredNotInTimeRange()
 	{
-		$filter = Array('date' => '2014-11-30', 'time_from' => '01:00:00', 'time_to' => '02:00:00');
+		$datetimes = Array('from' => '2014-11-30 01:00:00', 'to' => '2014-11-30 02:00:00');
+		$filter = Array('date' => '2014-11-30', 'time_from' => '01:00:00', 'time_to' => '02:00:00', 'datetimes' => $datetimes);
 
 		$room2 = Array('room' => '032A', 'room_id' => 2, 'seats' => 60, 'attributes' => Array('attribute1' => 1,
 				'attribute2' => 2));

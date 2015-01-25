@@ -67,8 +67,15 @@ class ilRoomSharingRooms
 
 		$this->roomsMatchingAttributeFilters = $this->removeRoomsNotMatchingNameAndSeats();
 
-		$res_attribute = $this->getAttributes($this->roomsMatchingAttributeFilters[0]);
-		$res = $this->formatDataForGui($this->roomsMatchingAttributeFilters[1], $res_attribute);
+		if (!empty($this->roomsMatchingAttributeFilters[0]))
+		{
+			$res_attribute = $this->getAttributes($this->roomsMatchingAttributeFilters[0]);
+			$res = $this->formatDataForGui($this->roomsMatchingAttributeFilters[1], $res_attribute);
+		}
+		else
+		{
+			$res = array();
+		}
 
 		return $res;
 	}
@@ -159,7 +166,6 @@ class ilRoomSharingRooms
 			$roomsBookedInTimeRange = $this->getRoomsBookedInDateTimeRange($this->filter['datetimes']['from'],
 				$this->filter['datetimes']['to']);
 		}
-
 		$roomsMatchingAttributeFilters_Temp = $this->roomsMatchingAttributeFilters;
 		$this->roomsMatchingAttributeFilters = array();
 
