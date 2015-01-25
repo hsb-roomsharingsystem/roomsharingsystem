@@ -6,10 +6,10 @@ include_once './acceptance/tests/ilRoomSharingAcceptanceSeleniumHelper.php';
 /**
  * This class represents the gui-testing for the RoomSharing System
  *
- * @group selenium-floorplans
+ * @group selenium-editbooking
  * @property WebDriver $webDriver
  *
- * @author Dan Sörgel
+ * @author Martin Doser
  */
 class ilRoomSharingAcceptanceBookingEditTest extends PHPUnit_Framework_TestCase
 {
