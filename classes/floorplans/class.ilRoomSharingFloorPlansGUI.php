@@ -96,8 +96,7 @@ class ilRoomSharingFloorPlansGUI
 		if ($this->permission->checkPrivilege(PRIVC::ADD_FLOORPLANS))
 		{
 			$bar = new ilToolbarGUI();
-			$bar->addButton($this->lng->txt('rep_robj_xrs_floor_plans_add'),
-				$this->ctrl->getLinkTarget($this, 'create'));
+			$bar->addButton($this->lng->txt('rep_robj_xrs_floor_plans_add'), $this->ctrl->getLinkTarget($this, 'create'));
 			$bar_content = $bar->getHTML();
 		}
 		$table = new ilRoomSharingFloorPlansTableGUI($this, 'render', $this->ref_id);
@@ -246,11 +245,9 @@ class ilRoomSharingFloorPlansGUI
 	protected function createRadioGroupInputFormItem()
 	{
 		$radg = new ilRadioGroupInputGUI($this->lng->txt(""), "file_mode");
-		$op1 = new ilRadioOption($this->lng->txt("rep_robj_xrs_floor_plans_keep"), "keep",
-			$this->lng->txt("rep_robj_xrs_floor_plans_keep_info"));
+		$op1 = new ilRadioOption($this->lng->txt("rep_robj_xrs_floor_plans_keep"), "keep", $this->lng->txt("rep_robj_xrs_floor_plans_keep_info"));
 		$radg->addOption($op1);
-		$op2 = new ilRadioOption($this->lng->txt("rep_robj_xrs_floor_plans_replace"), "replace",
-			$this->lng->txt("rep_robj_xrs_floor_plans_replace_info"));
+		$op2 = new ilRadioOption($this->lng->txt("rep_robj_xrs_floor_plans_replace"), "replace", $this->lng->txt("rep_robj_xrs_floor_plans_replace_info"));
 		$op2->addSubItem($this->createFileInputFormItem());
 		$radg->addOption($op2);
 		$radg->setValue("keep"); // the default option is to 'keep' a floor plan
@@ -270,8 +267,7 @@ class ilRoomSharingFloorPlansGUI
 			return FALSE;
 		}
 		$this->tabs->clearTargets();
-		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
-			$this->ctrl->getLinkTarget($this, 'render'));
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_floor_plans'), $this->ctrl->getLinkTarget($this, 'render'));
 		$form = $this->initForm();
 		$this->tpl->setContent($form->getHTML());
 	}
@@ -322,8 +318,7 @@ class ilRoomSharingFloorPlansGUI
 	private function resetView(ilPropertyFormGUI $a_form)
 	{
 		$this->tabs->clearTargets();
-		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
-			$this->ctrl->getLinkTarget($this, 'render'));
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_floor_plans'), $this->ctrl->getLinkTarget($this, 'render'));
 		$a_form->setValuesByPost();
 		$this->tpl->setContent($a_form->getHTML());
 	}
@@ -341,14 +336,12 @@ class ilRoomSharingFloorPlansGUI
 			return FALSE;
 		}
 		$this->tabs->clearTargets();
-		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
-			$this->ctrl->getLinkTarget($this, 'render'));
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_floor_plans'), $this->ctrl->getLinkTarget($this, 'render'));
 
 		$cgui = new ilConfirmationGUI();
 		$cgui->setFormAction($this->ctrl->getFormAction($this));
 
-		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id,
-			new ilRoomsharingDatabase($this->pool_id));
+		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 
 		// check if floorplan is associated to a room
 		$allRooms = $fplan->getRoomsWithFloorplan((int) $_GET['file_id']);
@@ -391,8 +384,7 @@ class ilRoomSharingFloorPlansGUI
 			$this->ctrl->redirectByClass('ilinfoscreengui', 'showSummary', 'showSummary');
 			return FALSE;
 		}
-		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id,
-			new ilRoomsharingDatabase($this->pool_id));
+		$fplan = $fplan = new ilRoomSharingFloorPlans($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 		$result = $fplan->deleteFloorPlan((int) $_POST['file_id']);
 		if ($result)
 		{
@@ -422,8 +414,7 @@ class ilRoomSharingFloorPlansGUI
 		}
 
 		$this->tabs->clearTargets();
-		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_list'),
-			$this->ctrl->getLinkTarget($this, 'render'));
+		$this->tabs->setBackTarget($this->lng->txt('rep_robj_xrs_back_to_floor_plans'), $this->ctrl->getLinkTarget($this, 'render'));
 		$fid = (int) $_GET['file_id'];
 		$form = $this->initForm($a_mode = "edit", $fid);
 		$this->ctrl->setParameterByClass('ilobjroomsharinggui', 'file_id', $fid);
@@ -496,5 +487,4 @@ class ilRoomSharingFloorPlansGUI
 	}
 
 }
-
 ?>

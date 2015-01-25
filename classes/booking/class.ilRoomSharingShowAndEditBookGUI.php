@@ -144,8 +144,7 @@ class ilRoomSharingShowAndEditBookGUI
 			elseif ($this->mode == 'edit')
 			{
 				$form->addCommandButton(self::SAVE_BOOK_CMD, $this->lng->txt("rep_robj_xrs_booking_save"));
-				$form->addCommandButton(self::CANCEL_EDIT_CMD,
-					$this->lng->txt("rep_robj_xrs_booking_edit_cancel"));
+				$form->addCommandButton(self::CANCEL_EDIT_CMD, $this->lng->txt("rep_robj_xrs_booking_edit_cancel"));
 			}
 		}
 		$form_items = $this->createAndSetFormItems();
@@ -386,8 +385,7 @@ class ilRoomSharingShowAndEditBookGUI
 	 */
 	private function createAndSetPublicBookingCheckBox($a_bookingData)
 	{
-		$checkbox_public = new ilCheckboxInputGUI($this->lng->txt("rep_robj_xrs_room_public_booking"),
-			"book_public");
+		$checkbox_public = new ilCheckboxInputGUI($this->lng->txt("rep_robj_xrs_room_public_booking"), "book_public");
 		$checkbox_public->setChecked($a_bookingData['public_booking'] == 1 ? true : false);
 		if ($this->mode == 'show')
 		{
@@ -471,8 +469,7 @@ class ilRoomSharingShowAndEditBookGUI
 	private function createAndSetParticipantsMultiTextInput($a_bookingData)
 	{
 		global $rssPermission;
-		$participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_participants_list"),
-			"participants");
+		$participants_input = new ilTextInputGUI($this->lng->txt("rep_robj_xrs_participants_list"), "participants");
 		$participants_input->setMulti(true);
 		$ajax_datasource = $this->ctrl->getLinkTarget($this, 'doUserAutoComplete', '', true);
 		$participants_input->setDataSource($ajax_datasource);
@@ -565,8 +562,7 @@ class ilRoomSharingShowAndEditBookGUI
 		return $attribute_entries;
 	}
 
-	private function saveFormEntries($a_form, $a_common_entries, $a_attribute_entries,
-		$a_participant_entries)
+	private function saveFormEntries($a_form, $a_common_entries, $a_attribute_entries, $a_participant_entries)
 	{
 		try
 		{
@@ -582,9 +578,7 @@ class ilRoomSharingShowAndEditBookGUI
 	{
 		//adds current calendar-id to booking information
 		$a_common_entries['cal_id'] = $this->parent_obj->getCalendarId();
-		$this->book->updateEditBooking($this->booking_id, $this->old_booking_values,
-			$this->old_attr_values, $this->old_participants, $a_common_entries, $a_attribute_entries,
-			$a_participant_entries);
+		$this->book->updateEditBooking($this->booking_id, $this->old_booking_values, $this->old_attr_values, $this->old_participants, $a_common_entries, $a_attribute_entries, $a_participant_entries);
 		$this->cleanUpAfterSuccessfulSave();
 	}
 
@@ -602,7 +596,7 @@ class ilRoomSharingShowAndEditBookGUI
 		$this->parent_obj->setTabs();
 		$this->ctrl->setCmd("showBooking");
 		$this->parent_obj->performCommand("");
-		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_succes_edit'), true);
+		ilUtil::sendSuccess($this->lng->txt('rep_robj_xrs_booking_success_edit'), true);
 	}
 
 	private function handleInvalidForm($a_form)
@@ -733,5 +727,4 @@ class ilRoomSharingShowAndEditBookGUI
 	}
 
 }
-
 ?>

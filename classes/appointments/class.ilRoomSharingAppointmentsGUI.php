@@ -85,7 +85,7 @@ class ilRoomSharingAppointmentsGUI
 			case 'confirmLeaveParticipation':
 			case 'confirmLeaveMultipleParticipations':
 			case 'exportBooking':
-				$next_class = 'ilroomsharingbookingsgui';
+				$next_class = 'ilroomsharingparticipationsgui';
 				break;
 			case 'leaveMultipleParticipations':
 				$cmd = 'showParticipations';

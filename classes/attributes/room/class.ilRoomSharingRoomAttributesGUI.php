@@ -110,7 +110,7 @@ class ilRoomSharingRoomAttributesGUI
 	 */
 	private function createDeletionMessage($a_updated_rooms_amount)
 	{
-		return $this->lng->txt('msg_obj_modified') . ' . ' . $a_updated_rooms_amount
+		return $this->lng->txt('msg_obj_modified') . '. ' . $a_updated_rooms_amount
 			. ' ' . $this->lng->txt('rep_robj_xrs_rooms_were_updated');
 	}
 
@@ -122,8 +122,7 @@ class ilRoomSharingRoomAttributesGUI
 	 */
 	private function proceedRoomAttributeAction()
 	{
-		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id,
-			new ilRoomsharingDatabase($this->pool_id));
+		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 
 		switch ($this->attributesForm->getInput(ATTRC::ACTION_MODE))
 		{
@@ -158,20 +157,16 @@ class ilRoomSharingRoomAttributesGUI
 		$this->attributesForm->setDescription($this->lng->txt('rep_robj_xrs_attributes_for_rooms_desc'));
 
 		// Radio group
-		$radioGroup = new ilRadioGroupInputGUI($this->lng->txt('rep_robj_xrs_choose_action'),
-			ATTRC::ACTION_MODE);
+		$radioGroup = new ilRadioGroupInputGUI($this->lng->txt('rep_robj_xrs_choose_action'), ATTRC::ACTION_MODE);
 		$radioGroup->setRequired(true);
 
 		// Available attributes
-		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id,
-			new ilRoomsharingDatabase($this->pool_id));
+		$roomSharingRoomAttributes = new ilRoomSharingRoomAttributes($this->pool_id, new ilRoomsharingDatabase($this->pool_id));
 		$attributes = $roomSharingRoomAttributes->getAllAvailableAttributesWithIdAndName();
 
 		// Create
-		$create = new ilRadioOption($this->lng->txt('rep_robj_xrs_create_attribute'), ATTRC::CREATE_MODE,
-			$this->lng->txt('rep_robj_xrs_create_attribute_info'));
-		$new_name = new ilTextInputGUI($this->lng->txt('rep_robj_xrs_name_of_new_attribute'),
-			ATTRC::NEW_NAME);
+		$create = new ilRadioOption($this->lng->txt('rep_robj_xrs_create_attribute'), ATTRC::CREATE_MODE, $this->lng->txt('rep_robj_xrs_create_attribute_info'));
+		$new_name = new ilTextInputGUI($this->lng->txt('rep_robj_xrs_name_of_new_attribute'), ATTRC::NEW_NAME);
 		$new_name->setRequired(true);
 		$new_name->setMaxLength(ATTRC::MAX_NAME_LENGTH);
 		$new_name->setInfo($this->lng->txt('rep_robj_xrs_must_be_unique'));
@@ -179,15 +174,12 @@ class ilRoomSharingRoomAttributesGUI
 		$radioGroup->addOption($create);
 
 		//Rename
-		$rename = new ilRadioOption($this->lng->txt('rep_robj_xrs_rename_attribute'), ATTRC::RENAME_MODE,
-			$this->lng->txt('rep_robj_xrs_rename_attribute_info'));
-		$toRename = new ilSelectInputGUI($this->lng->txt('rep_robj_xrs_choose_attribute'),
-			ATTRC::RENAME_ATTR_ID);
+		$rename = new ilRadioOption($this->lng->txt('rep_robj_xrs_rename_attribute'), ATTRC::RENAME_MODE, $this->lng->txt('rep_robj_xrs_rename_attribute_info'));
+		$toRename = new ilSelectInputGUI($this->lng->txt('rep_robj_xrs_choose_attribute'), ATTRC::RENAME_ATTR_ID);
 		$toRename->setOptions($attributes);
 		$toRename->setRequired(true);
 		$rename->addSubItem($toRename);
-		$changedName = new ilTextInputGUI($this->lng->txt('rep_robj_xrs_new_attribute_name'),
-			ATTRC::CHANGED_NAME);
+		$changedName = new ilTextInputGUI($this->lng->txt('rep_robj_xrs_new_attribute_name'), ATTRC::CHANGED_NAME);
 		$changedName->setRequired(true);
 		$changedName->setMaxLength(ATTRC::MAX_NAME_LENGTH);
 		$changedName->setInfo($this->lng->txt('rep_robj_xrs_must_be_unique'));
@@ -195,10 +187,8 @@ class ilRoomSharingRoomAttributesGUI
 		$radioGroup->addOption($rename);
 
 		//Delete
-		$delete = new ilRadioOption($this->lng->txt('rep_robj_xrs_delete_attribute'), ATTRC::DELETE_MODE,
-			$this->lng->txt('rep_robj_xrs_delete_room_attribute_info'));
-		$toDelete = new ilSelectInputGUI($this->lng->txt('rep_robj_xrs_choose_attribute'),
-			ATTRC::DEL_ATTR_ID);
+		$delete = new ilRadioOption($this->lng->txt('rep_robj_xrs_delete_attribute'), ATTRC::DELETE_MODE, $this->lng->txt('rep_robj_xrs_delete_room_attribute_info'));
+		$toDelete = new ilSelectInputGUI($this->lng->txt('rep_robj_xrs_choose_attribute'), ATTRC::DEL_ATTR_ID);
 		$toDelete->setOptions($attributes);
 		$toDelete->setRequired(true);
 		$delete->addSubItem($toDelete);
@@ -231,5 +221,4 @@ class ilRoomSharingRoomAttributesGUI
 	}
 
 }
-
 ?>

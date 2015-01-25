@@ -146,7 +146,7 @@ class ilRoomSharingFloorPlans
 		}
 		if ($this->isTitleForUpdateAlreadyTaken($a_title, $a_file_id))
 		{
-			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plan_title_is_already_taken");
 		}
 		$media_obj = new ilObjMediaObject($a_file_id);
 		$media_obj->setTitle($a_title);
@@ -175,7 +175,7 @@ class ilRoomSharingFloorPlans
 		}
 		if ($this->isTitleForUpdateAlreadyTaken($a_title, $a_file_id))
 		{
-			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plan_title_is_already_taken");
 		}
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, $a_file_id);
 		$fileinfo = $this->configureFile($mediaObj, $a_newfile);
@@ -213,7 +213,7 @@ class ilRoomSharingFloorPlans
 
 		if ($this->isTitleAlreadyTaken($a_title))
 		{
-			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floorplan_title_is_already_taken");
+			throw new ilRoomSharingFloorplanException("rep_robj_xrs_floor_plan_title_is_already_taken");
 		}
 
 		$mediaObj = $this->createMediaObject($a_title, $a_desc, null);
