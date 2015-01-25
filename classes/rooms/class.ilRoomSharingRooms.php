@@ -210,6 +210,8 @@ class ilRoomSharingRooms
 				null, null);
 		}
 
+		$room_ids = array();
+
 		foreach ($res_rooms as $res_room)
 		{
 			$room_ids [] = $res_room ['id'];
