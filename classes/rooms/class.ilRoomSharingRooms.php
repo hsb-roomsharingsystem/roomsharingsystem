@@ -9,7 +9,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * @author Dan Soergel <dansoergel@t-online.de>
  * @author Malte Ahlering <mahlering@stud.hs-bremen.de>
  * @author Bernd Hitzelberger <bhitzelberger@stud.hs-bremen.de>
- * @author Christopher Marks <Deamp_devyahoo.de>
+ * @author Christopher Marks <Deamp_dev@yahoo.de>
  */
 class ilRoomSharingRooms
 {
