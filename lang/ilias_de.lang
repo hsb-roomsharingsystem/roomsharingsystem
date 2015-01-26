@@ -84,6 +84,7 @@ description#:#Beschreibung
 edit#:#Bearbeiten
 edit_attributes#:#Änderung der Attribute
 edit_properties#:#Einstellungen bearbeiten
+error_in_selected_sequencebooking#:#Fehlerhafte Eingabe bei Pflichtfeldern der Serienbuchung
 export_pdf#:#.pdf exportieren
 fake_attribute_id_provided#:#Es wurden fehlerhafte Daten übermittelt. Versuchen Sie es bitte nochmal.
 floor_plan_title_is_already_taken#:#Titel des Gebäudeplans ist bereits vergeben

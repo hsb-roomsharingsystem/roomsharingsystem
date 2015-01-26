@@ -84,6 +84,7 @@ description#:#Description
 edit#:#Edit
 edit_attributes#:#Edit attributes
 edit_properties#:#Edit properties
+error_in_selected_sequencebooking#:#Missing input at sequencebooking values
 export_pdf#:#export .pdf 
 fake_attribute_id_provided#:#Incorrect data was provided. Please try again.
 floor_plan_title_is_already_taken#:#Title of the floor plan is already used.
