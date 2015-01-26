@@ -8,7 +8,7 @@ require_once("Customizing/global/plugins/Services/Repository/RepositoryObject/Ro
  * Class ilRoomSharingRoomsTest
  *
  * @author Alexander Keller <a.k3ll3r@gmail.com>
- * @author Christopher Marks <Deamp_devyahoo.de>
+ * @author Christopher Marks <Deamp_dev@yahoo.de>
  * @group unit
  */
 class ilRoomSharingRoomsTest extends PHPUnit_Framework_TestCase

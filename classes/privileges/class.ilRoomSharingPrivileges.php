@@ -96,7 +96,7 @@ class ilRoomSharingPrivileges
 			$privilegesMatrix[] = $this->addPrivilege("notificationSettings",
 				"rep_robj_xrs_notification_tunable", "rep_robj_xrs_notification_tunable_description");
 			$privilegesMatrix[] = $this->addSelectMultipleCheckbox("bookings",
-				array("accessAppointments", "accessSearch", "addParticipants",
+				array("accessAppointments", "accessSearch", "addParticipants", "accessImport",
 				"addOwnBookings", "addSequenceBookings", "addUnlimitedBookings", "adminBookingAttributes", "cancelBookingLowerPriority",
 				"notificationSettings", "seeNonPublicBookingInformation"));
 
