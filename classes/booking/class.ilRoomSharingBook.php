@@ -257,7 +257,7 @@ class ilRoomSharingBook
 				{
 					$datetimes_from = array($this->date_from);
 					$datetimes_to = array($this->date_to);
-					throw new ilRoomSharingBookException("alkdsjfljdsa");
+					throw new ilRoomSharingBookException("rep_robj_xrs_error_in_selected_sequencebooking");
 				}
 
 				$days = seqUtils::getWeeklyFilteredData($date_from, $this->recurrence['repeat_type'],
@@ -272,7 +272,7 @@ class ilRoomSharingBook
 				{
 					$datetimes_from = array($this->date_from);
 					$datetimes_to = array($this->date_to);
-					throw new ilRoomSharingBookException("alkdsjfljdsa");
+					throw new ilRoomSharingBookException("rep_robj_xrs_error_in_selected_sequencebooking");
 				}
 				$days = seqUtils::getMonthlyFilteredData($date_from, $this->recurrence['repeat_type'],
 						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
