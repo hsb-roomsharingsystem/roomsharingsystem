@@ -195,7 +195,7 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers ilRoomSharingRoom::save
 	 * @expectedException ilRoomSharingRoomException
-	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 * @expectedExceptionMessage rep_robj_xrs_illegal_room_min_max_alloc
 	 */
 	public function testSaveNegativeMaxAllocGiven()
 	{
@@ -206,7 +206,7 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers ilRoomSharingRoom::save
 	 * @expectedException ilRoomSharingRoomException
-	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 * @expectedExceptionMessage rep_robj_xrs_illegal_room_min_max_alloc
 	 */
 	public function testSaveNegativeMinAllocGiven()
 	{
@@ -217,7 +217,7 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers ilRoomSharingRoom::save
 	 * @expectedException ilRoomSharingRoomException
-	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 * @expectedExceptionMessage rep_robj_xrs_illegal_room_min_max_alloc
 	 */
 	public function testSaveMinAllocGreaterMax()
 	{
@@ -267,7 +267,7 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers ilRoomSharingRoom::create
 	 * @expectedException ilRoomSharingRoomException
-	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 * @expectedExceptionMessage rep_robj_xrs_illegal_room_min_max_alloc
 	 */
 	public function testCreateNegativeMaxAllocGiven()
 	{
@@ -278,7 +278,7 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers ilRoomSharingRoom::create
 	 * @expectedException ilRoomSharingRoomException
-	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 * @expectedExceptionMessage rep_robj_xrs_illegal_room_min_max_alloc
 	 */
 	public function testCreateNegativeMinAllocGiven()
 	{
@@ -289,7 +289,7 @@ class ilRoomSharingRoomTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers ilRoomSharingRoom::create
 	 * @expectedException ilRoomSharingRoomException
-	 * @expectedExceptionMessage rep_robj_xrs_illigal_room_min_max_alloc
+	 * @expectedExceptionMessage rep_robj_xrs_illegal_room_min_max_alloc
 	 */
 	public function testCreateMinAllocGreaterMax()
 	{

@@ -95,7 +95,8 @@ class ilRoomSharingPermissionUtilsTest extends PHPUnit_Framework_TestCase
 
 		// Godmode
 		$this->assertEquals(10, self::$perm->getUserPriority());
-		$this->assertEquals(10, self::$perm->getUserPriority(12354));
+		$this->assertEquals(10, self::$perm->getUserPriority(1));
+		$this->assertEquals(4, self::$perm->getUserPriority(12354));
 
 		$ilUser = $this->getMockBuilder('ilObjUser')->disableOriginalConstructor()->getMock();
 		$ilUser->method("getId")->willReturn(145);

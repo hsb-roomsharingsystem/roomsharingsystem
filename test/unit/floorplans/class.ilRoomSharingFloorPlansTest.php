@@ -224,7 +224,7 @@ class ilRoomSharingFloorPlansTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers ilRoomSharingFloorPlans::addFloorPlan
 	 * @expectedException ilRoomSharingFloorplanException
-	 * @expectedExceptionMessage rep_robj_xrs_floorplan_title_is_already_taken
+	 * @expectedExceptionMessage rep_robj_xrs_floor_plan_title_is_already_taken
 	 */
 	public function testAddFloorPlanTitleTaken()
 	{
