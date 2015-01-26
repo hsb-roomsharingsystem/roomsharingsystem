@@ -275,7 +275,43 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	}
 
 	/**
-	 * Deletes ALL availble rooms. Use with caution!
+	 * Createa a new room
+	 * @param type $roomName
+	 * @param int $min
+	 * @param int $max
+	 * @param string $roomType
+	 * @param string $floorplan
+	 * @param array $attributes Array of Attributes like [Name] => [Amount]
+	 */
+	public function editRoom($oldRoomName, $newRoomName, $min, $max, $roomType = "",
+		$floorplan = " - Keine Zuordnung - ", array $attributes = array())
+	{
+		//Navigate
+		$this->webDriver->findElement(WebDriverBy::linkText('Räume'))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText($oldRoomName))->click();
+		$this->webDriver->findElement(WebDriverBy::linkText(' Editieren '))->click();
+		//Edit
+		$this->webDriver->findElement(WebDriverBy::name('name'))->clear();
+		$this->webDriver->findElement(WebDriverBy::name('name'))->sendKeys($newRoomName);
+		$this->webDriver->findElement(WebDriverBy::name('type'))->clear();
+		$this->webDriver->findElement(WebDriverBy::name('type'))->sendKeys($roomType);
+		$this->webDriver->findElement(WebDriverBy::name('min_alloc'))->clear();
+		$this->webDriver->findElement(WebDriverBy::name('min_alloc'))->sendKeys($min);
+		$this->webDriver->findElement(WebDriverBy::name('max_alloc'))->clear();
+		$this->webDriver->findElement(WebDriverBy::name('max_alloc'))->sendKeys($max);
+		$this->webDriver->findElement(WebDriverBy::name('file_id'))->sendKeys($floorplan);
+		foreach ($attributes as $attribute => $amount)
+		{
+			$id = $this->webDriver->findElement(WebDriverBy::xpath("//label[text()='" . $attribute . "']"))->getAttribute('for');
+			$this->webDriver->findElement(WebDriverBy::id($id))->clear();
+			$this->webDriver->findElement(WebDriverBy::id($id))->sendKeys($amount);
+		}
+		//Submit
+		$this->webDriver->findElement(WebDriverBy::name('cmd[saveRoom]'))->click();
+	}
+
+	/**
+	 * Deletes ALL available rooms. Use with caution!
 	 */
 	public function deleteAllRooms()
 	{
@@ -785,8 +821,8 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		$this->webDriver->findElement(webDriverBy::id('radio_action_mode_delete_attribute'))->click();
 		$this->webDriver->findElement(webDriverBy::cssSelector('div.ilFormFooter.ilFormCommands > input[name="cmd[executeBookingAttributeAction]"]'))->click();
 	}
-        
-    /**
+
+	/**
 	 * Fill booking form and click booking link
 	 * @param string $subject	Subject
 	 * @param type $f_day		From day
@@ -799,16 +835,18 @@ class ilRoomSharingAcceptanceSeleniumHelper
 	 * @param type $t_year		To Year
 	 * @param type $t_hour		To Hour
 	 * @param type $t_minute	To Minute
-	 * @param bool $acc		Tick "Accept room using agreement" 
+	 * @param bool $acc		Tick "Accept room using agreement"
 	 *                              (Agreement must be there)
 	 * @param string $comment	Comment
 	 * @param bool $public		Tick "Booking is public"
 	 * @param array $participants List of Participants (Must be User Names)
-	 * @param array $booking_attributes List of booking attributes 
+	 * @param array $booking_attributes List of booking attributes
 	 *                                  that shoud be used as NAME => TEXT
 	 */
 	public function fillBookingForm(
-	$subject, $f_day, $f_month, $f_year, $f_hour, $f_minute, $t_day, $t_month, $t_year, $t_hour, $t_minute, $acc = true, $comment = "", $public = true, $participants = array(), $booking_attributes = array()
+	$subject, $f_day, $f_month, $f_year, $f_hour, $f_minute, $t_day, $t_month, $t_year, $t_hour,
+		$t_minute, $acc = true, $comment = "", $public = true, $participants = array(),
+		$booking_attributes = array()
 	)
 	{
 		$this->webDriver->findElement(WebDriverBy::id('subject'))->clear();
@@ -864,7 +902,6 @@ class ilRoomSharingAcceptanceSeleniumHelper
 		{
 			$this->addParticipantsToBooking($participants);
 		}
-
 	}
 
 	/**
