@@ -408,7 +408,7 @@ class ilRoomSharingDatabaseBooking
 
 				$query .= ' (' . $this->ilDB->quote($a_datetime_to, 'timestamp') . ' > date_from' .
 					' AND ' . $this->ilDB->quote($a_datetime_from, 'timestamp') . ' < date_to) OR';
-				if ($i == $count)
+				if ($i == $count - 1)
 				{
 					$query = substr($query, 0, -2);
 					$query .= ')';

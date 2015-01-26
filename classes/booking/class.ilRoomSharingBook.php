@@ -253,13 +253,27 @@ class ilRoomSharingBook
 				$datetimes_to = $days['to'];
 				break;
 			case "WEEKLY":
+				if (empty($this->recurrence['weekdays']))
+				{
+					$datetimes_from = array($this->date_from);
+					$datetimes_to = array($this->date_to);
+					throw new ilRoomSharingBookException("alkdsjfljdsa");
+				}
+
 				$days = seqUtils::getWeeklyFilteredData($date_from, $this->recurrence['repeat_type'],
 						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
 						$this->recurrence['weekdays'], $time_from, $time_to, $day_difference);
+
 				$datetimes_from = $days['from'];
 				$datetimes_to = $days['to'];
 				break;
 			case "MONTHLY":
+				if (empty($this->recurrence['repeat_type']) || empty($this->recurrence['start_type']))
+				{
+					$datetimes_from = array($this->date_from);
+					$datetimes_to = array($this->date_to);
+					throw new ilRoomSharingBookException("alkdsjfljdsa");
+				}
 				$days = seqUtils::getMonthlyFilteredData($date_from, $this->recurrence['repeat_type'],
 						$this->recurrence['repeat_amount'], $this->recurrence['repeat_until'],
 						$this->recurrence['start_type'], $this->recurrence['monthday'],
