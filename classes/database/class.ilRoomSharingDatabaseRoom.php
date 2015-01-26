@@ -220,14 +220,13 @@ class ilRoomSharingDatabaseRoom
 		$join_part = '';
 		if ($a_priority)
 		{
-			$priorityQuery = ' priority < ' . $this->ilDB->quote($a_priority, 'integer') . ' AND ';
+			$priorityQuery = ' priority < ' . $this->ilDB->quote($a_priority, 'integer');
 			$join_part = ' JOIN ' . dbc::CLASS_USER_TABLE . ' u ON b.user_id = u.user_id JOIN ' .
 				dbc::CLASSES_TABLE . ' c ON c.id = u.class_id';
 		}
 
 		$query = 'SELECT DISTINCT room_id FROM ' . dbc::BOOKINGS_TABLE . ' b ' . $join_part .
-			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer') . ' AND ' .
-			$roomQuery . $priorityQuery . ' (';
+			' WHERE b.pool_id = ' . $this->ilDB->quote($this->pool_id, 'integer');
 
 
 		$count = count($a_datetimes_from);
@@ -236,16 +235,26 @@ class ilRoomSharingDatabaseRoom
 			// throw exception if arrays not same size?
 			for ($i = 0; $i < $count; $i++)
 			{
+				if ($i == 0) $query .= ' AND ';
 				$a_datetime_from = $a_datetimes_from[$i];
 				$a_datetime_to = $a_datetimes_to[$i];
 
 				$query .= ' (' . $this->ilDB->quote($a_datetime_to, 'timestamp') . ' > date_from' .
 					' AND ' . $this->ilDB->quote($a_datetime_from, 'timestamp') . ' < date_to) OR';
+				if ($i == $count)
+				{
+					$query .= ')';
+				}
 			}
 
 			$query = substr($query, 0, -2);
-			$query .= ')';
 		}
+
+		if (!empty($roomQuery) || !empty($priorityQuery))
+		{
+			$query .= ' AND ' . $roomQuery . $priorityQuery;
+		}
+
 
 		$set = $this->ilDB->query($query);
 		$res_room = array();
