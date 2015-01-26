@@ -394,7 +394,7 @@ class ilRoomSharingDatabaseBooking
 	public function getBookingIdsForRoomInDateimeRanges($a_room_id, $a_datetimes_from, $a_datetimes_to)
 	{
 		$query = 'SELECT id FROM ' . dbc::BOOKINGS_TABLE . ' WHERE room_id = ' .
-			$this->ilDB->quote($a_room_id, 'integer') . ' AND (';
+			$this->ilDB->quote($a_room_id, 'integer');
 
 		$count = count($a_datetimes_from);
 		if ($count == count($a_datetimes_to))
@@ -402,15 +402,18 @@ class ilRoomSharingDatabaseBooking
 			// throw exception if arrays not same size?
 			for ($i = 0; $i < $count; $i++)
 			{
+				if ($i == 0) $query .= ' AND (';
 				$a_datetime_from = $a_datetimes_from[$i];
 				$a_datetime_to = $a_datetimes_to[$i];
 
 				$query .= ' (' . $this->ilDB->quote($a_datetime_to, 'timestamp') . ' > date_from' .
 					' AND ' . $this->ilDB->quote($a_datetime_from, 'timestamp') . ' < date_to) OR';
+				if ($i == $count)
+				{
+					$query = substr($query, 0, -2);
+					$query .= ')';
+				}
 			}
-
-			$query = substr($query, 0, -2);
-			$query .= ')';
 		}
 
 		$set = $this->ilDB->query($query);
