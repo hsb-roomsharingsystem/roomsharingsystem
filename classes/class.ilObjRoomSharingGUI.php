@@ -287,21 +287,25 @@ class ilObjRoomSharingGUI extends ilObjectPluginGUI
 				break;
 			// Various CalendarGUIs
 			case "ilcalendardaygui":
+                            $this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarDayGUI.php");
 				$day = new ilCalendarDayGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($day);
 				break;
 			case "ilcalendarmonthgui":
+                            $this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarMonthGUI.php");
 				$month = new ilCalendarMonthGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($month);
 				break;
 			case "ilcalendarweekgui":
+                            $this->setActiveTabRegardingPrivilege();
 				include_once("./Services/Calendar/classes/class.ilCalendarWeekGUI.php");
 				$week = new ilCalendarweekGUI(new ilDate($_GET["seed"], IL_CAL_DATE));
 				$this->ctrl->forwardCommand($week);
 				break;
 			case "ilcalendarblockgui":
+                            $this->setActiveTabRegardingPrivilege();
 				$this->ctrl->forwardCommand($this->cal);
 				break;
 			// Standard cmd handling if cmd is none of the above. In that case, the next page is

@@ -313,11 +313,14 @@ class ilRoomSharingSearchGUI
 		$date = new ilDateTimeInputGUI("", "date");
 
 		$date_given = unserialize($_SESSION ["form_searchform"] ["date"]);
+                $hr_from = (date('H') + 1 < 10 ? "0" . (date('H') + 1) : (date('H') + 1));
 		if (!empty($date_given['date']))
-		{
-			$date->setDate(new ilDate($date_given['date'], IL_CAL_DATE));
-		}
-
+                {
+                    $date->setDate(new ilDate($date_given['date'], IL_CAL_DATE));
+                } else if($hr_from >= 24)
+                {   //increase the day if 23:00 or later
+                    $date->setDate(new ilDate(date('Y-m-d', strtotime($date_given['date']. ' + 1 days')), IL_CAL_DATE));
+                } 
 		$date_comb->setRequired(true);
 		$date_comb->addCombinationItem("date", $date, $this->lng->txt("rep_robj_xrs_on"));
 
@@ -351,11 +354,23 @@ class ilRoomSharingSearchGUI
 			//add leading 0
 			$hr_to = ($hr_from + 1 < 10 ? "0" . ($hr_from + 1) : ($hr_from + 1));
 
-			$time_from_given['time'] = $hr_from . ':00:00';
-			$time_to_given['time'] = $hr_to . ':00:00';
 
-			$time_from_given['date'] = date('Y-m-d');
-			$time_to_given['date'] = date('Y-m-d');
+                        if($hr_from >= 24)
+                        {   //increase the day if 23:00 or later and set time from 00:00 to 01:00
+                            $time_from_given['time'] = "00:00:00";
+                            $time_to_given['time'] = "01:00:00";
+                            $date = date('Y-m-d');
+                            $time_from_given['date'] = date('Y-m-d', strtotime($date. ' + 1 days'));
+                            $time_to_given['date'] = date('Y-m-d', strtotime($date. ' + 1 days'));   
+                            
+                        } else
+                        {
+                            $time_from_given['time'] = $hr_from . ':00:00';
+                            $time_to_given['time'] = $hr_to . ':00:00';
+                            $time_from_given['date'] = date('Y-m-d');
+                            $time_to_given['date'] = date('Y-m-d');
+                        }
+			
 		}
 
 		if (!empty($time_from_given['date']) && !empty($time_from_given['time']))
